@@ -30,7 +30,9 @@ jobs:
         env:
           CI: "false"
           npm_config_ignore_scripts: "false"
-        run: corepack pnpm@11.5.0 install --frozen-lockfile
+        run: |
+          export npm_config_user_agent="pnpm/$(corepack pnpm@11.5.0 --version)"
+          corepack pnpm@11.5.0 install --frozen-lockfile
 
       - name: Typecheck
         run: corepack pnpm@11.5.0 run typecheck
