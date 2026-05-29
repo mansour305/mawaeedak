@@ -1,0 +1,385 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 12Q
+Production Hardening + Supabase Default Mode Verification Gate
+
+الدور:
+تصرف كفريق Production Readiness Engineer + Supabase Security Reviewer + QA Lead + Release Auditor.
+مهمتك الآن ليست إضافة ميزات جديدة، وليست حذف API أو PostgreSQL، وليست الضغط على Publish.
+مهمتك تدقيق جاهزية الإنتاج بعد اكتمال Phase 12P، والتحقق من أن وضع Supabase يمكن تشغيله بأمان في بيئة الإنتاج، مع توثيق القيود المتبقية والحكم النهائي بدقة.
+
+==================================================
+0. السياق الحالي
+==================================================
+
+تم اعتماد Phase 12P بالحكم:
+Final Gateway Coverage Verified
+
+الحالة الحالية:
+- Supabase Auth يعمل.
+- /admin محمي.
+- hrq@hotmail.com = super_admin.
+- RLS مفعّل.
+- Supabase يحتوي 40 صفاً:
+  daily_messages = 8
+  story_templates = 2
+  themes = 10
+  news = 2
+  jobs = 2
+  appointments = 2
+  financial_events = 8
+  notifications = 3
+  complaints = 3
+
+- Gateway Complete للنطاقات:
+  appointments
+  financial_events
+  notifications
+  news
+  jobs
+  themes
+  story_templates
+  daily_messages
+
+- API intentionally باقٍ للنطاقات:
+  prayer_times
+  today_message
+  admin stats
+  audit_logs
+  public_events/AdminEvents
+  AdminFinancial
+  notification send fan-out
+  complaints form submission
+
+- default الحالي لا يزال api.
+- mode=supabase يعمل.
+- mode=supabase_shadow يعمل.
+- mode=api يعمل.
+- build ناجح.
+- typecheck ناجح.
+- لا service_role في الواجهة.
+- لا أسرار hardcoded.
+- لا Orval usage غير مصنف.
+
+==================================================
+1. الهدف التنفيذي
+==================================================
+
+نفّذ Production Hardening Gate.
+
+المطلوب:
+1. تحقق أن VITE_DATA_SOURCE_MODE=supabase يعمل فعلياً في التطبيق.
+2. تحقق أن default الحالي هو api، وأن هذا مقصود للسلامة.
+3. قرر هل يجب تغيير default في الكود إلى supabase أم لا.
+4. القرار المفضل:
+   - لا تغيّر default داخل الكود.
+   - استخدم env فقط لتفعيل supabase في الإنتاج.
+   - وثّق أن production يجب أن يضبط:
+     VITE_DATA_SOURCE_MODE=supabase
+
+5. تحقق أن mode=supabase لا يسبب divergence خطير في النطاقات المكتملة.
+6. تحقق أن النطاقات التي بقيت API موثقة ومقصودة.
+7. تحقق أن API/PostgreSQL موجودان كـ fallback أو خدمات محسوبة، وليس كفوضى غير مصنفة.
+8. تحقق أن RLS يمنع الوصول غير المصرح.
+9. تحقق أن /admin لا يفتح بدون login.
+10. تحقق أن super_admin يعمل.
+11. تحقق أنه لا توجد أسرار أو service_role في الواجهة.
+12. تحقق أن build/typecheck نظيفان.
+13. حدّث التوثيق.
+14. أعطِ حكماً تنفيذياً واضحاً:
+   - Production Ready Candidate
+   - Needs Production Hardening
+   - Needs Security Fix
+   - Needs Data Source Fix
+
+==================================================
+2. خارج النطاق
+==================================================
+
+هذه المرحلة ليست:
+- حذف PostgreSQL.
+- حذف API.
+- حذف Orval.
+- إضافة ميزات.
+- تغيير التصميم.
+- Push Notifications.
+- Offline/PWA Service Worker.
+- Expo.
+- Publish.
+- تحويل notification send fan-out إلى Supabase.
+- تحويل AdminFinancial أو AdminEvents إذا كانت موثقة كـ API intentionally.
+
+==================================================
+3. ممنوعات صارمة
+==================================================
+
+ممنوع:
+- لا تضغط Publish.
+- لا تحذف API.
+- لا تحذف PostgreSQL.
+- لا تستخدم service_role في الواجهة.
+- لا تضع مفاتيح في الكود.
+- لا تغيّر Secrets داخل ملفات.
+- لا تستخدم DROP/TRUNCATE/DELETE.
+- لا تنقل بيانات جديدة عبر SQL.
+- لا تغيّر default إلى supabase بدون تبرير قوي.
+- لا تدّع Production Ready إذا بقيت قيود إنتاجية مانعة.
+- لا تكسر أي صفحة.
+- لا تخفي أن بعض النطاقات بقيت API intentionally.
+
+==================================================
+4. تدقيق Data Source Mode
+==================================================
+
+افحص dataSourceMode.ts:
+
+1. هل يقبل:
+   - api
+   - supabase_shadow
+   - supabase
+
+2. هل أي قيمة غير صحيحة ترجع api؟
+3. هل default = api؟
+4. هل VITE_DATA_SOURCE_MODE=supabase يفعّل Supabase فعلياً؟
+5. هل VITE_DATA_SOURCE_MODE=supabase_shadow يفعّل shadow فعلياً؟
+6. هل التوثيق يشرح طريقة ضبطه في Replit Secrets/Environment؟
+7. هل .env.example و ENV_EXAMPLE.md يذكران VITE_DATA_SOURCE_MODE بدون قيمة سرية؟
+
+==================================================
+5. تدقيق الأمان
+==================================================
+
+افحص:
+
+1. service_role
+2. SUPABASE_SERVICE_ROLE
+3. hardcoded Supabase keys
+4. hardcoded passwords
+5. localStorage admin bypass
+6. demo fallback عند وجود Supabase env
+7. RLS policies
+8. user_id ownership
+9. admin/super_admin role handling
+10. هل user_metadata.role وحده كافٍ أم موثق كمخاطرة؟
+11. هل user_roles/roles موجودة وموثقة؟
+12. هل أي صفحة admin تتخطى auth guard؟
+13. هل أي route حساس مكشوف؟
+
+مهم:
+- لا تستخدم service_role في client.
+- لا تضع أي secret في VITE_ غير المسموح.
+- anon/publishable key فقط مسموح في client.
+
+==================================================
+6. تدقيق البيانات
+==================================================
+
+تحقق من counts:
+
+Supabase:
+- daily_messages = 8
+- story_templates = 2
+- themes = 10
+- news = 2
+- jobs = 2
+- appointments = 2
+- financial_events = 8
+- notifications = 3
+- complaints = 3
+- total = 40
+
+تحقق:
+1. legacy_id موجود حيث يلزم.
+2. user_id موجود للبيانات الشخصية.
+3. complaints user_id = NULL حسب القرار.
+4. لا duplicates.
+5. لا migration_batch مفقود.
+6. لا بيانات SQL جديدة أُضيفت في هذه المرحلة.
+7. API counts لا تزال منطقية ومصنفة.
+
+==================================================
+7. تدقيق الصفحات
+==================================================
+
+اختبر في mode=api و mode=supabase إن أمكن:
+
+User:
+- الرئيسية
+- التقويم
+- المال
+- ستوري اليوم
+- الإشعارات
+- المراكز
+- مركز الأخبار
+- مركز الوظائف
+- حسابي
+- الدعم/الشكاوى
+- الصفحات القانونية
+- 404
+
+Admin:
+- /admin
+- /admin/data-layer
+- /admin/notifications
+- /admin/news/jobs
+- /admin/themes
+- /admin/story
+- /admin/messages
+- admin reports/audit إن وجد
+- admin financial إن وجد
+- admin events إن وجد
+
+تحقق:
+- لا شاشة بيضاء.
+- لا API 500.
+- لا كسر RTL.
+- لا كسر Theme Engine.
+- لا كسر Auth.
+- لا كسر Admin Guard.
+
+==================================================
+8. تدقيق النطاقات التي بقيت API intentionally
+==================================================
+
+راجع كل نطاق بقي API:
+
+1. prayer_times
+2. today_message
+3. admin stats
+4. audit_logs
+5. public_events/AdminEvents
+6. AdminFinancial
+7. notification send fan-out
+8. complaints form submission
+
+لكل واحد:
+- لماذا بقي API؟
+- هل هذا مقبول إنتاجياً؟
+- هل يحتاج مرحلة لاحقة؟
+- هل يمنع Production Ready؟
+- هل يوجد خطر أمني؟
+- هل موثق في README/ARCHITECTURE/QA_REPORT؟
+
+لا تحولها في هذه المرحلة إلا إذا كان الإصلاح توثيقياً صغيراً فقط.
+
+==================================================
+9. اختبارات الأوامر
+==================================================
+
+شغّل:
+
+- pnpm build أو npm run build
+- pnpm typecheck أو npm run typecheck إن وجد
+
+إن وجد:
+- npm run lint
+- npm run test
+
+وافحص:
+- service_role
+- SUPABASE_SERVICE_ROLE
+- hardcoded keys
+- hardcoded passwords
+- DROP
+- TRUNCATE
+- destructive DELETE
+- أي Orval usage غير مصنف
+- أي TODO production blocker غير موثق
+
+إذا lint/test غير موجود:
+اذكر أنه غير متوفر ولا تدّع تشغيله.
+
+==================================================
+10. تحديث التوثيق
+==================================================
+
+حدّث:
+
+1. README.md
+2. ARCHITECTURE.md
+3. QA_REPORT.md
+4. DATA_SOURCE_MAP.md
+5. SUPABASE_MIGRATION_PLAN.md
+6. SUPABASE_MIGRATION_CHECKLIST.md
+7. ENV_EXAMPLE.md
+8. .env.example
+9. FALLBACK_SERVICES.md
+10. replit.md إن كان مستخدماً كذاكرة مشروع
+
+يجب أن توضح الوثائق:
+- الحكم الحالي.
+- هل المشروع Production Ready أم لا.
+- كيف يتم تفعيل Supabase mode:
+  VITE_DATA_SOURCE_MODE=supabase
+- أن default = api للسلامة.
+- النطاقات Gateway Complete.
+- النطاقات API intentionally.
+- القيود الإنتاجية المتبقية.
+- لماذا لا نضغط Publish بعد إذا بقيت قيود مانعة.
+
+==================================================
+11. معيار قبول المرحلة
+==================================================
+
+تقبل Phase 12Q إذا تحقق:
+
+- VITE_DATA_SOURCE_MODE=supabase يعمل.
+- default = api موثق.
+- Supabase mode موثق للإنتاج.
+- Gateway Coverage ثابتة.
+- API intentionally مصنف.
+- لا Orval usage غير مصنف.
+- RLS/Auth/admin سليم.
+- لا service_role في الواجهة.
+- لا أسرار hardcoded.
+- counts total = 40.
+- لا بيانات جديدة نُقلت.
+- لا DROP/TRUNCATE/DELETE غير مقصود.
+- كل الصفحات سليمة.
+- build ناجح.
+- typecheck ناجح.
+- QA_REPORT والوثائق محدثة.
+- الحكم النهائي واضح.
+
+الحكم النهائي يجب أن يكون واحداً من:
+- Production Ready Candidate
+- Needs Production Hardening
+- Needs Security Fix
+- Needs Data Source Fix
+
+لا تستخدم Production Ready النهائي إلا إذا تحقق كل شيء ولا توجد قيود مانعة.
+
+==================================================
+12. التقرير النهائي المطلوب
+==================================================
+
+أعطني تقريراً بهذا الشكل فقط:
+
+1. هل VITE_DATA_SOURCE_MODE=supabase يعمل فعلياً؟
+2. ما default الحالي؟
+3. هل تم تغيير default؟
+4. هل Supabase mode موثق للإنتاج؟
+5. هل counts total = 40؟
+6. هل توجد فروقات بيانات؟
+7. هل Gateway Coverage ثابتة؟
+8. هل API intentionally مصنف بالكامل؟
+9. هل توجد Orval usages غير مصنفة؟
+10. هل RLS/Auth/admin سليمة؟
+11. هل user ownership سليم؟
+12. هل super_admin يعمل؟
+13. هل يوجد service_role في الواجهة؟
+14. هل توجد أسرار hardcoded؟
+15. هل يوجد DROP/TRUNCATE/DELETE غير مقصود؟
+16. هل تم نقل أي بيانات جديدة؟
+17. هل API/PostgreSQL بقيا موجودين؟
+18. هل الصفحات كلها سليمة؟
+19. هل build نجح؟ اذكر النتيجة صراحة.
+20. هل typecheck نجح؟ اذكر النتيجة صراحة.
+21. هل lint/test موجودة؟ وإذا وجدت هل نجحت؟
+22. هل الوثائق تم تحديثها؟
+23. القيود المتبقية.
+24. هل هذه القيود تمنع Production Ready النهائي؟
+25. المرحلة التالية المقترحة.
+26. الحكم النهائي:
+Production Ready Candidate / Needs Production Hardening / Needs Security Fix / Needs Data Source Fix

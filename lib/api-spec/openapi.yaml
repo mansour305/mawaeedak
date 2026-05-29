@@ -1,0 +1,1412 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Mawaeedak API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+  - name: appointments
+  - name: financial
+  - name: notifications
+  - name: messages
+  - name: themes
+  - name: news
+  - name: jobs
+  - name: prayer
+  - name: public-events
+  - name: complaints
+  - name: admin
+  - name: story
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  # Appointments
+  /appointments:
+    get:
+      operationId: listAppointments
+      tags: [appointments]
+      summary: List all appointments
+      parameters:
+        - name: category
+          in: query
+          schema: { type: string }
+        - name: search
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: List of appointments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Appointment"
+    post:
+      operationId: createAppointment
+      tags: [appointments]
+      summary: Create appointment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppointmentInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+
+  /appointments/upcoming:
+    get:
+      operationId: listUpcomingAppointments
+      tags: [appointments]
+      summary: List upcoming appointments
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Upcoming appointments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Appointment"
+
+  /appointments/{id}:
+    get:
+      operationId: getAppointment
+      tags: [appointments]
+      summary: Get appointment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Appointment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+    patch:
+      operationId: updateAppointment
+      tags: [appointments]
+      summary: Update appointment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppointmentUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+    delete:
+      operationId: deleteAppointment
+      tags: [appointments]
+      summary: Delete appointment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+
+  # Financial Events
+  /financial-events:
+    get:
+      operationId: listFinancialEvents
+      tags: [financial]
+      summary: List financial events
+      parameters:
+        - name: type
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: Financial events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FinancialEvent"
+    post:
+      operationId: createFinancialEvent
+      tags: [financial]
+      summary: Create financial event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FinancialEventInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinancialEvent"
+
+  /financial-events/{id}:
+    patch:
+      operationId: updateFinancialEvent
+      tags: [financial]
+      summary: Update financial event
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FinancialEventUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinancialEvent"
+    delete:
+      operationId: deleteFinancialEvent
+      tags: [financial]
+      summary: Delete financial event
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+
+  /financial-events/countdown:
+    get:
+      operationId: getFinancialCountdown
+      tags: [financial]
+      summary: Get countdown for all financial events
+      responses:
+        "200":
+          description: Countdown data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CountdownItem"
+
+  # Notifications
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [notifications]
+      summary: List notifications
+      parameters:
+        - name: unread_only
+          in: query
+          schema: { type: boolean }
+      responses:
+        "200":
+          description: Notifications list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+    post:
+      operationId: createNotification
+      tags: [notifications]
+      summary: Create notification (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NotificationInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+
+  /notifications/{id}:
+    delete:
+      operationId: deleteNotification
+      tags: [notifications]
+      summary: Delete notification
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  /notifications/unread-count:
+    get:
+      operationId: getUnreadNotificationsCount
+      tags: [notifications]
+      summary: Get unread count
+      responses:
+        "200":
+          description: Count
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnreadCount"
+
+  /notifications/{id}/read:
+    patch:
+      operationId: markNotificationRead
+      tags: [notifications]
+      summary: Mark notification as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+
+  /notifications/read-all:
+    patch:
+      operationId: markAllNotificationsRead
+      tags: [notifications]
+      summary: Mark all notifications as read
+      responses:
+        "200":
+          description: Done
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  # Daily Messages
+  /daily-messages:
+    get:
+      operationId: listDailyMessages
+      tags: [messages]
+      summary: List daily messages
+      responses:
+        "200":
+          description: Messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DailyMessage"
+    post:
+      operationId: createDailyMessage
+      tags: [messages]
+      summary: Create daily message (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DailyMessageInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyMessage"
+
+  /daily-messages/today:
+    get:
+      operationId: getTodayMessage
+      tags: [messages]
+      summary: Get today's message
+      responses:
+        "200":
+          description: Today's message
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyMessage"
+
+  /daily-messages/{id}:
+    patch:
+      operationId: updateDailyMessage
+      tags: [messages]
+      summary: Update daily message (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DailyMessageUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DailyMessage"
+    delete:
+      operationId: deleteDailyMessage
+      tags: [messages]
+      summary: Delete daily message (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+
+  # Themes
+  /themes:
+    get:
+      operationId: listThemes
+      tags: [themes]
+      summary: List themes
+      responses:
+        "200":
+          description: Themes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Theme"
+
+  /themes/{id}:
+    patch:
+      operationId: updateTheme
+      tags: [themes]
+      summary: Update theme (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ThemeUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Theme"
+
+  # News
+  /news:
+    get:
+      operationId: listNews
+      tags: [news]
+      summary: List news
+      parameters:
+        - name: category
+          in: query
+          schema: { type: string }
+        - name: search
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: News
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NewsItem"
+    post:
+      operationId: createNews
+      tags: [news]
+      summary: Create news (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsItem"
+
+  /news/{id}:
+    patch:
+      operationId: updateNews
+      tags: [news]
+      summary: Update news (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsItem"
+    delete:
+      operationId: deleteNews
+      tags: [news]
+      summary: Delete news (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+
+  # Jobs
+  /jobs:
+    get:
+      operationId: listJobs
+      tags: [jobs]
+      summary: List jobs
+      parameters:
+        - name: city
+          in: query
+          schema: { type: string }
+        - name: sector
+          in: query
+          schema: { type: string }
+        - name: search
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: Jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Job"
+    post:
+      operationId: createJob
+      tags: [jobs]
+      summary: Create job (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+
+  /jobs/{id}:
+    patch:
+      operationId: updateJob
+      tags: [jobs]
+      summary: Update job (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JobUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+    delete:
+      operationId: deleteJob
+      tags: [jobs]
+      summary: Delete job (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+
+  # Prayer Times
+  /prayer-times:
+    get:
+      operationId: getPrayerTimes
+      tags: [prayer]
+      summary: Get prayer times by city
+      parameters:
+        - name: city
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Prayer times
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PrayerTimes"
+
+  /prayer-times/cities:
+    get:
+      operationId: listPrayerCities
+      tags: [prayer]
+      summary: List available cities
+      responses:
+        "200":
+          description: Cities list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CityOption"
+
+  # Public Events
+  /public-events:
+    get:
+      operationId: listPublicEvents
+      tags: [public-events]
+      summary: List public events
+      parameters:
+        - name: category
+          in: query
+          schema: { type: string }
+      responses:
+        "200":
+          description: Public events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PublicEvent"
+    post:
+      operationId: createPublicEvent
+      tags: [public-events]
+      summary: Create public event (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublicEventInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicEvent"
+
+  /public-events/{id}:
+    patch:
+      operationId: updatePublicEvent
+      tags: [public-events]
+      summary: Update public event (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublicEventUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicEvent"
+    delete:
+      operationId: deletePublicEvent
+      tags: [public-events]
+      summary: Delete public event (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+
+  # Complaints
+  /complaints:
+    get:
+      operationId: listComplaints
+      tags: [complaints]
+      summary: List complaints (admin)
+      responses:
+        "200":
+          description: Complaints
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Complaint"
+    post:
+      operationId: createComplaint
+      tags: [complaints]
+      summary: Submit complaint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComplaintInput"
+      responses:
+        "201":
+          description: Submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Complaint"
+
+  /complaints/{id}:
+    patch:
+      operationId: updateComplaint
+      tags: [complaints]
+      summary: Update complaint status / reply (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ComplaintUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Complaint"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteComplaint
+      tags: [complaints]
+      summary: Delete complaint (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  # Audit Logs
+  /audit-logs:
+    get:
+      operationId: listAuditLogs
+      tags: [admin]
+      summary: List audit logs (admin)
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Audit logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AuditLog"
+
+  # Admin Dashboard Stats
+  /admin/stats:
+    get:
+      operationId: getAdminStats
+      tags: [admin]
+      summary: Get admin dashboard statistics
+      responses:
+        "200":
+          description: Stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStats"
+
+  # Social Automation (X / Twitter)
+  /admin/social/settings:
+    get:
+      operationId: getSocialSettings
+      tags: [social]
+      summary: Get X/Twitter automation settings (admin)
+      responses:
+        "200":
+          description: Settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SocialSettings"
+    patch:
+      operationId: updateSocialSettings
+      tags: [social]
+      summary: Update X/Twitter automation settings (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SocialSettingsUpdate"
+      responses:
+        "200":
+          description: Updated settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SocialSettings"
+  /admin/social/logs:
+    get:
+      operationId: listSocialLogs
+      tags: [social]
+      summary: List X/Twitter automation logs (admin)
+      responses:
+        "200":
+          description: Logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SocialLog"
+  /admin/social/preview:
+    post:
+      operationId: previewSocialPost
+      tags: [social]
+      summary: Build a preview of today's post from live data (admin)
+      responses:
+        "200":
+          description: Preview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SocialPreview"
+  /admin/social/test:
+    post:
+      operationId: testSocialPost
+      tags: [social]
+      summary: Run a manual test of the X/Twitter posting pipeline (admin)
+      responses:
+        "200":
+          description: Test result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SocialTestResult"
+
+  # Story Templates
+  /story-templates:
+    get:
+      operationId: listStoryTemplates
+      tags: [story]
+      summary: List story templates
+      responses:
+        "200":
+          description: Templates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StoryTemplate"
+    post:
+      operationId: createStoryTemplate
+      tags: [story]
+      summary: Create story template (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StoryTemplateInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoryTemplate"
+
+  /story-templates/{id}:
+    patch:
+      operationId: updateStoryTemplate
+      tags: [story]
+      summary: Update story template (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StoryTemplateUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoryTemplate"
+    delete:
+      operationId: deleteStoryTemplate
+      tags: [story]
+      summary: Delete story template (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Deleted
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string }
+
+    SuccessResponse:
+      type: object
+      required: [success]
+      properties:
+        success: { type: boolean }
+        message: { type: ["string", "null"] }
+
+    UnreadCount:
+      type: object
+      required: [count]
+      properties:
+        count: { type: integer }
+
+    Appointment:
+      type: object
+      required: [id, title, date, category, created_at]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        description: { type: ["string", "null"] }
+        date: { type: string }
+        time: { type: ["string", "null"] }
+        category: { type: string }
+        color: { type: ["string", "null"] }
+        priority: { type: ["string", "null"] }
+        reminder_enabled: { type: boolean }
+        created_at: { type: string }
+
+    AppointmentInput:
+      type: object
+      required: [title, date, category]
+      properties:
+        title: { type: string, minLength: 1 }
+        description: { type: string }
+        date: { type: string }
+        time: { type: string }
+        category: { type: string }
+        color: { type: string }
+        priority: { type: string }
+        reminder_enabled: { type: boolean }
+
+    AppointmentUpdate:
+      type: object
+      properties:
+        title: { type: string }
+        description: { type: string }
+        date: { type: string }
+        time: { type: string }
+        category: { type: string }
+        color: { type: string }
+        priority: { type: string }
+        reminder_enabled: { type: boolean }
+
+    FinancialEvent:
+      type: object
+      required: [id, name, type, next_date, created_at]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        type: { type: string }
+        next_date: { type: string }
+        amount: { type: ["number", "null"] }
+        notes: { type: ["string", "null"] }
+        is_active: { type: boolean }
+        reminder_days_before: { type: integer }
+        created_at: { type: string }
+
+    FinancialEventInput:
+      type: object
+      required: [name, type, next_date]
+      properties:
+        name: { type: string }
+        type: { type: string }
+        next_date: { type: string }
+        amount: { type: number }
+        notes: { type: string }
+        is_active: { type: boolean }
+        reminder_days_before: { type: integer }
+
+    FinancialEventUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        type: { type: string }
+        next_date: { type: string }
+        amount: { type: number }
+        notes: { type: string }
+        is_active: { type: boolean }
+        reminder_days_before: { type: integer }
+
+    CountdownItem:
+      type: object
+      required: [id, name, type, next_date, days_remaining]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        type: { type: string }
+        next_date: { type: string }
+        days_remaining: { type: integer }
+        amount: { type: ["number", "null"] }
+
+    Notification:
+      type: object
+      required: [id, title, type, is_read, created_at]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        body: { type: ["string", "null"] }
+        type: { type: string }
+        is_read: { type: boolean }
+        created_at: { type: string }
+
+    NotificationInput:
+      type: object
+      required: [title, type]
+      properties:
+        title: { type: string }
+        body: { type: string }
+        type: { type: string }
+
+    DailyMessage:
+      type: object
+      required: [id, message, is_active, created_at]
+      properties:
+        id: { type: integer }
+        message: { type: string }
+        display_date: { type: ["string", "null"] }
+        is_active: { type: boolean }
+        created_at: { type: string }
+
+    DailyMessageInput:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string }
+        display_date: { type: string }
+        is_active: { type: boolean }
+
+    DailyMessageUpdate:
+      type: object
+      properties:
+        message: { type: string }
+        display_date: { type: string }
+        is_active: { type: boolean }
+
+    Theme:
+      type: object
+      required: [id, name, slug, is_active, is_available, created_at]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        slug: { type: string }
+        description: { type: ["string", "null"] }
+        colors: { type: object }
+        is_active: { type: boolean }
+        is_available: { type: boolean }
+        tier: { type: string }
+        created_at: { type: string }
+
+    ThemeUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        description: { type: string }
+        colors: { type: object }
+        is_active: { type: boolean }
+        is_available: { type: boolean }
+        tier: { type: string }
+
+    NewsItem:
+      type: object
+      required: [id, title, category, is_published, created_at]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        body: { type: ["string", "null"] }
+        category: { type: string }
+        source: { type: ["string", "null"] }
+        image_url: { type: ["string", "null"] }
+        is_published: { type: boolean }
+        published_at: { type: ["string", "null"] }
+        created_at: { type: string }
+
+    NewsInput:
+      type: object
+      required: [title, category]
+      properties:
+        title: { type: string }
+        body: { type: string }
+        category: { type: string }
+        source: { type: string }
+        image_url: { type: string }
+        is_published: { type: boolean }
+
+    NewsUpdate:
+      type: object
+      properties:
+        title: { type: string }
+        body: { type: string }
+        category: { type: string }
+        source: { type: string }
+        image_url: { type: string }
+        is_published: { type: boolean }
+
+    Job:
+      type: object
+      required: [id, title, employer, sector, city, created_at]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        employer: { type: string }
+        sector: { type: string }
+        city: { type: string }
+        description: { type: ["string", "null"] }
+        apply_url: { type: ["string", "null"] }
+        deadline: { type: ["string", "null"] }
+        is_active: { type: boolean }
+        created_at: { type: string }
+
+    JobInput:
+      type: object
+      required: [title, employer, sector, city]
+      properties:
+        title: { type: string }
+        employer: { type: string }
+        sector: { type: string }
+        city: { type: string }
+        description: { type: string }
+        apply_url: { type: string }
+        deadline: { type: string }
+        is_active: { type: boolean }
+
+    JobUpdate:
+      type: object
+      properties:
+        title: { type: string }
+        employer: { type: string }
+        sector: { type: string }
+        city: { type: string }
+        description: { type: string }
+        apply_url: { type: string }
+        deadline: { type: string }
+        is_active: { type: boolean }
+
+    PrayerTimes:
+      type: object
+      required: [city, date, fajr, sunrise, dhuhr, asr, maghrib, isha]
+      properties:
+        city: { type: string }
+        date: { type: string }
+        fajr: { type: string }
+        sunrise: { type: string }
+        dhuhr: { type: string }
+        asr: { type: string }
+        maghrib: { type: string }
+        isha: { type: string }
+        next_prayer: { type: ["string", "null"] }
+        time_remaining: { type: ["string", "null"] }
+
+    CityOption:
+      type: object
+      required: [value, label]
+      properties:
+        value: { type: string }
+        label: { type: string }
+
+    PublicEvent:
+      type: object
+      required: [id, title, event_date, category, is_active, created_at]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        description: { type: ["string", "null"] }
+        event_date: { type: string }
+        category: { type: string }
+        is_active: { type: boolean }
+        created_at: { type: string }
+
+    PublicEventInput:
+      type: object
+      required: [title, event_date, category]
+      properties:
+        title: { type: string }
+        description: { type: string }
+        event_date: { type: string }
+        category: { type: string }
+        is_active: { type: boolean }
+
+    PublicEventUpdate:
+      type: object
+      properties:
+        title: { type: string }
+        description: { type: string }
+        event_date: { type: string }
+        category: { type: string }
+        is_active: { type: boolean }
+
+    Complaint:
+      type: object
+      required: [id, type, message, status, created_at]
+      properties:
+        id: { type: integer }
+        type: { type: string }
+        category: { type: ["string", "null"] }
+        title: { type: ["string", "null"] }
+        message: { type: string }
+        contact: { type: ["string", "null"] }
+        user_id: { type: ["string", "null"] }
+        status: { type: string }
+        admin_reply: { type: ["string", "null"] }
+        created_at: { type: string }
+        updated_at: { type: ["string", "null"] }
+
+    ComplaintInput:
+      type: object
+      required: [type, message]
+      properties:
+        type: { type: string }
+        category: { type: string }
+        title: { type: string }
+        message: { type: string }
+        contact: { type: string }
+        user_id: { type: string }
+
+    ComplaintUpdate:
+      type: object
+      properties:
+        status: { type: string }
+        admin_reply: { type: string }
+
+    AuditLog:
+      type: object
+      required: [id, action, entity_type, performed_by, created_at]
+      properties:
+        id: { type: integer }
+        action: { type: string }
+        entity_type: { type: string }
+        entity_id: { type: ["integer", "null"] }
+        entity_name: { type: ["string", "null"] }
+        description: { type: ["string", "null"] }
+        performed_by: { type: string }
+        status: { type: string }
+        created_at: { type: string }
+
+    AdminStats:
+      type: object
+      required: [total_appointments, total_notifications, unread_notifications, total_news, total_jobs, total_complaints, pending_complaints]
+      properties:
+        total_appointments: { type: integer }
+        total_notifications: { type: integer }
+        unread_notifications: { type: integer }
+        total_news: { type: integer }
+        total_jobs: { type: integer }
+        total_complaints: { type: integer }
+        pending_complaints: { type: integer }
+        total_suggestions: { type: integer }
+        awaiting_reply: { type: integer }
+        resolved_complaints: { type: integer }
+
+    SocialSettings:
+      type: object
+      required: [id, platform, is_enabled, post_time, template, updated_at]
+      properties:
+        id: { type: integer }
+        platform: { type: string }
+        is_enabled: { type: boolean }
+        post_time: { type: string }
+        template: { type: string }
+        account_handle: { type: string, nullable: true }
+        updated_at: { type: string }
+
+    SocialSettingsUpdate:
+      type: object
+      properties:
+        is_enabled: { type: boolean }
+        post_time: { type: string }
+        template: { type: string }
+        account_handle: { type: string }
+
+    SocialLog:
+      type: object
+      required: [id, platform, kind, status, created_at]
+      properties:
+        id: { type: integer }
+        platform: { type: string }
+        kind: { type: string }
+        status: { type: string }
+        content: { type: string, nullable: true }
+        detail: { type: string, nullable: true }
+        created_at: { type: string }
+
+    SocialPreview:
+      type: object
+      required: [content]
+      properties:
+        content: { type: string }
+
+    SocialTestResult:
+      type: object
+      required: [ok, status, message]
+      properties:
+        ok: { type: boolean }
+        status: { type: string }
+        message: { type: string }
+        content: { type: string, nullable: true }
+        missing_secrets:
+          type: array
+          items: { type: string }
+
+    StoryTemplate:
+      type: object
+      required: [id, name, is_active, created_at]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        description: { type: ["string", "null"] }
+        template_text: { type: string }
+        background_color: { type: ["string", "null"] }
+        text_color: { type: ["string", "null"] }
+        is_active: { type: boolean }
+        created_at: { type: string }
+
+    StoryTemplateInput:
+      type: object
+      required: [name, template_text]
+      properties:
+        name: { type: string }
+        description: { type: string }
+        template_text: { type: string }
+        background_color: { type: string }
+        text_color: { type: string }
+        is_active: { type: boolean }
+
+    StoryTemplateUpdate:
+      type: object
+      properties:
+        name: { type: string }
+        description: { type: string }
+        template_text: { type: string }
+        background_color: { type: string }
+        text_color: { type: string }
+        is_active: { type: boolean }

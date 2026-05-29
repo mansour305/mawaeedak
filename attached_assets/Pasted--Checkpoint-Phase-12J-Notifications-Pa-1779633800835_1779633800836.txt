@@ -1,0 +1,302 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 12J
+Notifications Page Read+Write Consistency Gate
+
+الدور:
+تصرف كفريق Data Layer Architect + Frontend Engineer + Supabase Engineer + QA Lead + Security Reviewer.
+مهمتك الآن ليست تحويل كل النظام إلى Supabase، وليست حذف API، وليست تحويل Calendar/Finance/Admin.
+مهمتك فقط إغلاق خطر divergence في NotificationsPage عبر ربط قراءة الإشعارات وعمليات mark-read/mark-all-read بنفس Data Gateway حسب mode.
+
+==================================================
+0. السياق الحالي
+==================================================
+
+تم اعتماد Phase 12I:
+- تم جرد mutations.
+- تم اختيار نطاق منخفض المخاطر:
+  notifications mark-read + mark-all-read
+- تم إنشاء:
+  markNotificationReadInSupabase
+  markAllNotificationsReadInSupabase
+  gwMarkNotificationRead
+  gwMarkAllNotificationsRead
+- mode=api يكتب عبر API.
+- mode=supabase_shadow يكتب عبر API.
+- mode=supabase يكتب إلى Supabase للنطاق المختار.
+- Write test موجود في /admin/data-layer.
+- NotificationsPage نفسها لا تزال على Orval/API.
+- لذلك يوجد خطر divergence عند mode=supabase إذا تم اختبار الكتابة من /admin/data-layer بينما الصفحة تقرأ من API.
+
+الحالة الحالية:
+- Supabase يحتوي 40 صفاً.
+- notifications في Supabase = 3.
+- notifications مرتبطة بـ hrq@hotmail.com.
+- API/PostgreSQL لا يزال موجوداً.
+- default data source = api.
+- build ناجح.
+- typecheck ناجح.
+- لا service_role.
+- لا أسرار hardcoded.
+
+==================================================
+1. الهدف التنفيذي
+==================================================
+
+حوّل NotificationsPage فقط إلى Read+Write Consistency عبر Data Gateway.
+
+المطلوب:
+1. اجعل قراءة NotificationsPage تمر عبر Gateway عند الإمكان.
+2. عند mode=api:
+   - تقرأ من API.
+   - mark-read / mark-all-read تكتب إلى API.
+   - السلوك يبقى كما كان.
+
+3. عند mode=supabase_shadow:
+   - تقرأ من API.
+   - تكتب إلى API.
+   - لا تكتب إلى Supabase.
+   - يمكن تشغيل shadow comparison بدون كسر.
+
+4. عند mode=supabase:
+   - تقرأ NotificationsPage من Supabase.
+   - mark-read / mark-all-read تكتب إلى Supabase.
+   - لا يوجد fallback صامت للكتابة إلى API إذا فشل Supabase write.
+   - عند فشل الكتابة، اعرض خطأ واضح أو toast مناسب بدون كسر الصفحة.
+
+5. لا تحوّل delete notification الآن إلا إذا كان منخفض المخاطر ومكتمل ومختبر. الأصل: اترك delete على API أو عطّله في mode=supabase مع توثيق واضح إن كان سيسبب divergence.
+6. لا تحوّل send notification من admin الآن.
+7. لا تحوّل Calendar أو Finance.
+8. لا تحذف API.
+9. لا تضغط Publish.
+10. حدّث QA_REPORT والوثائق.
+
+==================================================
+2. خارج النطاق
+==================================================
+
+هذه المرحلة ليست:
+- Full Write Cutover.
+- Admin CRUD Cutover.
+- Calendar CRUD Cutover.
+- Finance CRUD Cutover.
+- حذف API.
+- حذف PostgreSQL.
+- Production Ready.
+- Publish.
+- Firebase.
+- Offline.
+- إعادة تصميم UI.
+
+==================================================
+3. ممنوعات صارمة
+==================================================
+
+ممنوع:
+- لا تحول كل mutations.
+- لا تحول appointments.
+- لا تحول financial_events.
+- لا تحول admin CRUD.
+- لا تحذف API endpoints.
+- لا تستخدم service_role في الواجهة.
+- لا تضع أسرار في الكود.
+- لا تستخدم DROP/TRUNCATE/DELETE.
+- لا تنقل بيانات جديدة.
+- لا تجعل Supabase هو default.
+- لا تضغط Publish.
+- لا تدّع Production Ready.
+- لا تكسر صفحة الإشعارات أو العداد.
+
+==================================================
+4. بروتوكول التشخيص قبل التنفيذ
+==================================================
+
+قبل التعديل، افحص:
+
+1. NotificationsPage الحالية.
+2. hooks الحالية:
+   - list notifications
+   - mark read
+   - mark all read إن وجد
+   - delete notification
+3. عداد غير المقروء في الهيدر أو أي component يستخدم notifications.
+4. dataGateway.ts.
+5. supabaseData.ts.
+6. شكل بيانات API مقابل Supabase.
+7. هل Supabase adapter يعيد نفس shape المطلوب للواجهة.
+8. هل notification id في UI يعتمد على legacy_id أو uuid.
+9. هل mark-read يستخدم id المناسب.
+10. هل is_read أو read field متوافق.
+11. كيف تعمل invalidation / refresh بعد mark-read.
+
+لا تبدأ التنفيذ قبل تحديد خطة refresh/invalidation.
+
+==================================================
+5. متطلبات التنفيذ
+==================================================
+
+نفّذ بأقل تغيير آمن:
+
+1. أنشئ hook أو service مناسب مثل:
+   useGatewayNotifications
+   أو عدّل NotificationsPage مباشرة بأقل تغيير.
+
+2. يجب أن يدعم:
+   - loading
+   - error
+   - refetch/refresh بعد mark-read
+   - unread count
+
+3. عند mode=supabase:
+   - list notifications من Supabase.
+   - mark-read إلى Supabase.
+   - mark-all-read إلى Supabase.
+   - refresh من Supabase بعد النجاح.
+
+4. عند mode=api أو supabase_shadow:
+   - استعمل السلوك الحالي API/Orval قدر الإمكان.
+
+5. delete notification:
+   - لا تحوله إلى Supabase في هذه المرحلة إلا إذا كان آمن ومختبر.
+   - إذا بقي API، وثّق أن delete لم يتحول.
+   - إذا سبب divergence في mode=supabase، اجعل behavior واضحاً في QA_REPORT.
+
+6. لا تكسر Header unread count.
+7. لا تكسر Admin notifications.
+8. لا تكسر /admin/data-layer.
+
+==================================================
+6. اختبارات إلزامية
+==================================================
+
+اختبر:
+
+أ. mode=api:
+1. NotificationsPage تعرض 3 إشعارات من API.
+2. mark-read يعمل عبر API.
+3. العداد يتغير.
+4. delete إذا كان موجوداً يبقى يعمل كما كان.
+
+ب. mode=supabase_shadow:
+1. NotificationsPage تعرض API.
+2. mark-read يعمل عبر API.
+3. لا كتابة إلى Supabase.
+4. لا كسر.
+
+ج. mode=supabase:
+1. NotificationsPage تعرض 3 إشعارات من Supabase.
+2. mark-read يكتب إلى Supabase.
+3. mark-all-read يكتب إلى Supabase.
+4. refresh بعد الكتابة يعكس الحالة.
+5. user_id/RLS يعمل.
+6. لا fallback صامت إلى API في الكتابة.
+7. لا duplicates.
+8. لا كسر للعداد.
+
+اختبر الصفحات:
+- الرئيسية
+- التقويم
+- المال
+- ستوري اليوم
+- الإشعارات
+- المراكز
+- حسابي
+- /admin
+- /admin/data-layer
+- الصفحات القانونية
+- 404
+
+==================================================
+7. أوامر الفحص
+==================================================
+
+شغّل:
+- pnpm build أو npm run build
+- pnpm typecheck أو npm run typecheck إن وجد
+
+وافحص:
+- service_role
+- SUPABASE_SERVICE_ROLE
+- hardcoded Supabase keys
+- hardcoded passwords
+- DROP
+- TRUNCATE
+- DELETE غير مقصود
+
+==================================================
+8. تحديث التوثيق
+==================================================
+
+حدّث:
+- QA_REPORT.md
+- DATA_SOURCE_MAP.md
+- SUPABASE_MIGRATION_PLAN.md
+- SUPABASE_MIGRATION_CHECKLIST.md
+- ARCHITECTURE.md
+- README.md إن لزم
+
+وثّق:
+- أن NotificationsPage أصبحت read+mark-read متسقة عبر Gateway.
+- أن default لا يزال api.
+- أن delete notification إن بقي API فهو مؤجل.
+- أن admin send/delete لم يتحول إن بقي على API.
+- أن Phase 12K مخصصة للنطاق الإداري التالي.
+- أي divergence risk متبقٍ.
+
+==================================================
+9. معيار قبول المرحلة
+==================================================
+
+تقبل Phase 12J فقط إذا تحقق:
+
+- NotificationsPage مربوطة بالGateway للقراءة.
+- mark-read مربوط بالGateway.
+- mark-all-read مربوط بالGateway إن كان موجوداً.
+- mode=api يعمل.
+- mode=supabase_shadow يعمل.
+- mode=supabase يقرأ ويكتب للإشعارات بشكل متسق.
+- لا يتم تحويل نطاق آخر.
+- API لم يُحذف.
+- PostgreSQL لم يُحذف.
+- لا بيانات جديدة نُقلت.
+- لا DROP/TRUNCATE/DELETE.
+- Supabase Auth و/admin سليمان.
+- كل الصفحات سليمة.
+- build ناجح.
+- typecheck ناجح.
+- QA_REPORT محدث.
+
+الحكم النهائي:
+Notifications Gateway Cutover Ready / Partial Notifications Cutover / Needs Notification Gateway Fix / Needs Fixes
+
+==================================================
+10. التقرير النهائي المطلوب
+==================================================
+
+أعطني تقريراً بهذا الشكل فقط:
+
+1. هل NotificationsPage أصبحت تستخدم Gateway للقراءة؟
+2. هل mark-read أصبح يستخدم Gateway؟
+3. هل mark-all-read أصبح يستخدم Gateway؟
+4. هل delete notification بقي API أم تحول؟
+5. هل mode=api يعمل؟
+6. هل mode=supabase_shadow يعمل؟
+7. هل mode=supabase يقرأ notifications من Supabase؟
+8. هل mode=supabase يكتب mark-read إلى Supabase؟
+9. هل العداد يتحدث بعد mark-read؟
+10. هل يوجد fallback صامت إلى API في write عند mode=supabase؟
+11. هل تم تحويل أي نطاق آخر؟
+12. هل API endpoints ما زالت موجودة؟
+13. هل PostgreSQL ما زال موجوداً؟
+14. هل يوجد service_role في الواجهة؟
+15. هل توجد أسرار hardcoded؟
+16. هل يوجد DROP/TRUNCATE/DELETE؟
+17. هل Supabase Auth و/admin بقيا سليمين؟
+18. هل الصفحات السابقة سليمة؟
+19. هل build نجح؟ اذكر النتيجة صراحة.
+20. هل typecheck نجح؟ اذكر النتيجة صراحة.
+21. هل QA_REPORT تم تحديثه؟
+22. القيود المتبقية.
+23. الحكم النهائي:
+Notifications Gateway Cutover Ready / Partial Notifications Cutover / Needs Notification Gateway Fix / Needs Fixes

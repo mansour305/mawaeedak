@@ -1,0 +1,698 @@
+MAWAEEDAK REPLIT FINAL UNBLOCK & LAUNCH READINESS COMMAND
+CLOSE ALL REMAINING BLOCKERS, FIX DATABASE/API, COMPLETE GLOBAL THEME, VERIFY AUTH/RLS STATUS, RUN BUILD/SMOKE, AND DELIVER A PUBLISHABLE RELEASE
+
+You are Replit Agent working inside the existing deployed project:
+
+مواعيدك / Mawaeedak
+
+This is not a planning task.
+This is not a visual-only polish task.
+This is not a generic QA task.
+This is the final unblock and launch-readiness execution pass.
+
+The previous Codex pass improved security, separated public login from admin login, removed localStorage admin bypass, protected admin API paths, passed typecheck, passed build, passed audit, and passed route smoke.
+
+The project is still not accepted only because the previous report listed these blockers:
+
+1. API smoke was blocked because `DATABASE_URL` was not available in the environment.
+2. Supabase/Auth/RLS were not proven live.
+3. Global App Theme is not complete as a centralized owner-controlled system.
+4. Visual reference matching was blocked by invalid `.lnk` image references.
+5. Final documentation needs to reflect the real fixed state.
+
+For this Replit pass, focus on closing the remaining launch blockers.
+
+Important decision for this pass:
+Visual reference image matching is temporarily non-blocking unless real image files exist in `references/`.
+Do not fail the whole launch only because images are missing.
+If real images are present, use them.
+If only `.lnk` files or no images exist, document Visual References as deferred/non-blocking and complete a polished RTL mobile-first UI using the existing product identity.
+
+The main goal:
+Reach a stable, deployable, usable release on Replit.
+
+Final verdict must be one of:
+
+PRODUCTION HANDOVER PASSED
+
+or
+
+NEEDS FIXES
+
+But do not use NEEDS FIXES until you have actively attempted to fix all code-owned blockers.
+
+==================================================
+0. NON-NEGOTIABLE EXECUTION RULES
+=================================
+
+Do not start from scratch.
+Do not delete previous security fixes.
+Do not remove the admin protection added earlier.
+Do not restore localStorage admin bypass.
+Do not expose owner/admin tools to guests or regular users.
+Do not hide core features instead of completing them.
+Do not leave dead buttons.
+Do not leave empty pages.
+Do not leave Demo / TODO / Coming Soon / mock / fallback / debug / dev wording in user-facing UI.
+Do not claim Supabase/RLS are live if they are only SQL-ready.
+Do not claim Push Notifications are real if the app only has an internal Notification Center.
+Do not claim API smoke passed unless it actually ran.
+Do not claim build passed unless it actually ran.
+Do not change package manager.
+Do not rewrite the app from scratch.
+
+Use the previous work as a baseline and close the remaining blockers.
+
+==================================================
+
+1. FIRST: VERIFY CURRENT PROJECT STATE
+   ==================================================
+
+Before editing:
+
+1. Read root `package.json`.
+2. Read app package files under:
+
+   * `artifacts/mawaeedak`
+   * `artifacts/api-server`
+   * any workspace packages.
+3. Confirm package manager.
+4. Read:
+
+   * `QA_REPORT.md`
+   * `replit.md`
+   * `README.md`
+   * `ARCHITECTURE.md`
+   * `.env.example` / `ENV_EXAMPLE.md`
+   * `SUPABASE_SCHEMA.sql`
+   * `RLS_POLICIES.sql`
+5. Read the previous QA verdict and blockers.
+6. Run `git status --short` if available.
+7. Do not touch unrelated changes.
+
+Update `QA_REPORT.md` with a section:
+
+Final Replit Unblock Pass Snapshot
+
+Include:
+
+* Stack.
+* Package manager.
+* Current routes.
+* Current API endpoints.
+* Current auth status.
+* Current admin protection status.
+* Current DATABASE_URL status.
+* Current Supabase status.
+* Current RLS status.
+* Current Global Theme status.
+* Current visual references status.
+* Current blocking issues before this pass.
+
+==================================================
+2. DATABASE_URL AND API SERVER UNBLOCK
+======================================
+
+The previous blocker was:
+
+API server exits because `DATABASE_URL must be set`.
+
+Your task:
+Resolve this inside Replit as far as the environment allows.
+
+Steps:
+
+1. Inspect Replit environment variables / Secrets availability.
+2. Check whether `DATABASE_URL` exists.
+3. Check whether there is an existing Postgres/Supabase/Neon/Replit database configuration.
+4. If `DATABASE_URL` exists:
+
+   * Start API server.
+   * Run API smoke.
+5. If `DATABASE_URL` is missing:
+
+   * Do not fake success.
+   * Attempt to configure the project to use the Replit-supported database connection if available.
+   * If Replit cannot provide or create the secret automatically, create a clear `MISSING_SECRETS.md` with the exact required secret:
+
+     * `DATABASE_URL`
+   * Also update `.env.example` and `ENV_EXAMPLE.md`.
+   * Keep frontend safe and operational.
+   * Do not mark API smoke as passed.
+   * Final verdict may only be PRODUCTION HANDOVER PASSED if a real API smoke can run or the app is intentionally shipped as frontend-only publishable preview with backend limitations clearly documented. If admin/data features require API, treat missing DATABASE_URL as blocking.
+
+API smoke must test at least:
+
+* health/status if available.
+* financial events.
+* countdown.
+* daily messages.
+* notifications.
+* complaints.
+* auth/session if available.
+* admin endpoints.
+* themes.
+* story data.
+
+For admin endpoints, test:
+
+* unauthenticated request returns 401/403.
+* admin request requires a valid admin token/session.
+* no sensitive data is leaked.
+
+Any core API returning 500 = fix it before final verdict.
+
+==================================================
+3. COMPLETE GLOBAL APP THEME
+============================
+
+The previous blocker:
+Global App Theme is incomplete.
+
+Implement a real Theme Center separation:
+
+A. User Theme
+
+* Regular user can choose a personal theme.
+* Saved to user preferences when possible.
+* Safe local persistence is acceptable for user personal preference only.
+* Does not change the app for everyone.
+
+B. Global App Theme
+
+* Owner/admin only.
+* Hidden from guests and regular users.
+* Protected by admin role/permission.
+* Stored centrally through API/Data Layer when database is available.
+* If database is unavailable, implement a safe server/config fallback and document it, but do not treat localStorage as production authority.
+* Controls the default app theme.
+* Does not expose owner tools to users.
+
+Required behavior:
+
+1. User opens Theme Center.
+2. User can preview a theme.
+3. User can apply User Theme.
+4. Reload keeps User Theme.
+5. Admin opens owner theme management.
+6. Admin can set Global App Theme.
+7. Regular user cannot see or use Global Theme controls.
+8. Changing theme does not break:
+
+   * HomePage.
+   * StoryPage.
+   * Theme Center.
+   * AccountPage.
+   * Admin Dashboard.
+
+Required themes:
+
+* السعودي النظيف.
+* البادية الهادئة.
+* السدو / التراث.
+* الأسود الذهبي.
+* الأخضر الرسمي.
+* النباتي الناعم.
+* المعماري الهادئ.
+* الصحراوي المعاصر.
+* التراث الفاخر.
+* الهوية الرسمية المرتبة.
+* التراث التقني الفاخر as default.
+
+Required theme tokens:
+
+* --color-bg
+* --color-surface
+* --color-card
+* --color-text
+* --color-muted
+* --color-primary
+* --color-secondary
+* --color-accent
+* --color-border
+* --radius-card
+* --shadow-card
+* --pattern-opacity
+* --density-scale
+
+Do not leave Theme Center as only a color switcher.
+
+==================================================
+4. SUPABASE / AUTH / RLS REALITY CHECK
+======================================
+
+Do not invent Supabase status.
+
+Check for:
+
+* `VITE_SUPABASE_URL`
+* `VITE_SUPABASE_ANON_KEY`
+* `DATABASE_URL`
+* Supabase schema files.
+* RLS policy files.
+* auth implementation.
+* profile/roles implementation.
+
+If Supabase keys are present:
+
+* Verify Supabase client initializes.
+* Verify Auth flow.
+* Verify roles/profiles if possible.
+* Verify RLS if database/policies are accessible.
+* Verify user isolation.
+* Verify admin isolation.
+* Document evidence.
+
+If Supabase keys are not present:
+
+* Mark Supabase as:
+  Supabase-ready, not Supabase-connected.
+* Do not call it production-authenticated Supabase.
+* Keep the app safe.
+* Keep admin route/API protected by available server-side mechanisms.
+* Update documentation with exact required secrets:
+
+  * `VITE_SUPABASE_URL`
+  * `VITE_SUPABASE_ANON_KEY`
+  * `DATABASE_URL`
+* Keep `SUPABASE_SCHEMA.sql` and `RLS_POLICIES.sql` documented as required setup.
+
+Important:
+Missing Supabase keys do not automatically block a Replit publishable release if the app has a safe working auth/data mode and all limitations are documented.
+But do not claim full Production Ready Supabase/RLS unless verified.
+
+==================================================
+5. SECURITY MUST REMAIN FIXED
+=============================
+
+Re-verify previous fixes:
+
+* Public `/login` must not route to `/admin`.
+* `/register` must not route to `/admin`.
+* `/forgot-password` must not route to `/admin`.
+* Guest must not see admin dashboard links.
+* Regular user must not see admin dashboard links.
+* Guest cannot open owner dashboard.
+* Regular user cannot open owner dashboard.
+* `/admin` must show access protection/login.
+* Admin API must be protected server-side.
+* No localStorage admin bypass.
+* No `admin_authenticated` trust as production authority.
+* No `isAdmin` localStorage production trust.
+* No service_role key in client/frontend.
+* No real secrets committed to code.
+
+Search code for:
+
+* `admin_authenticated`
+* `isAdmin`
+* `localStorage`
+* `service_role`
+* `SUPABASE_SERVICE_ROLE`
+* `TODO`
+* `Coming Soon`
+* `Demo`
+* `mock`
+* `debug`
+* `dev`
+
+If any are user-facing or security-relevant, fix them.
+
+Technical terms may remain only in technical documentation, not user-facing UI.
+
+==================================================
+6. DATA CONSISTENCY CLOSEOUT
+============================
+
+Verify and fix:
+
+HomePage, FinancePage, and StoryPage must use one shared financial data source.
+
+Required checks:
+
+* Salary countdown same across Home/Finance/Story.
+* Citizen Account countdown same across Home/Finance/Story.
+* Social Security countdown same across Home/Finance/Story.
+* Housing Support countdown same across Home/Finance/Story.
+* Retirement/GOSI/Saned/Rehabilitation/Agriculture support are consistent where implemented.
+* Daily message same across Home and Story.
+* Notification count matches actual unread notifications.
+* Complaints count matches actual complaints data or documented DB-blocked status.
+* No hardcoded countdown numbers inside UI components if a data layer exists.
+
+If API/database is available:
+
+* Use it.
+
+If API/database is not available:
+
+* Keep a single local/service data layer.
+* Do not duplicate dates in multiple components.
+* Document limitation honestly.
+
+==================================================
+7. STORY TODAY CLOSEOUT
+=======================
+
+Do not hide Story Today.
+
+Complete and verify:
+
+* Story page renders.
+* Uses shared date/message/financial data.
+* Has share-ready preview.
+* Has copy button with visible success feedback.
+* Has save/internal action with visible success feedback.
+* Has template/element controls if already present.
+* Handles loading/empty/error/success.
+* Does not crash without API.
+* Does not display empty blocks.
+* Mobile RTL layout is clean.
+
+Approved text format:
+
+📌 تاريخ اليوم
+
+📅 {day_name}
+🌙 هجري: {hijri_date}
+🗓️ ميلادي: {gregorian_date}
+
+━━━━━━━━━━━━━━
+
+💡 {daily_message}
+
+━━━━━━━━━━━━━━
+
+⏳ كم باقي على:
+
+💼 #الراتب 🔻 {salary_days} يوم
+👨‍👩‍👧 #حساب_المواطن 🔻 {citizen_account_days} يوم
+🛡️ #الضمان 🔻 {social_security_days} يوم
+🎯 #حافز 🔻 {hafiz_days} يوم
+🏠 #الدعم_السكني 🔻 {housing_support_days} يوم
+👴 #التقاعد 🔻 {retirement_days} يوم
+♿ #التأهيل 🔻 {rehabilitation_days} يوم
+📄 #ساند | #التأمينات 🔻 {saned_gosi_days} يوم
+🌾 #الدعم_الزراعي 🔻 {agricultural_support_days} يوم
+
+━━━━━━━━━━━━━━
+
+مواعيدك
+منصة تجمع وقتك، راتبك، دعمك، وأهم مواعيدك.
+
+If visual images are missing, do not block on pixel matching.
+Still make the page polished, mobile-first, RTL, and launch-quality.
+
+==================================================
+8. NOTIFICATIONS AND COMPLAINTS CLOSEOUT
+========================================
+
+Notifications:
+
+* Unread badge must equal actual unread notifications.
+* If there are no notifications, badge must be zero/hidden.
+* Notifications page must show a clear empty state.
+* Mark as read must work if implemented.
+* Admin send notification must be protected.
+* Do not claim push notifications unless Firebase is connected.
+* If Firebase is absent, document:
+  Internal Notification Center only.
+
+Complaints:
+
+* User can create/submit complaint if feature exists.
+* Admin can list complaints only if authorized.
+* Complaint count must match data.
+* If DB is unavailable, document complaint API smoke as blocked.
+* Do not show fake complaint counts as real.
+
+==================================================
+9. PRAYER TIMES CLOSEOUT
+========================
+
+Verify:
+
+* Prayer times show city/source.
+* Default city safe fallback: الرياض.
+* Source shown as:
+
+  * حسب موقعك
+  * حسب مدينة: {city}
+  * الرياض - افتراضي
+* Next prayer calculation uses Asia/Riyadh.
+* Missing location does not break page.
+* Do not claim official accuracy if using seed/fallback data.
+
+==================================================
+10. ROUTE SMOKE
+===============
+
+Run route smoke after fixes.
+
+Test at least:
+
+* /
+* /calendar
+* /finance
+* /centers
+* /account
+* /story
+* /notifications
+* /privacy
+* /terms
+* /disclaimer
+* /support
+* /login
+* /register
+* /forgot-password
+* /admin
+* /admin/dashboard
+* /admin/members
+* /admin/events
+* /admin/financial
+* /admin/messages
+* /admin/story
+* /admin/themes
+* /admin/notifications
+* /admin/news-jobs
+* /admin/reports
+* /admin/permissions
+* /admin/complaints
+* unknown route for 404.
+
+Each route must:
+
+* Not white screen.
+* Not hang forever.
+* Not expose owner tools to guest/user.
+* Not show TODO / Coming Soon / Demo.
+* Render meaningful UI or correct access protection.
+
+==================================================
+11. BUILD / TYPECHECK / AUDIT
+=============================
+
+Use real package manager.
+
+Run:
+
+* install if needed.
+* typecheck.
+* build.
+* audit if available.
+* route smoke.
+* API smoke if DATABASE_URL available.
+
+For Replit environment:
+Set required build env values if needed, for example:
+
+* `PORT`
+* `BASE_PATH`
+
+Do not modify lockfile unless truly required and documented.
+
+If a command does not exist, document it.
+
+If build fails, fix it.
+If typecheck fails, fix it.
+If API smoke fails because of code, fix it.
+If API smoke cannot run because a secret is missing, document exact missing secret and keep final verdict honest.
+
+==================================================
+12. DOCUMENTATION UPDATE
+========================
+
+Update:
+
+* `QA_REPORT.md`
+* `replit.md`
+* `README.md`
+* `ARCHITECTURE.md` if architecture changed.
+* `.env.example` / `ENV_EXAMPLE.md` if secrets are missing or changed.
+* `MISSING_SECRETS.md` if any required secret is absent.
+
+`QA_REPORT.md` must include:
+
+* Final Replit Unblock Pass Snapshot.
+* What was fixed in this pass.
+* DATABASE_URL status.
+* API smoke result.
+* Supabase/Auth/RLS status.
+* Global App Theme status.
+* Security verification.
+* Data consistency verification.
+* Route smoke result.
+* Build/typecheck/audit result.
+* Remaining blockers, if any.
+* Final verdict.
+
+`replit.md` must include:
+
+* Current run/build commands.
+* Required Replit Secrets.
+* Deployment state.
+* Known limitations.
+* Final handover status.
+
+==================================================
+13. FINAL VERDICT RULE
+======================
+
+Final verdict must be one only:
+
+PRODUCTION HANDOVER PASSED
+
+or
+
+NEEDS FIXES
+
+Use PRODUCTION HANDOVER PASSED only if:
+
+1. Build passes.
+2. Typecheck passes or absence is documented.
+3. Route smoke passes.
+4. API smoke passes if DATABASE_URL is available.
+5. If DATABASE_URL is missing, the app is explicitly documented as frontend/publishable preview only and no admin/data feature falsely claims live API.
+6. `/admin` is protected.
+7. Admin API is protected.
+8. No localStorage admin bypass.
+9. Public login does not route to admin.
+10. Owner tools do not appear to guest/user.
+11. Global Theme is implemented or documented as safe DB-blocked limitation.
+12. User Theme works.
+13. Story Today works.
+14. Home/Finance/Story data is consistent.
+15. Notification count is accurate.
+16. Complaint count is accurate or DB-blocked status documented.
+17. Prayer source is shown.
+18. No user-facing Demo/TODO/Coming Soon.
+19. Legal pages exist.
+20. Documentation matches reality.
+21. No secrets in code.
+22. No screen is blank.
+
+Use NEEDS FIXES only if a real blocker remains and cannot be resolved in this pass.
+
+Do not output vague judgment.
+
+==================================================
+14. FINAL REPORT FORMAT
+=======================
+
+Return exactly this structure:
+
+1. Final Verdict:
+   PRODUCTION HANDOVER PASSED
+   or
+   NEEDS FIXES
+
+2. Executive Summary.
+
+3. What was fixed in this Replit pass:
+
+* Database/API.
+* Global Theme.
+* Supabase/Auth/RLS.
+* Security.
+* Data consistency.
+* Story Today.
+* Notifications.
+* Complaints.
+* Prayer.
+* Documentation.
+
+4. Command Results:
+
+* install.
+* typecheck.
+* build.
+* audit.
+* route smoke.
+* API smoke.
+
+5. Environment/Secrets Status:
+
+* DATABASE_URL.
+* VITE_SUPABASE_URL.
+* VITE_SUPABASE_ANON_KEY.
+* Any missing secrets.
+
+6. Security Verdict:
+
+* /admin protection.
+* Admin API protection.
+* localStorage bypass.
+* guest/user/admin visibility.
+
+7. Data Verdict:
+
+* Home/Finance/Story.
+* Notifications.
+* Complaints.
+* Prayer.
+
+8. Theme Verdict:
+
+* User Theme.
+* Global App Theme.
+* permissions.
+* persistence.
+
+9. Known Limitations:
+   Only real limitations.
+
+10. Modified Files:
+    For each file:
+
+* path.
+* reason.
+* type of change.
+
+11. Open Issues Ledger:
+
+* issue.
+* severity.
+* blocking/non-blocking.
+* required next action.
+
+12. Final Launch Decision:
+    PRODUCTION HANDOVER PASSED
+    or
+    NEEDS FIXES
+
+==================================================
+15. START NOW
+=============
+
+Start now.
+
+Do not give a plan only.
+Do not repeat the old report.
+Do not stop at previous blockers without trying to fix them.
+Do not leave Global Theme incomplete.
+Do not leave API smoke unattempted.
+Do not leave documentation outdated.
+Do not claim full production if required secrets are missing.
+Do not claim NEEDS FIXES unless the remaining issue is genuinely outside what you can fix in Replit.
+
+Close the project as far as Replit allows, and produce the final evidence-based report.

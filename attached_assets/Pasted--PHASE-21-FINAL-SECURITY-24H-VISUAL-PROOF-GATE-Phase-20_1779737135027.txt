@@ -1,0 +1,163 @@
+نفّذ الآن PHASE 21 — FINAL SECURITY + 24H VISUAL PROOF GATE.
+
+الحكم:
+Phase 20B أنجزت Home Financial + Time Format، لكن لا يجوز النشر حتى إغلاق نقطتين:
+1. Screenshot فعلي لصيغة 24 ساعة.
+2. إصلاح ثغرة Replit Security الخاصة بـ qs v6.15.1 Medium Unresolved.
+
+ممنوع:
+- لا تضغط Publish.
+- لا تضف ميزات جديدة.
+- لا تغيّر Supabase/Auth/RLS/Data Gateway/Automation/Location.
+- لا تكسر التصميم الحالي.
+- لا تسلّم تقريراً بدون Security Scan وScreenshot 24h فعلي.
+
+==================================================
+1. إثبات صيغة 24 ساعة فعلياً
+==================================================
+
+المطلوب:
+
+1. افتح /account.
+2. غيّر صيغة الوقت إلى "24 ساعة".
+3. احفظ/تأكد أن localStorage يحتوي:
+   mawaeedak_time_format_v1 = "24h"
+4. افتح الصفحة الرئيسية /.
+5. خذ screenshot جديد باسم واضح:
+   screenshots/home_24h_with_cards.jpg
+
+الصورة يجب أن تُظهر:
+- شريط الصلاة بصيغة 24 ساعة بدون ص/م.
+- البطاقات المالية ظاهرة.
+- Date Card مستقلة.
+- Hero حسب المرجع.
+- BottomNav الجديد.
+
+ثم أعد صيغة الوقت إلى 12h أو اتركها حسب default إذا كان الاختبار لا يؤثر على المستخدم النهائي.
+
+==================================================
+2. تثبيت صيغة 12 ساعة
+==================================================
+
+تحقق أن:
+- الافتراضي 12h.
+- HomePage تعرض ص/م عند 12h.
+- screenshot 12h موجود:
+  screenshots/home_12h_with_cards.jpg
+
+==================================================
+3. إصلاح ثغرة qs
+==================================================
+
+Replit Security Center أظهر:
+Package: qs
+Version: 6.15.1
+Severity: Medium
+Status: Unresolved
+
+المطلوب:
+
+1. حدد مصدر qs:
+   - direct dependency أم transitive؟
+   - أي package يسحبها؟
+
+2. أصلحها بأمان:
+   - تحديث الحزمة المسؤولة.
+   - أو إضافة overrides/resolutions في package.json إذا كانت transitive.
+   - لا تعمل downgrade.
+   - لا تحذف مكتبات بدون فهم.
+
+3. شغّل install المناسب للمشروع:
+   pnpm install
+   أو npm install
+   حسب المستخدم في المشروع.
+
+4. شغّل:
+   - typecheck
+   - build
+   - Admin E2E إن كان موجوداً
+   - API smoke test
+
+5. أعد فحص Replit Security Center أو حدّث scan.
+
+المطلوب النهائي:
+0 unresolved vulnerabilities
+
+==================================================
+4. Smoke Test بعد الإصلاح
+==================================================
+
+اختبر سريعاً:
+
+User:
+- /
+- /account
+- /calendar
+- /finance
+- /finance?tab=calculators
+- /story
+- /notifications
+
+Admin:
+- /admin/dashboard
+
+System:
+- لا شاشة بيضاء
+- لا API 500
+- لا loading infinite
+- Admin لا ينكسر
+- Supabase/Auth/Data Gateway سليمة
+- Toast auto-dismiss = 5000ms
+
+==================================================
+5. تحديث QA
+==================================================
+
+حدّث:
+- QA_REPORT.md
+- replit.md
+
+أضف جدولين:
+
+A. Time Format Proof
+Item | 12h | 24h | Screenshot | Status
+
+B. Security Fix
+Package | Old Version | Fixed Version | Direct/Transitive | Status
+
+==================================================
+6. التقرير النهائي المطلوب
+==================================================
+
+أعطني التقرير بهذا الشكل فقط:
+
+1. هل screenshot 24h أُخذ فعلياً؟
+2. هل HomePage في 24h تعرض الوقت بدون ص/م؟
+3. هل screenshot 12h موجود؟
+4. هل HomePage في 12h تعرض ص/م؟
+5. هل البطاقات المالية ظاهرة في الحالتين؟
+6. ما مصدر qs v6.15.1؟
+7. هل qs direct أم transitive؟
+8. ما التعديل الذي تم لإصلاح qs؟
+9. هل install نجح؟
+10. هل Security Scan أصبح 0 unresolved؟
+11. هل typecheck نجح؟
+12. هل build نجح؟
+13. هل Admin E2E نجح؟
+14. هل API smoke test نجح؟
+15. هل توجد شاشة بيضاء؟
+16. هل توجد API 500؟
+17. هل Admin/Supabase/Data Gateway بقيت سليمة؟
+18. هل QA_REPORT تم تحديثه؟
+19. هل replit.md تم تحديثه؟
+20. الحكم النهائي:
+Final Gate Passed
+أو
+Needs Security Fix
+أو
+Needs Visual Proof
+أو
+Needs Fixes
+
+ممنوع استخدام أي حكم آخر.
+ممنوع اقتراح Publish إذا Security Scan لا يزال فيه Unresolved.

@@ -1,0 +1,123 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 13D
+Final Visual + Automation Smoke Test Gate
+
+المهمة:
+نفّذ فحصاً نهائياً فقط بعد اكتمال Phase 13A + 13B + 13C.
+لا تضف ميزات جديدة.
+لا تغيّر التصميم إلا لإصلاح كسر واضح.
+لا تغيّر Supabase.
+لا تضغط Publish.
+
+المطلوب التحقق منه:
+
+1. هل التصميم المرجعي مطبق فعلياً على:
+- HomePage
+- CalendarPage
+- FinancePage
+- StoryPage
+- NotificationsPage
+- Centers
+- AccountPage
+- Admin
+
+2. هل الهوية البصرية موحدة؟
+- بني/ذهبي/بيج
+- RTL سليم
+- Mobile-first سليم
+- لا overflow أفقي
+- BottomNav لا يغطي المحتوى
+- البطاقات والزوايا والظلال متناسقة
+
+3. هل رسالة اليوم التلقائية تعمل؟
+- pool الرسائل موجود
+- نفس اليوم يعطي نفس الرسالة
+- لا تكرار غير مقصود
+- cron 1:05 AM Asia/Riyadh موثق
+- fallback rule-based يعمل
+
+4. هل بطاقة/ستوري اليوم تعمل؟
+- تظهر عبارة “مُنشأ تلقائياً”
+- التصميم مطابق للهوية
+- لا كسر في النسخ/المشاركة/الحفظ
+
+5. هل الإشعارات المجدولة تعمل؟
+- موعد
+- مالي
+- رسالة اليوم
+- source_key يمنع التكرار
+- cron 7:00 AM Asia/Riyadh موثق
+- لا duplicate notifications
+
+6. هل /admin/automation يعمل؟
+- عرض آخر تشغيل
+- logs واضحة
+- run now أو regenerate إن وجد
+- تشغيل/إيقاف الأتمتة إن وجد
+- لا كسر في لوحة المالك
+
+7. هل Supabase mode بقي سليماً؟
+- VITE_DATA_SOURCE_MODE=supabase
+- Gateway يعمل
+- Auth يعمل
+- RLS يعمل
+- /admin محمي
+
+8. افحص الصفحات:
+- الرئيسية
+- التقويم
+- المال
+- ستوري اليوم
+- الإشعارات
+- المراكز
+- حسابي
+- /admin
+- /admin/automation
+- /admin/data-layer
+- الصفحات القانونية
+- 404
+
+9. افحص الأمان:
+- لا service_role في الواجهة
+- لا hardcoded secrets
+- لا DROP/TRUNCATE
+- لا destructive DELETE غير مقصود
+
+10. شغّل:
+- build
+- typecheck
+
+إذا lint/test غير موجودة، اذكر أنها غير متوفرة ولا تدّع تشغيلها.
+
+حدّث:
+- QA_REPORT.md
+- replit.md
+- README.md إن لزم
+- ARCHITECTURE.md إن لزم
+
+التقرير النهائي المطلوب:
+
+1. هل التصميم المرجعي مطبق فعلياً؟
+2. هل كل الصفحات متناسقة بصرياً؟
+3. هل RTL وMobile سليمين؟
+4. هل رسالة اليوم التلقائية تعمل؟
+5. هل cron رسالة اليوم موثق ويعمل؟
+6. هل ستوري/بطاقة اليوم تعمل؟
+7. هل الإشعارات المجدولة تعمل؟
+8. هل source_key يمنع التكرار؟
+9. هل /admin/automation يعمل؟
+10. هل Supabase mode بقي سليماً؟
+11. هل /admin بقي محمياً؟
+12. هل توجد API 500؟
+13. هل توجد شاشة بيضاء؟
+14. هل توجد console errors جوهرية؟
+15. هل يوجد service_role؟
+16. هل توجد أسرار hardcoded؟
+17. هل build نجح؟
+18. هل typecheck نجح؟
+19. هل QA_REPORT تم تحديثه؟
+20. هل يجوز Publish الآن؟
+21. الحكم النهائي:
+Ready to Publish / Needs Visual Fix / Needs Automation Fix / Needs Security Fix / Needs Fixes

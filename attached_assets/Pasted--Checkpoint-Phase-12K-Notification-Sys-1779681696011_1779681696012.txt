@@ -1,0 +1,325 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 12K
+Notification System Full Consistency Gate
+
+الدور:
+تصرف كفريق Data Layer Architect + Supabase Engineer + Frontend Reliability Engineer + QA Lead + Security Reviewer.
+مهمتك الآن ليست تحويل كل النظام إلى Supabase، وليست حذف API، وليست تحويل Calendar/Finance/Admin CRUD العام.
+مهمتك فقط إغلاق اتساق نظام الإشعارات بالكامل بعد نجاح Phase 12J.
+
+==================================================
+0. السياق الحالي
+==================================================
+
+تم اعتماد Phase 12J:
+- NotificationsPage أصبحت تستخدم Gateway للقراءة.
+- mark-read يستخدم Gateway.
+- mark-all-read يستخدم Gateway.
+- delete notification يستخدم Gateway.
+- mode=api يعمل عبر API.
+- mode=supabase_shadow يعمل عبر API ولا يكتب إلى Supabase.
+- mode=supabase يقرأ ويكتب للإشعارات عبر Supabase.
+- لا fallback صامت في write عند mode=supabase.
+- build ناجح.
+- typecheck ناجح.
+- لا service_role.
+- لا أسرار hardcoded.
+- لا DROP/TRUNCATE/DELETE.
+- Supabase Auth و/admin سليمان.
+
+القيود المتبقية في نظام الإشعارات:
+1. TopBar unread count ما زال يقرأ من API/Orval.
+2. AdminNotifications send/delete ما زالت على API/Orval.
+3. عند mode=supabase قد يحدث اختلاف بين:
+   - NotificationsPage من Supabase.
+   - TopBar count من API.
+   - AdminNotifications من API.
+
+المطلوب الآن إغلاق هذا التباين داخل نطاق الإشعارات فقط.
+
+==================================================
+1. الهدف التنفيذي
+==================================================
+
+حوّل نظام الإشعارات إلى Gateway-consistent داخل النطاق المحدد.
+
+المطلوب:
+1. TopBar unread count يستخدم Gateway.
+2. AdminNotifications قراءة الإشعارات تستخدم Gateway حيث يكون آمناً.
+3. AdminNotifications إرسال إشعار يستخدم Gateway فقط إذا كان آمناً ومحدوداً.
+4. AdminNotifications حذف إشعار يستخدم Gateway أو يبقى API مع توثيق واضح إذا كان التحويل غير آمن.
+5. عند mode=api:
+   - كل شيء يعمل عبر API كما كان.
+6. عند mode=supabase_shadow:
+   - كل شيء يظل API.
+   - لا كتابة إلى Supabase.
+7. عند mode=supabase:
+   - NotificationsPage + TopBar count + AdminNotifications notifications operations تستخدم Supabase بقدر النطاق الآمن.
+8. لا تحوّل أي نطاق خارج الإشعارات.
+9. لا تحوّل Calendar.
+10. لا تحوّل Finance.
+11. لا تحوّل news/jobs/themes/story_templates الآن.
+12. لا تحذف API.
+13. لا تضغط Publish.
+
+==================================================
+2. خارج النطاق
+==================================================
+
+هذه المرحلة ليست:
+- Full Write Cutover.
+- Calendar CRUD Cutover.
+- Finance CRUD Cutover.
+- Admin news/jobs CRUD.
+- Theme admin CRUD.
+- Story templates admin CRUD.
+- حذف API.
+- حذف PostgreSQL.
+- Production Ready.
+- Publish.
+- Firebase Push Notifications.
+- Offline.
+- إعادة تصميم UI.
+
+==================================================
+3. ممنوعات صارمة
+==================================================
+
+ممنوع:
+- لا تحول كل mutations.
+- لا تلمس appointments.
+- لا تلمس financial_events.
+- لا تلمس daily_messages/news/jobs/themes/story_templates.
+- لا تحذف API endpoints.
+- لا تستخدم service_role في الواجهة.
+- لا تضع أسرار في الكود.
+- لا تستخدم DROP/TRUNCATE/DELETE.
+- لا تنقل بيانات جديدة عبر SQL.
+- لا تجعل Supabase هو default.
+- لا تضغط Publish.
+- لا تدّع Production Ready.
+- لا تكسر TopBar أو NotificationsPage أو AdminNotifications.
+
+==================================================
+4. بروتوكول التشخيص قبل التنفيذ
+==================================================
+
+قبل التعديل، افحص:
+
+1. TopBar unread count hook الحالي.
+2. NotificationsPage بعد Phase 12J.
+3. AdminNotifications الحالية.
+4. dataGateway.ts functions الحالية:
+   - gwGetNotifications
+   - gwMarkNotificationRead
+   - gwMarkAllNotificationsRead
+   - gwDeleteNotification
+
+5. supabaseData.ts functions الحالية.
+6. هل توجد دالة count unread في Gateway؟
+7. هل توجد دالة create/send notification في Gateway؟
+8. هل يوجد RLS يسمح بإدخال notification للمستخدم الحالي؟
+9. هل AdminNotifications تستخدم نفس shape المطلوب؟
+10. هل id في الواجهة legacy_id أم uuid؟
+11. كيف يتم تحديث React Query cache بعد الإرسال/الحذف/mark-read؟
+12. كيف نتجنب divergence بين TopBar وNotificationsPage؟
+
+لا تبدأ التنفيذ قبل توثيق قرار:
+- هل سيتم تحويل send notification أم لا؟
+- هل سيتم تحويل delete في AdminNotifications أم لا؟
+- هل سيتم تحويل unread count أم لا؟
+
+==================================================
+5. متطلبات التنفيذ
+==================================================
+
+نفّذ بأقل تغيير آمن:
+
+أ. TopBar unread count:
+- أضف Gateway function مثل:
+  gwGetUnreadNotificationsCount
+- عند mode=api أو shadow:
+  استخدم API الحالي.
+- عند mode=supabase:
+  احسب العدد من Supabase:
+  user_id = current user
+  is_read = false
+- أضف fallback قراءة إلى API إذا فشل Supabase read فقط.
+- لا تكسر TopBar.
+
+ب. AdminNotifications read:
+- اجعل قراءة قائمة الإشعارات تستخدم Gateway إن كان آمناً.
+- عند mode=api/shadow:
+  API.
+- عند mode=supabase:
+  Supabase.
+
+ج. AdminNotifications send:
+- إذا كان schema واضحاً وRLS يسمح:
+  أضف Gateway sendNotification.
+- في mode=supabase:
+  أنشئ notification في Supabase للمستخدم الحالي hrq أو current session user.
+- لا تستخدم service_role.
+- لا تضع recipient عام غير واضح.
+- إذا لم يكن آمنًا:
+  اتركه API ووثّق السبب، ولا تدّع اكتماله.
+
+د. AdminNotifications delete:
+- استخدم gwDeleteNotification إذا مناسب.
+- عند mode=supabase:
+  احذف من Supabase وفق legacy_id/user_id.
+- لا fallback صامت في write.
+
+هـ. Cache/refresh:
+- بعد أي write:
+  حدّث NotificationsPage.
+  حدّث TopBar count.
+  حدّث AdminNotifications.
+- تجنب stale count.
+
+==================================================
+6. اختبارات إلزامية
+==================================================
+
+اختبر:
+
+أ. mode=api:
+1. TopBar count يعمل من API.
+2. NotificationsPage تعمل.
+3. AdminNotifications تعمل كما قبل.
+4. Send/delete/mark-read لا تنكسر.
+
+ب. mode=supabase_shadow:
+1. القراءة والكتابة تبقى API.
+2. لا كتابة إلى Supabase.
+3. لا كسر.
+
+ج. mode=supabase:
+1. TopBar count يقرأ من Supabase.
+2. NotificationsPage يقرأ من Supabase.
+3. mark-read يكتب Supabase.
+4. mark-all-read يكتب Supabase.
+5. delete يكتب Supabase.
+6. AdminNotifications يقرأ من Supabase إذا تم تحويله.
+7. send notification يكتب Supabase فقط إذا تم تحويله بأمان.
+8. بعد send أو mark-read أو delete يتحدث العدّاد والقائمة.
+9. لا fallback صامت في write.
+10. لا duplicates.
+11. RLS يعمل.
+12. user_id صحيح.
+
+اختبر الصفحات:
+- الرئيسية
+- التقويم
+- المال
+- ستوري اليوم
+- الإشعارات
+- المراكز
+- حسابي
+- /admin
+- /admin/data-layer
+- /admin/notifications
+- الصفحات القانونية
+- 404
+
+==================================================
+7. أوامر الفحص
+==================================================
+
+شغّل:
+- pnpm build أو npm run build
+- pnpm typecheck أو npm run typecheck إن وجد
+
+وافحص:
+- service_role
+- SUPABASE_SERVICE_ROLE
+- hardcoded Supabase keys
+- hardcoded passwords
+- DROP
+- TRUNCATE
+- DELETE غير مقصود
+
+==================================================
+8. تحديث التوثيق
+==================================================
+
+حدّث:
+- QA_REPORT.md
+- DATA_SOURCE_MAP.md
+- SUPABASE_MIGRATION_PLAN.md
+- SUPABASE_MIGRATION_CHECKLIST.md
+- ARCHITECTURE.md
+- README.md إن لزم
+
+وثّق:
+- هل TopBar count أصبح Gateway.
+- هل AdminNotifications read أصبح Gateway.
+- هل send notification تحول أو بقي API.
+- هل delete تحول.
+- ما الذي بقي API.
+- أن default لا يزال api.
+- أن Phase 12L مخصصة للنطاق الإداري التالي.
+- أي divergence risk متبقٍ.
+
+==================================================
+9. معيار قبول المرحلة
+==================================================
+
+تقبل Phase 12K فقط إذا تحقق:
+
+- TopBar unread count يستخدم Gateway.
+- NotificationsPage بقيت سليمة.
+- AdminNotifications لم تنكسر.
+- mode=api يعمل.
+- mode=supabase_shadow يعمل.
+- mode=supabase متسق داخل نطاق الإشعارات قدر الإمكان.
+- لا يتم تحويل نطاق آخر.
+- API لم يُحذف.
+- PostgreSQL لم يُحذف.
+- لا بيانات SQL جديدة.
+- لا DROP/TRUNCATE/DELETE.
+- لا service_role.
+- لا أسرار hardcoded.
+- Supabase Auth و/admin سليمان.
+- كل الصفحات سليمة.
+- build ناجح.
+- typecheck ناجح.
+- QA_REPORT محدث.
+
+الحكم النهائي:
+Notification System Consistent / Partial Notification Consistency / Needs Notification Fix / Needs Fixes
+
+==================================================
+10. التقرير النهائي المطلوب
+==================================================
+
+أعطني تقريراً بهذا الشكل فقط:
+
+1. هل TopBar unread count أصبح يستخدم Gateway؟
+2. هل NotificationsPage بقيت Gateway ومتسقة؟
+3. هل AdminNotifications read أصبح Gateway؟
+4. هل AdminNotifications send تحول أم بقي API؟
+5. هل AdminNotifications delete تحول أم بقي API؟
+6. هل mode=api يعمل؟
+7. هل mode=supabase_shadow يعمل؟
+8. هل mode=supabase يعمل لنظام الإشعارات؟
+9. هل TopBar count يتحدث بعد mark-read؟
+10. هل TopBar count يتحدث بعد delete؟
+11. هل TopBar count يتحدث بعد send إن تم تحويل send؟
+12. هل يوجد fallback صامت إلى API في write عند mode=supabase؟
+13. هل تم تحويل أي نطاق آخر؟
+14. هل API endpoints ما زالت موجودة؟
+15. هل PostgreSQL ما زال موجوداً؟
+16. هل يوجد service_role في الواجهة؟
+17. هل توجد أسرار hardcoded؟
+18. هل يوجد DROP/TRUNCATE/DELETE غير مقصود؟
+19. هل Supabase Auth و/admin بقيا سليمين؟
+20. هل الصفحات السابقة سليمة؟
+21. هل build نجح؟ اذكر النتيجة صراحة.
+22. هل typecheck نجح؟ اذكر النتيجة صراحة.
+23. هل QA_REPORT تم تحديثه؟
+24. القيود المتبقية.
+25. الحكم النهائي:
+Notification System Consistent / Partial Notification Consistency / Needs Notification Fix / Needs Fixes

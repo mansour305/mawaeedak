@@ -1,0 +1,362 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 12H
+Frontend Read Gateway Integration + Safe Supabase Mode Gate
+
+الدور:
+تصرف كفريق Data Layer Architect + Frontend Engineer + Supabase Engineer + QA Lead.
+مهمتك الآن ليست تحويل الكتابة، وليست حذف API، وليست إعلان Production Ready.
+مهمتك ربط واجهات القراءة الفعلية بـ Data Gateway بشكل آمن، بحيث يمكن تشغيل القراءة من Supabase عبر feature flag، مع بقاء الوضع الافتراضي API.
+
+==================================================
+0. السياق الحالي
+==================================================
+
+تم اعتماد Phase 12G:
+- src/lib/dataGateway.ts موجود.
+- src/lib/supabaseData.ts موجود.
+- src/lib/dataSourceMode.ts موجود.
+- الأوضاع المعلنة:
+  api
+  supabase_shadow
+  supabase
+
+- Supabase يحتوي 40 صفاً:
+  daily_messages = 8
+  story_templates = 2
+  themes = 10
+  news = 2
+  jobs = 2
+  appointments = 2
+  financial_events = 8
+  notifications = 3
+  complaints = 3
+
+- Counts API = 40
+- Counts Supabase = 40
+- API/PostgreSQL لا يزال مصدر الحقيقة الافتراضي
+- الكتابة Mutations ما زالت على API
+- build ناجح
+- typecheck ناجح
+
+القيد الحالي:
+- صفحات المستخدم لا تزال تعتمد غالباً على Orval/API hooks.
+- dataGateway موجود لكنه غير مستخدم فعلياً في الواجهة إلا بشكل محدود.
+- dataSourceMode.ts يرجع "api" دائماً، وهذا يمنع تفعيل supabase عبر VITE_DATA_SOURCE_MODE.
+
+==================================================
+1. الهدف التنفيذي
+==================================================
+
+نفّذ Read Gateway Integration آمن.
+
+المطلوب:
+1. اجعل dataSourceMode يحترم VITE_DATA_SOURCE_MODE إذا كانت القيمة صحيحة:
+   - api
+   - supabase_shadow
+   - supabase
+
+2. إذا لم توجد القيمة أو كانت غير صحيحة:
+   - ارجع إلى api
+
+3. لا تجعل supabase هو الافتراضي.
+
+4. اربط واجهات القراءة فقط بـ Data Gateway حيث يكون ذلك آمناً.
+
+5. لا تحوّل أي POST/PATCH/DELETE الآن.
+
+6. عند mode=api:
+   - يجب أن يبقى التطبيق كما هو.
+
+7. عند mode=supabase_shadow:
+   - الواجهة تعرض API.
+   - shadow comparison يعمل.
+   - لا يكسر الصفحة.
+
+8. عند mode=supabase:
+   - الواجهة تقرأ من Supabase للجداول المنقولة.
+   - عند فشل Supabase، fallback إلى API.
+
+9. لا تحذف API.
+10. لا تحذف PostgreSQL.
+11. لا تضغط Publish.
+12. حدّث QA_REPORT والوثائق.
+
+==================================================
+2. النطاق المسموح
+==================================================
+
+حوّل القراءة فقط للنطاقات التالية:
+
+1. الرئيسية:
+   - daily_messages
+   - financial_events/countdowns
+   - upcoming appointments إن كانت القراءة آمنة
+
+2. التقويم:
+   - appointments read/list فقط
+
+3. المال:
+   - financial_events read/list/countdowns فقط
+
+4. ستوري اليوم:
+   - daily_messages
+   - story_templates
+   - financial_events
+
+5. الإشعارات:
+   - notifications read/list فقط
+
+6. المراكز:
+   - news
+   - jobs
+   - complaints read/admin فقط إن كانت مستخدمة
+
+7. الثيمات:
+   - themes read/list فقط
+
+ممنوع في هذه المرحلة:
+- add appointment عبر Supabase
+- edit appointment عبر Supabase
+- delete appointment عبر Supabase
+- add/edit/delete financial_events عبر Supabase
+- send/delete notifications عبر Supabase
+- admin mutations عبر Supabase
+
+==================================================
+3. سياسة الكتابة
+==================================================
+
+الكتابة تبقى على API بالكامل.
+
+إذا كانت صفحة تقرأ من Supabase وتكتب إلى API:
+- وثّقها صراحة في QA_REPORT كـ Read Cutover Only.
+- أضف تحذيراً تقنياً في التوثيق أن أي mutation بعد التحويل قد يسبب divergence حتى Phase 12I.
+- لا تخفي هذا القيد.
+
+==================================================
+4. خارج النطاق
+==================================================
+
+هذه المرحلة ليست:
+- Write Cutover.
+- Mutations إلى Supabase.
+- حذف API.
+- حذف PostgreSQL.
+- حذف Orval hooks.
+- Production Ready.
+- Publish.
+- Firebase.
+- Offline.
+- إعادة تصميم UI.
+- نقل بيانات جديدة.
+
+==================================================
+5. ممنوعات صارمة
+==================================================
+
+ممنوع:
+- لا تغيّر عمليات الكتابة إلى Supabase.
+- لا تحذف API endpoints.
+- لا تستخدم service_role في الواجهة.
+- لا تضع أسرار في الكود.
+- لا تستخدم DROP/TRUNCATE/DELETE.
+- لا تنقل بيانات جديدة.
+- لا تجعل supabase الوضع الافتراضي.
+- لا تضغط Publish.
+- لا تدّع Production Ready.
+- لا تكسر أي صفحة.
+
+==================================================
+6. بروتوكول التشخيص قبل التنفيذ
+==================================================
+
+قبل التعديل، افحص:
+
+1. أين تُستخدم Orval hooks للقراءة.
+2. ما الصفحات التي تعتمد على read queries.
+3. ما الصفحات التي تجمع read + mutations في نفس hook.
+4. أين يمكن إدخال gateway بأقل كسر.
+5. shape بيانات API مقابل Supabase.
+6. fallback behavior عند فشل Supabase.
+7. هل mode=supabase قابل للتفعيل فعلياً.
+8. هل mode=supabase_shadow يعمل بدون تغيير العرض.
+
+لا تبدأ التنفيذ قبل تحديد خطة Read-only integration.
+
+==================================================
+7. متطلبات التنفيذ
+==================================================
+
+نفّذ بأقل تغيير آمن:
+
+1. تحديث dataSourceMode.ts:
+   - اقرأ VITE_DATA_SOURCE_MODE.
+   - اقبل فقط api/supabase_shadow/supabase.
+   - default = api.
+
+2. تحديث أو إنشاء read hooks/gateway hooks آمنة مثل:
+   - useGatewayDailyMessages
+   - useGatewayFinancialEvents
+   - useGatewayAppointments
+   - useGatewayNotifications
+   - useGatewayThemes
+   - useGatewayNews
+   - useGatewayJobs
+   حسب البنية المناسبة.
+
+3. لا تكسر Orval hooks.
+4. لا تحذفها.
+5. اجعل الصفحات تستخدم gateway للقراءة فقط إن كان آمناً.
+6. أبق mutations كما هي على API.
+7. أضف comments أو docs توضّح أن الكتابة مؤجلة.
+
+==================================================
+8. اختبارات الأوضاع الثلاثة
+==================================================
+
+اختبر:
+
+أ. VITE_DATA_SOURCE_MODE غير مضبوط أو api:
+- التطبيق يعمل كما قبل.
+- كل API endpoints 200.
+- لا صفحات مكسورة.
+
+ب. VITE_DATA_SOURCE_MODE=supabase_shadow:
+- الواجهة تعرض API.
+- Shadow comparison يعمل.
+- لا صفحات مكسورة.
+
+ج. VITE_DATA_SOURCE_MODE=supabase:
+- القراءة تأتي من Supabase حيث تم ربطها.
+- counts:
+  daily_messages = 8
+  story_templates = 2
+  themes = 10
+  news = 2
+  jobs = 2
+  appointments = 2
+  financial_events = 8
+  notifications = 3
+  complaints = 3
+
+- fallback إلى API يعمل عند خطأ Supabase.
+- الكتابة ما زالت API وموثقة.
+
+==================================================
+9. اختبارات الصفحات
+==================================================
+
+اختبر في الأوضاع المناسبة:
+
+- الرئيسية
+- التقويم
+- المال
+- ستوري اليوم
+- الإشعارات
+- المراكز
+- حسابي
+- /admin
+- /admin/data-layer
+- الصفحات القانونية
+- 404
+
+تأكد:
+- لا شاشة بيضاء.
+- لا API 500.
+- لا كسر RTL.
+- لا كسر Theme Engine.
+- Supabase Auth و/admin سليمان.
+
+==================================================
+10. أوامر الفحص
+==================================================
+
+شغّل:
+- pnpm build أو npm run build
+- pnpm typecheck أو npm run typecheck إن وجد
+
+وافحص:
+- service_role
+- SUPABASE_SERVICE_ROLE
+- hardcoded Supabase keys
+- hardcoded passwords
+- DROP
+- TRUNCATE
+- DELETE غير مقصود
+
+==================================================
+11. تحديث التوثيق
+==================================================
+
+حدّث:
+1. QA_REPORT.md
+2. DATA_SOURCE_MAP.md
+3. SUPABASE_MIGRATION_PLAN.md
+4. SUPABASE_MIGRATION_CHECKLIST.md
+5. ARCHITECTURE.md
+6. README.md إن تغيرت الحالة العامة
+
+وثّق:
+- أن default = api.
+- أن mode=supabase قابل للتفعيل.
+- أن القراءة تحولت جزئياً/كلياً عبر gateway.
+- أن الكتابة ما زالت API.
+- أن Phase 12I مخصصة للكتابة.
+- أي نطاق لم يتم ربطه بالgateway وسبب ذلك.
+
+==================================================
+12. معيار قبول المرحلة
+==================================================
+
+تقبل Phase 12H فقط إذا تحقق:
+
+- dataSourceMode يحترم env بشكل آمن.
+- default = api.
+- mode=api يعمل.
+- mode=supabase_shadow يعمل.
+- mode=supabase يعمل للقراءة.
+- الصفحات الأساسية تقرأ عبر gateway حيث أمكن.
+- mutations لم تتحول.
+- API لم يُحذف.
+- PostgreSQL لم يُحذف.
+- لا بيانات جديدة نُقلت.
+- لا DROP/TRUNCATE/DELETE.
+- Supabase Auth و/admin سليمان.
+- جميع الصفحات سليمة.
+- build ناجح.
+- typecheck ناجح.
+- QA_REPORT محدث.
+
+الحكم النهائي:
+Frontend Read Cutover Ready / Partial Read Cutover / Needs Gateway Fix / Needs Fixes
+
+==================================================
+13. التقرير النهائي المطلوب
+==================================================
+
+أعطني تقريراً بهذا الشكل فقط:
+
+1. هل dataSourceMode أصبح يحترم VITE_DATA_SOURCE_MODE؟
+2. ما القيمة الافتراضية؟
+3. هل mode=api يعمل؟
+4. هل mode=supabase_shadow يعمل؟
+5. هل mode=supabase يعمل للقراءة؟
+6. ما الصفحات التي أصبحت تستخدم gateway للقراءة؟
+7. ما الجداول التي تُقرأ من Supabase عند mode=supabase؟
+8. هل الكتابة ما زالت على API؟
+9. هل يوجد fallback إلى API؟
+10. هل API endpoints ما زالت موجودة؟
+11. هل PostgreSQL ما زال موجوداً؟
+12. هل تم نقل أي بيانات جديدة؟
+13. هل يوجد DROP/TRUNCATE/DELETE؟
+14. هل Supabase Auth و/admin بقيا سليمين؟
+15. هل الصفحات السابقة سليمة؟
+16. ما counts في mode=supabase؟
+17. هل build نجح؟ اذكر النتيجة صراحة.
+18. هل typecheck نجح؟ اذكر النتيجة صراحة.
+19. هل QA_REPORT تم تحديثه؟
+20. القيود المتبقية.
+21. الحكم النهائي:
+Frontend Read Cutover Ready / Partial Read Cutover / Needs Gateway Fix / Needs Fixes

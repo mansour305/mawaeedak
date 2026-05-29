@@ -1,0 +1,197 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 13O
+Owner Visual Acceptance Screenshot Pack + Final Visual Correction Gate
+
+الحكم:
+لا يوجد اعتماد بصري نهائي حتى الآن.
+التقارير الرقمية 9/10 غير كافية.
+المالك يريد مقارنة بصرية فعلية مع المرجع الشامل.
+
+المطلوب الآن:
+1. لا تضغط Publish.
+2. لا تكتب Ready to Publish.
+3. لا تكتب Reference Design Matched.
+4. لا تغيّر Supabase/Auth/Data Gateway/Automation/Location.
+5. اعرض للمالك Preview/Screenshot Package كامل لكل الشاشات الأساسية.
+6. أصلح أي صفحة واضحة أنها لا تطابق المرجع قبل التقرير.
+
+==================================================
+1. المرجع
+==================================================
+
+الصورة المرجعية الشاملة هي Source of Truth.
+
+يجب أن تطابق:
+- الرئيسية
+- التقويم
+- المال
+- الحاسبات الذكية
+- المراكز
+- ستوري اليوم
+- المواد المالية
+- حسابي
+- لوحة المالك
+- دليل العناصر البصرية
+- الشعار والحقوق
+- BottomNav
+- Header
+- البطاقات
+- الزخارف
+- الخلفية الورقية
+
+==================================================
+2. المطلوب أولاً: Screenshot Package
+==================================================
+
+جهّز صور Preview واضحة للصفحات التالية على مقاس جوال:
+
+1. HomePage
+2. CalendarPage
+3. FinancePage
+4. Smart Calculators
+5. CentersPage
+6. StoryPage
+7. AccountPage
+8. NotificationsPage
+9. Admin Login
+10. Admin Dashboard
+11. Admin Automation
+12. Admin Visual Guide
+
+كل صورة يجب أن تظهر:
+- الهيدر
+- المحتوى الأساسي
+- BottomNav إن كان في صفحة المستخدم
+- الهوية التراثية
+- شعار مواعيدك حيث يلزم
+
+==================================================
+3. ممنوع اعتماد المرحلة بدون صور
+==================================================
+
+ممنوع تقول:
+- مكتمل
+- مطابق
+- Ready
+- 10/10
+- Reference Design Matched
+
+إلا بعد عرض الصور وموافقة المالك.
+
+الحكم النهائي المسموح الآن:
+Pending Owner Visual Approval
+
+==================================================
+4. إصلاحات بصرية إلزامية قبل إرسال الصور
+==================================================
+
+راجع كل صفحة بصرياً مقابل المرجع.
+
+إذا وجدت:
+- صفحة لا تشبه المرجع
+- هيدر ضعيف
+- كروت مسطحة
+- خلفية بيضاء أو منقطة فقط
+- Admin default
+- أي صفحة لا تحمل هوية مواعيدك
+- صورة مشاركة بدون شعار أو حقوق
+- BottomNav غير متناسق
+- أزرار أو Inputs خام
+
+أصلحها قبل التقرير.
+
+==================================================
+5. شرط الشعار والحقوق
+==================================================
+
+تأكد أن شعار "مواعيدك" موجود في:
+- Header
+- StoryPage
+- بطاقات المشاركة
+- الصور اليومية
+- Admin
+- Visual Guide
+
+وتأكد أن العناصر القابلة للمشاركة تحتوي:
+"مواعيدك — جميع الحقوق محفوظة"
+
+==================================================
+6. Visual QA Matrix
+==================================================
+
+حدّث QA_REPORT.md بجدول:
+
+الصفحة | صورة Preview جاهزة؟ | مطابقة المرجع من 10 | النواقص | الحكم
+
+الصفحات المطلوبة:
+- HomePage
+- CalendarPage
+- FinancePage
+- Smart Calculators
+- CentersPage
+- StoryPage
+- AccountPage
+- NotificationsPage
+- Admin Login
+- Admin Dashboard
+- Admin Automation
+- Admin Visual Guide
+
+==================================================
+7. الاختبارات الفنية
+==================================================
+
+شغّل:
+- typecheck
+- build
+
+وافحص:
+- Supabase mode
+- Auth
+- /admin
+- Data Gateway
+- Automation
+- Location/Timezone
+- Toast auto-dismiss
+- لا API 500
+- لا شاشة بيضاء
+- لا service_role
+- لا hardcoded secrets
+- لا كسر RTL
+- لا overflow أفقي
+
+==================================================
+8. التقرير النهائي المطلوب
+==================================================
+
+أعطني تقريراً بهذا الشكل فقط:
+
+1. هل تم تجهيز Screenshot Package للمالك؟
+2. هل HomePage screenshot جاهز؟
+3. هل CalendarPage screenshot جاهز؟
+4. هل FinancePage screenshot جاهز؟
+5. هل Smart Calculators screenshot جاهز؟
+6. هل CentersPage screenshot جاهز؟
+7. هل StoryPage screenshot جاهز؟
+8. هل AccountPage screenshot جاهز؟
+9. هل NotificationsPage screenshot جاهز؟
+10. هل Admin Login screenshot جاهز؟
+11. هل Admin Dashboard screenshot جاهز؟
+12. هل Admin Automation screenshot جاهز؟
+13. هل Admin Visual Guide screenshot جاهز؟
+14. هل شعار مواعيدك موجود في العناصر العامة والمشاركة؟
+15. هل الحقوق تظهر في بطاقات المشاركة والصور اليومية؟
+16. هل تم تحديث QA_REPORT بـ Visual QA Matrix؟
+17. هل build نجح؟
+18. هل typecheck نجح؟
+19. هل توجد API 500؟
+20. هل توجد شاشة بيضاء؟
+21. هل Supabase/Auth/Data Gateway بقيت سليمة؟
+22. ما النواقص البصرية المتبقية إن وجدت؟
+23. الحكم النهائي:
+Pending Owner Visual Approval
+
+ممنوع استخدام أي حكم آخر.
+ممنوع اقتراح Publish.

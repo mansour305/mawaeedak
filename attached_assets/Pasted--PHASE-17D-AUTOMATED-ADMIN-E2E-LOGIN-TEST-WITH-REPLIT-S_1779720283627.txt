@@ -1,0 +1,259 @@
+نفّذ الآن PHASE 17D — AUTOMATED ADMIN E2E LOGIN TEST WITH REPLIT SECRETS.
+
+الحكم:
+المشكلة لا تُحل بطلب تجربة يدوية من المالك.
+أدواتك لا تستطيع كتابة الحقول داخل Preview يدوياً، لذلك يجب تنفيذ اختبار آلي E2E داخل المشروع باستخدام Playwright أو أي آلية اختبار متصفح متاحة.
+
+المطلوب:
+اختبر دخول /admin فعلياً باستخدام بيانات محفوظة في Replit Secrets فقط.
+
+ممنوع:
+- لا تطلب من المالك التجربة اليدوية.
+- لا تطلب كلمة المرور في المحادثة.
+- لا تضع كلمة المرور في الكود.
+- لا تطبع كلمة المرور في logs.
+- لا تحفظها في QA_REPORT أو replit.md.
+- لا تضعها في screenshots.
+- لا تضغط Publish.
+- لا تغيّر Supabase schema.
+- لا تستخدم service_role.
+- لا تكسر Data Gateway.
+- لا تكسر Automation.
+- لا تكسر Location/Timezone.
+
+==================================================
+1. مصدر بيانات الاختبار
+==================================================
+
+اقرأ بيانات الدخول من Replit Secrets / env فقط:
+
+ADMIN_E2E_EMAIL
+ADMIN_E2E_PASSWORD
+
+إذا لم تكن موجودة:
+اعرض فشل واضح:
+Needs Replit Secrets
+
+ولا تستخدم أي بيانات hardcoded.
+
+==================================================
+2. أنشئ اختبار E2E حقيقي
+==================================================
+
+أنشئ سكربت اختبار آلي، مثلاً:
+
+- scripts/e2e-admin-login.ts
+أو
+- tests/admin-login.spec.ts
+
+باستخدام Playwright أو أداة مناسبة متاحة في المشروع.
+
+الاختبار يجب أن يفعل فعلياً:
+
+1. يفتح /admin?reset=1
+2. ينتظر الرجوع إلى /admin
+3. يتحقق أن login form ظاهر
+4. يملأ البريد من ADMIN_E2E_EMAIL
+5. يملأ كلمة المرور من ADMIN_E2E_PASSWORD
+6. يضغط زر تسجيل الدخول
+7. ينتظر نتيجة واضحة خلال 10 ثوانٍ
+
+النتائج المقبولة فقط:
+- Dashboard ظهر
+- Access Denied ظهر مع role واضح
+- Invalid credentials ظهر
+- Timeout واضح
+
+ممنوع:
+- لا loading أبدي
+- لا نجاح وهمي
+- لا تقرير بدون تشغيل الاختبار
+
+==================================================
+3. إذا دخل Dashboard
+==================================================
+
+اختبر هذه الصفحات آلياً:
+
+- /admin/dashboard
+- /admin/automation
+- /admin/visual-guide
+- /admin/data-layer
+
+وتحقق من:
+- لا شاشة بيضاء
+- لا loading أبدي
+- ظهور محتوى الصفحة
+- sidebar أو admin shell ظاهر
+- شعار مواعيدك ظاهر
+
+احفظ screenshots داخل مجلد آمن مثل:
+test-results/admin/
+
+لا تلتقط كلمة المرور.
+
+الحكم:
+Admin Access Verified
+
+==================================================
+4. إذا ظهر Access Denied
+==================================================
+
+استخرج من الشاشة أو debug box:
+
+- role من user_metadata
+- role من app_metadata
+- session موجودة أم لا
+
+الحكم:
+Needs Supabase Role Fix
+
+ولا تقل إن الدخول يعمل.
+
+==================================================
+5. إذا ظهرت بيانات الدخول غير صحيحة
+==================================================
+
+الحكم:
+Needs Owner Password Reset
+
+ولا تعدل الكود.
+
+==================================================
+6. إذا الزر علق
+==================================================
+
+إذا بقي submitting/loading أكثر من 10 ثوانٍ:
+
+- أصلح handleLoginSubmit
+- تأكد من Promise timeout
+- تأكد من finally setSubmitting(false)
+- تأكد أن form onSubmit يعمل
+- تأكد أن button type="submit"
+- أعد تشغيل الاختبار الآلي
+
+الحكم:
+Needs Fixes حتى يزول التعليق.
+
+==================================================
+7. اختبر التطبيق كاملاً بعد admin
+==================================================
+
+شغّل E2E أو smoke test للصفحات:
+
+User:
+- /
+- /calendar
+- /finance
+- /finance?tab=calculators
+- /centers
+- /story
+- /account
+- /notifications
+
+Admin:
+- /admin
+- /admin-self-test
+- /visual-reference-clone
+- /admin/dashboard
+- /admin/automation
+- /admin/visual-guide
+- /admin/data-layer
+
+System:
+- Supabase mode
+- Auth
+- Data Gateway
+- Automation
+- Location/Timezone
+- Toast auto-dismiss 5000ms
+
+==================================================
+8. شغّل الفحوص
+==================================================
+
+شغّل:
+- typecheck
+- build
+- admin E2E login test
+- smoke test إن أمكن
+
+وافحص:
+- لا API 500
+- لا شاشة بيضاء
+- لا loading infinite
+- لا console errors جوهرية
+- لا service_role
+- لا hardcoded secrets
+- لا طباعة للـ password
+
+==================================================
+9. تحديث التوثيق
+==================================================
+
+حدّث:
+- QA_REPORT.md
+- replit.md
+
+لكن ممنوع كتابة كلمة المرور أو طباعتها.
+
+أضف جدول:
+
+Test | Result | Evidence | Screenshot | Notes
+
+يشمل:
+- env secrets detected without printing values
+- /admin?reset=1
+- login form visible
+- submit fired
+- final login result
+- dashboard access
+- automation access
+- visual guide access
+- data layer access
+- user smoke pages
+- build
+- typecheck
+
+==================================================
+10. التقرير النهائي المطلوب
+==================================================
+
+أعطني التقرير بهذا الشكل فقط:
+
+1. هل ADMIN_E2E_EMAIL موجود في env؟
+2. هل ADMIN_E2E_PASSWORD موجود في env بدون طباعته؟
+3. هل تم إنشاء اختبار E2E فعلي؟
+4. هل تم تشغيل اختبار /admin?reset=1؟
+5. هل تم تعبئة البريد آلياً؟
+6. هل تم تعبئة كلمة المرور آلياً بدون حفظها؟
+7. هل تم الضغط على تسجيل الدخول آلياً؟
+8. ما النتيجة النهائية للدخول؟
+9. هل دخل Dashboard؟
+10. إذا لم يدخل، هل السبب Access Denied أم Invalid Credentials أم Timeout؟
+11. إذا Access Denied، ما role المقروء؟
+12. هل /admin/dashboard يعمل؟
+13. هل /admin/automation يعمل؟
+14. هل /admin/visual-guide يعمل؟
+15. هل /admin/data-layer يعمل؟
+16. هل تم حفظ screenshots بدون كلمة مرور؟
+17. هل صفحات المستخدم تعمل؟
+18. هل typecheck نجح؟
+19. هل build نجح؟
+20. هل توجد API 500؟
+21. هل توجد شاشة بيضاء؟
+22. هل توجد loading infinite؟
+23. هل تم تحديث QA_REPORT بدون أسرار؟
+24. الحكم النهائي:
+Admin Access Verified
+أو
+Needs Replit Secrets
+أو
+Needs Owner Password Reset
+أو
+Needs Supabase Role Fix
+أو
+Needs Fixes
+
+ممنوع استخدام أي حكم آخر.
+ممنوع اقتراح Publish.

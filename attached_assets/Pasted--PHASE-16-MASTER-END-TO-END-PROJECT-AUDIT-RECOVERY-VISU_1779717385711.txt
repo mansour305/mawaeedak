@@ -1,0 +1,552 @@
+نفّذ الآن:
+
+PHASE 16
+MASTER END-TO-END PROJECT AUDIT, RECOVERY, VISUAL CLONE, ADMIN ACCESS, AND PRE-PUBLISH READINESS GATE
+
+هذه مرحلة تدقيق وإصلاح شاملة للمشروع من البداية للنهاية.
+لا تعيد بناء المشروع من الصفر.
+لا تحذف العمل السابق.
+لا تضغط Publish.
+لا تعلن Ready أو Production أو Matched.
+المطلوب: فحص المشروع كاملاً، إصلاح العوائق الحرجة، توحيد التصميم مع المرجع، تثبيت دخول لوحة المالك، ثم تسليم تقرير نهائي صادق قابل للتحقق.
+
+==================================================
+0. الحكم الرسمي الحالي
+==================================================
+
+المشروع مرّ بمراحل كثيرة:
+- Supabase/Auth/RLS/Data Gateway تم بناؤها.
+- الموقع والمنطقة الزمنية تمت إضافتها.
+- الإشعارات المؤقتة تمت إضافتها.
+- الأتمتة اليومية تمت إضافتها.
+- تصميم مرجعي تمت محاولة نسخه عدة مرات.
+- Admin access ما زال يسبب مشكلة عملية.
+- التصميم لم يحصل على اعتماد بصري نهائي من المالك.
+- Publish ممنوع حتى إغلاق كل العوائق.
+
+الحكم الحالي:
+لا يوجد اعتماد نهائي.
+لا يوجد نشر.
+المطلوب الآن تدقيق شامل من الصفر إلى آخر مرحلة، وليس ترقيعاً سطحياً.
+
+==================================================
+1. دورك
+==================================================
+
+تصرف كفريق كامل:
+
+- Principal Software Architect
+- Senior Frontend Engineer
+- Senior UI/UX Designer
+- Supabase Auth/RLS Engineer
+- QA Lead
+- Security Reviewer
+- Release Auditor
+- Product Owner Assistant
+
+هدفك:
+إخراج المشروع من حالة الفوضى والتقارير المتكررة إلى حالة واضحة:
+ما المنجز؟
+ما المكسور؟
+ما الناقص؟
+ما الذي أصلحته؟
+هل يمكن النشر أم لا؟
+
+==================================================
+2. ممنوعات نهائية
+==================================================
+
+ممنوع تماماً:
+
+- لا تضغط Publish.
+- لا تكتب Ready to Publish.
+- لا تكتب Production Ready.
+- لا تكتب Reference Design Matched.
+- لا تكتب 10/10.
+- لا تعتمد تقارير قديمة بدون تحقق فعلي.
+- لا تكتفي بالقول “كل شيء يعمل”.
+- لا تغيّر Supabase schema إلا بملف SQL آمن ومبرر.
+- لا تستخدم service_role في الواجهة.
+- لا تضع secrets في الكود.
+- لا تحذف API.
+- لا تحذف PostgreSQL.
+- لا تكسر Data Gateway.
+- لا تكسر Automation.
+- لا تكسر Location/Timezone.
+- لا تكسر Toast auto-dismiss.
+- لا تترك /admin معلقاً على “جارٍ التحقق”.
+- لا تترك أي صفحة بتصميم قديم.
+- لا تترك أي صفحة Admin بتصميم خام.
+- لا تترك بطاقات المشاركة بدون شعار وحقوق.
+- لا تسلم تقريراً بلا build/typecheck.
+- لا تسلم تقريراً بلا قائمة ملفات معدلة.
+- لا تسلم تقريراً بلا قائمة نواقص.
+
+==================================================
+3. المطلوب العام
+==================================================
+
+نفّذ 7 مسارات إجبارية:
+
+A. Project Structure Audit
+B. Supabase/Auth/Admin Access Recovery
+C. Data Gateway and API Consistency Audit
+D. Full Visual Reference Design Audit and Fix
+E. Automation / Location / Notifications Audit
+F. Security and Secrets Audit
+G. Final Pre-Publish Readiness Report
+
+==================================================
+A. PROJECT STRUCTURE AUDIT
+==================================================
+
+افحص هيكل المشروع كاملاً:
+
+1. Frontend structure
+2. API/server structure
+3. Shared components
+4. Routing
+5. Admin routing
+6. Supabase client
+7. Auth layer
+8. Data Gateway
+9. Automation services
+10. Location/timezone hooks
+11. Notification system
+12. Theme Engine
+13. Design assets
+14. QA docs
+15. README / ARCHITECTURE / replit.md
+
+أنتج داخل QA_REPORT.md جدولاً:
+
+الملف/المجلد | الغرض | الحالة | ملاحظات | يحتاج إصلاح؟
+
+==================================================
+B. ADMIN ACCESS RECOVERY — BLOCKER
+==================================================
+
+هذه أولوية قصوى.
+
+المشكلة العملية:
+المستخدم يقول إن /admin لا يدخل ويعلق على “جارٍ التحقق”.
+
+المطلوب:
+إصلاح /admin بحيث يستحيل أن يعلق إلى الأبد.
+
+القاعدة:
+شاشة “جارٍ التحقق” لا يجوز أن تستمر أكثر من 3 ثوانٍ.
+
+بعد 3 ثوانٍ يجب أن يحدث واحد من التالي فقط:
+1. Dashboard إذا session + role صحيحة.
+2. Login Form إذا لا توجد session.
+3. Access Denied إذا role غير صحيحة.
+4. Auth Error مع زر مسح الجلسة.
+
+ممنوع أي حالة خامسة.
+
+نفّذ التالي:
+
+1. راجع AdminLayout.
+2. راجع auth.ts.
+3. راجع hasAdminAccess.
+4. راجع getAuthSession.
+5. راجع authSignIn.
+6. راجع onAuthStateChange.
+7. راجع redirect behavior.
+8. راجع direct routes:
+   - /admin
+   - /admin/dashboard
+   - /admin/automation
+   - /admin/visual-guide
+   - /admin/data-layer
+
+استخدم state machine صريح:
+
+type AdminAuthPhase =
+  | "checking"
+  | "login"
+  | "ready"
+  | "access_denied"
+  | "auth_error";
+
+كل phase يجب أن يرسم UI واضحاً.
+
+أضف timeout حقيقي 3 ثوانٍ:
+- إذا بقي phase = checking بعد 3 ثوانٍ:
+  - setPhase("login")
+  - اعرض رسالة:
+    "انتهت مهلة التحقق، سجّل الدخول مرة أخرى"
+
+أضف زر:
+"مسح الجلسة والبدء من جديد"
+
+ويفعل:
+- supabase.auth.signOut({ scope: "local" })
+- حذف localStorage keys التي تحتوي:
+  - supabase
+  - sb-
+  - auth
+- sessionStorage.clear()
+- setPhase("login")
+- redirect إلى /admin
+
+تحقق من role من:
+1. user.user_metadata.role
+2. user.app_metadata.role
+
+اقبل فقط:
+- super_admin
+- admin
+
+إذا role غير موجود:
+اعرض Access Denied واضحاً مع SQL Fix:
+
+UPDATE auth.users
+SET 
+  raw_user_meta_data = COALESCE(raw_user_meta_data, '{}'::jsonb) || '{"role": "super_admin"}'::jsonb,
+  raw_app_meta_data  = COALESCE(raw_app_meta_data, '{}'::jsonb)  || '{"role": "super_admin"}'::jsonb
+WHERE email = 'hrq@hotmail.com';
+
+مهم:
+حتى لو role ناقص، ممنوع أن يعلق /admin.
+يجب أن يعرض Access Denied أو Login.
+
+==================================================
+C. SUPABASE / DATA GATEWAY / API AUDIT
+==================================================
+
+افحص أن Supabase mode يعمل:
+
+1. VITE_SUPABASE_URL موجود.
+2. VITE_SUPABASE_ANON_KEY موجود.
+3. VITE_DATA_SOURCE_MODE=supabase موجود.
+4. supabase client لا يرجع null في production mode.
+5. Data Gateway يستخدم Supabase للنطاقات المحولة.
+6. API intentionally ما زال مصنفاً.
+
+افحص هذه النطاقات:
+
+Gateway Complete:
+- appointments
+- financial_events
+- notifications
+- news
+- jobs
+- themes
+- story_templates
+- daily_messages
+
+API intentionally:
+- prayer_times
+- today_message
+- admin stats
+- audit_logs
+- public_events/AdminEvents
+- AdminFinancial إن كان موجوداً
+- notification send fan-out
+- complaints submission
+
+أنشئ جدول:
+
+النطاق | قراءة mode=api | قراءة mode=supabase | كتابة mode=api | كتابة mode=supabase | fallback | الحالة
+
+اختبر endpoints الأساسية:
+- /healthz
+- /api/prayer-times
+- /api/notifications
+- /api/notifications/unread-count
+- /api/news
+- /api/jobs
+- /api/themes
+- /api/story-templates
+- /api/daily-messages
+- /api/appointments
+- /api/financial-events/countdown
+
+لا يكفي اختبار 3 endpoints فقط.
+
+==================================================
+D. FULL VISUAL REFERENCE DESIGN AUDIT AND FIX
+==================================================
+
+الصورة المرجعية المرفقة هي مصدر التصميم الوحيد.
+
+المطلوب:
+لا ترقيع.
+لا تقييم ذاتي.
+لا درجات وهمية.
+طبّق النظام البصري المرجعي فعلياً على كل التطبيق.
+
+افحص واعمل على:
+
+User Pages:
+1. HomePage
+2. CalendarPage
+3. FinancePage
+4. Smart Calculators
+5. CentersPage
+6. StoryPage
+7. AccountPage
+8. NotificationsPage
+9. Support/Complaints
+10. Legal pages
+11. 404
+
+Admin Pages:
+12. Admin Login
+13. Admin Loading/Checking
+14. Admin Dashboard
+15. Admin Automation
+16. Admin Data Layer
+17. Admin Visual Guide
+18. Admin News/Jobs
+19. Admin Themes
+20. Admin Story
+21. Admin Messages
+22. Admin Notifications
+
+Shared:
+23. Header
+24. BottomNav
+25. AppShell
+26. AdminShell
+27. Cards
+28. Buttons
+29. Inputs
+30. Dialogs
+31. Toasts
+32. Empty states
+33. Badges
+34. Tables
+35. Charts
+36. Story/share cards
+37. Generated daily cards
+
+المطلوب بصرياً:
+- dark brown header
+- heritage gold
+- parchment background
+- cream cards
+- gold borders
+- deep shadows
+- decorative ornaments
+- mobile shell
+- no white empty app shell
+- no default admin UI
+- no flat generic page
+- no shadcn raw look
+
+شعار وحقوق مواعيدك إلزامية في:
+- Header
+- StoryPage
+- Daily generated cards
+- Share/export cards
+- Admin
+- Visual Guide
+
+كل بطاقة مشاركة أو صورة يومية يجب أن تحتوي:
+"مواعيدك — جميع الحقوق محفوظة"
+
+==================================================
+E. AUTOMATION / LOCATION / NOTIFICATIONS AUDIT
+==================================================
+
+افحص:
+
+1. Daily message generator
+2. Daily card/story generator
+3. Scheduled in-app notifications
+4. source_key idempotency
+5. Toast auto-dismiss
+6. Location preferences
+7. Timezone preferences
+8. Manual city/timezone fallback
+9. Prayer times by city/location
+10. Admin automation page
+
+المطلوب:
+- Toast auto-dismiss = 5000ms.
+- NotificationsPage يبقى كسجل.
+- source_key يمنع التكرار.
+- location prefs محفوظة بعد reload.
+- prayer times تستخدم city/location prefs.
+- Admin Automation يعرض حالة واضحة.
+
+اكتب جدول:
+
+الميزة | تعمل؟ | أين الكود؟ | طريقة التحقق | نواقص
+
+==================================================
+F. SECURITY AND SECRETS AUDIT
+==================================================
+
+افحص:
+
+1. service_role
+2. SUPABASE_SERVICE_ROLE
+3. hardcoded Supabase keys
+4. hardcoded passwords
+5. raw secrets
+6. localStorage admin bypass
+7. demo fallback في production
+8. RLS ownership
+9. admin role trust
+10. exposed routes
+11. console leaks
+
+ممنوع وجود service_role في الواجهة.
+
+شغّل grep أو بحث شامل عن:
+- service_role
+- SUPABASE_SERVICE_ROLE
+- password
+- secret
+- eyJ
+- anon
+- DROP
+- TRUNCATE
+
+صنّف النتائج:
+- آمن
+- تعليق فقط
+- خطر
+- يحتاج إصلاح
+
+==================================================
+G. SCREENSHOT PACKAGE
+==================================================
+
+جهّز أو اطلب صور Preview فعلية.
+
+المطلوب:
+User:
+1. HomePage
+2. CalendarPage
+3. FinancePage
+4. Smart Calculators tab مفتوح
+5. CentersPage
+6. StoryPage
+7. AccountPage
+8. NotificationsPage
+9. Legal/404
+
+Admin:
+10. Admin Login
+11. Admin Loading/Checking
+12. Admin Dashboard بعد الدخول
+13. Admin Automation بعد الدخول
+14. Admin Visual Guide بعد الدخول
+15. Admin Data Layer بعد الدخول
+
+إذا تعذر تصوير صفحات Admin بسبب عدم تسجيل دخول المالك:
+يجب أن يكون /admin لا يعلق، ويعرض Login أو Access Denied واضح.
+واكتب:
+Needs Owner Admin Screenshots
+
+لكن ممنوع أن تكون النتيجة loading أبدي.
+
+==================================================
+H. TESTS
+==================================================
+
+شغّل:
+
+- typecheck
+- build
+
+إن وجد:
+- lint
+- test
+
+لا تدّع تشغيل lint/test إذا غير موجودة.
+
+افحص:
+- لا API 500
+- لا شاشة بيضاء
+- لا loading أبدي
+- لا console errors جوهرية
+- RTL
+- mobile layout
+- لا overflow أفقي
+- BottomNav لا يغطي المحتوى
+- Supabase mode
+- Auth
+- /admin protected
+- Data Gateway
+- Automation
+- Location/Timezone
+- Toast auto-dismiss
+
+==================================================
+I. DOCUMENTATION UPDATE
+==================================================
+
+حدّث:
+
+- QA_REPORT.md
+- replit.md
+- README.md عند الحاجة
+- ARCHITECTURE.md عند الحاجة
+
+ويجب أن يتضمن QA_REPORT:
+
+1. Project Structure Audit
+2. Admin Access Audit
+3. Data Gateway Matrix
+4. Visual QA Matrix
+5. Automation/Location Matrix
+6. Security Audit
+7. Screenshot Package status
+8. Build/typecheck result
+9. Remaining blockers
+10. Final decision
+
+==================================================
+J. التقرير النهائي المطلوب فقط
+==================================================
+
+أعطني تقريراً بهذا الشكل فقط:
+
+1. هل تم فحص المشروع كاملاً من البداية للنهاية؟
+2. ما أكبر 5 مشاكل كانت موجودة؟
+3. ما المشاكل التي تم إصلاحها فعلياً؟
+4. هل /admin ما زال يعلق؟
+5. ما حالة /admin بدون session؟
+6. ما حالة /admin مع session غير صالحة؟
+7. ما حالة /admin مع role غير صحيح؟
+8. ما حالة /admin مع super_admin؟
+9. هل شاشة Admin Loading أصبحت لا تتجاوز 3 ثوانٍ؟
+10. هل زر مسح الجلسة يعمل؟
+11. هل Supabase/Auth/Data Gateway سليمة؟
+12. هل API intentionally مصنف؟
+13. هل كل endpoints الأساسية 200؟
+14. هل التصميم المرجعي طُبق على كل صفحات المستخدم؟
+15. هل التصميم المرجعي طُبق على Admin Login/Loading؟
+16. هل صفحات Admin بعد الدخول تحتاج صور من المالك؟
+17. هل Story/share/generated cards تحمل شعار وحقوق مواعيدك؟
+18. هل Automation تعمل؟
+19. هل Location/Timezone يعمل؟
+20. هل Toast auto-dismiss = 5000ms؟
+21. هل تم فحص service_role/secrets؟
+22. هل توجد أسرار أو service_role في الواجهة؟
+23. هل توجد API 500؟
+24. هل توجد شاشة بيضاء؟
+25. هل توجد loading infinite؟
+26. هل typecheck نجح؟
+27. هل build نجح؟
+28. هل QA_REPORT تم تحديثه بكل الجداول المطلوبة؟
+29. ما النواقص المتبقية؟
+30. الحكم النهائي، اختر واحداً فقط:
+Needs Owner Admin Screenshots
+Needs Supabase Role Fix
+Needs Visual Fix
+Needs Admin Access Fix
+Needs Security Fix
+Ready for Owner Final Visual Review
+
+ممنوع استخدام أي حكم خارج هذه الخيارات.
+ممنوع كتابة Publish.
+ممنوع اقتراح النشر.
+ممنوع كتابة Production Ready.
+ممنوع كتابة Reference Design Matched.

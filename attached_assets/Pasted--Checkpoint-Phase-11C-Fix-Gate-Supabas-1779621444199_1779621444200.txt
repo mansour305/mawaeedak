@@ -1,0 +1,155 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 11C Fix Gate
+Supabase Missing Tables + RLS Completion + Admin User Preparation
+
+الدور:
+تصرف كفريق Supabase Engineer + Database Architect + Security Reviewer + QA Tester.
+مهمتك الآن ليست إضافة ميزات جديدة، وليست تعديل الواجهة، وليست إعادة بناء المشروع.
+مهمتك فقط إصلاح حالة Needs Fixes الناتجة بعد تشغيل SUPABASE_SCHEMA.sql و RLS_POLICIES.sql.
+
+==================================================
+0. السياق الحالي
+==================================================
+
+تم تنفيذ:
+1. إضافة VITE_SUPABASE_URL في Replit Secrets.
+2. إضافة VITE_SUPABASE_ANON_KEY في Replit Secrets.
+3. تشغيل SUPABASE_SCHEMA.sql في Supabase SQL Editor بنجاح.
+4. تشغيل RLS_POLICIES.sql في Supabase SQL Editor بنجاح.
+
+نتيجة التحقق الحالية:
+- Supabase متصل فعلياً.
+- لكن يوجد 7 جداول ناقصة.
+- RLS ناقصة.
+- /admin ما زال demo guard.
+- الحكم الحالي: Needs Fixes.
+- التطبيق نفسه لا يزال يعمل كـ Publishable Preview.
+- لا توجد أسرار في الكود.
+- لا يوجد service_role في الواجهة.
+
+==================================================
+1. الهدف التنفيذي
+==================================================
+
+أصلح فقط نواقص Supabase بدون تغيير الواجهة أو الوظائف.
+
+المطلوب:
+1. افحص الجداول التي يتوقعها التطبيق.
+2. افحص الجداول الموجودة فعلياً في Supabase.
+3. حدد أسماء الجداول السبعة الناقصة بدقة.
+4. أنشئ ملف SQL جديد باسم:
+   SUPABASE_MISSING_TABLES_FIX.sql
+5. هذا الملف يجب أن يحتوي فقط على:
+   - CREATE TABLE IF NOT EXISTS للجداول الناقصة.
+   - الأعمدة المطلوبة فقط حسب services/types الحالية.
+   - indexes اللازمة إن وجدت.
+   - ENABLE ROW LEVEL SECURITY للجداول الجديدة.
+6. أنشئ أو حدّث ملف:
+   RLS_POLICIES_FIX.sql
+   ليحتوي فقط على سياسات RLS الناقصة للجداول الجديدة أو غير المغطاة.
+7. لا تعدّل SUPABASE_SCHEMA.sql الأصلي إلا إذا احتجت توثيقاً، لكن لا تكسر السابق.
+8. لا تستخدم service_role.
+9. لا تضع أي secrets في الكود.
+10. لا تغيّر UI.
+11. لا تضغط Publish.
+12. حدّث QA_REPORT بالحالة الحقيقية.
+
+==================================================
+2. Admin User
+==================================================
+
+لا تنشئ admin user بكلمة مرور داخل الكود.
+
+المطلوب فقط:
+1. وضّح أن إنشاء مستخدم admin يتم يدوياً من:
+   Supabase Dashboard → Authentication → Users → Add user
+2. استخدم البريد:
+   hrq@hotmail.com
+   فقط كمرشح للمالك إذا كان مناسباً.
+3. لا تضع كلمة مرور في الكود أو التوثيق.
+4. إذا احتجت ربط المستخدم بالدور admin/super_admin:
+   جهّز SQL آمن بعد وجود auth.users.id.
+5. أنشئ ملف اختياري:
+   SUPABASE_ADMIN_BOOTSTRAP.sql
+   يحتوي SQL يربط المستخدم الموجود مسبقاً في auth.users بدور super_admin عبر email، بدون إنشاء كلمة مرور.
+
+==================================================
+3. ممنوعات صارمة
+==================================================
+
+ممنوع:
+- لا تعيد بناء المشروع من البداية.
+- لا تغيّر الواجهة.
+- لا تغيّر Theme Engine.
+- لا تغيّر Calendar/Finance/Story/Notifications/Centers.
+- لا تستخدم service_role في الواجهة.
+- لا تضع secrets داخل ملفات عامة.
+- لا تمسح جداول موجودة.
+- لا تستخدم DROP TABLE.
+- لا تستخدم destructive migration.
+- لا تدّع Production Ready.
+- لا تدّع Supabase Connected Preview إلا بعد تشغيل SQL الناقص والتحقق الكامل.
+- لا تضغط Publish.
+
+==================================================
+4. بروتوكول التشخيص
+==================================================
+
+قبل كتابة أي SQL:
+1. افحص schema المتوقع في الكود.
+2. افحص أسماء الجداول في services/types.
+3. افحص SUPABASE_SCHEMA.sql الحالي.
+4. افحص RLS_POLICIES.sql الحالي.
+5. حدد الجداول الناقصة بالاسم.
+6. حدد السياسات الناقصة بالاسم.
+7. اكتب تقرير تشخيص مختصر داخل QA_REPORT.
+
+==================================================
+5. الملفات المطلوبة
+==================================================
+
+أنشئ أو حدّث:
+
+1. SUPABASE_MISSING_TABLES_FIX.sql
+2. RLS_POLICIES_FIX.sql
+3. SUPABASE_ADMIN_BOOTSTRAP.sql إن احتاج
+4. QA_REPORT.md
+
+لا تشغّل SQL داخل Supabase من هنا إذا لا تستطيع.
+أعطني أسماء الملفات وماذا يجب أن أنسخ إلى Supabase SQL Editor.
+
+==================================================
+6. أوامر الفحص
+==================================================
+
+شغّل:
+- pnpm build أو npm run build
+- pnpm typecheck أو npm run typecheck إن وجد
+
+وافحص:
+- service_role
+- SUPABASE_SERVICE_ROLE
+- أي secrets hardcoded
+
+==================================================
+7. التقرير النهائي المطلوب
+==================================================
+
+أعطني تقريراً بهذا الشكل فقط:
+
+1. ما أسماء الجداول السبعة الناقصة؟
+2. هل تم إنشاء SUPABASE_MISSING_TABLES_FIX.sql؟
+3. هل تم إنشاء RLS_POLICIES_FIX.sql؟
+4. هل تم إنشاء SUPABASE_ADMIN_BOOTSTRAP.sql؟
+5. ما ترتيب تشغيل ملفات SQL في Supabase؟
+6. هل يوجد أي DROP أو destructive SQL؟
+7. هل يوجد service_role في الواجهة؟
+8. هل توجد أسرار hardcoded؟
+9. هل build نجح؟
+10. هل typecheck نجح؟
+11. هل QA_REPORT تم تحديثه؟
+12. ما المطلوب مني يدوياً في Supabase؟
+13. الحكم النهائي:
+Needs SQL Run / Needs Admin User / Supabase Connected Preview / Needs Fixes

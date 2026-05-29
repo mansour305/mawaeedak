@@ -1,0 +1,77 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 12D Verification Closure
+User-owned Core Migration Applied Verification Gate
+
+تم الآن تشغيل:
+1. SUPABASE_USER_CORE_MIGRATION.sql
+2. SUPABASE_USER_CORE_VERIFY.sql
+
+ونتائج التحقق اليدوية كانت:
+
+appointments_count = 2
+financial_events_count = 8
+appointments_join_hrq_user = 2
+financial_events_join_hrq_user = 8
+appointments_missing_user_id = 0
+financial_events_missing_user_id = 0
+appointments_missing_legacy_id = 0
+financial_events_missing_legacy_id = 0
+notifications_migrated_in_12d = 0
+complaints_migrated_in_12d = 0
+appointments_duplicate_legacy_groups = 0
+financial_events_duplicate_legacy_groups = 0
+
+مهمتك الآن فقط إغلاق التحقق وتحديث التوثيق، وليس نقل بيانات جديدة، وليس تغيير مصدر الحقيقة، وليس تعديل الواجهة.
+
+المطلوب:
+1. وثّق أن appointments نُقلت إلى Supabase بعدد 2.
+2. وثّق أن financial_events نُقلت إلى Supabase بعدد 8.
+3. وثّق أن كل الصفوف مرتبطة بـ hrq@hotmail.com عبر user_id.
+4. وثّق أن legacy_id محفوظ.
+5. وثّق أن migration_batch محفوظ.
+6. وثّق عدم وجود duplicates.
+7. وثّق أن notifications و complaints لم تُنقلا في Phase 12D.
+8. تحقق أن PostgreSQL/API الحالي ما زال مصدر الحقيقة.
+9. تحقق أن Supabase Auth و/admin ما زالا سليمين.
+10. تحقق أن المراحل السابقة سليمة.
+11. شغّل build.
+12. شغّل typecheck.
+13. حدّث QA_REPORT.
+14. حدّث SUPABASE_MIGRATION_PLAN.md.
+15. حدّث SUPABASE_MIGRATION_CHECKLIST.md.
+16. حدّث DATA_SOURCE_MAP.md.
+
+ممنوع:
+- لا تنقل notifications.
+- لا تنقل complaints.
+- لا تغيّر Data Layer.
+- لا تجعل Supabase مصدر الحقيقة الآن.
+- لا تضغط Publish.
+- لا تستخدم service_role.
+- لا تضع أسراراً في الكود.
+- لا تدّع Production Ready.
+
+التقرير النهائي المطلوب:
+
+1. هل appointments نُقلت إلى Supabase؟
+2. كم عدد appointments في Supabase؟
+3. هل financial_events نُقلت إلى Supabase؟
+4. كم عدد financial_events في Supabase؟
+5. هل كل الصفوف مرتبطة بـ hrq@hotmail.com؟
+6. هل user_id محفوظ؟
+7. هل legacy_id محفوظ؟
+8. هل migration_batch محفوظ؟
+9. هل توجد duplicates؟
+10. هل تم نقل notifications؟
+11. هل تم نقل complaints؟
+12. هل PostgreSQL/API الحالي ما زال مصدر الحقيقة؟
+13. هل Supabase Auth و/admin بقيا سليمين؟
+14. هل المراحل السابقة سليمة؟
+15. هل build نجح؟ اذكر النتيجة صراحة.
+16. هل typecheck نجح؟ اذكر النتيجة صراحة.
+17. هل QA_REPORT تم تحديثه؟
+18. القيود المتبقية.
+19. الحكم النهائي:
+User Core Migration Applied / Needs Verification Fix / Needs Fixes

@@ -1,0 +1,208 @@
+نفّذ الآن مرحلة PHASE 14 — MASTER VISUAL REFERENCE CLONE LOCKDOWN.
+
+هذه تعليمات تنفيذ نهائية وملزمة. لا تقدم تقريراً عاماً، ولا تشرح، ولا تقيّم نظرياً. نفّذ داخل الكود حتى يتحول تطبيق "مواعيدك" إلى نسخة بصرية مطابقة للصورة المرجعية المرفقة على كامل النظام.
+
+المطلوب:
+نسخ التصميم المرجعي كاملاً، صفحة صفحة، ومكوّن مكوّن، داخل المشروع الحالي، مع الحفاظ الكامل على الوظائف الحالية.
+
+الصورة المرفقة هي مصدر الحقيقة الوحيد للتصميم.
+
+نفّذ الآتي حرفياً:
+
+1. أنشئ Design System مركزي مطابق للصورة المرجعية:
+- ألوان بني داكن، ذهبي، بيج، كريمي، ورقي.
+- خطوط عربية فاخرة.
+- زخارف تراثية.
+- خلفية ورقية.
+- حدود ذهبية.
+- ظلال بنية.
+- بطاقات فاخرة.
+- أزرار ذهبية/بنية.
+- Header موحد.
+- BottomNav موحد.
+- شعار مواعيدك.
+- watermark وحقوق مواعيدك.
+
+2. طبّق التصميم المرجعي على كامل صفحات المستخدم:
+- الرئيسية
+- التقويم
+- المال
+- الحاسبات الذكية
+- المراكز
+- ستوري اليوم
+- حسابي
+- الإشعارات
+- الشكاوى/الدعم إن وجدت
+- الصفحات القانونية
+- 404
+
+3. طبّق التصميم المرجعي على كامل لوحة المالك:
+- Admin Login
+- Admin Dashboard
+- Admin Automation
+- Admin Data Layer
+- Admin Visual Guide
+- Admin News/Jobs
+- Admin Themes
+- Admin Story
+- Admin Messages
+- Admin Notifications
+- أي صفحة Admin موجودة
+
+4. يجب أن يظهر شعار "مواعيدك" في:
+- Header
+- StoryPage
+- الصور اليومية
+- بطاقات المشاركة
+- لوحة المالك
+- Visual Guide
+- أي عنصر قابل للتصدير أو المشاركة
+
+5. يجب أن تظهر الحقوق في الصور اليومية وبطاقات المشاركة:
+"مواعيدك — جميع الحقوق محفوظة"
+
+6. يجب إنشاء أو تحديث /admin/visual-guide ليعرض:
+- الشعار
+- الألوان
+- الخطوط
+- البطاقات
+- الأزرار
+- الحقول
+- الأيقونات
+- Header
+- BottomNav
+- badges
+- story watermark
+- rights strip
+- أمثلة حقيقية من مكونات التطبيق
+
+7. يجب تجهيز Screenshot Package فعلي للمراجعة، بمقاس جوال واضح، للصفحات التالية:
+- HomePage
+- CalendarPage
+- FinancePage
+- Smart Calculators tab مفتوح
+- CentersPage
+- StoryPage
+- AccountPage
+- NotificationsPage
+- Admin Login
+- Admin Dashboard بعد تسجيل الدخول
+- Admin Automation بعد تسجيل الدخول
+- Admin Visual Guide بعد تسجيل الدخول
+
+8. يجب تحديث QA_REPORT.md بجدول Visual QA Matrix:
+الصفحة | screenshot جاهز؟ | درجة مطابقة المرجع من 10 | النواقص | الحكم
+
+الحد الأدنى المقبول:
+- HomePage: 9.5/10
+- Header: 9.5/10
+- BottomNav: 9.5/10
+- CalendarPage: 9/10
+- FinancePage: 9/10
+- Smart Calculators: 9/10
+- CentersPage: 9/10
+- StoryPage: 9/10
+- AccountPage: 9/10
+- NotificationsPage: 9/10
+- Admin Login: 9/10
+- Admin Dashboard: 9/10
+- Admin Automation: 9/10
+- Admin Visual Guide: 9/10
+
+9. ممنوع تغيير أو كسر:
+- Supabase
+- Auth
+- RLS
+- Data Gateway
+- Automation
+- Location/Timezone
+- Toast auto-dismiss
+- APIs
+- PostgreSQL
+- أي منطق وظيفي قائم
+
+10. ممنوع نهائياً:
+- لا تضغط Publish
+- لا تكتب Ready to Publish
+- لا تكتب Reference Design Matched
+- لا تكتب Production Ready
+- لا تستخدم service_role
+- لا تضع secrets داخل الكود
+- لا تترك أي صفحة بتصميم قديم
+- لا تترك Admin بشكل افتراضي
+- لا تترك أي بطاقة مشاركة بدون شعار وحقوق
+- لا تكتفِ بتغيير الألوان
+- لا تكتفِ بالصفحة الرئيسية فقط
+
+11. بعد التنفيذ شغّل:
+- typecheck
+- build
+
+وتحقق من:
+- لا API 500
+- لا شاشة بيضاء
+- لا console errors جوهرية
+- لا hardcoded secrets
+- لا service_role
+- لا DROP/TRUNCATE
+- RTL سليم
+- mobile layout سليم
+- لا overflow أفقي
+- BottomNav لا يغطي المحتوى
+- Supabase mode يعمل
+- Auth يعمل
+- /admin محمي
+- Automation تعمل
+- Location/Timezone تعمل
+- Toast auto-dismiss = 5000ms
+
+12. حدّث:
+- QA_REPORT.md
+- replit.md
+- README.md عند الحاجة
+- ARCHITECTURE.md عند الحاجة
+
+13. التقرير النهائي المطلوب، بنفس هذا الشكل فقط:
+
+1. هل تم اعتماد صورة المرجع كمصدر تصميم شامل؟
+2. هل تم تحديث Design System المركزي؟
+3. ما الأصول البصرية التي أُضيفت؟
+4. هل Header مطابق للمرجع؟
+5. هل BottomNav مطابق للمرجع؟
+6. هل HomePage مطابقة؟
+7. هل CalendarPage مطابقة؟
+8. هل FinancePage مطابقة؟
+9. هل Smart Calculators مطابقة ومصورة بعد فتح التبويب؟
+10. هل CentersPage مطابقة؟
+11. هل StoryPage مطابقة؟
+12. هل Story/share cards تحتوي شعار مواعيدك والحقوق؟
+13. هل AccountPage مطابقة؟
+14. هل NotificationsPage مطابقة؟
+15. هل Admin Login مطابق؟
+16. هل Admin Dashboard مصور بعد تسجيل الدخول ومطابق؟
+17. هل Admin Automation مصور بعد تسجيل الدخول ومطابق؟
+18. هل Admin Visual Guide مصور بعد تسجيل الدخول ومطابق؟
+19. هل شعار مواعيدك موجود في كل العناصر العامة والمشاركة؟
+20. هل الحقوق محفوظة تظهر في الصور اليومية وبطاقات المشاركة؟
+21. هل Screenshot Package مكتمل؟
+22. هل QA_REPORT يحتوي Visual QA Matrix؟
+23. هل Supabase/Auth/Data Gateway سليمة؟
+24. هل Automation/Location سليمة؟
+25. هل Toast auto-dismiss لا يزال 5000ms؟
+26. هل RTL سليم؟
+27. هل mobile layout سليم؟
+28. هل build نجح؟
+29. هل typecheck نجح؟
+30. هل توجد API 500؟
+31. هل توجد شاشة بيضاء؟
+32. ما النواقص المتبقية؟
+33. الحكم النهائي:
+Pending Owner Visual Approval
+
+الحكم النهائي المسموح فقط:
+Pending Owner Visual Approval
+
+لا تستخدم أي حكم آخر.
+لا تقترح النشر.
+لا تعلن المطابقة النهائية.
+الموافقة النهائية من المالك فقط بعد مراجعة الصور.

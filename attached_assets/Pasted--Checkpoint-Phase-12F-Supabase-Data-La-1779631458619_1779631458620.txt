@@ -1,0 +1,399 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 12F
+Supabase Data Layer Shadow Read + Cutover Readiness Gate
+
+الدور:
+تصرف كفريق Data Layer Architect + Supabase Engineer + Frontend Reliability Engineer + QA Lead.
+مهمتك الآن ليست تحويل التطبيق فوراً إلى Supabase كمصدر حقيقة، وليست حذف PostgreSQL/Express، وليست تعديل التصميم.
+مهمتك هي تجهيز طبقة قراءة Supabase موازية Shadow Read، ومقارنتها مع PostgreSQL/API الحالي، والتأكد أن التحويل القادم يمكن تنفيذه بأمان.
+
+==================================================
+0. السياق الحالي
+==================================================
+
+المشروع وصل إلى:
+Full Supabase Connected Preview
+
+تم حتى الآن:
+- Supabase Auth يعمل.
+- /admin يعمل.
+- hrq@hotmail.com دخل كـ super_admin.
+- RLS مفعّل.
+- Schema Alignment Applied.
+- Admin Seed Applied:
+  daily_messages = 8
+  story_templates = 2
+  themes = 10
+  news = 2
+  jobs = 2
+  total = 24
+
+- User Core Migration Applied:
+  appointments = 2
+  financial_events = 8
+  total = 10
+
+- Support Data Migration Applied:
+  notifications = 3
+  complaints = 3
+  total = 6
+
+إجمالي Supabase المنقول:
+40 صف
+
+مصدر الحقيقة الحالي:
+PostgreSQL/Express API
+
+القيد الحالي:
+Data Layer لم يتحول بعد إلى Supabase.
+
+==================================================
+1. الهدف التنفيذي
+==================================================
+
+جهّز طبقة Data Layer موازية لـ Supabase بدون تغيير مصدر الحقيقة الحالي.
+
+المطلوب:
+1. افحص Data Layer الحالي.
+2. افحص API endpoints الحالية.
+3. افحص hooks الحالية / Orval إن وجدت.
+4. أنشئ Supabase Data Adapter موازياً لا يستخدمه التطبيق كافتراضي بعد.
+5. أنشئ Shadow Read/Comparison logic لمقارنة Supabase مع PostgreSQL/API.
+6. أضف Feature Flag واضح للتحويل لاحقاً، لكن اجعله افتراضياً على API الحالي.
+7. لا تغيّر مصدر الحقيقة في هذه المرحلة.
+8. لا تكسر PostgreSQL/API.
+9. لا تغيّر UI إلا إذا احتجت شاشة/قسم تشخيص داخل /admin بشكل محدود وآمن.
+10. لا تضغط Publish.
+11. حدّث QA_REPORT والوثائق.
+
+==================================================
+2. خارج النطاق
+==================================================
+
+هذه المرحلة ليست:
+- تحويل التطبيق فعلياً ليقرأ من Supabase.
+- حذف PostgreSQL/Express.
+- حذف API endpoints.
+- تغيير كل hooks.
+- نقل بيانات جديدة.
+- إنشاء Migration جديدة.
+- تغيير التصميم.
+- Production Ready.
+- Publish.
+- Push Notifications.
+- Offline.
+- Expo.
+- Firebase.
+
+==================================================
+3. ممنوعات صارمة
+==================================================
+
+ممنوع:
+- لا تجعل Supabase مصدر الحقيقة الآن.
+- لا تغيّر Data Layer الافتراضي إلى Supabase.
+- لا تحذف API الحالي.
+- لا تحذف PostgreSQL.
+- لا تستخدم service_role في الواجهة.
+- لا تضع أسرار في الكود.
+- لا تنشئ DROP/TRUNCATE/DELETE.
+- لا تنقل بيانات جديدة.
+- لا تضغط Publish.
+- لا تدّع Production Ready.
+- لا تكسر أي مرحلة سابقة.
+- لا تجعل التطبيق يعتمد على localStorage كبديل للبيانات المنقولة.
+
+==================================================
+4. القرار المعماري المطلوب
+==================================================
+
+اعتمد تصميم Data Layer بهذا الأسلوب:
+
+1. API الحالي يبقى المصدر الافتراضي.
+2. Supabase Data Adapter يُبنى كمصدر موازٍ.
+3. Feature flag مثل:
+   VITE_DATA_SOURCE_MODE=api | supabase_shadow | supabase
+
+4. القيمة الافتراضية يجب أن تكون:
+   api
+
+5. وضع supabase_shadow يعني:
+   - التطبيق يستمر يعرض بيانات API.
+   - يتم جلب Supabase للمقارنة فقط إن أمكن.
+   - لا يكسر الواجهة عند فشل Supabase.
+
+6. وضع supabase سيكون للمرحلة القادمة فقط، ولا يُفعل الآن.
+
+7. أي خطأ في Supabase يجب ألا يكسر Preview.
+
+==================================================
+5. الجداول/النطاقات المطلوبة للـ Shadow Read
+==================================================
+
+ابنِ Adapter أو Services للقراءة من Supabase للجداول التالية:
+
+Admin-managed:
+- daily_messages
+- story_templates
+- themes
+- news
+- jobs
+
+User-owned:
+- appointments
+- financial_events
+- notifications
+
+Support:
+- complaints
+
+ملاحظات:
+- appointments وfinancial_events وnotifications مرتبطة بـ user_id لـ hrq.
+- complaints فيها user_id = NULL حسب قرار التصميم.
+- profiles ليست ضمن هذه المرحلة.
+- public_events لا توجد بيانات حالية.
+- audit_logs لا تُحوّل الآن.
+
+==================================================
+6. بروتوكول التشخيص قبل التنفيذ
+==================================================
+
+قبل كتابة الكود:
+
+1. حدد مكان Data Layer الحالي.
+2. حدد hooks التي تقرأ:
+   - daily_messages
+   - themes
+   - story_templates
+   - news
+   - jobs
+   - appointments
+   - financial_events
+   - notifications
+   - complaints
+
+3. حدد API endpoints المقابلة.
+4. حدد schema المتوقع في الواجهة.
+5. حدد schema Supabase المقابل.
+6. حدد أي اختلاف أسماء أعمدة.
+7. حدد طريقة تحويل البيانات من Supabase إلى نفس shape الذي تتوقعه الواجهة.
+8. حدد كيف ستتعامل مع session/user_id.
+9. حدد كيف ستمنع كسر الواجهة عند فشل Supabase.
+10. لا تبدأ التنفيذ قبل اكتمال هذا التشخيص.
+
+==================================================
+7. متطلبات التنفيذ
+==================================================
+
+أنشئ أو حدّث بشكل آمن:
+
+1. ملف Supabase data adapter، مثل:
+   src/lib/supabaseData.ts
+   أو مكان مناسب حسب بنية المشروع.
+
+2. ملف data source mode، مثل:
+   src/lib/dataSourceMode.ts
+
+3. لا تعدّل hooks الحالية إلا إذا كان التعديل غير مفعّل افتراضياً وآمن.
+
+4. أنشئ دوال قراءة Supabase:
+   - getDailyMessagesFromSupabase
+   - getStoryTemplatesFromSupabase
+   - getThemesFromSupabase
+   - getNewsFromSupabase
+   - getJobsFromSupabase
+   - getAppointmentsFromSupabase
+   - getFinancialEventsFromSupabase
+   - getNotificationsFromSupabase
+   - getComplaintsFromSupabase
+
+5. كل دالة يجب أن:
+   - تتحقق من وجود Supabase client.
+   - تتعامل مع الأخطاء بدون رمي كسر عام.
+   - تعيد shape متوافقاً مع UI أو توثق الفروقات.
+   - تستخدم session/user_id عند الحاجة.
+   - لا تستخدم service_role.
+
+6. أنشئ shadow comparison utility:
+   - يقارن counts بين API وSupabase.
+   - يقارن legacy_id.
+   - يقارن migration_batch.
+   - يحدد missing/extra rows.
+   - لا يغير البيانات.
+
+7. إذا أضفت صفحة/قسم داخل /admin:
+   - يكون تحت التقارير أو QA.
+   - يعرض حالة مقارنة فقط.
+   - لا يحتوي أزرار حذف أو تعديل.
+   - لا يغيّر البيانات.
+
+==================================================
+8. متطلبات المقارنة
+==================================================
+
+قارن على الأقل:
+
+1. daily_messages:
+   API = 8
+   Supabase = 8
+
+2. story_templates:
+   API = 2
+   Supabase = 2
+
+3. themes:
+   API = 10
+   Supabase = 10
+
+4. news:
+   API = 2
+   Supabase = 2
+
+5. jobs:
+   API = 2
+   Supabase = 2
+
+6. appointments:
+   API = 2
+   Supabase = 2
+
+7. financial_events:
+   API = 8
+   Supabase = 8
+
+8. notifications:
+   API = 3
+   Supabase = 3
+
+9. complaints:
+   API = 3
+   Supabase = 3
+
+المجموع المتوقع:
+API = 40
+Supabase = 40
+
+==================================================
+9. الاختبارات الإلزامية
+==================================================
+
+بعد التنفيذ:
+
+1. افتح Preview.
+2. تأكد أن التطبيق ما زال يعرض من API الحالي.
+3. افتح الرئيسية.
+4. افتح التقويم.
+5. افتح المال.
+6. افتح ستوري اليوم.
+7. افتح الإشعارات.
+8. افتح المراكز.
+9. افتح حسابي.
+10. افتح /admin.
+11. تأكد أن Supabase Auth يعمل.
+12. تأكد أن /admin لا يفتح بدون login.
+13. تأكد أن shadow adapter لا يكسر أي صفحة.
+14. تأكد أن API endpoints ما زالت 200.
+15. تأكد أن لا API 500.
+16. تأكد أن لا صفحات مكسورة.
+17. شغّل build.
+18. شغّل typecheck.
+19. افحص service_role.
+20. افحص hardcoded secrets.
+21. افحص أن VITE_DATA_SOURCE_MODE الافتراضي api أو غير مفعّل للتحويل.
+
+==================================================
+10. أوامر الفحص
+==================================================
+
+شغّل:
+- pnpm build أو npm run build
+- pnpm typecheck أو npm run typecheck إن وجد
+
+وافحص:
+- service_role
+- SUPABASE_SERVICE_ROLE
+- hardcoded Supabase keys
+- hardcoded passwords
+- DROP
+- TRUNCATE
+- DELETE غير مقصود
+
+إذا lint/test غير موجود:
+اذكر أنه غير متوفر ولا تدّع تشغيله.
+
+==================================================
+11. تحديث التوثيق
+==================================================
+
+حدّث:
+1. QA_REPORT.md
+2. DATA_SOURCE_MAP.md
+3. SUPABASE_MIGRATION_PLAN.md
+4. SUPABASE_MIGRATION_CHECKLIST.md
+5. ARCHITECTURE.md إن تغيّر وصف Data Layer
+6. README.md إن احتاجت الحالة العامة تحديثاً
+
+وثّق:
+- أن API ما زال مصدر الحقيقة.
+- أن Supabase Shadow Read جاهز.
+- أن التحويل الفعلي مؤجل للمرحلة التالية.
+- counts المتوقعة.
+- أي اختلافات shape.
+- أي مخاطر متبقية.
+
+==================================================
+12. معيار قبول المرحلة
+==================================================
+
+تقبل Phase 12F فقط إذا تحقق:
+
+- Supabase Data Adapter موجود.
+- Shadow comparison موجود.
+- API لا يزال المصدر الافتراضي.
+- لم يتم تغيير مصدر الحقيقة.
+- Counts API/Supabase موثقة.
+- مجموع API = 40.
+- مجموع Supabase = 40.
+- لا بيانات جديدة نُقلت.
+- لا DROP/TRUNCATE/DELETE.
+- Supabase Auth و/admin سليمان.
+- جميع الصفحات سليمة.
+- API endpoints 200.
+- build ناجح.
+- typecheck ناجح.
+- لا service_role في الواجهة.
+- لا أسرار hardcoded.
+- QA_REPORT محدث.
+
+الحكم النهائي يكون:
+Data Layer Shadow Ready / Needs Adapter Fix / Needs Count Fix / Needs Fixes
+
+==================================================
+13. التقرير النهائي المطلوب
+==================================================
+
+أعطني تقريراً بهذا الشكل فقط:
+
+1. هل تم إنشاء Supabase Data Adapter؟
+2. هل تم إنشاء Data Source Mode / Feature Flag؟
+3. ما القيمة الافتراضية لمصدر البيانات؟
+4. هل تم تغيير مصدر الحقيقة؟
+5. هل تم إنشاء Shadow Comparison؟
+6. ما Counts API لكل جدول؟
+7. ما Counts Supabase لكل جدول؟
+8. هل API total = 40؟
+9. هل Supabase total = 40؟
+10. هل توجد فروقات بين API وSupabase؟
+11. هل تم نقل أي بيانات جديدة؟
+12. هل يوجد DROP/TRUNCATE/DELETE؟
+13. هل Supabase Auth و/admin بقيا سليمين؟
+14. هل الصفحات السابقة سليمة؟
+15. هل API endpoints كلها 200؟
+16. هل build نجح؟ اذكر النتيجة صراحة.
+17. هل typecheck نجح؟ اذكر النتيجة صراحة.
+18. هل QA_REPORT تم تحديثه؟
+19. القيود المتبقية.
+20. الحكم النهائي:
+Data Layer Shadow Ready / Needs Adapter Fix / Needs Count Fix / Needs Fixes

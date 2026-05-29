@@ -1,0 +1,203 @@
+نفّذ الآن PHASE 15A — ADMIN ACCESS RECOVERY GATE.
+
+الحكم:
+لا يمكن اعتماد التصميم ولا النشر لأن /admin لا يدخل.
+هذه مشكلة حرجة Blocker.
+أوقف أي عمل تصميم جديد.
+المطلوب الآن إصلاح دخول لوحة المالك فقط، مع الحفاظ على Supabase/Auth/RLS/Data Gateway/Automation/Location.
+
+المشكلة:
+عند فتح /admin لا يصل المستخدم إلى لوحة المالك.
+يجب تشخيص السبب وإصلاحه بالكامل.
+
+ممنوع:
+- لا تضغط Publish.
+- لا تغيّر Supabase schema إلا إذا كان ضرورياً جداً وبملف SQL آمن.
+- لا تستخدم service_role في الواجهة.
+- لا تضع secrets في الكود.
+- لا تكسر Auth.
+- لا تكسر RLS.
+- لا تكسر Data Gateway.
+- لا تغيّر التصميم إلا لشاشة login/loading/error الخاصة بالـ admin.
+- لا تترك /admin على شاشة تحميل لا نهائية.
+- لا تعتبر المرحلة مكتملة بدون اختبار دخول فعلي أو تشخيص واضح.
+
+==================================================
+1. المطلوب تشخيصه
+==================================================
+
+افحص بالترتيب:
+
+1. هل VITE_SUPABASE_URL موجود؟
+2. هل VITE_SUPABASE_ANON_KEY موجود؟
+3. هل isSupabaseEnabled = true؟
+4. هل supabase client يُنشأ بدون null؟
+5. هل /admin يعرض login form؟
+6. هل authSignIn يستدعي Supabase فعلياً؟
+7. هل getAuthSession يرجع session؟
+8. هل onAuthStateChange يعمل؟
+9. هل user_metadata.role يحتوي super_admin؟
+10. هل ALLOWED_ROLES يقبل super_admin؟
+11. هل hasAdminAccess يرجع true؟
+12. هل AdminLayout يمنع الدخول بسبب loading state؟
+13. هل يوجد redirect loop؟
+14. هل يوجد stuck على "جارٍ التحقق..."؟
+15. هل direct route /admin/dashboard يعمل بعد login؟
+16. هل sign out يعمل؟
+17. هل console فيه auth errors؟
+18. هل network فيه Supabase auth error؟
+19. هل الخطأ بسبب كلمة المرور؟
+20. هل hrq@hotmail.com موجود في Supabase Auth؟
+
+==================================================
+2. إصلاح شاشة التحقق
+==================================================
+
+إذا كانت المشكلة stuck على "جارٍ التحقق...":
+
+- أضف timeout آمن 8 ثواني.
+- إذا لم تصل session، اعرض login form مع رسالة:
+  "انتهت مهلة التحقق، سجّل الدخول مرة أخرى"
+- لا تترك شاشة بيضاء.
+- لا تترك loading أبدي.
+- شاشة loading يجب أن تكون بتصميم مواعيدك التراثي.
+
+==================================================
+3. إصلاح login flow
+==================================================
+
+تأكد أن login يعمل كالتالي:
+
+1. المستخدم يفتح /admin.
+2. إذا لا توجد session:
+   يعرض login form.
+3. المستخدم يدخل:
+   hrq@hotmail.com + كلمة المرور.
+4. بعد نجاح Supabase Auth:
+   يتم جلب session.
+5. يتم التحقق من role:
+   user_metadata.role === "super_admin"
+   أو role === "admin"
+6. إذا مصرح:
+   يدخل إلى /admin/dashboard.
+7. إذا غير مصرح:
+   sign out + رسالة منع واضحة.
+8. إذا كلمة المرور خطأ:
+   تظهر رسالة واضحة:
+   "بيانات الدخول غير صحيحة"
+
+==================================================
+4. تحقق من super_admin
+==================================================
+
+افحص أن hrq@hotmail.com لديه:
+
+user_metadata.role = "super_admin"
+
+إذا لا:
+أنشئ ملف SQL أو تعليمات Supabase Dashboard واضحة لتعيينه بدون كلمة مرور في الكود.
+
+ممنوع وضع كلمة مرور أو service_role داخل المشروع.
+
+==================================================
+5. Route Fix
+==================================================
+
+تأكد من أن هذه الروابط تعمل:
+
+- /admin
+- /admin/dashboard
+- /admin/automation
+- /admin/visual-guide
+- /admin/data-layer
+
+السلوك الصحيح:
+- بدون تسجيل دخول: redirect/login form.
+- بعد تسجيل الدخول كـ super_admin: دخول الصفحة المطلوبة.
+
+==================================================
+6. اختبارات إلزامية
+==================================================
+
+اختبر:
+
+1. فتح /admin بدون session.
+2. ظهور login form.
+3. تسجيل دخول خاطئ.
+4. تسجيل دخول صحيح.
+5. الوصول إلى /admin/dashboard.
+6. الوصول إلى /admin/automation.
+7. الوصول إلى /admin/visual-guide.
+8. refresh بعد الدخول.
+9. direct route بعد refresh.
+10. sign out.
+11. فتح /admin بعد sign out.
+
+شغّل:
+- typecheck
+- build
+
+افحص:
+- لا API 500.
+- لا شاشة بيضاء.
+- لا redirect loop.
+- لا loading لا نهائي.
+- لا console errors جوهرية.
+- لا service_role.
+- لا hardcoded secrets.
+- Supabase/Auth/Data Gateway سليمة.
+- Automation/Location سليمة.
+
+==================================================
+7. تحديث التوثيق
+==================================================
+
+حدّث:
+- QA_REPORT.md
+- replit.md
+
+وسجّل:
+- سبب فشل /admin.
+- الإصلاح المنفذ.
+- نتيجة اختبار login.
+- نتيجة اختبار direct routes.
+- نتيجة build/typecheck.
+
+==================================================
+8. التقرير النهائي المطلوب
+==================================================
+
+أعطني تقريراً بهذا الشكل فقط:
+
+1. ما سبب عدم دخول /admin؟
+2. هل كان stuck loading أو login failure أو role failure أو redirect loop؟
+3. هل VITE_SUPABASE_URL موجود؟
+4. هل VITE_SUPABASE_ANON_KEY موجود؟
+5. هل Supabase client يعمل؟
+6. هل hrq@hotmail.com موجود في Auth؟
+7. هل user_metadata.role = super_admin؟
+8. هل /admin يعرض login form بدون session؟
+9. هل تسجيل الدخول الصحيح يعمل؟
+10. هل تسجيل الدخول الخطأ يعطي رسالة واضحة؟
+11. هل /admin/dashboard يعمل بعد login؟
+12. هل /admin/automation يعمل بعد login؟
+13. هل /admin/visual-guide يعمل بعد login؟
+14. هل refresh بعد الدخول يحافظ على session؟
+15. هل sign out يعمل؟
+16. هل تم منع loading اللانهائي؟
+17. هل توجد API 500؟
+18. هل توجد شاشة بيضاء؟
+19. هل typecheck نجح؟
+20. هل build نجح؟
+21. هل QA_REPORT تم تحديثه؟
+22. الحكم النهائي:
+Admin Access Restored
+أو
+Needs Owner Password Reset
+أو
+Needs Supabase Role Fix
+أو
+Needs Fixes
+
+ممنوع استخدام أي حكم آخر.
+ممنوع اقتراح Publish.

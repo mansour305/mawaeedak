@@ -1,0 +1,126 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 13G
+Location, Timezone, Prayer City + Temporary Notification UX Gate
+
+تم اعتماد Phase 13J:
+Reference Design Matched
+Header = 9.5/10
+HomePage overall = 9.5/10
+Hero image/card = 9.5/10
+Build ناجح
+Typecheck 0 أخطاء
+
+ممنوع تعديل التصميم المرجعي إلا لإصلاح كسر واضح.
+ممنوع كسر Supabase/Auth/Data Gateway.
+ممنوع Publish.
+
+المطلوب الآن تنفيذ ميزة الموقع والمنطقة الزمنية والإشعارات المؤقتة:
+
+1. إضافة إذن استخدام الموقع:
+- زر "استخدام موقعي"
+- استخدام Browser Geolocation API
+- استخراج latitude/longitude
+- استخراج timezone من Intl.DateTimeFormat().resolvedOptions().timeZone
+
+2. إضافة اختيار يدوي إذا رفض المستخدم:
+- الدولة
+- المدينة
+- المنطقة الزمنية
+- حفظ التفضيلات
+
+3. حفظ التفضيلات:
+- localStorage fallback
+- Supabase إذا كان جدول preferences مناسباً وآمناً
+- لا تستخدم service_role
+- لا أسرار hardcoded
+
+4. مواقيت الصلاة:
+- إذا توجد lat/lng استخدمها
+- إذا توجد city استخدم المدينة
+- fallback = الرياض / Asia/Riyadh
+- اعرض مصدر المدينة: "حسب موقعك" أو "اختيار يدوي"
+
+5. الإشعارات المجدولة:
+- appointment reminders حسب timezone المستخدم
+- financial reminders حسب timezone المستخدم
+- daily message notification حسب timezone المستخدم
+- source_key يمنع التكرار
+- fallback timezone = Asia/Riyadh
+
+6. الإشعار العلوي داخل التطبيق:
+- auto-dismiss بعد 5 إلى 7 ثواني
+- يمكن إغلاقه يدوياً
+- لا يبقى عالقاً أعلى الشاشة
+- نسخة الإشعار تبقى محفوظة في NotificationsPage
+
+7. أضف في AccountPage قسم:
+"الموقع والمنطقة الزمنية"
+ويحتوي:
+- المدينة الحالية
+- المنطقة الزمنية
+- حالة الإذن
+- زر استخدام موقعي
+- زر اختيار يدوي
+- آخر تحديث
+
+8. حدّث /admin/automation:
+- توضيح أن scheduler يستخدم timezone المستخدم
+- fallback Asia/Riyadh
+
+اختبر:
+- السماح بالموقع
+- رفض الموقع
+- الاختيار اليدوي
+- reload يحفظ التفضيلات
+- مواقيت الصلاة تتغير حسب المدينة/الموقع
+- الإشعار العلوي يختفي تلقائياً
+- سجل الإشعارات يبقى
+- scheduler لا يكرر الإشعارات
+- Supabase mode سليم
+- /admin سليم
+- التصميم المرجعي لم ينكسر
+
+شغّل:
+- build
+- typecheck
+
+افحص:
+- لا service_role
+- لا hardcoded secrets
+- لا API 500
+- لا شاشة بيضاء
+- لا كسر RTL
+- لا كسر mobile
+
+حدّث:
+- QA_REPORT.md
+- replit.md
+- ARCHITECTURE.md
+- FALLBACK_SERVICES.md إن لزم
+
+التقرير النهائي المطلوب:
+
+1. هل تمت إضافة تحديد الموقع بإذن المستخدم؟
+2. هل يتم استخراج timezone تلقائياً؟
+3. هل يوجد اختيار يدوي للمدينة والمنطقة الزمنية؟
+4. أين تُحفظ التفضيلات؟
+5. هل مواقيت الصلاة تعتمد على الموقع/المدينة؟
+6. هل يظهر للمستخدم مصدر المدينة: موقع/يدوي؟
+7. هل الإشعارات المجدولة تعتمد على timezone المستخدم؟
+8. هل source_key لا يزال يمنع التكرار؟
+9. هل الإشعار العلوي داخل التطبيق يختفي تلقائياً؟
+10. كم مدة ظهور الإشعار؟
+11. هل يبقى الإشعار في صفحة الإشعارات كسجل؟
+12. هل التصميم المرجعي بقي سليماً؟
+13. هل Supabase mode بقي سليماً؟
+14. هل /admin و /admin/automation بقيت سليمة؟
+15. هل توجد API 500؟
+16. هل توجد شاشة بيضاء؟
+17. هل build نجح؟
+18. هل typecheck نجح؟
+19. هل QA_REPORT تم تحديثه؟
+20. القيود المتبقية.
+21. الحكم النهائي:
+Location & Timezone Ready / Notification UX Ready / Needs Fixes

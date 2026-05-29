@@ -1,0 +1,360 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 12M
+Admin Content CRUD Gateway Cutover Gate
+Themes + Story Templates + Daily Messages
+
+الدور:
+تصرف كفريق Data Layer Architect + Supabase Engineer + Frontend Reliability Engineer + QA Lead + Security Reviewer.
+مهمتك الآن ليست تحويل كل النظام إلى Supabase، وليست حذف API، وليست تحويل Calendar/Finance.
+مهمتك فقط تحويل CRUD الإداري للنطاقات الإدارية التالية إلى Gateway بشكل آمن:
+- themes
+- story_templates
+- daily_messages
+
+==================================================
+0. السياق الحالي
+==================================================
+
+تم اعتماد Phase 12L:
+- Admin News CRUD أصبح Gateway.
+- Admin Jobs CRUD أصبح Gateway.
+- CentersNewsPage وCentersJobsPage يعكسان تغييرات Supabase.
+- mode=api يعمل.
+- mode=supabase_shadow يعمل.
+- mode=supabase يعمل لـ news/jobs قراءة وكتابة.
+- لا fallback صامت في write عند mode=supabase.
+- Calendar/Finance لم يُلمسا.
+- API وPostgreSQL ما زالا موجودين.
+- build ناجح.
+- typecheck ناجح.
+
+الحالة الحالية للبيانات:
+- Supabase يحتوي 40 صفاً.
+- themes = 10
+- story_templates = 2
+- daily_messages = 8
+
+الصفحات التي تقرأ حالياً من Gateway جزئياً:
+- AccountPage theme picker يقرأ themes عبر Gateway.
+- StoryPage templates يقرأ story_templates عبر Gateway.
+- بعض daily_messages لا تزال عبر Orval/API حسب endpoint.
+
+القيد الحالي:
+- Admin CRUD للثيمات وقوالب الستوري ورسائل اليوم ما زال غالباً عبر Orval/API.
+- هذا قد يسبب divergence عند mode=supabase لأن بعض صفحات المستخدم تقرأ من Supabase بينما admin يكتب إلى API.
+
+==================================================
+1. الهدف التنفيذي
+==================================================
+
+حوّل Admin CRUD للنطاقات التالية إلى Gateway فقط:
+
+1. themes
+2. story_templates
+3. daily_messages
+
+المطلوب:
+1. تحويل قراءة Admin Themes إلى Gateway إن لم تكن كذلك.
+2. تحويل تفعيل/تعطيل theme أو تحديثه إلى Gateway.
+3. تحويل قراءة Admin Story Templates إلى Gateway.
+4. تحويل add/edit/delete/toggle story_templates إلى Gateway.
+5. تحويل قراءة Admin Daily Messages إلى Gateway.
+6. تحويل add/edit/delete/toggle daily_messages إلى Gateway.
+7. عند mode=api:
+   - القراءة والكتابة عبر API كما كانت.
+8. عند mode=supabase_shadow:
+   - القراءة والكتابة عبر API.
+   - لا كتابة إلى Supabase.
+9. عند mode=supabase:
+   - القراءة والكتابة لهذه النطاقات عبر Supabase.
+   - لا fallback صامت إلى API في write.
+   - عند فشل write أظهر toast/error واضح.
+10. لا تحوّل Calendar.
+11. لا تحوّل Finance.
+12. لا تحوّل appointments.
+13. لا تحوّل financial_events.
+14. لا تحوّل profiles.
+15. لا تحذف API.
+16. لا تضغط Publish.
+
+==================================================
+2. خارج النطاق
+==================================================
+
+هذه المرحلة ليست:
+- Calendar CRUD Cutover.
+- Finance CRUD Cutover.
+- Notifications send fan-out.
+- Full Write Cutover.
+- حذف API.
+- حذف PostgreSQL.
+- Production Ready.
+- Publish.
+- Firebase.
+- Offline.
+- إعادة تصميم UI.
+
+==================================================
+3. ممنوعات صارمة
+==================================================
+
+ممنوع:
+- لا تلمس appointments.
+- لا تلمس financial_events.
+- لا تلمس CalendarPage CRUD.
+- لا تلمس FinancePage CRUD.
+- لا تحذف API endpoints.
+- لا تستخدم service_role في الواجهة.
+- لا تضع أسرار في الكود.
+- لا تستخدم DROP/TRUNCATE/DELETE.
+- لا تنقل بيانات جديدة عبر SQL.
+- لا تجعل Supabase هو default.
+- لا تضغط Publish.
+- لا تدّع Production Ready.
+- لا تكسر Theme Engine.
+- لا تكسر StoryPage.
+- لا تكسر HomePage.
+
+==================================================
+4. تدقيق إلزامي قبل التنفيذ
+==================================================
+
+قبل أي تعديل جديد، نفّذ تدقيقاً سريعاً على Phase 12L:
+
+1. تحقق أن news/jobs في mode=supabase يستخدمان المعرّف الصحيح عند update/delete.
+2. إذا كانت الواجهة تستخدم legacy integer id، يجب أن يستخدم Supabase write:
+   - legacy_id
+   أو mapping موثّق وآمن.
+3. إذا كان Supabase write يستخدم uuid id فعلاً، وثّق ذلك.
+4. لا تعدّل news/jobs إلا إذا وجدت خطأ فعلياً.
+5. وثّق النتيجة في QA_REPORT.
+
+ثم افحص نطاق Phase 12M:
+1. AdminThemes الحالي.
+2. AdminStory أو AdminStoryTemplates الحالي.
+3. AdminMessages / DailyMessages admin الحالي.
+4. hooks الحالية المستخدمة للقراءة والكتابة.
+5. dataGateway.ts.
+6. supabaseData.ts.
+7. شكل بيانات themes في API مقابل Supabase.
+8. شكل بيانات story_templates في API مقابل Supabase.
+9. شكل بيانات daily_messages في API مقابل Supabase.
+10. هل id في الواجهة يعتمد على legacy_id أو uuid.
+11. ما الحقول المطلوبة في add/edit/toggle/delete.
+12. هل RLS يسمح لـ admin/super_admin بإدارة هذه الجداول.
+13. كيف سيتم تحديث React Query cache بعد add/edit/delete/toggle.
+14. كيف سنمنع divergence في mode=supabase.
+
+لا تبدأ التنفيذ قبل تحديد mapping واضح.
+
+==================================================
+5. متطلبات التنفيذ
+==================================================
+
+أ. Supabase adapter:
+أضف في supabaseData.ts دوال آمنة حسب الحاجة:
+
+Themes:
+- updateThemeInSupabase
+- toggleThemeInSupabase
+- setDefaultThemeInSupabase إن كان موجوداً في النظام
+
+Story Templates:
+- createStoryTemplateInSupabase
+- updateStoryTemplateInSupabase
+- deleteStoryTemplateInSupabase
+- toggleStoryTemplateInSupabase
+
+Daily Messages:
+- createDailyMessageInSupabase
+- updateDailyMessageInSupabase
+- deleteDailyMessageInSupabase
+- toggleDailyMessageInSupabase أو equivalent حسب schema
+
+ب. Data Gateway:
+أضف في dataGateway.ts functions مقابلة:
+- gwUpdateTheme / gwToggleTheme / gwSetDefaultTheme
+- gwCreateStoryTemplate / gwUpdateStoryTemplate / gwDeleteStoryTemplate / gwToggleStoryTemplate
+- gwCreateDailyMessage / gwUpdateDailyMessage / gwDeleteDailyMessage / gwToggleDailyMessage
+
+ج. السلوك حسب mode:
+- api:
+  API فقط.
+- supabase_shadow:
+  API فقط.
+- supabase:
+  Supabase فقط لنطاق Phase 12M.
+  لا fallback صامت في write.
+
+د. Query invalidation:
+بعد أي عملية:
+- حدّث gwQueryKeys.themes
+- حدّث gwQueryKeys.storyTemplates
+- حدّث gwQueryKeys.dailyMessages إن وجد
+- حدّث Orval query keys للتوافق إذا بقيت بعض الصفحات API.
+- لا تترك stale cache.
+
+هـ. IDs:
+- إذا واجهة admin تستخدم legacy integer id، استخدم legacy_id في Supabase.
+- لا تكسر واجهة المستخدم بسبب uuid.
+- وثّق mapping المستخدم.
+
+==================================================
+6. اختبارات إلزامية
+==================================================
+
+اختبر:
+
+أ. mode=api:
+1. Admin themes list يعمل.
+2. theme toggle/update يعمل عبر API.
+3. Admin story templates list يعمل.
+4. add/edit/delete/toggle story template يعمل عبر API.
+5. Admin daily messages list يعمل.
+6. add/edit/delete/toggle daily message يعمل عبر API.
+7. AccountPage / StoryPage / HomePage تعمل.
+
+ب. mode=supabase_shadow:
+1. كل شيء يبقى API.
+2. لا كتابة إلى Supabase.
+3. لا كسر.
+
+ج. mode=supabase:
+1. Admin themes يقرأ من Supabase.
+2. theme toggle/update يكتب Supabase.
+3. AccountPage theme picker يعكس التغيير.
+4. Theme Engine لا ينكسر.
+5. Admin story templates يقرأ من Supabase.
+6. add/edit/delete/toggle story template يكتب Supabase.
+7. StoryPage يعكس التغيير.
+8. Admin daily messages يقرأ من Supabase.
+9. add/edit/delete/toggle daily message يكتب Supabase.
+10. HomePage أو StoryPage حيث تُعرض رسالة اليوم لا تنكسر.
+11. لا fallback صامت في write.
+12. لا duplicates.
+13. RLS يعمل.
+14. user/admin permissions تعمل.
+
+اختبر الصفحات:
+- الرئيسية
+- التقويم
+- المال
+- ستوري اليوم
+- الإشعارات
+- المراكز
+- مركز الأخبار
+- مركز الوظائف
+- حسابي
+- /admin
+- /admin/data-layer
+- صفحات themes/story/messages الإدارية
+- الصفحات القانونية
+- 404
+
+==================================================
+7. أوامر الفحص
+==================================================
+
+شغّل:
+- pnpm build أو npm run build
+- pnpm typecheck أو npm run typecheck إن وجد
+
+وافحص:
+- service_role
+- SUPABASE_SERVICE_ROLE
+- hardcoded Supabase keys
+- hardcoded passwords
+- DROP
+- TRUNCATE
+- DELETE غير مقصود
+
+إذا lint/test غير موجود:
+اذكر أنه غير متوفر ولا تدّع تشغيله.
+
+==================================================
+8. تحديث التوثيق
+==================================================
+
+حدّث:
+- QA_REPORT.md
+- DATA_SOURCE_MAP.md
+- SUPABASE_MIGRATION_PLAN.md
+- SUPABASE_MIGRATION_CHECKLIST.md
+- ARCHITECTURE.md
+- README.md إن لزم
+
+وثّق:
+- أن Admin themes/story_templates/daily_messages CRUD أصبح Gateway.
+- أن default لا يزال api.
+- أن mode=supabase يكتب لهذه الجداول إلى Supabase.
+- أن Calendar/Finance لم يتحولا.
+- أي divergence risk متبقٍ.
+- أن Phase 12N مخصصة لـ Calendar/Finance أو مرحلة عالية المخاطر لاحقة.
+
+==================================================
+9. معيار قبول المرحلة
+==================================================
+
+تقبل Phase 12M فقط إذا تحقق:
+
+- Admin themes CRUD/toggle يستخدم Gateway.
+- Admin story_templates CRUD/toggle يستخدم Gateway.
+- Admin daily_messages CRUD/toggle يستخدم Gateway.
+- mode=api يعمل.
+- mode=supabase_shadow يعمل.
+- mode=supabase يعمل للنطاقات الثلاثة قراءة وكتابة.
+- AccountPage/StoryPage/HomePage لا تنكسر.
+- لا fallback صامت في write عند mode=supabase.
+- لا يتم تحويل نطاق آخر.
+- API لم يُحذف.
+- PostgreSQL لم يُحذف.
+- لا بيانات SQL جديدة.
+- لا DROP/TRUNCATE/DELETE غير مقصود.
+- لا service_role.
+- لا أسرار hardcoded.
+- Supabase Auth و/admin سليمان.
+- كل الصفحات سليمة.
+- build ناجح.
+- typecheck ناجح.
+- QA_REPORT محدث.
+
+الحكم النهائي:
+Admin Content CRUD Gateway Ready / Partial Admin Content Cutover / Needs Admin Content Fix / Needs Fixes
+
+==================================================
+10. التقرير النهائي المطلوب
+==================================================
+
+أعطني تقريراً بهذا الشكل فقط:
+
+1. هل تم تدقيق id/legacy_id في news/jobs من Phase 12L؟
+2. هل Admin themes read أصبح Gateway؟
+3. هل Admin themes update/toggle أصبح Gateway؟
+4. هل Admin story_templates read أصبح Gateway؟
+5. هل Admin story_templates add/edit/delete/toggle أصبح Gateway؟
+6. هل Admin daily_messages read أصبح Gateway؟
+7. هل Admin daily_messages add/edit/delete/toggle أصبح Gateway؟
+8. هل mode=api يعمل؟
+9. هل mode=supabase_shadow يعمل؟
+10. هل mode=supabase يعمل للنطاقات الثلاثة؟
+11. هل AccountPage يعكس تغييرات themes؟
+12. هل StoryPage يعكس تغييرات story_templates؟
+13. هل HomePage/StoryPage لا تنكسر مع daily_messages؟
+14. هل يوجد fallback صامت إلى API في write عند mode=supabase؟
+15. هل تم تحويل أي نطاق آخر؟
+16. هل Calendar/Finance بقيا كما هما؟
+17. هل API endpoints ما زالت موجودة؟
+18. هل PostgreSQL ما زال موجوداً؟
+19. هل يوجد service_role في الواجهة؟
+20. هل توجد أسرار hardcoded؟
+21. هل يوجد DROP/TRUNCATE/DELETE غير مقصود؟
+22. هل Supabase Auth و/admin بقيا سليمين؟
+23. هل الصفحات السابقة سليمة؟
+24. هل build نجح؟ اذكر النتيجة صراحة.
+25. هل typecheck نجح؟ اذكر النتيجة صراحة.
+26. هل QA_REPORT تم تحديثه؟
+27. القيود المتبقية.
+28. الحكم النهائي:
+Admin Content CRUD Gateway Ready / Partial Admin Content Cutover / Needs Admin Content Fix / Needs Fixes

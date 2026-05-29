@@ -1,0 +1,108 @@
+نفّذ الآن PHASE 15B — ADMIN LOADING HARD FIX.
+
+المشكلة:
+صفحة /admin تبقى عالقة على "جارٍ التحقق..." ولا تنتقل إلى Login ولا Dashboard.
+
+هذا Blocker يمنع اعتماد التصميم والنشر.
+
+المطلوب:
+إصلاح AdminLayout/Auth flow فقط. لا تغيّر التصميم العام، لا تغيّر Supabase schema، لا تغيّر Data Gateway، لا تغيّر Automation، لا تضغط Publish.
+
+الإصلاح الإجباري:
+
+1. في AdminLayout:
+- لا تترك loading state مفتوحاً أبداً.
+- أضف timeout حقيقي 8 ثوانٍ.
+- إذا لم تنتهِ session check خلال 8 ثوانٍ:
+  setLoading(false)
+  اعرض Login form
+  اعرض رسالة: "انتهت مهلة التحقق، سجّل الدخول مرة أخرى"
+
+2. تأكد أن كل مسارات التحقق فيها finally:
+- getAuthSession success
+- getAuthSession error
+- no session
+- invalid role
+- Supabase unavailable
+- onAuthStateChange callback
+- unexpected error
+
+لا يوجد أي return يترك loading=true.
+
+3. بعد signIn:
+- استدعِ supabase.auth.getUser()
+- اقرأ role من:
+  user.user_metadata.role
+  ثم app_metadata.role إن وجد
+- اقبل:
+  super_admin
+  admin
+- إذا role غير موجود:
+  signOut()
+  setLoading(false)
+  اعرض رسالة:
+  "الحساب موجود لكن لا يملك صلاحية المالك. تأكد من role=super_admin في Supabase."
+
+4. أضف زر واضح في شاشة التحقق أو الخطأ:
+"العودة لتسجيل الدخول"
+يقوم بـ:
+- supabase.auth.signOut()
+- clear localStorage keys التي تحتوي supabase أو sb-
+- setLoading(false)
+- عرض Login form
+
+5. أصلح direct routes:
+- /admin
+- /admin/dashboard
+- /admin/automation
+- /admin/visual-guide
+- /admin/data-layer
+
+السلوك الصحيح:
+- بدون session: Login form
+- session + role صحيح: Dashboard أو الصفحة المطلوبة
+- session + role خاطئ: signOut + رسالة واضحة
+- خطأ أو timeout: Login form، وليس loading أبدي
+
+6. شغّل:
+- typecheck
+- build
+
+7. اختبر:
+- فتح /admin بدون session
+- ظهور Login
+- تسجيل دخول خاطئ
+- تسجيل دخول صحيح
+- /admin/dashboard
+- /admin/automation
+- /admin/visual-guide
+- refresh بعد الدخول
+- sign out
+- لا loading أبدي
+- لا شاشة بيضاء
+- لا API 500
+
+التقرير النهائي المطلوب:
+1. هل تم إصلاح loading اللانهائي؟
+2. هل يوجد timeout 8 ثوانٍ؟
+3. هل كل مسارات auth تنهي loading؟
+4. هل /admin يعرض Login بدون session؟
+5. هل login الصحيح يدخل Dashboard؟
+6. هل role=super_admin يعمل؟
+7. هل role غير الصحيح يعطي رسالة واضحة؟
+8. هل زر العودة لتسجيل الدخول يمسح session؟
+9. هل direct routes تعمل؟
+10. هل refresh بعد login يعمل؟
+11. هل sign out يعمل؟
+12. هل typecheck نجح؟
+13. هل build نجح؟
+14. هل توجد شاشة بيضاء؟
+15. هل توجد API 500؟
+16. الحكم النهائي:
+Admin Access Restored
+أو
+Needs Supabase Role Fix
+أو
+Needs Owner Password Reset
+أو
+Needs Fixes

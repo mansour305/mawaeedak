@@ -1,0 +1,91 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 13G Fix Gate
+Timezone Scheduler Verification + Final Build Gate
+
+الحكم:
+Phase 13G غير معتمدة بالكامل بعد.
+تم تنفيذ الموقع والمدينة والـ toast auto-dismiss، لكن لم يتم إثبات أن الإشعارات المجدولة تعتمد فعلياً على timezone المستخدم، ولم يتم ذكر build أو تحديث QA_REPORT.
+
+المطلوب الآن:
+لا تضف ميزات جديدة.
+لا تغيّر التصميم.
+لا تضغط Publish.
+أكمل فقط نواقص Phase 13G.
+
+1. تحقق من scheduler:
+- appointment reminders يجب أن تُحسب حسب timezone المستخدم.
+- financial reminders يجب أن تُحسب حسب timezone المستخدم.
+- daily message notification يجب أن تُحسب حسب timezone المستخدم.
+- إذا لا توجد timezone للمستخدم، fallback = Asia/Riyadh.
+- لا تعتمد فقط على timezone الخادم.
+- وثق كيف يتم حساب due_at_utc أو وقت التنفيذ الفعلي.
+- source_key يجب أن يمنع التكرار.
+
+2. تحقق من Toast UX:
+- الإشعار العلوي داخل التطبيق auto-dismiss بعد 5 ثوانٍ.
+- يمكن إغلاقه يدوياً.
+- لا يبقى عالقاً.
+- نسخة الإشعار داخل NotificationsPage تبقى كسجل.
+
+3. تحقق من Location Preferences:
+- السماح بالموقع يعمل.
+- الرفض يعطي اختيار يدوي.
+- reload يحفظ التفضيلات.
+- مواقيت الصلاة تستخدم location prefs قبل user.city.
+- يظهر مصدر المدينة: حسب موقعك / اختيار يدوي / الافتراضي.
+
+4. اختبر:
+- HomePage
+- AccountPage
+- NotificationsPage
+- CalendarPage
+- FinancePage
+- StoryPage
+- /admin
+- /admin/automation
+- Supabase mode
+- RTL
+- mobile layout
+
+5. شغّل:
+- build
+- typecheck
+
+6. افحص:
+- لا service_role
+- لا hardcoded secrets
+- لا API 500
+- لا شاشة بيضاء
+- لا console errors جوهرية
+
+7. حدّث:
+- QA_REPORT.md
+- replit.md
+- ARCHITECTURE.md أو FALLBACK_SERVICES.md إذا لزم
+
+التقرير النهائي المطلوب:
+
+1. هل scheduler يعتمد فعلياً على timezone المستخدم؟
+2. كيف يتم حساب وقت الإشعار حسب timezone؟
+3. ما fallback إذا لا توجد timezone؟
+4. هل appointment reminders حسب timezone المستخدم؟
+5. هل financial reminders حسب timezone المستخدم؟
+6. هل daily message notification حسب timezone المستخدم؟
+7. هل source_key يمنع التكرار؟
+8. هل Toast يختفي تلقائياً؟
+9. كم مدة Toast؟
+10. هل يمكن إغلاق Toast يدوياً؟
+11. هل الإشعار يبقى في NotificationsPage كسجل؟
+12. هل location prefs تبقى بعد reload؟
+13. هل مواقيت الصلاة تستخدم الموقع/المدينة؟
+14. هل Supabase mode سليم؟
+15. هل /admin/automation سليم؟
+16. هل توجد API 500؟
+17. هل توجد شاشة بيضاء؟
+18. هل build نجح؟ اذكر النتيجة.
+19. هل typecheck نجح؟ اذكر النتيجة.
+20. هل QA_REPORT تم تحديثه؟
+21. الحكم النهائي:
+Location & Timezone Ready / Notification UX Ready / Needs Scheduler Fix / Needs Fixes

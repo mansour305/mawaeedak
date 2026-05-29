@@ -1,0 +1,353 @@
+نفّذ الآن PHASE 19 — FINAL PROJECT CLOSURE AND PRE-PUBLISH VERIFICATION GATE.
+
+الحكم الحالي:
+تم إصلاح عائق /admin فعلياً في Phase 18B.
+سبب المشكلة كان تجاهل INITIAL_SESSION في Supabase JS v2.
+اختبارات Admin Session Persistence نجحت 9/9 PASS.
+المطلوب الآن ليس تطوير ميزات جديدة.
+المطلوب إغلاق المشروع بفحص شامل نهائي قبل أي قرار نشر.
+
+ممنوع:
+- لا تضغط Publish.
+- لا تضف ميزات جديدة.
+- لا تغيّر Supabase schema.
+- لا تستخدم service_role.
+- لا تضع secrets في الكود.
+- لا تكسر Auth.
+- لا تكسر Data Gateway.
+- لا تكسر Automation.
+- لا تكسر Location/Timezone.
+- لا تغيّر التصميم إلا لإصلاح كسر واضح.
+- لا تكتب Production Ready إلا إذا كل بوابات الفحص نجحت.
+- لا تكتب Ready to Publish قبل التقرير النهائي الكامل.
+
+==================================================
+1. المطلوب العام
+==================================================
+
+نفّذ فحص إغلاق نهائي للمشروع كاملاً:
+
+1. Admin Access
+2. Admin Session Persistence
+3. User Pages
+4. Admin Pages
+5. Supabase/Auth/RLS
+6. Data Gateway
+7. API endpoints
+8. Automation
+9. Location/Timezone
+10. Notifications
+11. Story generation/cards
+12. Design system
+13. Security/secrets
+14. Build/typecheck
+15. Screenshot package
+
+==================================================
+2. Admin Final E2E
+==================================================
+
+أعد تشغيل Playwright Admin E2E النهائي:
+
+T1: /admin?reset=1 → login form
+T2: login with ADMIN_E2E_EMAIL / ADMIN_E2E_PASSWORD from env only
+T3: /admin/dashboard يظهر
+T4: hard reload على /admin/dashboard يبقى داخل Dashboard
+T5: /admin/automation يظهر بعد login
+T6: hard reload على /admin/automation يبقى داخل Automation
+T7: /admin/visual-guide يظهر بعد login
+T8: hard reload على /admin/visual-guide يبقى داخل Visual Guide
+T9: /admin/data-layer يظهر بعد login
+T10: sign out يعمل
+T11: بعد sign out، direct /admin/dashboard يعرض login
+T12: no infinite loading
+T13: no white screen
+T14: no console fatal errors
+
+كلها يجب أن تكون PASS.
+أي WARN غير مقبول في هذه المرحلة.
+
+==================================================
+3. User Pages Smoke Test
+==================================================
+
+اختبر هذه الصفحات في المتصفح واحفظ screenshots:
+
+- /
+- /calendar
+- /finance
+- /finance?tab=calculators
+- /centers
+- /story
+- /account
+- /notifications
+- /support أو complaints إن وجدت
+- legal pages
+- 404
+- /visual-reference-clone
+- /admin-self-test
+
+لكل صفحة تحقق:
+- الصفحة تظهر.
+- لا شاشة بيضاء.
+- لا loading أبدي.
+- لا API 500.
+- RTL سليم.
+- لا overflow أفقي.
+- BottomNav لا يغطي المحتوى.
+- التصميم الأساسي ظاهر.
+- شعار مواعيدك ظاهر حيث يلزم.
+
+==================================================
+4. Admin Pages Smoke Test
+==================================================
+
+بعد login، اختبر واحفظ screenshots:
+
+- /admin/dashboard
+- /admin/automation
+- /admin/visual-guide
+- /admin/data-layer
+- /admin/notifications
+- /admin/messages
+- /admin/themes
+- /admin/story
+- /admin/news-jobs إن وجدت
+- /admin/reports أو audit إن وجدت
+
+لكل صفحة تحقق:
+- Admin shell ظاهر.
+- شعار مواعيدك ظاهر.
+- لا شاشة بيضاء.
+- لا loading أبدي.
+- لا API 500.
+- لا console fatal errors.
+- التصميم التراثي مطبق.
+- logout يعمل.
+
+==================================================
+5. API Endpoint Audit
+==================================================
+
+اختبر endpoints الأساسية وسجّل النتائج:
+
+- /api/healthz
+- /api/prayer-times
+- /api/notifications
+- /api/notifications/unread-count
+- /api/news
+- /api/jobs
+- /api/themes
+- /api/story-templates
+- /api/daily-messages
+- /api/appointments
+- /api/appointments/upcoming
+- /api/financial-events/countdown
+- /api/admin/stats
+- /api/audit-logs
+- /api/complaints
+
+جدول مطلوب:
+Endpoint | Status | Result | Notes
+
+أي 500 = blocker.
+
+==================================================
+6. Data Gateway Verification
+==================================================
+
+تحقق من النطاقات التالية:
+
+Gateway Complete:
+- appointments
+- financial_events
+- notifications
+- news
+- jobs
+- themes
+- story_templates
+- daily_messages
+
+تحقق:
+- mode=api لا ينكسر.
+- mode=supabase لا ينكسر.
+- fallback موثق.
+- write لا fallback صامت في Supabase mode.
+- Orval usages المتبقية مصنفة ومقصودة.
+
+جدول مطلوب:
+Domain | Read Source | Write Source | Mode | Status | Notes
+
+==================================================
+7. Automation / Location / Notifications
+==================================================
+
+تحقق من:
+
+- Daily message automation.
+- Scheduled in-app notifications.
+- source_key idempotency.
+- Toast auto-dismiss = 5000ms.
+- NotificationsPage سجل دائم.
+- Location prefs محفوظة بعد reload.
+- GPS/manual city fallback.
+- Prayer times تستخدم city/location prefs.
+- Admin Automation page تعرض status واضح.
+- لا تكرار إشعارات.
+
+جدول مطلوب:
+Feature | Status | Evidence | Notes
+
+==================================================
+8. Story / Branding / Rights
+==================================================
+
+تحقق من:
+
+- StoryPage تظهر.
+- بطاقة الستوري تحتوي "مواعيدك".
+- بطاقة الستوري تحتوي "مواعيدك — جميع الحقوق محفوظة" أو نص حقوق واضح.
+- الصور/البطاقات القابلة للمشاركة تحمل شعار وحقوق.
+- لا توجد بطاقة مشاركة بدون علامة مواعيدك.
+
+==================================================
+9. Visual Review Package
+==================================================
+
+جهّز Screenshot Package نهائي:
+
+User:
+1. HomePage
+2. CalendarPage
+3. FinancePage
+4. Smart Calculators
+5. CentersPage
+6. StoryPage
+7. AccountPage
+8. NotificationsPage
+
+Admin:
+9. Admin Dashboard
+10. Admin Automation
+11. Admin Visual Guide
+12. Admin Data Layer
+
+System:
+13. /visual-reference-clone
+14. /admin-self-test
+
+احفظ الصور في test-results أو المسار المناسب.
+لا تعرض كلمة المرور أو الأسرار في أي screenshot.
+
+==================================================
+10. Security Audit
+==================================================
+
+افحص المشروع كاملاً بحثاً عن:
+
+- service_role
+- SUPABASE_SERVICE_ROLE
+- password
+- secret
+- eyJ
+- anon key hardcoded
+- DROP
+- TRUNCATE
+- admin bypass
+- demo password في production path
+
+صنّف النتائج:
+Keyword | Found? | Context | Risk | Action
+
+ممنوع وجود:
+- service_role في الواجهة.
+- password hardcoded.
+- secrets في docs.
+- tokens في logs.
+- admin localStorage bypass في production.
+
+==================================================
+11. Build / Typecheck / Tests
+==================================================
+
+شغّل:
+
+- typecheck
+- build
+- Playwright Admin E2E
+- User smoke test
+- API smoke test
+
+إذا lint/test غير موجودة:
+اذكر أنها غير متوفرة ولا تدّع تشغيلها.
+
+==================================================
+12. Documentation Update
+==================================================
+
+حدّث:
+
+- QA_REPORT.md
+- replit.md
+- ARCHITECTURE.md عند الحاجة
+- README.md عند الحاجة
+
+QA_REPORT يجب أن يحتوي:
+
+1. Phase 19 summary
+2. Admin E2E final table
+3. User pages smoke table
+4. Admin pages smoke table
+5. API endpoints table
+6. Data Gateway matrix
+7. Automation/location/notifications table
+8. Security audit table
+9. Screenshot package list
+10. Remaining blockers
+11. Final decision
+
+==================================================
+13. التقرير النهائي المطلوب فقط
+==================================================
+
+أعطني التقرير بهذا الشكل:
+
+1. هل Admin E2E النهائي نجح؟
+2. كم اختبار Admin E2E نجح من الإجمالي؟
+3. هل hard reload على Dashboard نجح؟
+4. هل hard reload على Automation نجح؟
+5. هل hard reload على Visual Guide نجح؟
+6. هل sign out يعمل؟
+7. هل direct route بعد sign out يعرض login؟
+8. هل صفحات المستخدم كلها تعمل؟
+9. هل صفحات Admin كلها تعمل؟
+10. هل Screenshot Package النهائي جاهز؟
+11. هل API endpoints كلها 200؟
+12. هل Data Gateway سليم؟
+13. هل Automation سليمة؟
+14. هل Location/Timezone سليمة؟
+15. هل Notifications سليمة؟
+16. هل Toast auto-dismiss = 5000ms؟
+17. هل Story/share cards فيها شعار وحقوق مواعيدك؟
+18. هل تم فحص secrets/service_role؟
+19. هل توجد أسرار أو service_role في الواجهة؟
+20. هل توجد API 500؟
+21. هل توجد شاشة بيضاء؟
+22. هل توجد loading infinite؟
+23. هل توجد console fatal errors؟
+24. هل RTL وmobile layout سليمان؟
+25. هل typecheck نجح؟
+26. هل build نجح؟
+27. هل QA_REPORT تم تحديثه؟
+28. هل replit.md تم تحديثه؟
+29. ما العوائق المتبقية؟
+30. الحكم النهائي، اختر واحداً فقط:
+Ready for Owner Final Visual Review
+Needs Fixes
+Needs Security Fix
+Needs Admin Fix
+Needs Data Fix
+Needs Visual Fix
+
+ممنوع استخدام أي حكم آخر.
+ممنوع اقتراح Publish.

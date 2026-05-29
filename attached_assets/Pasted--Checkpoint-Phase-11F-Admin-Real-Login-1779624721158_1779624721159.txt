@@ -1,0 +1,74 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 11F
+Admin Real Login + Role Verification Final Gate
+
+تم الآن اختبار الدخول يدوياً بنجاح:
+- فتحت /admin.
+- سجلت الدخول بالبريد hrq@hotmail.com.
+- ظهرت لوحة تحكم المنصة.
+- القائمة الجانبية تعرض:
+  مالك المنصة
+  super_admin
+- زر تسجيل الخروج ظاهر.
+
+مهمتك الآن فقط التحقق النهائي من أن هذا الدخول مبني على Supabase Auth + role check صحيح، وليس fallback أو localStorage فقط.
+
+المطلوب:
+1. تحقق أن تسجيل دخول hrq@hotmail.com نجح عبر Supabase Auth.
+2. تحقق أن session تعمل فعلياً.
+3. تحقق أن role يُقرأ من user_roles + roles أو مصدر موثوق موثق.
+4. تحقق أن hrq@hotmail.com مؤكد كـ super_admin.
+5. تحقق أن /admin يمنع غير المسجل.
+6. تحقق أن /admin يمنع غير المصرح.
+7. تحقق أن sign out يعمل ويمنع الرجوع للوحة.
+8. تحقق أن demo fallback متوقف عند توفر Supabase env.
+9. تحقق أنه لا يوجد service_role في الواجهة.
+10. تحقق أنه لا توجد أسرار أو كلمات مرور hardcoded.
+11. تحقق أن المراحل السابقة سليمة.
+12. شغّل build.
+13. شغّل typecheck.
+14. حدّث QA_REPORT بالحالة الحقيقية.
+
+اختبر الصفحات:
+- الرئيسية
+- التقويم
+- المال
+- ستوري اليوم
+- الإشعارات
+- المراكز
+- حسابي
+- /admin
+- الصفحات القانونية
+- 404
+
+ممنوع:
+- لا تضغط Publish.
+- لا تستخدم service_role.
+- لا تضع أسراراً في الكود.
+- لا تضع كلمة مرور في الكود.
+- لا تنقل بيانات التطبيق إلى Supabase في هذه المرحلة.
+- لا تضف ميزات جديدة.
+- لا تغيّر التصميم.
+- لا تدّع Production Ready.
+
+التقرير النهائي المطلوب:
+
+1. هل تسجيل دخول hrq@hotmail.com نجح من /admin؟
+2. هل session تعمل فعلياً؟
+3. هل role يُقرأ من user_roles + roles؟
+4. هل hrq@hotmail.com مؤكد كـ super_admin؟
+5. هل /admin يمنع غير المسجل؟
+6. هل /admin يمنع غير المصرح؟
+7. هل sign out يعمل؟
+8. هل demo fallback متوقف عند توفر Supabase env؟
+9. هل يوجد service_role في الواجهة؟
+10. هل توجد أسرار أو كلمات مرور hardcoded؟
+11. هل المراحل السابقة سليمة؟
+12. هل build نجح؟ اذكر النتيجة صراحة.
+13. هل typecheck نجح؟ اذكر النتيجة صراحة.
+14. هل QA_REPORT تم تحديثه؟
+15. القيود المتبقية.
+16. الحكم النهائي:
+Full Supabase Connected Preview / Needs Role Fix / Needs Fixes

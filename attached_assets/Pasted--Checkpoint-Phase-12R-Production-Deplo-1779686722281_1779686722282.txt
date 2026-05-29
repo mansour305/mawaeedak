@@ -1,0 +1,378 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 12R
+Production Deployment Verification + Supabase Mode Smoke Test Gate
+
+الدور:
+تصرف كفريق Production QA Lead + Supabase Release Engineer + Security Reviewer + Deployment Auditor.
+مهمتك الآن ليست إضافة ميزات جديدة، وليست حذف API أو PostgreSQL، وليست الضغط على Publish.
+مهمتك فقط التحقق النهائي بعد ضبط VITE_DATA_SOURCE_MODE=supabase في Replit Secrets، وإثبات أن التطبيق يعمل إنتاجياً على Supabase mode قبل أي Deploy رسمي.
+
+==================================================
+0. السياق الحالي
+==================================================
+
+تم اعتماد Phase 12Q بالحكم:
+Production Ready Candidate
+
+الحالة الحالية:
+- Supabase Auth يعمل.
+- /admin محمي.
+- hrq@hotmail.com = super_admin.
+- RLS مفعّل.
+- Gateway Complete لـ 8 نطاقات:
+  appointments
+  financial_events
+  notifications
+  news
+  jobs
+  themes
+  story_templates
+  daily_messages
+
+- Supabase يحتوي 40 صفاً:
+  daily_messages = 8
+  story_templates = 2
+  themes = 10
+  news = 2
+  jobs = 2
+  appointments = 2
+  financial_events = 8
+  notifications = 3
+  complaints = 3
+
+- API intentionally باقٍ للنطاقات:
+  prayer_times
+  today_message
+  admin stats
+  audit_logs
+  public_events/AdminEvents
+  AdminFinancial
+  notification send fan-out
+  complaints form submission
+
+- VITE_DATA_SOURCE_MODE=supabase تم ضبطه الآن في Replit Secrets.
+- المطلوب الآن التحقق العملي الكامل.
+
+==================================================
+1. الهدف التنفيذي
+==================================================
+
+تحقق أن التطبيق يعمل فعلياً في Supabase mode.
+
+المطلوب:
+1. تحقق أن VITE_DATA_SOURCE_MODE=supabase مقروء فعلياً.
+2. تحقق أن dataSourceMode يرجع supabase.
+3. تحقق أن Gateway يستخدم Supabase للنطاقات المكتملة.
+4. تحقق أن API intentionally ما زال يعمل للنطاقات المحسوبة فقط.
+5. تحقق أن Supabase Auth و/admin يعملان.
+6. تحقق أن hrq@hotmail.com يدخل كـ super_admin.
+7. نفّذ smoke test شامل لكل الصفحات.
+8. نفّذ CRUD tests محدودة وآمنة للنطاقات المحولة.
+9. لا تضغط Publish.
+10. حدّث QA_REPORT والوثائق.
+11. أعطِ الحكم النهائي:
+   Production Ready / Needs Fixes / Needs Security Fix / Needs Deployment Fix
+
+==================================================
+2. ممنوعات صارمة
+==================================================
+
+ممنوع:
+- لا تضغط Publish.
+- لا تحذف API.
+- لا تحذف PostgreSQL.
+- لا تستخدم service_role في الواجهة.
+- لا تضع أسرار في الكود.
+- لا تستخدم DROP/TRUNCATE/DELETE.
+- لا تنقل بيانات جديدة عبر SQL.
+- لا تغيّر التصميم.
+- لا تضف ميزات جديدة.
+- لا تدّع Production Ready إذا فشل أي اختبار جوهري.
+- لا تتجاهل أي API 500 أو شاشة بيضاء.
+- لا تخفي أي نطاق بقي API intentionally.
+
+==================================================
+3. تحقق البيئة
+==================================================
+
+افحص:
+
+1. VITE_SUPABASE_URL موجود.
+2. VITE_SUPABASE_ANON_KEY موجود.
+3. VITE_DATA_SOURCE_MODE=supabase موجود.
+4. لا يوجد service_role في Secrets المستخدمة للواجهة.
+5. لا توجد أسرار hardcoded.
+6. dataSourceMode يعرض mode=supabase فعلياً.
+7. console يظهر الوضع الصحيح إن كان موثقاً.
+8. demo fallback لا يعمل عند توفر Supabase env.
+
+==================================================
+4. Smoke Test الصفحات العامة
+==================================================
+
+اختبر الصفحات التالية في mode=supabase:
+
+1. الرئيسية:
+   - رسالة اليوم تظهر.
+   - العدادات المالية تظهر.
+   - المواعيد القادمة تظهر.
+   - لا شاشة بيضاء.
+
+2. التقويم:
+   - يعرض appointments من Supabase.
+   - إضافة موعد تعمل.
+   - تعديل موعد يعمل.
+   - حذف موعد يعمل.
+   - لا fallback صامت إلى API في write.
+
+3. المال:
+   - يعرض financial_events من Supabase.
+   - countdown صحيح.
+   - إضافة حدث مالي تعمل.
+   - تعديل حدث مالي يعمل.
+   - حذف حدث مالي يعمل.
+   - amount يتحول رقمياً بشكل صحيح.
+   - الحاسبات لم تنكسر.
+
+4. ستوري اليوم:
+   - daily_messages تعمل.
+   - story_templates تعمل.
+   - financial counters تعمل.
+   - النسخ/المشاركة/الحفظ لا تنكسر.
+
+5. الإشعارات:
+   - list من Supabase.
+   - unread count من Supabase.
+   - mark-read يعمل.
+   - mark-all-read يعمل.
+   - delete يعمل.
+   - TopBar count يتحدث.
+
+6. المراكز:
+   - news من Supabase.
+   - jobs من Supabase.
+   - بقية المراكز لا تنكسر.
+
+7. حسابي:
+   - theme picker من Supabase.
+   - تغيير الثيم يعمل.
+   - الإعدادات المحلية لا تنكسر.
+
+8. الصفحات القانونية:
+   - privacy
+   - terms
+   - disclaimer
+   - support
+   - 404
+
+==================================================
+5. Smoke Test لوحة المالك
+==================================================
+
+اختبر:
+
+1. /admin بدون login:
+   - لا يفتح dashboard.
+
+2. /admin مع hrq@hotmail.com:
+   - login يعمل.
+   - role super_admin يظهر.
+   - dashboard يظهر.
+
+3. /admin/data-layer:
+   - counts API/Supabase واضحة.
+   - mode=supabase ظاهر.
+   - لا أخطاء.
+
+4. /admin/notifications:
+   - read/delete عبر Gateway.
+   - send يبقى API intentionally.
+   - لا كسر.
+
+5. /admin/news/jobs:
+   - add/edit/delete news عبر Supabase.
+   - add/edit/delete jobs عبر Supabase.
+   - صفحات المستخدم تعكس التغيير.
+
+6. /admin/themes:
+   - read/update/toggle عبر Supabase.
+   - AccountPage يعكس التغيير.
+
+7. /admin/story:
+   - read/add/edit/delete/toggle story_templates عبر Supabase.
+   - StoryPage يعكس التغيير.
+
+8. /admin/messages:
+   - read/add/edit/delete/toggle daily_messages عبر Supabase.
+   - HomePage/StoryPage لا تنكسر.
+
+9. admin reports/audit:
+   - إذا بقي API intentionally، وثق ذلك.
+   - لا API 500.
+
+10. AdminFinancial/AdminEvents:
+   - إذا بقيت API intentionally، وثق ذلك.
+   - لا تكسر.
+
+==================================================
+6. اختبارات البيانات والعدّادات
+==================================================
+
+تحقق من Supabase counts:
+
+- daily_messages = 8 أو أكثر إذا تم اختبار add/delete ثم cleanup موثق
+- story_templates = 2 أو حالة الاختبار موثقة
+- themes = 10
+- news = 2 أو حالة الاختبار موثقة
+- jobs = 2 أو حالة الاختبار موثقة
+- appointments = 2 أو حالة الاختبار موثقة
+- financial_events = 8 أو حالة الاختبار موثقة
+- notifications = 3 أو حالة الاختبار موثقة
+- complaints = 3
+
+مهم:
+إذا أجريت CRUD test بإضافة صف ثم حذفه، وثّق أن العدد النهائي رجع كما كان.
+لا تترك بيانات اختبارية غير موثقة.
+
+==================================================
+7. الأمان
+==================================================
+
+افحص:
+
+1. service_role
+2. SUPABASE_SERVICE_ROLE
+3. hardcoded Supabase keys
+4. hardcoded passwords
+5. demo admin bypass
+6. localStorage admin bypass
+7. RLS ownership
+8. user_id في الجداول الشخصية
+9. complaints user_id=NULL حسب القرار
+10. admin guard
+11. role handling
+12. routes الحساسة
+
+يجب أن تكون النتيجة:
+- لا service_role في الواجهة.
+- لا أسرار hardcoded.
+- /admin محمي.
+- RLS لا يسمح ببيانات مستخدم غير مصرح.
+
+==================================================
+8. أوامر الفحص
+==================================================
+
+شغّل:
+
+- pnpm build أو npm run build
+- pnpm typecheck أو npm run typecheck إن وجد
+
+إن وجدت:
+- npm run lint
+- npm run test
+
+وافحص:
+- service_role
+- SUPABASE_SERVICE_ROLE
+- hardcoded keys
+- hardcoded passwords
+- DROP
+- TRUNCATE
+- destructive DELETE
+- API 500
+- console errors
+- white screen
+- unclassified Orval usage
+
+إذا lint/test غير موجود:
+اذكر أنه غير متوفر ولا تدّع تشغيله.
+
+==================================================
+9. التوثيق
+==================================================
+
+حدّث:
+
+1. QA_REPORT.md
+2. README.md
+3. ARCHITECTURE.md
+4. DATA_SOURCE_MAP.md
+5. SUPABASE_MIGRATION_PLAN.md
+6. SUPABASE_MIGRATION_CHECKLIST.md
+7. ENV_EXAMPLE.md
+8. .env.example
+9. FALLBACK_SERVICES.md
+10. replit.md
+
+يجب أن توثق:
+- VITE_DATA_SOURCE_MODE=supabase تم اختباره.
+- نتائج smoke test.
+- أي نطاق بقي API intentionally.
+- هل المشروع Production Ready أو لا.
+- هل يجوز Publish الآن أو لا.
+- القيود المتبقية.
+
+==================================================
+10. معيار قبول المرحلة
+==================================================
+
+تقبل Phase 12R كـ Production Ready فقط إذا تحقق:
+
+- VITE_DATA_SOURCE_MODE=supabase يعمل فعلياً.
+- جميع الصفحات العامة تعمل.
+- جميع صفحات admin الأساسية تعمل.
+- Gateway writes تعمل للنطاقات المحولة.
+- API intentionally لا يسبب خطر غير موثق.
+- لا API 500.
+- لا شاشة بيضاء.
+- لا console errors جوهرية.
+- build ناجح.
+- typecheck ناجح.
+- لا service_role.
+- لا أسرار hardcoded.
+- RLS/Auth/admin سليمة.
+- التوثيق محدث.
+- لا بيانات اختبارية متروكة.
+
+إذا فشل أي بند جوهري:
+الحكم Needs Fixes أو Needs Deployment Fix.
+
+==================================================
+11. التقرير النهائي المطلوب
+==================================================
+
+أعطني تقريراً بهذا الشكل فقط:
+
+1. هل VITE_DATA_SOURCE_MODE=supabase مفعل فعلياً؟
+2. هل dataSourceMode يرجع supabase؟
+3. هل الرئيسية تعمل في supabase mode؟
+4. هل التقويم يعمل قراءة وكتابة في supabase mode؟
+5. هل المال يعمل قراءة وكتابة في supabase mode؟
+6. هل ستوري اليوم يعمل؟
+7. هل الإشعارات تعمل قراءة وكتابة وعداد؟
+8. هل المراكز تعمل؟
+9. هل حسابي والثيمات تعمل؟
+10. هل /admin محمي؟
+11. هل hrq@hotmail.com يدخل كـ super_admin؟
+12. هل /admin/data-layer يعمل؟
+13. هل admin news/jobs يعمل؟
+14. هل admin themes/story/messages يعمل؟
+15. هل النطاقات API intentionally موثقة؟
+16. هل توجد API 500؟
+17. هل توجد شاشة بيضاء؟
+18. هل توجد console errors جوهرية؟
+19. هل build نجح؟ اذكر النتيجة صراحة.
+20. هل typecheck نجح؟ اذكر النتيجة صراحة.
+21. هل lint/test موجودة؟ وإذا وجدت هل نجحت؟
+22. هل يوجد service_role في الواجهة؟
+23. هل توجد أسرار hardcoded؟
+24. هل RLS/Auth/admin سليمة؟
+25. هل تم ترك بيانات اختبارية؟
+26. هل الوثائق تم تحديثها؟
+27. القيود المتبقية.
+28. هل يجوز Publish الآن؟
+29. الحكم النهائي:
+Production Ready / Needs Fixes / Needs Security Fix / Needs Deployment Fix

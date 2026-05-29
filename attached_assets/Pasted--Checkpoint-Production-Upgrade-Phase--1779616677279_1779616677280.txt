@@ -1,0 +1,459 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Production Upgrade — Phase 11
+Supabase Auth + RLS + Production Data Migration Gate
+
+الدور:
+تصرف كفريق Backend Engineer + Database Architect + Security Reviewer + Auth Engineer + QA Tester + Release Manager داخل Replit Agent.
+مهمتك الآن ليست إضافة ميزات جديدة، وليست تحسين UI، وليست إعادة بناء المشروع.
+مهمتك نقل المشروع من Publishable Preview إلى Backend/Auth/RLS-ready بشكل آمن، باستخدام Supabase، مع الحفاظ الكامل على الوظائف المعتمدة.
+
+==================================================
+0. السياق الحالي
+==================================================
+
+المشروع حالياً في حالة:
+Publishable Preview
+
+المراحل المعتمدة:
+- Visual Polish.
+- Calendar CRUD.
+- Finance + Calculators.
+- Story Today Advanced.
+- Notifications + Admin Send.
+- Admin Deep Control.
+- Theme Engine.
+- Centers Completion.
+- Account + Legal UX.
+- PWA + Error Handling + Accessibility.
+- Documentation + QA Hardening.
+
+التوثيق الحالي مكتمل:
+- README.md.
+- ARCHITECTURE.md.
+- QA_REPORT.md.
+- FALLBACK_SERVICES.md.
+- ENV_EXAMPLE.md.
+- .env.example.
+- SUPABASE_SCHEMA.sql.
+- RLS_POLICIES.sql.
+- SMOKE_CHECKLIST.md.
+
+القيود الحالية:
+- Auth demo mode.
+- Supabase غير متصل إنتاجياً.
+- RLS غير مطبق فعلياً.
+- Push Notifications مؤجل.
+- Service Worker / Offline مؤجل.
+
+هذه المرحلة تعالج فقط:
+Supabase + Auth + RLS + roles/permissions + admin protection + data readiness.
+
+==================================================
+1. الهدف التنفيذي
+==================================================
+
+الهدف هو تجهيز وربط Supabase/Auth/RLS بشكل آمن للوصول لاحقاً إلى Production Ready.
+
+المطلوب:
+
+1. فحص ملفات Supabase الحالية:
+   - SUPABASE_SCHEMA.sql
+   - RLS_POLICIES.sql
+   - ENV_EXAMPLE.md
+   - .env.example
+
+2. التأكد من متغيرات البيئة:
+   - VITE_SUPABASE_URL
+   - VITE_SUPABASE_ANON_KEY
+
+3. ممنوع استخدام:
+   - service_role key داخل الواجهة.
+   - أي مفتاح إداري client-side.
+
+4. تفعيل Supabase client بشكل آمن.
+
+5. إنشاء أو تفعيل Auth Service:
+   - تسجيل دخول.
+   - تسجيل خروج.
+   - قراءة session.
+   - حماية routes الإدارية.
+   - demo mode fallback فقط عند غياب المفاتيح.
+
+6. ربط profiles بـ auth.users.
+
+7. تفعيل أو تجهيز:
+   - roles.
+   - permissions.
+   - user_roles.
+   - admin_users.
+
+8. تفعيل RLS فعلياً في Supabase إذا كانت البيئة والمفاتيح متاحة.
+
+9. اختبار أن:
+   - المستخدم العادي لا يدخل /admin.
+   - admin يستطيع الدخول للأقسام الإدارية.
+   - super_admin لديه صلاحيات أوسع.
+   - المستخدم يرى بياناته فقط.
+   - البيانات العامة تظهر حسب status/is_active.
+
+10. الحفاظ على كل وظائف التطبيق السابقة.
+
+11. تحديث التوثيق والحكم النهائي بصدق.
+
+==================================================
+2. خارج النطاق
+==================================================
+
+هذه المرحلة ليست:
+- Firebase Push.
+- Service Worker.
+- Offline support.
+- Expo.
+- App Store.
+- Google Play.
+- تحسين Visual.
+- إضافة ميزات منتج جديدة.
+- تغيير Theme Engine.
+- إعادة بناء Data Layer بالكامل.
+- Publish.
+
+ممنوع الانتقال إلى Production Ready إلا إذا:
+- Supabase متصل فعلياً.
+- Auth يعمل فعلياً.
+- RLS مطبق ومختبر فعلياً.
+- /admin محمي فعلياً.
+- لا توجد أسرار في الكود.
+
+==================================================
+3. ممنوعات صارمة
+==================================================
+
+ممنوع نهائياً:
+- لا تعيد بناء المشروع من البداية.
+- لا تضف service_role key في الواجهة.
+- لا تضع أي secret داخل ملفات عامة.
+- لا تضع مفاتيح حقيقية داخل README أو .env.example.
+- لا تتجاوز RLS من client-side.
+- لا تدّع أن Supabase متصل إذا لم تكن المفاتيح مضافة.
+- لا تدّع أن RLS مطبق إذا لم يتم تشغيل SQL فعلياً.
+- لا تدّع أن /admin محمي إذا يمكن فتحه بدون صلاحية.
+- لا تكسر demo/fallback دون بديل واضح.
+- لا تمسح بيانات PostgreSQL الحالية دون خطة.
+- لا تنقل البيانات بشكل destructive.
+- لا تضغط Publish.
+- لا تغيّر الحكم إلى Production Ready إلا بعد اجتياز كل شروط Production Gate.
+
+==================================================
+4. بروتوكول التشخيص قبل التنفيذ
+==================================================
+
+قبل أي تعديل، افحص:
+
+1. هل متغيرات Supabase موجودة في البيئة؟
+2. هل `VITE_SUPABASE_URL` موجود؟
+3. هل `VITE_SUPABASE_ANON_KEY` موجود؟
+4. هل Supabase client موجود حالياً؟
+5. هل Auth service موجود؟
+6. هل /admin محمي حالياً أم demo؟
+7. هل routes الإدارية لديها route guard؟
+8. هل profiles/roles/permissions موجودة في schema؟
+9. هل RLS_POLICIES.sql قابل للتنفيذ؟
+10. هل الجداول الحالية في التطبيق تطابق schema؟
+11. هل Data Layer يستخدم PostgreSQL محلي/حالي؟
+12. ما استراتيجية النقل الآمن إلى Supabase؟
+13. هل توجد أي أسرار في الكود؟
+14. هل يوجد import أو env usage غير آمن؟
+15. ما الوظائف التي قد تتأثر بالتحويل؟
+
+بعد التشخيص:
+- إذا مفاتيح Supabase غير موجودة:
+  لا تنفذ ربطاً وهمياً.
+  حدّث التوثيق فقط، واترك التطبيق Publishable Preview.
+- إذا المفاتيح موجودة:
+  نفّذ الربط تدريجياً وبأقل تغيير آمن.
+- لا تكسر fallback الحالي حتى يعمل Supabase بثبات.
+
+==================================================
+5. قاعدة التنفيذ الآمن
+==================================================
+
+نفذ بأقل تغيير آمن.
+
+القواعد:
+- اجعل Supabase layer خلف service interface.
+- لا تجعل المكونات تعرف هل المصدر fallback أو Supabase.
+- حافظ على fallback عند غياب المفاتيح.
+- استخدم anon key فقط في الواجهة.
+- لا تستخدم service_role.
+- RLS هو خط الدفاع الحقيقي.
+- route guard في الواجهة ليس بديلاً عن RLS.
+- أي عملية admin حساسة يجب أن تمر عبر سياسات RLS أو توثق أنها تحتاج backend/edge function لاحقاً.
+- لا تكسر:
+  - الرئيسية.
+  - التقويم.
+  - المال.
+  - ستوري اليوم.
+  - الإشعارات.
+  - المراكز.
+  - حسابي.
+  - /admin.
+  - Theme Engine.
+
+==================================================
+6. مصدر الحقيقة
+==================================================
+
+مصدر الحقيقة المستهدف:
+
+Supabase/PostgreSQL مع:
+- auth.users
+- profiles
+- roles
+- permissions
+- role_permissions
+- user_roles
+- admin_users
+- financial_events
+- public_events
+- appointments
+- daily_messages
+- story_templates
+- themes
+- notifications
+- notification_preferences
+- news
+- jobs
+- complaints
+- audit_logs
+- app_settings
+
+ممنوع:
+- إنشاء public.users إذا يتعارض مع auth.users.
+- استخدام email كمفتاح علاقة رئيسي.
+- ترك بيانات المستخدم بدون owner/user_id.
+- ترك /admin يعتمد فقط على إخفاء الرابط.
+- ترك RLS معطلة مع ادعاء Production Ready.
+
+المطلوب:
+- profiles.id مرتبط بـ auth.users.id.
+- user-owned data تحتوي user_id.
+- admin operations تعتمد role/permission.
+- public data تعتمد status/is_active.
+- audit_logs إدارية.
+
+==================================================
+7. المتطلبات التفصيلية
+==================================================
+
+أ. Environment:
+- استخدم VITE_SUPABASE_URL.
+- استخدم VITE_SUPABASE_ANON_KEY.
+- لا تستخدم service_role.
+- حدّث ENV_EXAMPLE.md عند الحاجة.
+- حدّث .env.example بدون قيم حقيقية.
+
+ب. Supabase Client:
+- إنشاء/مراجعة supabase client.
+- قراءة env بأمان.
+- fallback واضح عند غياب env.
+- رسائل خطأ تطويرية لا تظهر للمستخدم العادي.
+
+ج. Auth:
+- login.
+- logout.
+- session.
+- auth state listener إن مناسب.
+- demo mode fallback عند غياب Supabase.
+- لا تدّع production auth إذا demo.
+
+د. Route Guard:
+- /admin محمي.
+- admin routes تتحقق من role.
+- user العادي لا يدخل admin.
+- unauthenticated user يوجّه إلى login أو demo notice حسب الوضع.
+
+هـ. Roles/Permissions:
+- user.
+- admin.
+- super_admin.
+- content_manager.
+- finance_manager.
+- permissions mapping.
+
+و. RLS:
+- المستخدم يرى بياناته فقط.
+- admin/super_admin يدير البيانات العامة والإدارية.
+- content_manager يدير الرسائل والأخبار والوظائف وقوالب الستوري.
+- finance_manager يدير الأحداث المالية.
+- audit_logs قراءة إدارية فقط.
+- public active data readable حسب الحاجة.
+
+ز. Data Migration Readiness:
+- لا تمسح بيانات حالية.
+- إن احتجت seed، استخدم upsert آمن.
+- وثّق ما يحتاج تنفيذ يدوي في Supabase SQL Editor.
+- لا تنقل بشكل destructive.
+
+ح. Security:
+- فحص عدم وجود secrets.
+- فحص عدم وجود service_role.
+- فحص عدم وجود مفاتيح داخل الملفات العامة.
+- تحديث QA_REPORT.
+
+==================================================
+8. الاختبارات الإلزامية
+==================================================
+
+اختبر عملياً حسب وضع البيئة:
+
+أ. إذا Supabase env غير موجود:
+1. تأكد أن التطبيق لا ينكسر.
+2. تأكد أن fallback/demo يعمل.
+3. وثّق أن Supabase غير مفعل.
+4. الحكم يبقى Publishable Preview.
+
+ب. إذا Supabase env موجود:
+1. افتح التطبيق.
+2. سجل دخول مستخدم demo أو مستخدم حقيقي حسب المتاح.
+3. تحقق من session.
+4. افتح /admin كمستخدم غير admin.
+5. يجب منع الدخول.
+6. افتح /admin كمستخدم admin.
+7. يجب السماح.
+8. اختبر قراءة/كتابة بيانات user-owned.
+9. اختبر daily_messages كـ admin/content_manager.
+10. اختبر financial_events كـ finance_manager/admin.
+11. اختبر notifications.
+12. اختبر audit_logs.
+13. تحقق أن RLS يمنع الوصول غير المصرح.
+14. تحقق أن الواجهة لا تستخدم service_role.
+15. تحقق أن الوظائف السابقة لم تنكسر.
+
+اختبارات عامة:
+- الرئيسية.
+- التقويم.
+- المال.
+- ستوري اليوم.
+- الإشعارات.
+- المراكز.
+- حسابي.
+- الصفحات القانونية.
+- /admin.
+- 404.
+
+==================================================
+9. أوامر الفحص
+==================================================
+
+شغّل حسب المتاح:
+
+- pnpm build أو npm run build
+- pnpm typecheck أو npm run typecheck إن وجد
+- npm run lint إن وجد
+- npm run test إن وجد
+
+وافحص الأسرار:
+- ابحث عن service_role.
+- ابحث عن SUPABASE_SERVICE_ROLE.
+- ابحث عن مفاتيح hardcoded.
+- تأكد أن .env.example لا يحتوي قيماً حقيقية.
+
+إذا لم يكن lint/test موجوداً:
+اذكر أنه غير متوفر ولا تدّع تشغيله.
+
+مطلوب ذكر نتيجة build وtypecheck صراحة.
+
+==================================================
+10. معيار قبول المرحلة
+==================================================
+
+إذا كانت مفاتيح Supabase غير موجودة:
+تقبل المرحلة فقط كـ Supabase Readiness إذا تحقق:
+- التطبيق لا ينكسر.
+- fallback يعمل.
+- التوثيق يوضح أن Supabase غير مفعل.
+- build ناجح.
+- typecheck ناجح.
+- لا توجد أسرار.
+- الحكم يبقى Publishable Preview.
+
+إذا كانت مفاتيح Supabase موجودة:
+تقبل المرحلة كـ Supabase/Auth/RLS Connected إذا تحقق:
+- Supabase client يعمل.
+- Auth يعمل.
+- session تعمل.
+- /admin محمي فعلياً.
+- roles/permissions تعمل.
+- RLS مطبق ومختبر.
+- المستخدم لا يرى بيانات غيره.
+- admin يستطيع الإدارة.
+- لا service_role في الواجهة.
+- build ناجح.
+- typecheck ناجح.
+- لا API 500.
+- لا صفحات مكسورة.
+- QA_REPORT محدث.
+
+لا تستخدم Production Ready إلا بعد Production Ready Gate التالية.
+
+==================================================
+11. تحديث التوثيق
+==================================================
+
+حدّث:
+- README.md.
+- ARCHITECTURE.md.
+- QA_REPORT.md.
+- FALLBACK_SERVICES.md.
+- ENV_EXAMPLE.md.
+- .env.example.
+- SUPABASE_SCHEMA.sql إن احتاج.
+- RLS_POLICIES.sql إن احتاج.
+
+اذكر:
+- هل Supabase متصل فعلياً أم جاهز فقط.
+- هل Auth يعمل فعلياً أم demo.
+- هل RLS مطبق فعلياً أم SQL جاهز فقط.
+- هل /admin محمي فعلياً أم demo.
+- ما القيود المتبقية.
+- الحكم النهائي.
+
+==================================================
+12. التقرير النهائي المطلوب
+==================================================
+
+بعد الانتهاء، أعطني تقريراً مختصراً بهذا الشكل فقط:
+
+1. هل Supabase env موجود؟
+2. هل Supabase client يعمل؟
+3. هل Auth يعمل فعلياً أم demo؟
+4. هل session تعمل؟
+5. هل /admin محمي فعلياً أم demo؟
+6. هل roles/permissions تعمل؟
+7. هل RLS مطبق فعلياً أم SQL جاهز فقط؟
+8. هل profiles مرتبط بـ auth.users؟
+9. هل user-owned data لها user_id؟
+10. هل daily_messages تعمل؟
+11. هل financial_events تعمل؟
+12. هل appointments تعمل؟
+13. هل notifications تعمل؟
+14. هل audit_logs تعمل؟
+15. هل لا يوجد service_role في الواجهة؟
+16. هل لا توجد أسرار في الكود؟
+17. هل التطبيق بقي سليماً؟
+18. هل الرئيسية بقيت سليمة؟
+19. هل التقويم بقي سليماً؟
+20. هل المال بقي سليماً؟
+21. هل ستوري اليوم بقي سليماً؟
+22. هل الإشعارات بقيت سليمة؟
+23. هل المراكز بقيت سليمة؟
+24. هل حسابي بقي سليماً؟
+25. هل /admin بقي سليماً؟
+26. هل build نجح؟ اذكر النتيجة صراحة.
+27. هل typecheck نجح؟ اذكر النتيجة صراحة.
+28. هل QA_REPORT تم تحديثه؟
+29. القيود المتبقية.
+30. الحكم النهائي:
+Publishable Preview / Supabase Connected Preview / Needs Fixes

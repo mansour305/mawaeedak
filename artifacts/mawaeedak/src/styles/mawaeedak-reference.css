@@ -1,0 +1,695 @@
+/*
+ * mawaeedak-reference.css
+ * Phase 15 — Central Design Token System
+ * Single source of truth for all visual tokens and utility classes
+ * Based strictly on the master reference image (5d_1779714976789.png)
+ */
+
+/* ═══════════════════════════════════════════════════════════
+   DESIGN TOKENS — Reference Color System
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  /* Header & Admin Dark Surface */
+  --mw-header-bg-from:   hsl(20 70% 15%);
+  --mw-header-bg-to:     hsl(16 76% 8%);
+  --mw-header-border:    hsl(38 70% 44%);
+  --mw-header-fg:        hsl(38 86% 90%);
+  --mw-header-sub:       hsl(38 55% 58%);
+
+  /* Heritage Gold */
+  --mw-gold:             hsl(38 72% 52%);
+  --mw-gold-light:       hsl(38 82% 68%);
+  --mw-gold-deep:        hsl(32 68% 40%);
+  --mw-gold-muted:       hsl(38 50% 58%);
+  --mw-gold-subtle:      hsl(38 48% 70%);
+  --mw-gold-border:      hsl(38 55% 68% / 0.55);
+  --mw-gold-glow:        hsl(38 90% 60% / 0.28);
+
+  /* Paper & Parchment */
+  --mw-paper:            hsl(34 38% 91%);
+  --mw-parchment:        hsl(36 52% 88%);
+  --mw-cream:            hsl(36 32% 93%);
+  --mw-ivory:            #FFFBF4;
+
+  /* Brown Heritage */
+  --mw-espresso:         hsl(22 62% 22%);
+  --mw-brown:            hsl(30 60% 28%);
+  --mw-brown-light:      hsl(30 40% 40%);
+  --mw-text-dark:        hsl(20 52% 12%);
+  --mw-text-mid:         hsl(24 28% 38%);
+  --mw-text-muted:       hsl(24 18% 52%);
+
+  /* Status colors */
+  --mw-green:            hsl(142 52% 38%);
+  --mw-red:              hsl(8 70% 48%);
+  --mw-blue:             hsl(212 68% 42%);
+
+  /* Shadows */
+  --mw-shadow-card:      0 2px 12px rgba(80,40,10,0.14), 0 1px 4px rgba(80,40,10,0.08);
+  --mw-shadow-elevated:  0 6px 24px rgba(80,40,10,0.20), 0 2px 8px rgba(80,40,10,0.10);
+  --mw-shadow-deep:      0 12px 40px rgba(8,3,0,0.35), 0 4px 14px rgba(80,40,10,0.20);
+  --mw-shadow-gold:      0 4px 14px hsl(38 72% 52% / 0.32);
+
+  /* Radius */
+  --mw-radius-sm:        8px;
+  --mw-radius-md:        12px;
+  --mw-radius-lg:        16px;
+  --mw-radius-xl:        20px;
+  --mw-radius-2xl:       24px;
+
+  /* Spacing */
+  --mw-card-pad:         16px;
+  --mw-section-gap:      12px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PAPER BACKGROUND — مع نسيج النقاط والخطوط
+   ═══════════════════════════════════════════════════════════ */
+.mw-paper-bg {
+  background:
+    linear-gradient(180deg, hsl(34 30% 92%) 0%, hsl(33 28% 88%) 100%),
+    radial-gradient(hsl(34 30% 72% / 0.22) 1.1px, transparent 1.1px),
+    repeating-linear-gradient( 45deg, rgba(140,90,20,0.028) 0px, rgba(140,90,20,0.028) 1px, transparent 1px, transparent 22px),
+    repeating-linear-gradient(-45deg, rgba(140,90,20,0.022) 0px, rgba(140,90,20,0.022) 1px, transparent 1px, transparent 22px);
+  background-size: 100% 100%, 18px 18px, 100% 100%, 100% 100%;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HERITAGE CARD — بطاقة كريمية بـ border ذهبي وظل عميق
+   ═══════════════════════════════════════════════════════════ */
+.mw-card {
+  background: linear-gradient(145deg, var(--mw-ivory) 0%, var(--mw-cream) 100%);
+  border: 1.5px solid var(--mw-gold-border);
+  border-radius: var(--mw-radius-lg);
+  box-shadow: var(--mw-shadow-card);
+  padding: var(--mw-card-pad);
+  position: relative;
+  overflow: hidden;
+}
+
+.mw-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, hsl(38 72% 60% / 0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.mw-card-elevated {
+  box-shadow: var(--mw-shadow-elevated);
+  border-color: hsl(38 55% 65% / 0.65);
+}
+
+.mw-card-dark {
+  background: linear-gradient(145deg, hsl(22 72% 16%) 0%, hsl(16 72% 12%) 100%);
+  border: 1.5px solid hsl(38 55% 35% / 0.45);
+  box-shadow: var(--mw-shadow-deep);
+  color: var(--mw-header-fg);
+}
+
+.mw-card-gold {
+  background: linear-gradient(145deg, hsl(38 72% 52%) 0%, hsl(32 68% 40%) 100%);
+  border: 1.5px solid hsl(38 82% 68% / 0.40);
+  box-shadow: var(--mw-shadow-gold);
+  color: #fff;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HERITAGE HEADER — dark espresso gradient
+   ═══════════════════════════════════════════════════════════ */
+.mw-section-header {
+  background:
+    linear-gradient(180deg, hsl(20 70% 15%) 0%, hsl(18 74% 10%) 100%),
+    repeating-linear-gradient( 45deg, rgba(210,162,60,0.07) 0px, rgba(210,162,60,0.07) 1px, transparent 1px, transparent 11px),
+    repeating-linear-gradient(-45deg, rgba(210,162,60,0.07) 0px, rgba(210,162,60,0.07) 1px, transparent 1px, transparent 11px);
+  background-size: 100% 100%, 11px 11px, 11px 11px;
+  border-bottom: 2px solid var(--mw-gold);
+  box-shadow: 0 2px 0 hsl(38 80% 58% / 0.35), 0 4px 16px rgba(8,3,0,0.45);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GOLD BUTTON — زر تدرج ذهبي
+   ═══════════════════════════════════════════════════════════ */
+.mw-btn-gold {
+  background: linear-gradient(135deg, hsl(38 72% 48%) 0%, hsl(32 68% 40%) 100%);
+  border: none;
+  border-radius: var(--mw-radius-md);
+  box-shadow: var(--mw-shadow-gold);
+  color: #fff;
+  cursor: pointer;
+  font-family: 'Tajawal', sans-serif;
+  font-weight: 800;
+  font-size: 14px;
+  height: 48px;
+  padding: 0 20px;
+  transition: transform 0.15s, box-shadow 0.15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.mw-btn-gold:hover {
+  box-shadow: 0 6px 20px hsl(38 72% 52% / 0.45);
+  transform: translateY(-1px);
+}
+
+.mw-btn-gold:active {
+  transform: scale(0.97);
+}
+
+.mw-btn-gold:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.mw-btn-dark {
+  background: linear-gradient(145deg, hsl(22 62% 22%) 0%, hsl(18 68% 16%) 100%);
+  border: 1px solid hsl(38 55% 40% / 0.35);
+  border-radius: var(--mw-radius-md);
+  color: hsl(38 82% 80%);
+  cursor: pointer;
+  font-family: 'Tajawal', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  height: 40px;
+  padding: 0 16px;
+  transition: opacity 0.15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.mw-btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--mw-gold-border);
+  border-radius: var(--mw-radius-md);
+  color: hsl(38 55% 38%);
+  cursor: pointer;
+  font-family: 'Tajawal', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  height: 40px;
+  padding: 0 16px;
+  transition: background 0.15s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.mw-btn-outline:hover {
+  background: hsl(38 55% 70% / 0.12);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BADGES
+   ═══════════════════════════════════════════════════════════ */
+.mw-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: 'Tajawal', sans-serif;
+  line-height: 1.4;
+}
+
+.mw-badge-gold {
+  background: hsl(38 72% 52% / 0.15);
+  border: 1px solid hsl(38 72% 52% / 0.30);
+  color: hsl(38 55% 36%);
+}
+
+.mw-badge-dark {
+  background: hsl(22 62% 22% / 0.90);
+  border: 1px solid hsl(38 55% 35% / 0.40);
+  color: hsl(38 82% 75%);
+}
+
+.mw-badge-green {
+  background: hsl(142 52% 38% / 0.12);
+  border: 1px solid hsl(142 52% 38% / 0.28);
+  color: hsl(142 48% 30%);
+}
+
+.mw-badge-red {
+  background: hsl(8 70% 48% / 0.12);
+  border: 1px solid hsl(8 70% 48% / 0.28);
+  color: hsl(8 60% 38%);
+}
+
+.mw-badge-cream {
+  background: var(--mw-ivory);
+  border: 1px solid var(--mw-gold-border);
+  color: var(--mw-text-mid);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   GOLD DIVIDER — فاصل ذهبي زخرفي
+   ═══════════════════════════════════════════════════════════ */
+.mw-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.mw-divider::before,
+.mw-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(38 55% 55% / 0.5), transparent);
+}
+
+.mw-divider-diamond {
+  width: 6px;
+  height: 6px;
+  transform: rotate(45deg);
+  background: hsl(38 72% 52%);
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PRAYER CELL — خانة مواقيت الصلاة
+   ═══════════════════════════════════════════════════════════ */
+.mw-prayer-cell {
+  background: linear-gradient(145deg, var(--mw-ivory) 0%, hsl(36 32% 90%) 100%);
+  border: 1px solid var(--mw-gold-border);
+  border-radius: var(--mw-radius-md);
+  padding: 10px 8px;
+  text-align: center;
+  box-shadow: var(--mw-shadow-card);
+}
+
+.mw-prayer-cell-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--mw-brown);
+  margin-bottom: 4px;
+}
+
+.mw-prayer-cell-time {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--mw-text-dark);
+  direction: ltr;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   EMPTY STATE — حالة فارغة فاخرة
+   ═══════════════════════════════════════════════════════════ */
+.mw-empty-icon-box {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--mw-radius-lg);
+  background: linear-gradient(145deg, hsl(22 62% 22%) 0%, hsl(18 68% 16%) 100%);
+  border: 1px solid hsl(38 55% 35% / 0.40);
+  box-shadow: var(--mw-shadow-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SKELETON LOADER — تحميل متدرج
+   ═══════════════════════════════════════════════════════════ */
+.mw-skeleton {
+  background: linear-gradient(
+    90deg,
+    hsl(34 25% 84%) 0%,
+    hsl(34 25% 80%) 50%,
+    hsl(34 25% 84%) 100%
+  );
+  background-size: 200% 100%;
+  animation: mw-shimmer 1.6s ease-in-out infinite;
+  border-radius: var(--mw-radius-sm);
+}
+
+@keyframes mw-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ACTIVE NAV PILL — كبسولة التنقل النشطة
+   ═══════════════════════════════════════════════════════════ */
+.mw-nav-pill {
+  position: absolute;
+  inset: 5px 3px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.065);
+  border: 1px solid rgba(200,160,60,0.18);
+}
+
+.mw-nav-active-bar {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 3px;
+  border-radius: 0 0 4px 4px;
+  background: hsl(38 72% 52%);
+  box-shadow: 0 0 10px hsl(38 72% 52% / 0.7);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CORNER ORNAMENTS — زخارف الأركان
+   ═══════════════════════════════════════════════════════════ */
+.mw-corner-tl::before,
+.mw-corner-tr::after {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-color: hsl(38 72% 52% / 0.55);
+  border-style: solid;
+  pointer-events: none;
+}
+
+.mw-corner-tl::before {
+  top: 8px;
+  right: 8px;
+  border-width: 2px 0 0 2px;
+}
+
+.mw-corner-tr::after {
+  top: 8px;
+  left: 8px;
+  border-width: 2px 2px 0 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SECTION TITLE ORNAMENT
+   ═══════════════════════════════════════════════════════════ */
+.mw-section-title {
+  font-family: 'Tajawal', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--mw-text-dark);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mw-section-title-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, hsl(38 55% 58% / 0.6));
+}
+
+.mw-section-title-dot {
+  width: 5px;
+  height: 5px;
+  transform: rotate(45deg);
+  background: hsl(38 65% 52%);
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ADMIN STAT CARD — بطاقة إحصاء لوحة المالك
+   ═══════════════════════════════════════════════════════════ */
+.mw-stat-card {
+  border-radius: var(--mw-radius-lg);
+  border: 1.5px solid hsl(38 55% 35% / 0.35);
+  padding: 14px 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.mw-stat-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 0 0 var(--mw-radius-lg) var(--mw-radius-lg);
+}
+
+.mw-stat-card-users {
+  background: linear-gradient(145deg, hsl(22 68% 20%) 0%, hsl(18 72% 15%) 100%);
+}
+.mw-stat-card-users::after { background: hsl(38 72% 52%); }
+
+.mw-stat-card-appointments {
+  background: linear-gradient(145deg, hsl(212 55% 22%) 0%, hsl(212 65% 16%) 100%);
+}
+.mw-stat-card-appointments::after { background: hsl(212 68% 52%); }
+
+.mw-stat-card-financial {
+  background: linear-gradient(145deg, hsl(142 48% 20%) 0%, hsl(142 55% 14%) 100%);
+}
+.mw-stat-card-financial::after { background: hsl(142 52% 42%); }
+
+.mw-stat-card-notifications {
+  background: linear-gradient(145deg, hsl(280 45% 22%) 0%, hsl(280 52% 16%) 100%);
+}
+.mw-stat-card-notifications::after { background: hsl(280 52% 52%); }
+
+/* ═══════════════════════════════════════════════════════════
+   FINANCE SUMMARY HEADER — ملخص مالي
+   ═══════════════════════════════════════════════════════════ */
+.mw-finance-header {
+  background: linear-gradient(160deg, hsl(22 72% 16%) 0%, hsl(16 76% 11%) 100%);
+  border-bottom: 2px solid hsl(38 65% 42% / 0.50);
+  padding: 14px 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.mw-finance-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(45deg, rgba(210,162,60,0.06) 0px, rgba(210,162,60,0.06) 1px, transparent 1px, transparent 12px),
+    repeating-linear-gradient(-45deg, rgba(210,162,60,0.06) 0px, rgba(210,162,60,0.06) 1px, transparent 1px, transparent 12px);
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CENTER TILE — مربع مركز في شبكة المراكز
+   ═══════════════════════════════════════════════════════════ */
+.mw-center-tile {
+  background: linear-gradient(145deg, var(--mw-ivory) 0%, var(--mw-cream) 100%);
+  border: 1.5px solid var(--mw-gold-border);
+  border-radius: var(--mw-radius-lg);
+  box-shadow: var(--mw-shadow-card);
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.mw-center-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--mw-shadow-elevated);
+}
+
+.mw-center-tile-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--mw-radius-md);
+  background: linear-gradient(145deg, hsl(22 62% 22%) 0%, hsl(18 68% 16%) 100%);
+  border: 1px solid hsl(38 55% 35% / 0.40);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(8,3,0,0.25);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   STORY CARD — بطاقة ستوري الذهبية
+   ═══════════════════════════════════════════════════════════ */
+.mw-story-card {
+  background: linear-gradient(160deg, hsl(36 72% 44%) 0%, hsl(32 76% 34%) 50%, hsl(28 72% 30%) 100%);
+  border: 1.5px solid hsl(38 82% 68% / 0.40);
+  border-radius: var(--mw-radius-xl);
+  box-shadow: 0 8px 32px rgba(80,40,10,0.35), 0 2px 8px rgba(80,40,10,0.18);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+}
+
+.mw-story-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at top right, hsl(38 90% 70% / 0.18) 0%, transparent 60%),
+    repeating-linear-gradient(45deg, rgba(255,228,100,0.05) 0px, rgba(255,228,100,0.05) 1px, transparent 1px, transparent 14px),
+    repeating-linear-gradient(-45deg, rgba(255,228,100,0.05) 0px, rgba(255,228,100,0.05) 1px, transparent 1px, transparent 14px);
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   COPYRIGHT STRIP — شريط الحقوق
+   ═══════════════════════════════════════════════════════════ */
+.mw-copyright-strip {
+  background: hsl(22 62% 18% / 0.85);
+  border-top: 1px solid hsl(38 55% 38% / 0.40);
+  padding: 6px 12px;
+  text-align: center;
+  border-radius: 0 0 var(--mw-radius-xl) var(--mw-radius-xl);
+  font-size: 11px;
+  font-weight: 700;
+  color: hsl(38 65% 72%);
+  letter-spacing: 0.03em;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TABS BAR — شريط التبويبات
+   ═══════════════════════════════════════════════════════════ */
+.mw-tabs-bar {
+  background: linear-gradient(180deg, hsl(22 62% 18%) 0%, hsl(18 68% 13%) 100%);
+  border-bottom: 2px solid hsl(38 65% 42% / 0.40);
+  box-shadow: 0 2px 12px rgba(8,3,0,0.30);
+  display: flex;
+  padding: 4px;
+  gap: 4px;
+}
+
+.mw-tab {
+  flex: 1;
+  text-align: center;
+  padding: 8px 4px;
+  border-radius: var(--mw-radius-sm);
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Tajawal', sans-serif;
+  color: hsl(38 45% 62%);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.mw-tab-active {
+  background: hsl(38 72% 52% / 0.20);
+  color: hsl(38 82% 76%);
+  border: 1px solid hsl(38 65% 52% / 0.30);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INPUT FIELD — حقل إدخال بتصميم تراثي
+   ═══════════════════════════════════════════════════════════ */
+.mw-input {
+  width: 100%;
+  height: 48px;
+  border-radius: var(--mw-radius-md);
+  border: 1.5px solid hsl(38 45% 72% / 0.7);
+  background: #fff;
+  padding: 0 14px;
+  font-family: 'Tajawal', sans-serif;
+  font-size: 14px;
+  color: var(--mw-text-dark);
+  direction: rtl;
+  transition: border-color 0.15s;
+  outline: none;
+}
+
+.mw-input:focus {
+  border-color: hsl(38 72% 52% / 0.65);
+  box-shadow: 0 0 0 3px hsl(38 72% 52% / 0.12);
+}
+
+.mw-label {
+  font-family: 'Tajawal', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: hsl(22 45% 30%);
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CALENDAR GRID — شبكة التقويم
+   ═══════════════════════════════════════════════════════════ */
+.mw-calendar-day {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.mw-calendar-day-today {
+  background: linear-gradient(145deg, hsl(38 68% 44%) 0%, hsl(32 64% 36%) 100%);
+  color: #fff;
+  font-weight: 800;
+  box-shadow: 0 2px 8px hsl(38 72% 52% / 0.40);
+}
+
+.mw-calendar-day-has-event::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: hsl(38 72% 52%);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   COUNTDOWN BOX — صندوق عداد تنازلي
+   ═══════════════════════════════════════════════════════════ */
+.mw-countdown-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 12px;
+  border-radius: var(--mw-radius-sm);
+  min-width: 56px;
+}
+
+.mw-countdown-box-normal {
+  background: hsl(22 62% 22% / 0.90);
+  border: 1px solid hsl(38 55% 35% / 0.35);
+}
+
+.mw-countdown-box-urgent {
+  background: hsl(8 65% 38% / 0.90);
+  border: 1px solid hsl(8 65% 38% / 0.35);
+}
+
+.mw-countdown-box-soon {
+  background: hsl(38 72% 40% / 0.90);
+  border: 1px solid hsl(38 72% 40% / 0.35);
+}
+
+.mw-countdown-num {
+  font-size: 18px;
+  font-weight: 900;
+  color: hsl(38 82% 76%);
+  line-height: 1;
+}
+
+.mw-countdown-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: hsl(38 45% 62%);
+  line-height: 1;
+}

@@ -1,0 +1,386 @@
+نفّذ الآن PHASE 18 — ZERO-EXCUSE FULL PROJECT RECOVERY AND REAL BROWSER E2E LOCKDOWN.
+
+الحكم الرسمي:
+المشروع تعب عليه المالك كثيراً ولا يجوز تركه معلقاً أو غير قابل للدخول.
+كل التقارير السابقة التي أثبتت Supabase REST API فقط غير كافية.
+المشكلة الحالية: Supabase Auth REST ينجح، لكن دخول /admin من واجهة المتصفح لم يثبت عملياً عند المالك.
+المطلوب الآن: إصلاح المشروع بالكامل من زاوية المستخدم الحقيقي، باستخدام اختبار متصفح فعلي E2E، ثم تدقيق شامل لكل النظام.
+
+ممنوع:
+- لا تطلب من المالك التجربة اليدوية.
+- لا تطلب كلمة المرور في المحادثة.
+- لا تستخدم REST Auth فقط كدليل كافٍ.
+- لا تكتب أن المشكلة محلولة إلا إذا نجح اختبار المتصفح الحقيقي.
+- لا تضغط Publish.
+- لا تحفظ كلمة المرور في الكود أو docs أو logs.
+- لا تطبع كلمة المرور.
+- لا تستخدم service_role في الواجهة.
+- لا تكسر Supabase/Auth/RLS/Data Gateway/Automation/Location/Design.
+
+==================================================
+1. الهدف التنفيذي
+==================================================
+
+إغلاق كل المشاكل العملية المتبقية:
+
+1. دخول /admin من المتصفح الحقيقي.
+2. إصلاح أي خلل يمنع أزرار login/reset من العمل.
+3. اختبار لوحة المالك بعد الدخول.
+4. اختبار صفحات المستخدم.
+5. اختبار Data Gateway وAPI.
+6. اختبار Automation وLocation وNotifications.
+7. اختبار التصميم الأساسي.
+8. تحديث QA_REPORT بنتائج حقيقية.
+9. عدم تسليم أي تقرير نظري.
+
+==================================================
+2. مصدر بيانات الدخول
+==================================================
+
+اقرأ بيانات الدخول فقط من Replit Secrets:
+
+ADMIN_E2E_EMAIL
+ADMIN_E2E_PASSWORD
+
+ممنوع:
+- لا hardcode.
+- لا print.
+- لا screenshots لكلمة المرور.
+- لا كتابة في QA_REPORT.
+- لا كتابة في replit.md.
+
+إذا لم توجد هذه الأسرار:
+الحكم النهائي = Needs Replit Secrets
+ولا تكمل.
+
+==================================================
+3. الاختبار الحاسم: Real Browser Admin Login
+==================================================
+
+أنشئ اختبار Playwright حقيقي، مثلاً:
+
+tests/e2e/admin-real-browser-login.spec.ts
+
+أو أي مسار مناسب.
+
+الاختبار يجب أن يفتح المتصفح فعلياً ويختبر DOM الحقيقي:
+
+1. افتح /admin?reset=1
+2. انتظر الرجوع إلى /admin
+3. تحقق أن صفحة login ظاهرة
+4. املأ email من ADMIN_E2E_EMAIL
+5. املأ password من ADMIN_E2E_PASSWORD
+6. اضغط زر "تسجيل الدخول"
+7. انتظر نتيجة خلال 10 ثوانٍ
+
+النتائج المقبولة فقط:
+
+A. دخول Dashboard:
+- URL يحتوي /admin/dashboard أو محتوى dashboard ظاهر.
+- Admin shell ظاهر.
+- شعار مواعيدك ظاهر.
+- sidebar أو dashboard cards ظاهرة.
+- الحكم المرحلي: browser admin login passed.
+
+B. Access Denied:
+- role ظاهر في الواجهة أو debug box.
+- session موجودة.
+- الحكم: Needs Supabase Role Fix.
+
+C. Invalid Credentials:
+- رسالة بيانات الدخول غير صحيحة تظهر.
+- الحكم: Needs Owner Password Reset.
+
+D. Timeout / Loading / No UI Change:
+- هذا فشل كود.
+- أصلح AdminLayout/Login.
+- أعد الاختبار حتى لا يحدث.
+
+ممنوع اعتبار REST HTTP 200 وحده نجاحاً.
+النجاح الحقيقي هو أن واجهة المتصفح تدخل Dashboard أو تعطي خطأ واضحاً.
+
+==================================================
+4. إذا REST Auth ينجح لكن Browser Login يفشل
+==================================================
+
+هذا هو الاحتمال الأهم. إذا حدث، شخّص وأصلح:
+
+1. هل frontend يستخدم نفس VITE_SUPABASE_URL الذي استخدمه السكربت؟
+2. هل VITE_SUPABASE_ANON_KEY في المتصفح صحيح؟
+3. هل import.meta.env يقرأ القيم فعلاً؟
+4. هل supabase client في المتصفح null؟
+5. هل form submit يعمل؟
+6. هل button type="submit"؟
+7. هل onSubmit يُستدعى؟
+8. هل setSubmitting(false) يحدث في finally؟
+9. هل session تُحفظ في localStorage بعد signIn؟
+10. هل getUser يرجع user؟
+11. هل role parsing صحيح؟
+12. هل navigate("/admin/dashboard") يعمل؟
+13. هل router يمنع التحويل؟
+14. هل AdminLayout يعيد phase إلى login بعد نجاح الدخول؟
+15. هل onAuthStateChange يسبب race condition؟
+16. هل INITIAL_SESSION يسبب loop؟
+17. هل هناك overlay أو pointer-events يمنع الضغط؟
+18. هل هناك preventDefault ناقص؟
+19. هل الزر disabled بسبب state قديم؟
+20. هل /admin/dashboard route موجود ويُعرض؟
+
+أصلح السبب الفعلي داخل الكود ثم أعد Playwright test.
+
+==================================================
+5. إصلاح Admin Auth Flow إلزامي
+==================================================
+
+يجب أن يكون AdminLayout أو AdminLogin كالتالي:
+
+Phases واضحة:
+- checking
+- login
+- submitting
+- ready
+- access_denied
+- auth_error
+
+قواعد:
+- checking لا يتجاوز 3 ثوانٍ.
+- submitting لا يتجاوز 8 ثوانٍ.
+- لا loading أبدي.
+- لا زر معلق.
+- لا شاشة بيضاء.
+- كل Promise له timeout.
+- كل مسار له finally.
+- reset يعمل حتى لو Supabase signOut فشل.
+
+زر الدخول:
+- داخل form
+- type="submit"
+- onSubmit حقيقي
+- native HTML button أو button مضمون
+
+زر مسح الجلسة:
+- type="button"
+- يمسح localStorage keys التي تحتوي supabase / sb- / auth
+- sessionStorage.clear()
+- يرجع phase إلى login
+- لا يعلق
+
+/admin?reset=1:
+- يمسح الجلسة تلقائياً بدون زر
+- يرجع إلى /admin
+
+==================================================
+6. بعد دخول Dashboard
+==================================================
+
+إذا نجح دخول المتصفح، اختبر هذه الصفحات بالمتصفح نفسه:
+
+- /admin/dashboard
+- /admin/automation
+- /admin/visual-guide
+- /admin/data-layer
+- /admin/notifications
+- /admin/messages
+- /admin/themes
+- /admin/story
+
+لكل صفحة تحقق:
+- لا شاشة بيضاء
+- لا loading أبدي
+- admin shell ظاهر
+- شعار مواعيدك ظاهر
+- المحتوى الأساسي ظاهر
+- لا API 500
+- لا console errors جوهرية
+
+احفظ screenshots في:
+test-results/admin/
+
+ممنوع أن تحتوي screenshots على كلمة المرور.
+
+==================================================
+7. اختبار صفحات المستخدم
+==================================================
+
+اختبر بالمتصفح:
+
+- /
+- /calendar
+- /finance
+- /finance?tab=calculators
+- /centers
+- /story
+- /account
+- /notifications
+- /support أو complaints إن وجدت
+- legal pages
+- 404
+- /visual-reference-clone
+- /admin-self-test
+
+لكل صفحة:
+- لا شاشة بيضاء
+- لا loading أبدي
+- لا overflow أفقي
+- RTL سليم
+- BottomNav لا يغطي المحتوى
+- التصميم يظهر
+- API لا يرجع 500
+
+احفظ screenshots في:
+test-results/user/
+
+==================================================
+8. اختبار Data/API
+==================================================
+
+اختبر endpoints الأساسية:
+
+- /api/healthz
+- /api/prayer-times
+- /api/notifications
+- /api/notifications/unread-count
+- /api/news
+- /api/jobs
+- /api/themes
+- /api/story-templates
+- /api/daily-messages
+- /api/appointments
+- /api/financial-events/countdown
+- /api/admin/stats بعد login
+- /api/audit-logs بعد login إن كانت محمية
+- /api/complaints
+
+اكتب النتيجة:
+endpoint | status | ok/fail | ملاحظة
+
+==================================================
+9. اختبار Features
+==================================================
+
+اختبر وتحقق:
+
+1. Supabase mode يعمل.
+2. Auth يعمل.
+3. Data Gateway يعمل.
+4. Notifications read/delete/mark-read لا تنكسر.
+5. Toast auto-dismiss = 5000ms.
+6. Location prefs موجودة.
+7. Prayer times تستخدم المدينة/الموقع.
+8. Automation page لا تنكسر.
+9. Story cards تحتوي:
+   "مواعيدك"
+   "مواعيدك — جميع الحقوق محفوظة"
+10. No hardcoded secrets.
+11. No service_role in frontend.
+12. No DROP/TRUNCATE destructive code.
+
+==================================================
+10. اختبار الأمان
+==================================================
+
+افحص المشروع كاملاً بحثاً عن:
+
+- service_role
+- SUPABASE_SERVICE_ROLE
+- password
+- secret
+- eyJ
+- DROP
+- TRUNCATE
+
+صنّف النتائج:
+- safe comment
+- env usage
+- dangerous
+- fixed
+
+ممنوع وجود password أو token مطبوع في logs أو docs.
+
+==================================================
+11. أوامر الفحص
+==================================================
+
+شغّل:
+
+- typecheck
+- build
+- Playwright admin real browser login test
+- user smoke test
+- API smoke test
+
+إذا Playwright غير مثبت:
+ثبّته بطريقة صحيحة للمشروع أو استخدم أداة E2E متاحة.
+لا تعتبر عدم وجود Playwright عذراً لإسقاط الاختبار.
+
+==================================================
+12. QA_REPORT
+==================================================
+
+حدّث QA_REPORT.md بجداول:
+
+A. Admin Real Browser E2E
+Test | Result | Evidence | Screenshot | Notes
+
+B. User Pages Smoke
+Page | Result | Screenshot | Notes
+
+C. Admin Pages Smoke
+Page | Result | Screenshot | Notes
+
+D. API Endpoints
+Endpoint | Status | Result
+
+E. Security Audit
+Keyword | Result | Risk
+
+F. Remaining Blockers
+Blocker | Severity | Owner | Next Action
+
+ممنوع كتابة كلمة المرور أو الأسرار.
+
+==================================================
+13. التقرير النهائي المطلوب فقط
+==================================================
+
+أعطني التقرير بهذه الصيغة فقط:
+
+1. هل تم تشغيل اختبار متصفح حقيقي وليس REST فقط؟
+2. هل ADMIN_E2E_EMAIL موجود؟
+3. هل ADMIN_E2E_PASSWORD موجود بدون طباعته؟
+4. هل /admin?reset=1 عمل؟
+5. هل صفحة login ظهرت؟
+6. هل تم ملء البريد آلياً؟
+7. هل تم ملء كلمة المرور آلياً بدون حفظها؟
+8. هل تم الضغط على تسجيل الدخول آلياً؟
+9. ما النتيجة النهائية في المتصفح؟
+10. هل دخل /admin/dashboard فعلياً؟
+11. إذا لم يدخل، ما السبب الدقيق؟
+12. هل أزرار login/reset تعمل في DOM الحقيقي؟
+13. هل يوجد loading أبدي؟
+14. هل يوجد زر معلق؟
+15. هل /admin/dashboard يعمل؟
+16. هل /admin/automation يعمل؟
+17. هل /admin/visual-guide يعمل؟
+18. هل /admin/data-layer يعمل؟
+19. هل صفحات المستخدم تعمل؟
+20. هل API endpoints الأساسية 200؟
+21. هل Supabase/Auth/Data Gateway سليمة؟
+22. هل Automation/Location سليمة؟
+23. هل Toast auto-dismiss = 5000ms؟
+24. هل تم فحص service_role/secrets؟
+25. هل typecheck نجح؟
+26. هل build نجح؟
+27. هل screenshots محفوظة بدون كلمة مرور؟
+28. هل QA_REPORT تم تحديثه؟
+29. ما العوائق المتبقية؟
+30. الحكم النهائي، اختر واحداً فقط:
+Admin Browser Access Verified
+Needs Owner Password Reset
+Needs Supabase Role Fix
+Needs Browser Login Code Fix
+Needs Replit Secrets
+Needs Fixes
+
+ممنوع استخدام أي حكم آخر.
+ممنوع اقتراح Publish.

@@ -1,0 +1,1230 @@
+MAWAEEDAK OWNER DASHBOARD + FINANCE COMPLETION + LOGOUT FIX + X/TWITTER AUTOMATION
+P0-FIRST EXECUTION — COMPLETE COMPLAINTS/SUGGESTIONS, LOGOUT, LIGHT/DARK USER MODE, SALARIES 12 MONTHS, SUPPORT COUNTDOWNS, OWNER DASHBOARD, AND SAFE SOCIAL AUTOMATION
+
+You are Replit Agent working inside the existing Mawaeedak project.
+
+This is a focused production completion pass.
+
+Do not rebuild the app from scratch.
+Do not refactor the whole project.
+Do not weaken admin security.
+Do not break normal user login.
+Do not break Supabase data mode.
+Do not break HomePage date/prayer/financial countdown fixes.
+Do not remove existing working features.
+Do not fake Twitter/X integration.
+Do not claim automation works unless it is implemented and tested or clearly marked as waiting for missing required secrets.
+
+The user has provided a mandatory master visual reference showing the desired product system and owner/admin dashboard direction.
+
+Reference image:
+
+* Use the uploaded/master reference as the visual target.
+* If not already in the project, place it or expect it at:
+
+  * references/master-visual-reference.png
+  * references/admin-dashboard-reference.png
+
+The reference is mandatory for:
+
+* Owner dashboard layout.
+* Admin overview.
+* Cards.
+* Statistics.
+* Sidebar.
+* Charts.
+* Saudi heritage visual identity.
+* Mobile/desktop responsive admin layout.
+* Product modules organization.
+
+Do not copy sample data from the reference image as real data.
+Use real app data, computed values, or documented seed/admin-managed data.
+
+==================================================
+0. Current objective
+====================
+
+Fix and complete the following reported issues:
+
+1. Owner/admin cannot view complaints and suggestions; owner only receives a notification.
+2. After logout, the user is routed to Welcome page. Required: logout redirects to HomePage `/`.
+3. Owner/Admin dashboard is incomplete compared with the new visual reference.
+4. User-facing themes should be simplified:
+
+   * normal users only get Light Mode and Dark Mode.
+   * remove/hide all decorative theme choices from normal users.
+   * owner/admin may still manage Global App Theme from admin only.
+5. Salaries and supports are incomplete.
+6. Salary section must show a full 12-month schedule.
+7. Support section must show all support programs and countdown to each next payment.
+8. Owner must be able to configure X/Twitter automation safely:
+
+   * default daily tweet time after midnight, e.g. 00:05.
+   * or any custom owner-selected time.
+   * enable/disable.
+   * preview.
+   * manual test.
+   * server-side only.
+   * no secrets in frontend.
+
+==================================================
+
+1. Execution priority
+   ==================================================
+
+P0 — Must fix before launch:
+
+1. Owner can view complaints and suggestions.
+2. Logout redirects to HomePage `/`.
+3. Normal users only see Light/Dark appearance.
+4. Salary schedule shows current month + next 11 months.
+5. Support programs show next payment countdowns.
+6. Home/Finance/Story financial data remains consistent.
+7. Existing login/admin/security fixes remain intact.
+8. typecheck and build pass.
+
+P1 — Complete if possible after P0 passes:
+
+1. Owner dashboard visual/functional upgrade.
+2. Admin dashboard overview cards and analytics.
+3. X/Twitter automation UI, settings, database tables, and protected APIs.
+
+P2 — Not blocking if external credentials are missing:
+
+1. Actual live posting to X/Twitter.
+2. X/Twitter OAuth connection verification.
+3. Real tweet publishing test.
+
+If X/Twitter credentials are missing, do not fail the whole app launch if:
+
+* the owner UI exists,
+* protected API exists,
+* settings can be saved,
+* preview works,
+* manual test returns a clear missing-credentials message,
+* required secrets are documented,
+* no fake success is shown.
+
+==================================================
+1.B Mandatory P0-first execution rule
+=====================================
+
+Execute P0 items first before touching P1 or P2.
+
+P0 completion order:
+
+1. Logout redirects to `/`.
+2. Complaints and suggestions are visible and manageable by owner/admin.
+3. Normal users only see Light/Dark appearance.
+4. Salary schedule shows current month + next 11 months.
+5. Support programs show next payment countdowns.
+6. Home/Finance/Story financial data remains consistent.
+7. Existing login/admin/security fixes remain intact.
+8. typecheck and build pass.
+
+Do not start X/Twitter live integration or major dashboard visual redesign until P0 is complete.
+
+If P0 cannot be completed:
+
+* stop expanding scope,
+* document the blocker,
+* final verdict = NEEDS FIXES.
+
+P1 and P2 must not delay or destabilize P0.
+
+==================================================
+1.C P0 acceptance gate
+======================
+
+Do not move to P1 or P2 until all P0 items are verified.
+
+P0 is accepted only if all are true:
+
+1. Normal user logout redirects to `/`.
+2. Guest after logout sees HomePage and login/register options.
+3. Guest does not see logout or admin tools.
+4. Owner can open complaints/suggestions list, not only receive notifications.
+5. Owner can filter, open, reply, and change status of complaints/suggestions.
+6. Complaint/suggestion counts are accurate.
+7. Normal user sees only Light/Dark appearance choices.
+8. Normal user does not see decorative theme catalog.
+9. Salary schedule shows current month + next 11 months.
+10. Supports page shows all configured support programs.
+11. Home/Finance/Story financial data remains consistent.
+12. /admin remains protected.
+13. Admin API returns 401/403 without token.
+14. No localStorage admin bypass.
+15. typecheck passes.
+16. build passes.
+
+If any P0 item fails:
+
+* do not start X/Twitter live integration,
+* do not perform major dashboard visual redesign,
+* fix P0 first,
+* final verdict = NEEDS FIXES if unresolved.
+
+==================================================
+2. Preserve existing fixed systems
+==================================
+
+Do not break these previously fixed items:
+
+* Normal user login is separate from owner/admin login.
+* /login is normal user login.
+* /register is normal user registration.
+* /forgot-password is normal user reset.
+* Normal users are not routed to /admin.
+* /admin remains protected.
+* Admin API remains protected server-side.
+* No localStorage admin bypass.
+* Admin role verification uses trusted server-side/app_metadata logic.
+* VITE_DATA_SOURCE_MODE=supabase remains active.
+* DATABASE_URL remains used by API server.
+* HomePage financial countdown rolling logic remains correct.
+* Prayer times remain based on city/source and Asia/Riyadh.
+* Global Theme remains admin-controlled.
+* User Theme remains separate from Global Theme.
+
+If any of these are broken, final verdict = NEEDS FIXES.
+
+==================================================
+3. Logout behavior fix
+======================
+
+Current issue:
+After logout, user goes to Welcome page.
+
+Required behavior:
+
+* When any normal user logs out, redirect to `/`.
+* Do not redirect to welcome/onboarding.
+* Welcome page should only appear for true first-time onboarding if the app intentionally uses onboarding.
+* If onboarding completion is already stored, logout must not reset it.
+* Guest after logout should see HomePage as public/guest mode.
+* Guest must see login/register options where appropriate.
+* Guest must not see logout button.
+* Guest must not see admin tools.
+
+Test:
+
+1. Log in as normal user.
+2. Open account.
+3. Log out.
+4. Confirm redirect to `/`.
+5. Confirm no logout button appears.
+6. Confirm login/register appears.
+7. Confirm no admin/owner tools appear.
+
+==================================================
+4. Complaints and suggestions completion
+========================================
+
+Owner/admin must have a complete Complaints & Suggestions system.
+
+User side:
+
+* User can submit complaint.
+* User can submit suggestion.
+* User can choose category:
+
+  * شكوى
+  * اقتراح
+  * مشكلة تقنية
+  * طلب تحسين
+  * استفسار
+* User can write title and message.
+* User sees submission success.
+* User can see status if logged in:
+
+  * جديد
+  * قيد المراجعة
+  * تم الرد
+  * مغلق
+
+Owner/admin side:
+
+Add or complete admin section:
+
+* /admin/complaints
+* /admin/suggestions if separate, or one combined section with filters.
+
+Owner must be able to:
+
+* View all complaints.
+* View all suggestions.
+* See correct total count.
+* Filter by type:
+
+  * complaints
+  * suggestions
+  * technical issues
+  * improvement requests
+* Filter by status.
+* Search by user/name/email/title/message.
+* Open detail page or modal.
+* Reply to user.
+* Change status.
+* Close item.
+* Delete if needed.
+* See created date.
+* See user info if available.
+* See unread/new badge.
+* Receive notification but not only notification; full list must exist.
+
+Admin dashboard summary must show:
+
+* total complaints.
+* new complaints.
+* suggestions count.
+* pending replies.
+* latest complaints/suggestions.
+
+Security:
+
+* Only owner/admin can view all complaints/suggestions.
+* Normal user only sees their own submissions if that feature exists.
+* Admin API must require admin authentication.
+* No public endpoint returns all complaints.
+
+Test:
+
+1. Create complaint as user.
+2. Create suggestion as user.
+3. Open owner dashboard.
+4. Verify both appear in list.
+5. Verify count is correct.
+6. Reply as owner.
+7. Change status.
+8. Verify user can see reply/status if supported.
+9. Verify admin API returns 401/403 without token.
+
+==================================================
+4.A Suggestions data model requirement
+======================================
+
+If suggestions are not currently separated from complaints:
+
+* either add a `type` field to the existing complaints/support table,
+* or create a separate suggestions table,
+* or implement an equivalent schema-compatible solution.
+
+Required fields:
+
+* id
+* user_id nullable if guest submissions are allowed
+* type
+* category
+* title
+* message
+* status
+* admin_reply
+* created_at
+* updated_at
+
+Do not store suggestions only as notifications.
+Notifications are alerts, not the source of truth.
+
+==================================================
+4.B Database migration safety rule
+==================================
+
+If database schema changes are required:
+
+* Do not drop existing tables.
+* Do not delete existing user data.
+* Do not rename columns destructively.
+* Prefer additive migrations:
+
+  * add columns,
+  * add tables,
+  * add indexes,
+  * add safe defaults.
+* Create or update SQL migration files if the project uses SQL files.
+* Update Supabase schema documentation if relevant.
+* Update RLS policy documentation if relevant.
+
+Complaints/suggestions security rules:
+
+* Normal users may create submissions.
+* Normal users may read only their own submissions if that feature exists.
+* Owner/admin may read and manage all submissions.
+* Public unauthenticated requests must not list all complaints/suggestions.
+* Admin endpoints must return 401/403 without valid admin auth.
+
+If RLS cannot be fully applied in this pass:
+
+* document the exact SQL/policy required,
+* keep server-side admin protection active,
+* do not claim full RLS completion.
+
+==================================================
+4.C Data integrity and backward compatibility rule
+==================================================
+
+All new data changes must be backward compatible.
+
+Required:
+
+* Existing complaints must remain readable.
+* Existing notifications must remain readable.
+* Existing financial events must remain readable.
+* Existing users and profiles must not be modified destructively.
+* Existing admin roles must not be weakened.
+* Existing RLS/server-side protections must remain active.
+
+If a new table or column is added:
+
+* provide migration SQL or documented schema change.
+* provide safe defaults.
+* ensure the app works if old rows have null values.
+* update API and UI to handle missing optional fields gracefully.
+
+Do not block the app on missing optional data.
+Use clear empty states instead.
+
+==================================================
+5. Owner dashboard completion based on visual reference
+=======================================================
+
+Complete the owner/admin dashboard to look and function like a serious product control center, inspired by the provided reference.
+
+Required owner dashboard sections:
+
+* Dashboard overview.
+* Users / members.
+* Public dates/events.
+* Salaries and support management.
+* Daily messages.
+* Story Today.
+* Theme / appearance management.
+* Notifications.
+* Complaints and suggestions.
+* News and jobs.
+* Reports and analytics.
+* Permissions and roles.
+* General settings.
+* Social automation / X-Twitter automation.
+* Audit logs if available.
+
+Dashboard overview must include cards such as:
+
+* total users.
+* active users.
+* complaints count.
+* suggestions count.
+* notifications sent.
+* financial events count.
+* daily messages count.
+* current Global Theme.
+* latest activity.
+
+Visual requirements:
+
+* Match master reference style:
+
+  * Saudi heritage premium identity.
+  * beige/brown/copper/gold palette.
+  * cards and statistics.
+  * clean owner sidebar.
+  * charts/graphs if already available or simple CSS chart cards.
+  * responsive desktop/tablet/admin layout.
+  * RTL.
+  * no clutter.
+  * no fake empty decorative cards.
+
+Do not create fake analytics as real data.
+
+If analytics data is not available:
+
+* show honest computed values from existing tables,
+* or show clear empty state for the owner,
+* do not show random numbers.
+
+==================================================
+6. User appearance simplified: Light/Dark only
+==============================================
+
+For normal users:
+
+Remove or hide all decorative theme options from normal user UI.
+
+Normal user should only have:
+
+* الوضع النهاري
+* الوضع الليلي
+
+Required behavior:
+
+* User can switch Light/Dark.
+* Choice persists after reload.
+* It affects their own app only.
+* It does not change Global App Theme.
+* It does not expose owner theme tools.
+* It does not show premium/decorative theme cards.
+
+Owner/admin:
+
+* Owner may keep Global App Theme controls in admin only.
+* Global Theme must not appear in normal user account as an admin tool.
+* If existing Theme Center is public, adjust it:
+
+  * either make it admin-only,
+  * or convert normal-user theme area to Light/Dark only.
+
+Test:
+
+1. Open account as normal user.
+2. Confirm only light/dark options appear.
+3. Confirm no decorative theme catalog appears.
+4. Apply dark.
+5. Reload.
+6. Apply light.
+7. Reload.
+8. Confirm admin Global Theme still works separately.
+
+==================================================
+6.A User appearance scope lock
+==============================
+
+Normal user appearance settings must be minimal.
+
+Allowed for normal users:
+
+* Light mode.
+* Dark mode.
+
+Not allowed for normal users:
+
+* Saudi clean theme.
+* Heritage theme.
+* Premium theme catalog.
+* Global App Theme controls.
+* Owner-only theme controls.
+* Any theme marked owner/admin/premium/internal.
+
+Admin/owner may still manage Global App Theme from admin only.
+
+If a public Theme Center route exists:
+
+* convert it for normal users to Light/Dark only,
+* or hide decorative themes unless the viewer is admin,
+* but do not break admin Global Theme.
+
+==================================================
+7. Salary schedule: full 12 months
+==================================
+
+Complete salary section.
+
+Requirement:
+The salary tab/section must show a full 12-month schedule.
+
+For each month:
+
+* month name.
+* Gregorian date.
+* Hijri date if available.
+* day name.
+* remaining countdown:
+
+  * اليوم
+  * غداً
+  * X أيام
+  * or completed/past if applicable.
+* status:
+
+  * قادم
+  * اليوم
+  * تم
+* source/classification:
+
+  * رسمي if verified.
+  * مدار من المنصة.
+  * تقديري.
+
+Rules:
+
+* Do not hardcode random values in UI components.
+* Use one shared financial events service/data layer.
+* Home/Finance/Story must remain consistent.
+* Salary day should be configurable/admin-managed if already supported.
+* If Saudi government salary date logic exists, use it.
+* If not, implement a clean recurring monthly schedule based on configured salary day and document it.
+* Handle weekends/holiday adjustments only if an actual rule/source exists; otherwise do not invent.
+
+UI:
+
+* Salary tab should show 12 cards or grouped list for the year.
+* Highlight next salary.
+* Show countdown to next salary.
+* Keep RTL and mobile-first.
+
+Test:
+
+1. Open Finance/Salaries.
+2. Verify 12 months visible.
+3. Verify next salary highlighted.
+4. Verify countdown is positive for next upcoming salary.
+5. Verify Home salary card uses the same next salary.
+6. Verify Story Today uses the same salary countdown.
+
+==================================================
+7.A Salary schedule source rule
+===============================
+
+Generate the 12-month salary schedule from a single salary schedule service.
+
+Required:
+
+* Do not manually type 12 random dates in UI.
+* Use a configurable salary rule/source.
+* If official adjustment rules for weekends/holidays are not implemented, document this clearly.
+* The next salary in HomePage must be the same next salary shown in Finance.
+* The 12-month salary list must cover the current month plus the next 11 months.
+
+==================================================
+7.B Salary accuracy rule
+========================
+
+Do not claim salary dates are official unless an official verified source exists.
+
+If no official live source exists:
+
+* classify salary dates as "مدار من المنصة" or "تقديري" according to current data model.
+* allow owner/admin to configure salary dates.
+* document the rule used.
+
+The 12-month salary schedule must be generated from a service/helper, not manually written in UI.
+
+Required checks:
+
+* current month + next 11 months are present.
+* next salary is highlighted.
+* past months are marked "تم" only if included.
+* countdown uses Asia/Riyadh.
+* Home salary card uses the same next salary.
+* Finance salary tab uses the same next salary.
+* Story Today salary value matches the same source.
+
+==================================================
+8. Support programs schedule and countdowns
+===========================================
+
+Complete supports tab/section.
+
+Required support programs:
+
+* حساب المواطن
+* الضمان الاجتماعي
+* الدعم السكني
+* حافز
+* التقاعد
+* التأمينات / ساند
+* التأهيل الشامل
+* الدعم الزراعي
+* دعم ريف
+* any existing custom support program
+
+For each support program:
+
+* program name.
+* next payment date.
+* Gregorian date.
+* Hijri date if available.
+* remaining countdown.
+* status.
+* source/classification.
+* details link if available.
+
+Rules:
+
+* Use one shared support/financial events source.
+* Home support cards, Finance support tab, and Story Today must match.
+* Do not leave missing support cards.
+* Do not show empty tab if data exists.
+* Do not use random dates.
+* If a program date is not verified, mark as platform-managed/estimated in metadata/documentation.
+
+UI:
+
+* Support tab should show all support programs.
+* Each program shows "كم باقي على الدعم القادم".
+* Sort by nearest upcoming payment.
+* Highlight next support.
+* Keep mobile-first RTL.
+
+Test:
+
+1. Open Finance/Supports.
+2. Verify all required supports appear.
+3. Verify next date and countdown for each.
+4. Verify Home list includes nearest supports.
+5. Verify Story Today includes configured support countdowns.
+6. Verify data source is shared.
+
+==================================================
+8.A Support schedule source rule
+================================
+
+Each support program must have:
+
+* source metadata,
+* next date,
+* recurrence rule or configured next payment date,
+* countdown calculation using Asia/Riyadh,
+* visibility in Home/Finance/Story where applicable.
+
+If a support program date is unknown:
+
+* do not invent it as official,
+* mark it as platform-managed or estimated,
+* allow owner/admin to configure it.
+
+==================================================
+8.B Support programs completeness rule
+======================================
+
+The support section must not be considered complete unless all configured required programs appear.
+
+Required support list:
+
+* حساب المواطن
+* الضمان الاجتماعي
+* الدعم السكني
+* حافز
+* التقاعد
+* التأمينات / ساند
+* التأهيل الشامل
+* الدعم الزراعي
+* دعم ريف if enabled or implemented
+
+If any program has no verified date:
+
+* do not invent an official date,
+* mark it as platform-managed/estimated,
+* allow owner/admin configuration,
+* show a clear admin-managed status in documentation.
+
+Required consistency:
+
+* Home support cards.
+* Finance support tab.
+* Story Today support list.
+* Admin financial management.
+
+All must read from the same source or documented service layer.
+
+==================================================
+9. X/Twitter owner automation
+=============================
+
+Add secure owner-only X/Twitter automation.
+
+Important:
+
+Do not fake tweeting.
+Do not put X/Twitter secrets in frontend.
+Do not claim connected unless credentials exist and API call/test succeeds.
+
+Owner/admin feature:
+
+Add admin section:
+
+* /admin/social
+* or add to /admin/settings as "الربط الاجتماعي"
+* include X/Twitter connection.
+
+Required owner controls:
+
+* Connect X/Twitter account.
+* Show connection status:
+
+  * غير متصل
+  * متصل
+  * خطأ في الاتصال
+* Configure daily auto tweet:
+
+  * enable/disable.
+  * default time: 00:05 after midnight.
+  * owner can choose any time.
+  * timezone: Asia/Riyadh.
+* Tweet content template:
+
+  * date today.
+  * Hijri date.
+  * daily message.
+  * salary/support countdowns.
+  * app signature.
+* Preview tweet before enabling.
+* Manual "Send test tweet" button.
+* Save settings.
+* Show last tweet status.
+* Show last error if failed.
+* Log every automation attempt.
+
+Suggested tweet template:
+
+📌 تاريخ اليوم
+
+📅 {day_name}
+🌙 هجري: {hijri_date}
+🗓️ ميلادي: {gregorian_date}
+
+💡 {daily_message}
+
+⏳ كم باقي على:
+💼 الراتب: {salary_days}
+👨‍👩‍👧 حساب المواطن: {citizen_account_days}
+🛡️ الضمان: {social_security_days}
+🏠 الدعم السكني: {housing_support_days}
+
+مواعيدك — منصة تجمع وقتك، راتبك، دعمك، وأهم مواعيدك.
+
+Technical requirements:
+
+* Server-side only.
+* Use environment secrets only.
+* No X/Twitter secret in client bundle.
+* Required secrets should be documented:
+
+  * X_CLIENT_ID
+  * X_CLIENT_SECRET
+  * X_REDIRECT_URI
+  * X_ACCESS_TOKEN if using token mode
+  * X_REFRESH_TOKEN if applicable
+  * X_BEARER_TOKEN if needed
+
+If credentials are missing:
+
+* UI must show "غير متصل".
+* Save scheduling config if possible.
+* Manual test must show clear missing-credentials error.
+* Final report should mark X automation as built but waiting for credentials.
+
+If credentials exist:
+
+* test connection.
+* test manual tweet only if safe test mode or owner explicitly triggers.
+* do not auto-post during verification unless owner setting is enabled.
+
+Scheduling:
+
+* Store automation settings in database table or central settings:
+
+  * social_accounts
+  * social_automation_settings
+  * social_automation_logs
+  * or equivalent.
+* Use server-side scheduler compatible with Replit runtime.
+* Use Asia/Riyadh timezone.
+* Avoid duplicate tweets:
+
+  * record last_run_at.
+  * prevent multiple posts for same scheduled day/time.
+* Admin can enable/disable automation.
+
+Security:
+
+* Only owner/super_admin can configure X/Twitter automation.
+* API endpoints must require admin auth.
+* Admin API returns 401/403 without token.
+* Do not expose tokens.
+
+Test:
+
+1. Open social automation as normal user.
+   Expected: not visible / access denied.
+
+2. Open as owner.
+   Expected: settings visible.
+
+3. Save schedule time.
+   Expected: persists.
+
+4. Preview tweet.
+   Expected: renders from live date/message/countdown data.
+
+5. Manual test without credentials.
+   Expected: clear missing credentials message, no crash.
+
+6. Admin API without token.
+   Expected: 401/403.
+
+7. If credentials exist:
+   Expected: connection test succeeds.
+
+==================================================
+9.A X/Twitter launch rule
+=========================
+
+The app may still receive PRODUCTION HANDOVER PASSED if X/Twitter live credentials are missing, provided that:
+
+* all core app features pass,
+* the X/Twitter automation module is built safely,
+* missing X/Twitter credentials are documented,
+* no fake success is shown,
+* no auto-post claim is made,
+* no X/Twitter secrets are exposed in frontend.
+
+However, if the X/Twitter UI claims "متصل" or "تم النشر" without real credentials and a real successful API response, final verdict = NEEDS FIXES.
+
+==================================================
+9.B X/Twitter safety and anti-fake rule
+=======================================
+
+Do not perform real auto-posting during verification.
+
+Real posting is allowed only when:
+
+* owner explicitly enables automation,
+* credentials are present,
+* the schedule is saved,
+* the current scheduled time is reached,
+* duplicate-post prevention passes.
+
+Manual test tweet:
+
+* must require owner/admin action,
+* must show preview first,
+* must not run automatically during smoke tests.
+
+If X/Twitter credentials are missing:
+
+* UI status must be "غير متصل".
+* preview must still work.
+* settings may be saved.
+* manual test must show missing credentials message.
+* final verdict may still pass if all P0 items pass.
+
+If the app shows "متصل" or "تم النشر" without a real API success:
+final verdict = NEEDS FIXES.
+
+==================================================
+9.C X/Twitter scope control
+===========================
+
+X/Twitter automation must not delay P0 launch readiness.
+
+Implement this in layers:
+
+Layer 1 — Required:
+
+* Owner-only UI.
+* Protected API endpoints.
+* Save automation settings.
+* Preview tweet from live app data.
+* Missing credentials state.
+* Required secrets documentation.
+
+Layer 2 — Only if credentials exist:
+
+* connection test.
+* manual test tweet by explicit owner action.
+
+Layer 3 — Later/optional:
+
+* live scheduled posting.
+* OAuth refresh handling.
+* duplicate prevention across deployment restarts.
+
+Do not auto-post during verification.
+
+If X credentials are missing, the module can still be considered launch-ready as "built and waiting for credentials" if Layer 1 is complete.
+
+==================================================
+10. Admin dashboard visual matching
+===================================
+
+Use the master visual reference to upgrade admin dashboard.
+
+Required:
+
+* Owner dashboard should visually resemble the reference:
+
+  * main overview cards.
+  * right/side navigation.
+  * analytics cards.
+  * recent activity.
+  * complaints/suggestions card.
+  * finance card.
+  * users card.
+  * notifications card.
+  * social automation card.
+* Works desktop/tablet.
+* RTL.
+* Premium Saudi heritage design.
+* No fake data.
+* No broken cards.
+
+Document what was matched and what was adapted.
+
+==================================================
+10.A Visual work limit
+======================
+
+Admin dashboard visual matching is P1, not allowed to break P0.
+
+Do not redesign the entire admin dashboard if doing so risks breaking:
+
+* complaints/suggestions,
+* financial management,
+* user login,
+* admin protection,
+* build/typecheck.
+
+Implement visual improvements safely:
+
+* overview cards,
+* cleaner sidebar,
+* statistics cards,
+* recent activity,
+* complaints/suggestions card,
+* finance card,
+* social automation card.
+
+If full visual matching requires extensive redesign:
+
+* complete functional P0 first,
+* document remaining visual differences as non-blocking,
+* do not block launch only for cosmetic differences.
+
+==================================================
+10.B Real user + owner E2E verification
+=======================================
+
+Do not rely on route smoke only.
+
+Run or manually verify these flows:
+
+Normal user flow:
+
+1. Open HomePage as guest.
+2. Open login/register.
+3. Log in as normal user.
+4. Open account.
+5. Confirm only Light/Dark appearance.
+6. Log out.
+7. Confirm redirect to `/`.
+8. Confirm no logout/admin tools for guest.
+
+Owner/admin flow:
+
+1. Open /admin as guest.
+2. Confirm access protection.
+3. Open /admin as owner/admin.
+4. Confirm dashboard opens.
+5. Open complaints/suggestions.
+6. Confirm list, filters, counts, detail, reply/status actions.
+7. Open financial management.
+8. Confirm salaries/supports are manageable or displayed from source.
+9. Open social automation.
+10. Confirm owner-only access and missing credentials behavior if X secrets are absent.
+
+Security flow:
+
+1. Admin API without token returns 401/403.
+2. Normal user cannot access owner APIs.
+3. Public endpoints still return 200.
+
+==================================================
+11. Verification commands
+=========================
+
+Run available commands:
+
+* typecheck.
+* build.
+* route smoke.
+* API smoke.
+* admin API protection smoke.
+
+Required route smoke:
+
+* /
+* /login
+* /register
+* /account
+* /finance
+* /story
+* /notifications
+* /admin
+* /admin/dashboard
+* /admin/complaints
+* /admin/themes
+* /admin/social if added
+* /admin/settings if used
+* /admin/financial
+
+Required API smoke:
+
+* complaints.
+* suggestions if separate.
+* financial events.
+* salary schedule.
+* support schedule.
+* notifications.
+* default theme/settings.
+* social automation endpoints if added.
+* admin endpoints without token return 401/403.
+
+Do not claim success without results.
+
+Required verification output:
+
+* P0 status: PASS/FAIL.
+* P1 status: PASS/PARTIAL/DEFERRED.
+* P2 status: PASS/WAITING_FOR_CREDENTIALS/DEFERRED.
+* typecheck result.
+* build result.
+* route smoke result.
+* API smoke result.
+* admin API protection result.
+* user logout result.
+* owner complaints/suggestions result.
+* salary 12-month result.
+* support programs result.
+* X/Twitter module result.
+
+==================================================
+12. Documentation
+=================
+
+Update:
+
+* QA_REPORT.md
+* replit.md
+* README.md if needed.
+* ARCHITECTURE.md if data/API/social automation architecture changed.
+* ENV_EXAMPLE.md / .env.example / MISSING_SECRETS.md if X/Twitter secrets are added.
+
+Add section:
+
+OWNER DASHBOARD + FINANCE + SOCIAL AUTOMATION COMPLETION
+
+Document:
+
+* logout fix.
+* complaints/suggestions completion.
+* owner dashboard upgrades.
+* light/dark-only user appearance.
+* salary 12-month schedule.
+* support programs schedule.
+* X/Twitter automation status.
+* required secrets.
+* command results.
+* remaining limitations.
+
+Do not include secret values.
+
+==================================================
+12.A Final decision discipline
+==============================
+
+The final verdict must reflect P0 truth.
+
+Use PRODUCTION HANDOVER PASSED only if:
+
+* all P0 items pass,
+* build passes,
+* typecheck passes,
+* admin security remains intact,
+* no core user flow is broken,
+* complaints/suggestions are accessible to owner,
+* logout behavior is fixed,
+* salaries and supports are complete enough for launch,
+* X/Twitter is either complete or safely documented as waiting for credentials.
+
+Use NEEDS FIXES if any P0 item remains broken.
+
+Do not fail the whole app only because X/Twitter credentials are missing, provided the module is safely built and documented.
+
+Do not claim X/Twitter is connected unless a real connection test succeeds.
+
+==================================================
+13. Final report format
+=======================
+
+Return this exact structure:
+
+1. Final Verdict:
+   PRODUCTION HANDOVER PASSED
+   or
+   NEEDS FIXES
+
+2. Root Cause Summary:
+
+* complaints/suggestions issue.
+* logout issue.
+* owner dashboard gaps.
+* user theme complexity.
+* salary/support missing data.
+* X/Twitter automation status.
+
+3. Fix Completed:
+
+* Complaints/suggestions.
+* Logout redirect.
+* Owner dashboard.
+* User light/dark.
+* Salary 12 months.
+* Support programs.
+* X/Twitter automation.
+* Security preservation.
+
+4. Verification:
+
+* P0 completion status:
+
+  * logout to HomePage.
+  * complaints/suggestions visible to owner.
+  * Light/Dark only for normal user.
+  * 12-month salary schedule.
+  * support countdowns.
+  * security preserved.
+* P1 completion status:
+
+  * admin dashboard visual upgrade.
+  * dashboard statistics.
+  * X/Twitter UI/API/settings.
+* P2 status:
+
+  * X/Twitter credentials present/missing.
+  * live posting tested/not tested.
+  * reason if not tested.
+* normal user logout behavior.
+* owner complaint/suggestion visibility.
+* salary 12-month schedule.
+* support countdowns.
+* X/Twitter owner-only access.
+* admin API protection.
+* typecheck.
+* build.
+* route smoke.
+* API smoke.
+
+5. Modified Files:
+
+* path.
+* reason.
+* change type.
+
+6. Environment / Secrets:
+
+* DATABASE_URL.
+* Supabase variables.
+* X/Twitter variables present/missing by name only.
+
+7. Remaining Issues:
+
+* issue.
+* severity.
+* blocking/non-blocking.
+* required action.
+
+8. Final Launch Decision:
+   PRODUCTION HANDOVER PASSED
+   or
+   NEEDS FIXES
+
+Start now. Complete P0 first, then P1/P2 only if safe. Do not break existing production fixes.

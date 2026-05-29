@@ -1,0 +1,76 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 12E Verification Closure
+Support Data Migration Applied Verification Gate
+
+تم الآن تشغيل:
+1. SUPABASE_SUPPORT_DATA_MIGRATION.sql
+2. SUPABASE_SUPPORT_DATA_VERIFY.sql
+
+ونتائج التحقق اليدوية كانت:
+
+notifications_count = 3
+complaints_count = 3
+notifications_join_hrq_user = 3
+complaints_user_id_null = 3
+notifications_missing_legacy_id = 0
+complaints_missing_legacy_id = 0
+notifications_duplicate_legacy_groups = 0
+complaints_duplicate_legacy_groups = 0
+appointments_unchanged = 2
+financial_events_unchanged = 8
+
+مهمتك الآن فقط إغلاق التحقق وتحديث التوثيق، وليس نقل بيانات جديدة، وليس تغيير مصدر الحقيقة، وليس تعديل الواجهة.
+
+المطلوب:
+1. وثّق أن notifications نُقلت إلى Supabase بعدد 3.
+2. وثّق أن complaints نُقلت إلى Supabase بعدد 3.
+3. وثّق أن notifications مرتبطة بـ hrq@hotmail.com عبر user_id.
+4. وثّق أن complaints بقيت user_id = NULL حسب قرار التصميم.
+5. وثّق أن legacy_id محفوظ.
+6. وثّق أن migration_batch محفوظ.
+7. وثّق عدم وجود duplicates.
+8. وثّق أن appointments بقيت 2 ولم تتغير.
+9. وثّق أن financial_events بقيت 8 ولم تتغير.
+10. تحقق أن PostgreSQL/API الحالي ما زال مصدر الحقيقة.
+11. تحقق أن Supabase Auth و/admin ما زالا سليمين.
+12. تحقق أن المراحل السابقة سليمة.
+13. شغّل build.
+14. شغّل typecheck.
+15. حدّث QA_REPORT.
+16. حدّث SUPABASE_MIGRATION_PLAN.md.
+17. حدّث SUPABASE_MIGRATION_CHECKLIST.md.
+18. حدّث DATA_SOURCE_MAP.md.
+
+ممنوع:
+- لا تغيّر Data Layer.
+- لا تجعل Supabase مصدر الحقيقة الآن.
+- لا تضغط Publish.
+- لا تستخدم service_role.
+- لا تضع أسراراً في الكود.
+- لا تدّع Production Ready.
+- لا تبدأ Phase 12F داخل هذه المرحلة.
+
+التقرير النهائي المطلوب:
+
+1. هل notifications نُقلت إلى Supabase؟
+2. كم عدد notifications في Supabase؟
+3. هل complaints نُقلت إلى Supabase؟
+4. كم عدد complaints في Supabase؟
+5. هل notifications مرتبطة بـ hrq@hotmail.com؟
+6. هل complaints بقيت user_id = NULL؟
+7. هل legacy_id محفوظ؟
+8. هل migration_batch محفوظ؟
+9. هل توجد duplicates؟
+10. هل appointments بقيت 2؟
+11. هل financial_events بقيت 8؟
+12. هل PostgreSQL/API الحالي ما زال مصدر الحقيقة؟
+13. هل Supabase Auth و/admin بقيا سليمين؟
+14. هل المراحل السابقة سليمة؟
+15. هل build نجح؟ اذكر النتيجة صراحة.
+16. هل typecheck نجح؟ اذكر النتيجة صراحة.
+17. هل QA_REPORT تم تحديثه؟
+18. القيود المتبقية.
+19. الحكم النهائي:
+Support Data Migration Applied / Needs Verification Fix / Needs Fixes

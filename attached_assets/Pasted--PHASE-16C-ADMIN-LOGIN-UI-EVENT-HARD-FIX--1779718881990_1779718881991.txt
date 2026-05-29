@@ -1,0 +1,263 @@
+نفّذ الآن PHASE 16C — ADMIN LOGIN UI EVENT HARD FIX.
+
+الحكم:
+المشكلة ليست في البريد ولا في كلمة المرور ولا في SQL فقط.
+المشكلة العملية الآن أن صفحة /admin تعرض نموذج الدخول، لكن عند الضغط على:
+- تسجيل الدخول
+- مسح الجلسة والبدء من جديد
+
+لا يتم تنفيذ الإجراء بشكل صحيح أو يعلق.
+
+هذا يعني أن submit/reset event handlers في واجهة Admin Login مكسورة أو لا تصل للمعالج.
+
+المطلوب:
+إصلاح Admin Login UI events جذرياً، بحيث تعمل الأزرار فعلياً ولا يمكن أن تعلق.
+
+ممنوع:
+- لا تعمل على التصميم العام.
+- لا تعمل على صفحات المستخدم.
+- لا تغيّر Supabase schema.
+- لا تستخدم service_role.
+- لا تضع secrets في الكود.
+- لا تغيّر Data Gateway.
+- لا تغيّر Automation.
+- لا تغيّر Location/Timezone.
+- لا تضغط Publish.
+
+==================================================
+1. أصلح نموذج تسجيل الدخول نفسه
+==================================================
+
+افتح AdminLayout.tsx أو ملف Admin Login.
+
+أعد بناء login form بهذه القواعد الإلزامية:
+
+1. استخدم form حقيقي:
+<form onSubmit={handleLoginSubmit}>
+
+2. زر تسجيل الدخول يجب أن يكون:
+<button type="submit">
+
+3. لا تستخدم onClick فقط لتسجيل الدخول.
+4. لا تضع زر تسجيل الدخول خارج form.
+5. لا تجعل الزر disabled إلا أثناء submitting فقط.
+6. لا تجعل أي overlay فوق الزر.
+7. تأكد أن CSS لا يحتوي:
+pointer-events: none
+على الفورم أو الزر أو container.
+8. تأكد أن preventDefault موجود داخل handleLoginSubmit.
+9. أضف console.info في بداية handleLoginSubmit:
+console.info("[AdminLogin] submit fired");
+
+10. أضف console.info عند بداية reset:
+console.info("[AdminLogin] reset fired");
+
+==================================================
+2. أصلح handleLoginSubmit
+==================================================
+
+اكتب handleLoginSubmit من الصفر:
+
+- يستقبل event.
+- ينفذ event.preventDefault().
+- يتحقق من email/password.
+- setSubmitting(true).
+- يستخدم Promise.race مع timeout 8000ms.
+- يستدعي Supabase مباشرة:
+supabase.auth.signInWithPassword({ email, password })
+
+- في كل الحالات يجب أن ينفذ finally:
+setSubmitting(false)
+
+ممنوع:
+- أي return قبل finally.
+- أي Promise بدون timeout.
+- أي loading لا ينتهي.
+- الاعتماد على wrapper إذا كان يعلق.
+
+إذا انتهت المهلة:
+اعرض:
+"انتهت مهلة تسجيل الدخول، حاول مرة أخرى"
+
+إذا كلمة المرور خطأ:
+اعرض:
+"بيانات الدخول غير صحيحة"
+
+إذا الاتصال فشل:
+اعرض:
+"تعذر الاتصال بخدمة الدخول"
+
+إذا الدخول نجح:
+- استدعِ supabase.auth.getUser()
+- اقرأ role من:
+  user.user_metadata.role
+  ثم user.app_metadata.role
+- إذا role = super_admin أو admin:
+  setPhase("ready")
+  navigate("/admin/dashboard")
+- إذا role ناقص:
+  setPhase("access_denied")
+  اعرض SQL Fix
+  لا ترجع إلى loading
+
+==================================================
+3. أصلح زر مسح الجلسة
+==================================================
+
+زر مسح الجلسة يجب أن يكون:
+
+<button type="button" onClick={handleHardResetAuth}>
+
+وليس submit.
+
+handleHardResetAuth يجب أن ينفذ فوراً:
+
+1. console.info("[AdminLogin] reset fired")
+2. setSubmitting(false)
+3. clear errors
+4. supabase.auth.signOut({ scope: "local" }) داخل try/catch
+5. حذف كل localStorage keys التي تحتوي:
+   - supabase
+   - sb-
+   - auth
+6. sessionStorage.clear()
+7. setPhase("login")
+8. window.history.replaceState(null, "", "/admin")
+9. إعادة تعبئة email فارغ/password فارغ أو ترك email إن كان مفيداً
+10. لا يعلق أبداً
+
+==================================================
+4. أضف مسار إنقاذ لا يعتمد على الزر
+==================================================
+
+لأن الزر نفسه قد يكون مكسوراً، أضف دعم URL reset:
+
+عند تحميل /admin:
+إذا كان الرابط يحتوي:
+?reset=1
+
+نفّذ hardResetAuth تلقائياً ثم أعد التوجيه إلى:
+/admin
+
+مثال:
+فتح /admin?reset=1 يجب أن يمسح الجلسة بدون الضغط على أي زر.
+
+هذا إلزامي.
+
+==================================================
+5. أضف رابط احتياطي داخل الشاشة
+==================================================
+
+ضع تحت زر مسح الجلسة رابط عادي:
+
+<a href="/admin?reset=1">إعادة ضبط الدخول عبر الرابط</a>
+
+هذا الرابط يجب أن يعمل حتى لو onClick لا يعمل.
+
+==================================================
+6. Debug Box إلزامي مؤقتاً
+==================================================
+
+في DEV فقط، اعرض:
+
+- phase
+- submitting
+- submitFiredCount
+- resetFiredCount
+- lastAuthError
+- hasSession
+- role
+- isSupabaseEnabled
+- supabaseClientReady
+
+لا تعرض password أو tokens.
+
+المهم:
+عند الضغط على تسجيل الدخول يجب أن يزيد submitFiredCount.
+عند الضغط على مسح الجلسة يجب أن يزيد resetFiredCount.
+
+==================================================
+7. اختبارات عملية إلزامية
+==================================================
+
+اختبر فعلياً:
+
+1. افتح /admin.
+2. اضغط تسجيل الدخول بدون بيانات.
+   النتيجة: تظهر رسالة تحقق، و submitFiredCount يزيد.
+
+3. اكتب بريد وكلمة مرور خاطئة.
+   النتيجة: رسالة "بيانات الدخول غير صحيحة"، والزر يرجع طبيعي.
+
+4. اضغط مسح الجلسة.
+   النتيجة: resetFiredCount يزيد، والجلسة تُمسح.
+
+5. افتح:
+   /admin?reset=1
+   النتيجة: الجلسة تُمسح تلقائياً ويرجع /admin.
+
+6. أدخل بيانات صحيحة مع role ناقص.
+   النتيجة: Access Denied واضح، لا loading.
+
+7. أدخل بيانات صحيحة مع super_admin.
+   النتيجة: /admin/dashboard.
+
+8. جرّب direct routes:
+   /admin/dashboard
+   /admin/automation
+   /admin/visual-guide
+
+لا يوجد تعليق.
+
+==================================================
+8. شغّل الفحص
+==================================================
+
+شغّل:
+- typecheck
+- build
+
+وافحص:
+- لا شاشة بيضاء.
+- لا API 500.
+- لا loading أبدي.
+- لا console errors جوهرية.
+- لا service_role.
+- لا hardcoded secrets.
+- Supabase/Auth/Data Gateway سليمة.
+- Automation/Location سليمة.
+
+==================================================
+9. التقرير النهائي المطلوب
+==================================================
+
+أعطني التقرير بهذا الشكل فقط:
+
+1. هل كان الخلل في submit/reset UI event؟
+2. هل أصبح Login form يستخدم form onSubmit حقيقي؟
+3. هل زر تسجيل الدخول type="submit"؟
+4. هل زر مسح الجلسة type="button"؟
+5. هل submitFiredCount يزيد عند الضغط؟
+6. هل resetFiredCount يزيد عند الضغط؟
+7. هل /admin?reset=1 يمسح الجلسة بدون زر؟
+8. هل login timeout يعمل خلال 8 ثوانٍ؟
+9. هل setSubmitting(false) مضمون في finally؟
+10. هل كلمة المرور الخاطئة تعرض رسالة واضحة؟
+11. هل role الناقص يعرض Access Denied؟
+12. هل super_admin يدخل Dashboard؟
+13. هل direct routes لا تعلق؟
+14. هل typecheck نجح؟
+15. هل build نجح؟
+16. هل توجد شاشة بيضاء؟
+17. هل توجد API 500؟
+18. الحكم النهائي:
+Admin Login UI Events Fixed
+أو
+Needs Supabase Role Fix
+أو
+Needs Owner Password Reset
+أو
+Needs Fixes
+
+ممنوع استخدام أي حكم آخر.
+ممنوع اقتراح Publish.

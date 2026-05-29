@@ -1,0 +1,371 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 12N
+Calendar Appointments Gateway Cutover Gate
+
+الدور:
+تصرف كفريق Data Layer Architect + Supabase Engineer + Frontend Reliability Engineer + QA Lead + Security Reviewer.
+مهمتك الآن ليست تحويل كل النظام إلى Supabase، وليست حذف API، وليست تحويل Finance.
+مهمتك فقط تحويل قراءة وكتابة المواعيد appointments إلى Gateway بشكل آمن ومتسق، مع الحفاظ على API كـ fallback وعدم كسر HomePage أو CalendarPage.
+
+==================================================
+0. السياق الحالي
+==================================================
+
+تم اعتماد Phase 12M:
+- Admin Themes أصبح Gateway.
+- Admin Story Templates أصبح Gateway.
+- Admin Daily Messages أصبح Gateway.
+- Admin News/Jobs سابقاً أصبح Gateway.
+- Notification System أصبح Gateway.
+- CalendarPage و FinancePage لا يزالان على Orval/API.
+- API وPostgreSQL ما زالا موجودين.
+- default data source = api.
+- mode=api يعمل.
+- mode=supabase_shadow يعمل.
+- mode=supabase يعمل للنطاقات المحولة.
+- build ناجح.
+- typecheck ناجح.
+- لا service_role.
+- لا أسرار hardcoded.
+- لا DROP/TRUNCATE/DELETE غير مقصود.
+
+حالة بيانات Supabase:
+- appointments = 2
+- appointments مرتبطة بـ user_id الخاص بـ hrq@hotmail.com.
+- legacy_id محفوظ.
+- migration_batch محفوظ.
+
+القيد الحالي:
+- CalendarPage CRUD ما زال Orval/API.
+- HomePage upcoming appointments غالباً ما زال يقرأ من API.
+- عند mode=supabase، أي صفحة تقرأ appointments من Supabase بينما تكتب API قد تسبب divergence.
+- لذلك هذه المرحلة يجب أن تجعل قراءة وكتابة appointments متسقة عبر Gateway.
+
+==================================================
+1. الهدف التنفيذي
+==================================================
+
+حوّل appointments فقط إلى Gateway:
+
+1. CalendarPage list/read appointments.
+2. CalendarPage add appointment.
+3. CalendarPage edit appointment.
+4. CalendarPage delete appointment.
+5. HomePage upcoming appointments read إن كانت تستخدم appointments.
+6. أي hook مرتبط بالمواعيد القادمة.
+
+المطلوب حسب mode:
+
+أ. mode=api:
+- القراءة والكتابة عبر API كما كانت.
+- لا تغيير سلوك المستخدم.
+
+ب. mode=supabase_shadow:
+- القراءة والكتابة عبر API.
+- لا كتابة إلى Supabase.
+- يمكن إجراء shadow comparison فقط.
+
+ج. mode=supabase:
+- قراءة appointments من Supabase.
+- إضافة appointment إلى Supabase.
+- تعديل appointment في Supabase.
+- حذف appointment من Supabase.
+- HomePage upcoming يقرأ من نفس مصدر CalendarPage قدر الإمكان.
+- لا fallback صامت إلى API في write.
+- عند فشل write، أظهر toast/error واضح.
+
+ممنوع تحويل:
+- financial_events.
+- notifications.
+- news/jobs/themes/story/daily_messages لأنها منتهية ولا تُلمس إلا إذا لزم invalidation.
+- profiles.
+- audit_logs.
+
+==================================================
+2. خارج النطاق
+==================================================
+
+هذه المرحلة ليست:
+- Finance Cutover.
+- Full Supabase Data Source.
+- حذف API.
+- حذف PostgreSQL.
+- Production Ready.
+- Publish.
+- Firebase.
+- Offline.
+- إعادة تصميم UI.
+- تعديل Theme Engine.
+- نقل SQL جديد.
+
+==================================================
+3. ممنوعات صارمة
+==================================================
+
+ممنوع:
+- لا تلمس financial_events.
+- لا تلمس FinancePage.
+- لا تحذف API endpoints.
+- لا تحذف PostgreSQL.
+- لا تستخدم service_role في الواجهة.
+- لا تضع أسرار في الكود.
+- لا تستخدم DROP/TRUNCATE/DELETE غير مقصود.
+- لا تنقل بيانات جديدة عبر SQL.
+- لا تجعل Supabase هو default.
+- لا تضغط Publish.
+- لا تدّع Production Ready.
+- لا تكسر HomePage.
+- لا تكسر CalendarPage.
+- لا تكسر المراحل السابقة.
+
+==================================================
+4. تدقيق إلزامي قبل التنفيذ
+==================================================
+
+قبل أي تعديل:
+
+1. افحص CalendarPage.
+2. افحص hooks الحالية للمواعيد:
+   - list appointments
+   - upcoming appointments
+   - create appointment
+   - update appointment
+   - delete appointment
+
+3. افحص HomePage وأي مكون يستخدم upcoming appointments.
+4. افحص dataGateway.ts.
+5. افحص supabaseData.ts.
+6. افحص شكل appointment في API مقابل Supabase.
+7. افحص هل UI يستخدم id كـ legacy integer أو uuid.
+8. افحص fields:
+   - title
+   - date
+   - time
+   - type/category إن وجد
+   - notes/description إن وجد
+   - user_id
+   - legacy_id
+   - is_active/status إن وجد
+
+9. حدد mapping واضح:
+   - id في الواجهة = legacy_id إن كان legacy موجوداً.
+   - عند إنشاء صف جديد في Supabase، ما قيمة legacy_id؟
+   - إذا legacy_id مطلوب لتوافق الواجهة، ضع استراتيجية آمنة:
+     أ. إما توليد legacy_id جديد من max(legacy_id)+1 داخل Supabase.
+     ب. أو استخدام uuid وإرجاع id متوافق موثق.
+   - لا تنفذ شيئاً حتى توثق القرار.
+
+10. افحص RLS:
+   - المستخدم يرى مواعيده فقط.
+   - المستخدم يضيف مواعيده فقط.
+   - المستخدم يعدّل مواعيده فقط.
+   - المستخدم يحذف مواعيده فقط.
+
+11. حدد استراتيجية invalidation بعد كل mutation:
+   - Calendar list.
+   - HomePage upcoming.
+   - أي Orval keys متبقية للتوافق.
+
+==================================================
+5. متطلبات التنفيذ
+==================================================
+
+أ. Supabase adapter:
+أضف في supabaseData.ts دوال آمنة مثل:
+
+- getAppointmentsFromSupabase إن لم تكن كافية.
+- getUpcomingAppointmentsFromSupabase.
+- createAppointmentInSupabase.
+- updateAppointmentInSupabase.
+- deleteAppointmentInSupabase.
+
+ب. Data Gateway:
+أضف في dataGateway.ts:
+
+- gwGetAppointments.
+- gwGetUpcomingAppointments.
+- gwCreateAppointment.
+- gwUpdateAppointment.
+- gwDeleteAppointment.
+
+ج. Hooks:
+أضف أو حدّث hooks في useGatewayData أو المكان المناسب:
+
+- useGatewayAppointments.
+- useGatewayUpcomingAppointments.
+- mutations للـ create/update/delete إن كان النمط موجوداً.
+
+د. CalendarPage:
+- القراءة عبر Gateway.
+- create/edit/delete عبر Gateway.
+- لا تكسر ConfirmDialog.
+- لا تكسر toast.
+- لا تكسر reload behavior.
+
+هـ. HomePage:
+- upcoming appointments عبر Gateway إذا كان آمناً.
+- يجب أن يرى نفس بيانات CalendarPage في mode=supabase.
+
+و. السلوك حسب mode:
+- api: API.
+- supabase_shadow: API.
+- supabase: Supabase.
+
+ز. Write behavior:
+- لا fallback صامت إلى API عند mode=supabase.
+- إذا فشل Supabase write، اعرض خطأ واضح.
+- لا تكتب API وSupabase معاً.
+
+==================================================
+6. اختبارات إلزامية
+==================================================
+
+اختبر:
+
+أ. mode=api:
+1. CalendarPage يعرض 2 موعد من API.
+2. إضافة موعد تعمل عبر API.
+3. تعديل موعد يعمل عبر API.
+4. حذف موعد يعمل عبر API.
+5. HomePage upcoming يعرض المواعيد كما كان.
+6. لا كسر.
+
+ب. mode=supabase_shadow:
+1. CalendarPage يعرض API.
+2. كل write عبر API.
+3. لا كتابة إلى Supabase.
+4. لا كسر.
+
+ج. mode=supabase:
+1. CalendarPage يعرض 2 موعد من Supabase.
+2. إضافة موعد تكتب Supabase.
+3. تعديل موعد يكتب Supabase.
+4. حذف موعد يكتب Supabase.
+5. HomePage upcoming يعكس Supabase.
+6. لا fallback صامت إلى API في write.
+7. RLS يعمل.
+8. user_id صحيح.
+9. legacy_id/id strategy لا تكسر الواجهة.
+10. لا duplicates.
+
+اختبر الصفحات:
+- الرئيسية
+- التقويم
+- المال
+- ستوري اليوم
+- الإشعارات
+- المراكز
+- مركز الأخبار
+- مركز الوظائف
+- حسابي
+- /admin
+- /admin/data-layer
+- الصفحات القانونية
+- 404
+
+==================================================
+7. أوامر الفحص
+==================================================
+
+شغّل:
+- pnpm build أو npm run build
+- pnpm typecheck أو npm run typecheck إن وجد
+
+وافحص:
+- service_role
+- SUPABASE_SERVICE_ROLE
+- hardcoded Supabase keys
+- hardcoded passwords
+- DROP
+- TRUNCATE
+- DELETE غير مقصود
+- أي لمس غير مقصود لـ financial_events
+
+إذا lint/test غير موجود:
+اذكر أنه غير متوفر ولا تدّع تشغيله.
+
+==================================================
+8. تحديث التوثيق
+==================================================
+
+حدّث:
+- QA_REPORT.md
+- DATA_SOURCE_MAP.md
+- SUPABASE_MIGRATION_PLAN.md
+- SUPABASE_MIGRATION_CHECKLIST.md
+- ARCHITECTURE.md
+- README.md إن لزم
+
+وثّق:
+- أن Calendar appointments CRUD أصبح Gateway.
+- أن HomePage upcoming يستخدم Gateway إن تم.
+- أن default لا يزال api.
+- أن mode=supabase يكتب appointments إلى Supabase.
+- أن Finance لم يتحول.
+- استراتيجية id/legacy_id عند create.
+- أي divergence risk متبقٍ.
+- أن Phase 12O مخصصة لـ Finance.
+
+==================================================
+9. معيار قبول المرحلة
+==================================================
+
+تقبل Phase 12N فقط إذا تحقق:
+
+- CalendarPage appointments read يستخدم Gateway.
+- CalendarPage create/update/delete يستخدم Gateway.
+- HomePage upcoming appointments يستخدم Gateway أو موثق سبب عدم تحويله.
+- mode=api يعمل.
+- mode=supabase_shadow يعمل.
+- mode=supabase يعمل لـ appointments قراءة وكتابة.
+- لا fallback صامت في write عند mode=supabase.
+- Finance لم يُلمس.
+- API لم يُحذف.
+- PostgreSQL لم يُحذف.
+- لا بيانات SQL جديدة.
+- لا DROP/TRUNCATE/DELETE غير مقصود.
+- لا service_role.
+- لا أسرار hardcoded.
+- Supabase Auth و/admin سليمان.
+- كل الصفحات سليمة.
+- build ناجح.
+- typecheck ناجح.
+- QA_REPORT محدث.
+
+الحكم النهائي:
+Calendar Appointments Gateway Ready / Partial Calendar Cutover / Needs Calendar Gateway Fix / Needs Fixes
+
+==================================================
+10. التقرير النهائي المطلوب
+==================================================
+
+أعطني تقريراً بهذا الشكل فقط:
+
+1. هل تم تدقيق appointment id/legacy_id strategy؟
+2. ما القرار عند إنشاء appointment جديد في Supabase؟
+3. هل CalendarPage read أصبح Gateway؟
+4. هل CalendarPage add/edit/delete أصبح Gateway؟
+5. هل HomePage upcoming appointments أصبح Gateway؟
+6. هل mode=api يعمل؟
+7. هل mode=supabase_shadow يعمل؟
+8. هل mode=supabase يعمل لـ appointments؟
+9. هل إضافة موعد في mode=supabase تكتب Supabase؟
+10. هل تعديل موعد في mode=supabase يكتب Supabase؟
+11. هل حذف موعد في mode=supabase يكتب Supabase؟
+12. هل يوجد fallback صامت إلى API في write عند mode=supabase؟
+13. هل تم لمس FinancePage أو financial_events؟
+14. هل API endpoints ما زالت موجودة؟
+15. هل PostgreSQL ما زال موجوداً؟
+16. هل يوجد service_role في الواجهة؟
+17. هل توجد أسرار hardcoded؟
+18. هل يوجد DROP/TRUNCATE/DELETE غير مقصود؟
+19. هل Supabase Auth و/admin بقيا سليمين؟
+20. هل الصفحات السابقة سليمة؟
+21. هل build نجح؟ اذكر النتيجة صراحة.
+22. هل typecheck نجح؟ اذكر النتيجة صراحة.
+23. هل QA_REPORT تم تحديثه؟
+24. القيود المتبقية.
+25. الحكم النهائي:
+Calendar Appointments Gateway Ready / Partial Calendar Cutover / Needs Calendar Gateway Fix / Needs Fixes

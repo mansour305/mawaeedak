@@ -1,0 +1,19 @@
+{
+  "name": "مواعيدك",
+  "short_name": "مواعيدك",
+  "description": "منصة مواعيدك - كل موعد له وقته",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f0e8",
+  "theme_color": "#9c6a1a",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

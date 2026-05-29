@@ -1,0 +1,367 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 12P
+Final Gateway Coverage Audit + Data Source Consistency Gate
+
+الدور:
+تصرف كفريق Data Layer Architect + Supabase Engineer + QA Lead + Security Reviewer + Release Auditor.
+مهمتك الآن ليست إضافة ميزات جديدة، وليست تحويل نطاقات جديدة كبيرة، وليست حذف API، وليست إعلان Production Ready.
+مهمتك تدقيق نهائي لتغطية Gateway بعد Phase 12O، وحل أي تناقض في التوثيق أو الكود، والتأكد أن حالة Data Layer صحيحة قبل الانتقال إلى Production Hardening Gate.
+
+==================================================
+0. السياق الحالي
+==================================================
+
+تم اعتماد المراحل التالية:
+- 12A Documentation
+- 12B Schema Alignment
+- 12C Admin Seed
+- 12D User Core Seed
+- 12E Support Seed
+- 12F Supabase Adapter
+- 12G Data Gateway + Admin Panel
+- 12H Frontend Read Gateway
+- 12I Partial Write Gateway
+- 12J NotificationsPage Gateway Consistency
+- 12K Notification System Full Consistency
+- 12L Admin News/Jobs CRUD Gateway
+- 12M Admin Content CRUD Gateway
+- 12N Calendar Appointments Gateway
+- 12O Finance Events Gateway
+
+Supabase يحتوي 40 صفاً:
+- daily_messages = 8
+- story_templates = 2
+- themes = 10
+- news = 2
+- jobs = 2
+- appointments = 2
+- financial_events = 8
+- notifications = 3
+- complaints = 3
+
+آخر تقرير Phase 12O ذكر تعارضاً:
+- قال إن NotificationsPage mark-read + delete ما زالت Orval/API
+لكن Phase 12J و12K اعتمدتا أن NotificationsPage وTopBar وAdminNotifications أصبحت Gateway في نطاق الإشعارات.
+
+المطلوب الآن تدقيق الحقيقة من الكود والتوثيق.
+
+==================================================
+1. الهدف التنفيذي
+==================================================
+
+نفّذ تدقيقاً نهائياً لتغطية Gateway وData Source Consistency.
+
+المطلوب:
+1. افحص كل الصفحات المهمة.
+2. افحص كل hooks المستخدمة.
+3. افحص dataGateway.ts.
+4. افحص supabaseData.ts.
+5. افحص useGatewayData.ts.
+6. افحص dataSourceMode.ts.
+7. افحص كل استخدامات Orval المتبقية.
+8. صنّف كل Orval usage:
+   - مقصود ومقبول
+   - يحتاج Phase لاحقة
+   - خطأ يجب إصلاحه الآن
+9. افحص التناقض حول NotificationsPage.
+10. صحّح QA_REPORT والوثائق حسب الحقيقة.
+11. لا تحذف API.
+12. لا تحذف PostgreSQL.
+13. لا تضغط Publish.
+14. لا تدّع Production Ready.
+
+==================================================
+2. الصفحات المطلوب تدقيقها
+==================================================
+
+افحص تحديداً:
+
+User-facing:
+- HomePage
+- CalendarPage
+- FinancePage
+- StoryPage
+- NotificationsPage
+- CentersNewsPage
+- CentersJobsPage
+- AccountPage
+- Centers/Support/Complaints إن وجدت
+
+Admin:
+- AdminLayout
+- AdminDataLayer
+- AdminNotifications
+- AdminNewsJobs
+- AdminThemes
+- AdminStory
+- AdminMessages
+- Admin finance/events إن وجد
+- Admin reports/audit إن وجد
+
+Shared:
+- TopBar
+- BottomNav إن له بيانات
+- Theme provider / useTheme
+- Auth layer
+
+==================================================
+3. النتيجة المطلوبة لكل نطاق
+==================================================
+
+أنشئ جدول تغطية نهائي يوضح:
+
+لكل نطاق:
+1. الصفحة أو المكون.
+2. القراءة من أين في mode=api.
+3. القراءة من أين في mode=supabase_shadow.
+4. القراءة من أين في mode=supabase.
+5. الكتابة من أين في mode=api.
+6. الكتابة من أين في mode=supabase_shadow.
+7. الكتابة من أين في mode=supabase.
+8. هل يوجد fallback.
+9. هل يوجد divergence risk.
+10. الحكم:
+   - Gateway Complete
+   - Gateway Read Only
+   - API Intentionally
+   - Needs Later Phase
+   - Needs Fix
+
+النطاقات:
+- daily_messages
+- story_templates
+- themes
+- news
+- jobs
+- appointments
+- financial_events
+- notifications
+- complaints
+- auth/admin
+- audit_logs
+- public_events
+- prayer times
+- calculators
+- localStorage-only features
+
+==================================================
+4. تدقيق Orval المتبقي
+==================================================
+
+ابحث عن كل استخدامات Orval hooks أو API clients.
+
+صنّفها:
+1. Mutations ما زالت API عمداً.
+2. Endpoints محسوبة server-side ولا يوجد بديل Supabase.
+3. Auth/admin لا علاقة لها بـ Orval.
+4. بقايا قديمة يجب إصلاحها.
+
+مهم جداً:
+- إذا وجدت NotificationsPage لا تزال تستخدم Orval للقراءة أو mark-read أو delete، أصلحها أو اذكر أن التقرير السابق خطأ.
+- إذا وجدت TopBar count لا يزال Orval، أصلحه أو اذكر السبب.
+- إذا وجدت AdminNotifications read/delete لا يزال Orval رغم Phase 12K، أصلحه أو اذكر السبب.
+- لا تحول send notification إذا بقي API عمداً بسبب fan-out.
+
+==================================================
+5. mode behavior verification
+==================================================
+
+تحقق من dataSourceMode:
+
+1. default = api.
+2. VITE_DATA_SOURCE_MODE=api يعمل.
+3. VITE_DATA_SOURCE_MODE=supabase_shadow يعمل.
+4. VITE_DATA_SOURCE_MODE=supabase يعمل.
+5. أي قيمة غير صحيحة ترجع api.
+6. لا تجعل supabase default.
+
+==================================================
+6. اختبارات counts
+==================================================
+
+تحقق من counts في mode=supabase أو عبر shadow comparison:
+
+- daily_messages = 8
+- story_templates = 2
+- themes = 10
+- news = 2
+- jobs = 2
+- appointments = 2
+- financial_events = 8
+- notifications = 3
+- complaints = 3
+- total = 40
+
+==================================================
+7. الممنوعات الصارمة
+==================================================
+
+ممنوع:
+- لا تحذف API.
+- لا تحذف PostgreSQL.
+- لا تضغط Publish.
+- لا تستخدم service_role في الواجهة.
+- لا تضع أسرار في الكود.
+- لا تستخدم DROP/TRUNCATE/DELETE.
+- لا تنقل بيانات جديدة عبر SQL.
+- لا تجعل Supabase default.
+- لا تدّع Production Ready.
+- لا تنفذ تحويلات كبيرة جديدة خارج إصلاح تناقض واضح.
+- لا تكسر أي صفحة.
+
+==================================================
+8. الإصلاحات المسموحة
+==================================================
+
+مسموح فقط:
+1. إصلاح توثيق خاطئ.
+2. إصلاح import/cache/invalidation بسيط.
+3. إصلاح بقايا Orval غير مقصودة في نطاق سبق اعتماده.
+4. إضافة جدول coverage report.
+5. تحديث QA_REPORT والوثائق.
+
+غير مسموح:
+- تحويل نطاق جديد كبير.
+- حذف ملفات API.
+- تحويل audit_logs.
+- تحويل send notification fan-out.
+- تحويل features محلية localStorage.
+
+==================================================
+9. الاختبارات الإلزامية
+==================================================
+
+اختبر:
+- HomePage
+- CalendarPage
+- FinancePage
+- StoryPage
+- NotificationsPage
+- CentersNewsPage
+- CentersJobsPage
+- AccountPage
+- /admin
+- /admin/data-layer
+- /admin/notifications
+- /admin/news/jobs
+- /admin/themes
+- /admin/story
+- /admin/messages
+- الصفحات القانونية
+- 404
+
+تحقق:
+- لا شاشة بيضاء.
+- لا API 500.
+- لا كسر RTL.
+- لا كسر Theme Engine.
+- Supabase Auth يعمل.
+- /admin محمي.
+- hrq@hotmail.com super_admin.
+
+==================================================
+10. أوامر الفحص
+==================================================
+
+شغّل:
+- pnpm build أو npm run build
+- pnpm typecheck أو npm run typecheck إن وجد
+
+وافحص:
+- service_role
+- SUPABASE_SERVICE_ROLE
+- hardcoded Supabase keys
+- hardcoded passwords
+- DROP
+- TRUNCATE
+- destructive DELETE غير مقصود
+- أي استخدام Orval غير مصنف
+
+إذا lint/test غير موجود:
+اذكر أنه غير متوفر ولا تدّع تشغيله.
+
+==================================================
+11. تحديث التوثيق
+==================================================
+
+حدّث:
+- QA_REPORT.md
+- DATA_SOURCE_MAP.md
+- SUPABASE_MIGRATION_PLAN.md
+- SUPABASE_MIGRATION_CHECKLIST.md
+- ARCHITECTURE.md
+- README.md إن لزم
+- replit.md إن كان يستخدم كـ project memory
+
+أضف:
+- Final Gateway Coverage Matrix
+- Remaining API Usage Matrix
+- Production blockers
+- Next phase recommendation
+
+==================================================
+12. معيار قبول المرحلة
+==================================================
+
+تقبل Phase 12P فقط إذا تحقق:
+
+- التناقض حول NotificationsPage تم حسمه.
+- Final Gateway Coverage Matrix موجود.
+- Remaining Orval/API usage مصنف.
+- mode=api يعمل.
+- mode=supabase_shadow يعمل.
+- mode=supabase يعمل.
+- counts total = 40.
+- لا نطاق Gateway سابق مكسور.
+- API لم يُحذف.
+- PostgreSQL لم يُحذف.
+- لا بيانات جديدة نُقلت.
+- لا DROP/TRUNCATE/DELETE غير مقصود.
+- لا service_role.
+- لا أسرار hardcoded.
+- Supabase Auth و/admin سليمان.
+- كل الصفحات سليمة.
+- build ناجح.
+- typecheck ناجح.
+- QA_REPORT محدث.
+
+الحكم النهائي:
+Final Gateway Coverage Verified / Needs Coverage Fix / Needs Documentation Fix / Needs Fixes
+
+==================================================
+13. التقرير النهائي المطلوب
+==================================================
+
+أعطني تقريراً بهذا الشكل فقط:
+
+1. هل تم حسم تعارض NotificationsPage؟
+2. ما الحقيقة النهائية لـ NotificationsPage read/mark/delete؟
+3. هل TopBar unread count Gateway؟
+4. هل AdminNotifications read/delete Gateway؟
+5. هل AdminNotifications send بقي API عمداً؟
+6. هل Final Gateway Coverage Matrix أُنشئ؟
+7. ما النطاقات Gateway Complete؟
+8. ما النطاقات Gateway Read Only؟
+9. ما النطاقات التي بقيت API عمداً؟
+10. هل توجد Orval usages غير مصنفة؟
+11. هل mode=api يعمل؟
+12. هل mode=supabase_shadow يعمل؟
+13. هل mode=supabase يعمل؟
+14. هل counts total = 40؟
+15. هل API endpoints ما زالت موجودة؟
+16. هل PostgreSQL ما زال موجوداً؟
+17. هل تم نقل أي بيانات جديدة؟
+18. هل يوجد DROP/TRUNCATE/DELETE غير مقصود؟
+19. هل يوجد service_role في الواجهة؟
+20. هل توجد أسرار hardcoded؟
+21. هل Supabase Auth و/admin بقيا سليمين؟
+22. هل الصفحات السابقة سليمة؟
+23. هل build نجح؟ اذكر النتيجة صراحة.
+24. هل typecheck نجح؟ اذكر النتيجة صراحة.
+25. هل QA_REPORT تم تحديثه؟
+26. القيود المتبقية.
+27. ما المرحلة التالية المقترحة؟
+28. الحكم النهائي:
+Final Gateway Coverage Verified / Needs Coverage Fix / Needs Documentation Fix / Needs Fixes

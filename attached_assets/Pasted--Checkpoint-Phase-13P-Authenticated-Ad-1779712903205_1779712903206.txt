@@ -1,0 +1,158 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 13P
+Authenticated Admin + Calculators Screenshot Completion Gate
+
+الحكم:
+Phase 13O غير مكتملة بصرياً لأن بعض الصور غير مثبتة:
+- Smart Calculators لم تؤخذ صورة بعد فتح التبويب.
+- Admin Dashboard لم تؤخذ صورة بعد تسجيل الدخول.
+- Admin Automation لم تؤخذ صورة بعد تسجيل الدخول.
+- Admin Visual Guide لم تؤخذ صورة بعد تسجيل الدخول.
+- بطاقة الستوري/المشاركة تحتاج تأكيد ظهور شعار مواعيدك والحقوق.
+
+ممنوع:
+- لا تغيّر Supabase.
+- لا تغيّر Auth.
+- لا تغيّر RLS.
+- لا تغيّر Data Gateway.
+- لا تغيّر Automation.
+- لا تغيّر التصميم إلا لإصلاح نقص بصري واضح في الصفحات المطلوبة.
+- لا تضغط Publish.
+- لا تكتب Ready to Publish.
+- لا تكتب Reference Design Matched.
+- الحكم النهائي يبقى Pending Owner Visual Approval.
+
+==================================================
+1. المطلوب
+==================================================
+
+أكمل Screenshot Package الناقص فقط.
+
+يجب تجهيز صور Preview فعلية لهذه الصفحات:
+
+1. Smart Calculators
+- افتح /finance
+- اضغط تبويب "الحاسبات"
+- خذ Screenshot واضح للتبويب بعد الفتح
+- يجب أن يظهر تصميم الحاسبات الفعلي، وليس فقط زر التبويب
+
+2. Admin Dashboard
+- سجّل الدخول في /admin بحساب المالك
+- افتح Dashboard بعد الدخول
+- خذ Screenshot واضح
+- يجب أن يظهر:
+  - sidebar
+  - شعار مواعيدك
+  - stat cards
+  - activity list
+  - الهوية التراثية
+
+3. Admin Automation
+- بعد تسجيل الدخول
+- افتح /admin/automation
+- خذ Screenshot واضح
+- يجب أن يظهر:
+  - daily automation
+  - notification scheduler
+  - logs/status
+  - timezone note
+  - الهوية التراثية
+
+4. Admin Visual Guide
+- بعد تسجيل الدخول
+- افتح /admin/visual-guide
+- خذ Screenshot واضح
+- يجب أن يظهر:
+  - colors
+  - typography
+  - cards
+  - buttons
+  - icons
+  - logo/emblem
+  - visual tokens
+
+5. Story Share / Daily Generated Card
+- افتح StoryPage
+- اعرض بطاقة المشاركة/التصدير أو preview اليومي
+- تأكد أن البطاقة تحتوي:
+  - شعار مواعيدك
+  - عبارة "مواعيدك"
+  - ويفضل "مواعيدك — جميع الحقوق محفوظة"
+- إذا النص الكامل غير موجود، أضفه في بطاقة المشاركة/الصورة اليومية فقط، بدون إزعاج واجهة المستخدم.
+
+==================================================
+2. إذا تعذر تسجيل الدخول
+==================================================
+
+إذا لم تستطع الدخول لأن كلمة مرور المالك غير متاحة:
+لا تدّع أن الصورة جاهزة.
+
+اكتب:
+Needs Owner Admin Login Screenshots
+
+ولا تعتبر المرحلة مكتملة.
+
+==================================================
+3. الاختبارات
+==================================================
+
+شغّل:
+- build
+- typecheck
+
+وافحص:
+- لا API 500
+- لا شاشة بيضاء
+- لا service_role
+- لا hardcoded secrets
+- Supabase/Auth/Data Gateway سليمة
+- Automation/Location سليمة
+- RTL سليم
+- mobile layout سليم
+
+==================================================
+4. تحديث QA
+==================================================
+
+حدّث:
+- QA_REPORT.md
+- replit.md
+
+أضف:
+- Phase 13P
+- صور/حالة Smart Calculators
+- صور/حالة Admin Dashboard
+- صور/حالة Admin Automation
+- صور/حالة Admin Visual Guide
+- حالة شعار وحقوق بطاقة المشاركة
+
+==================================================
+5. التقرير النهائي المطلوب
+==================================================
+
+أعطني التقرير بهذا الشكل فقط:
+
+1. هل Smart Calculators screenshot جاهز بعد فتح التبويب؟
+2. هل Admin Dashboard screenshot جاهز بعد تسجيل الدخول؟
+3. هل Admin Automation screenshot جاهز بعد تسجيل الدخول؟
+4. هل Admin Visual Guide screenshot جاهز بعد تسجيل الدخول؟
+5. هل Story share/generated card تحتوي شعار مواعيدك؟
+6. هل تحتوي حقوق مواعيدك في بطاقة المشاركة أو الصورة اليومية؟
+7. هل Admin pages متناسقة بصرياً مع المرجع؟
+8. هل Supabase/Auth/Data Gateway سليمة؟
+9. هل Automation/Location سليمة؟
+10. هل build نجح؟
+11. هل typecheck نجح؟
+12. هل توجد API 500؟
+13. هل توجد شاشة بيضاء؟
+14. هل QA_REPORT تم تحديثه؟
+15. النواقص المتبقية، إن وجدت.
+16. الحكم النهائي:
+Pending Owner Visual Approval
+أو
+Needs Owner Admin Login Screenshots
+
+ممنوع استخدام أي حكم آخر.
+ممنوع اقتراح Publish.

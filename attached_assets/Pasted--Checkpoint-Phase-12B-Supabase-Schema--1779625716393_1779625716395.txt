@@ -1,0 +1,278 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 12B
+Supabase Schema Alignment + Ownership Strategy Gate
+
+الدور:
+تصرف كفريق Database Architect + Supabase Engineer + Data Migration Auditor + Security Reviewer.
+مهمتك الآن ليست نقل البيانات، وليست تغيير واجهات المستخدم، وليست تغيير مصدر الحقيقة.
+مهمتك فقط إصلاح وتجهيز مخطط Supabase ليكون صالحاً لنقل البيانات لاحقاً بأمان، خصوصاً مشكلة user_id ومشكلة serial vs uuid.
+
+==================================================
+0. السياق الحالي
+==================================================
+
+المشروع وصل إلى:
+Full Supabase Connected Preview
+
+تم اعتماد Phase 12A:
+- DATA_SOURCE_MAP.md موجود.
+- SUPABASE_MIGRATION_PLAN.md موجود.
+- SUPABASE_MIGRATION_CHECKLIST.md موجود.
+- مصادر البيانات الحالية موثقة.
+- PostgreSQL الحالي هو مصدر الحقيقة التشغيلي.
+- Supabase Auth و/admin يعملان.
+- Supabase tables موجودة لكنها فارغة غالباً.
+- لم يتم تنفيذ أي migration فعلي.
+
+نتيجة Phase 12A:
+- admin-managed data جاهزة للنقل لاحقاً.
+- user-owned data تحتاج Schema Fix أولاً.
+
+المشاكل الحرجة:
+1. Drizzle الحالي يستخدم serial integer.
+2. Supabase يستخدم uuid.
+3. جداول شخصية لا تحتوي user_id في المصدر الحالي.
+4. يجب عدم نقل البيانات قبل حل ownership وid mapping.
+
+==================================================
+1. الهدف التنفيذي
+==================================================
+
+جهّز Supabase schema للـ migration القادم بدون نقل بيانات الآن.
+
+المطلوب:
+1. راجع DATA_SOURCE_MAP.md.
+2. راجع SUPABASE_MIGRATION_PLAN.md.
+3. راجع SUPABASE_SCHEMA.sql.
+4. راجع الجداول الحالية في Supabase.
+5. حدد الجداول التي تحتاج user_id:
+   - appointments
+   - financial_events
+   - notifications
+   - complaints
+6. حدد الجداول التي تحتاج legacy_id لحفظ mapping من PostgreSQL serial id:
+   - appointments
+   - financial_events
+   - notifications
+   - complaints
+   - daily_messages
+   - story_templates
+   - themes
+   - news
+   - jobs
+   - public_events
+   - audit_logs
+7. أنشئ SQL غير تدميري لإضافة الأعمدة الناقصة فقط.
+8. لا تنفذ نقل بيانات فعلي.
+9. لا تغيّر مصدر الحقيقة.
+10. لا تكسر RLS.
+11. لا تستخدم service_role في الواجهة.
+12. حدّث التوثيق والـ QA.
+
+==================================================
+2. خارج النطاق
+==================================================
+
+هذه المرحلة ليست:
+- تشغيل migration فعلي.
+- نقل daily_messages.
+- نقل themes.
+- نقل appointments.
+- نقل financial_events.
+- تحويل Data Layer إلى Supabase.
+- حذف PostgreSQL.
+- DROP/TRUNCATE.
+- Publish.
+- Production Ready.
+- Firebase.
+- Offline.
+- تغيير UI.
+
+==================================================
+3. ممنوعات صارمة
+==================================================
+
+ممنوع:
+- لا تنقل أي بيانات الآن.
+- لا تستخدم DROP.
+- لا تستخدم TRUNCATE.
+- لا تمسح أي جدول.
+- لا تغيّر مصدر الحقيقة.
+- لا تكسر API الحالي.
+- لا تغير hooks الحالية.
+- لا تستخدم service_role في الواجهة.
+- لا تضع أسرار في الكود.
+- لا تدّع Production Ready.
+- لا تدّع أن Supabase أصبح مصدر الحقيقة للبيانات التشغيلية.
+- لا تضغط Publish.
+
+==================================================
+4. القرار المعماري المطلوب
+==================================================
+
+اعتمد القرار التالي ما لم يظهر مانع تقني واضح:
+
+1. Supabase يستخدم uuid كـ primary id مستقبلياً.
+2. نحافظ على id القديم من PostgreSQL داخل عمود:
+   legacy_id integer
+3. الجداول الشخصية تأخذ:
+   user_id uuid references auth.users(id)
+4. بيانات المستخدم القديمة عند migration ستُربط مؤقتاً بـ user_id للمالك:
+   hrq@hotmail.com
+   أو بخطة owner assignment موثقة.
+5. admin-managed tables لا تحتاج user_id، لكن تحتاج legacy_id عند النقل.
+6. لا يتم تغيير Drizzle schema الحالي في هذه المرحلة إلا إذا كان توثيقياً أو غير مؤثر.
+7. Data Layer الحالي يبقى كما هو.
+
+==================================================
+5. الملفات المطلوب إنشاؤها أو تحديثها
+==================================================
+
+أنشئ:
+
+1. SUPABASE_SCHEMA_ALIGNMENT.sql
+   يحتوي فقط على ALTER TABLE ... ADD COLUMN IF NOT EXISTS
+   ولا يحتوي DROP/TRUNCATE.
+
+2. SUPABASE_ID_MAPPING_STRATEGY.md
+   يشرح:
+   - لماذا uuid في Supabase.
+   - لماذا legacy_id.
+   - كيف نربط serial القديم بالuuid الجديد.
+   - كيف نعالج user_id.
+   - خطة rollback.
+
+حدّث:
+3. DATA_SOURCE_MAP.md
+4. SUPABASE_MIGRATION_PLAN.md
+5. SUPABASE_MIGRATION_CHECKLIST.md
+6. QA_REPORT.md
+
+==================================================
+6. متطلبات SQL
+==================================================
+
+في SUPABASE_SCHEMA_ALIGNMENT.sql:
+
+أضف للجداول الشخصية إن لم تكن موجودة:
+- user_id uuid references auth.users(id)
+- legacy_id integer
+- migrated_at timestamptz
+- migration_batch text
+
+الجداول الشخصية:
+- appointments
+- financial_events
+- notifications
+- complaints
+
+أضف legacy_id/migration metadata للجداول admin-managed عند الحاجة:
+- daily_messages
+- story_templates
+- themes
+- news
+- jobs
+- public_events
+- audit_logs
+
+أضف indexes غير مدمرة:
+- index على user_id
+- index على legacy_id
+- unique جزئي أو عادي على legacy_id إذا آمن
+إذا كان unique على legacy_id قد يكسر بسبب null أو تكرار مستقبلي، استخدم index عادي ووثق السبب.
+
+ممنوع:
+- DROP COLUMN
+- DROP TABLE
+- TRUNCATE
+- DELETE
+- UPDATE بيانات فعلية
+- INSERT seed data في هذه المرحلة
+
+==================================================
+7. RLS
+==================================================
+
+راجع RLS بعد إضافة user_id.
+
+المطلوب:
+1. تأكد أن الجداول الشخصية لديها سياسات user-owned مناسبة.
+2. إذا تحتاج سياسات إضافية، أنشئ:
+   RLS_OWNERSHIP_ALIGNMENT.sql
+
+يجب أن تكون غير تدميرية، ولا تكسر السياسات الحالية.
+
+إذا كانت RLS الحالية كافية، وثق ذلك ولا تضف سياسات غير لازمة.
+
+==================================================
+8. الاختبارات الإلزامية
+==================================================
+
+بعد إنشاء الملفات والتوثيق:
+
+1. لا تشغّل migration فعلي.
+2. شغّل build.
+3. شغّل typecheck.
+4. افتح Preview.
+5. تحقق أن الرئيسية تعمل.
+6. تحقق أن التقويم يعمل.
+7. تحقق أن المال يعمل.
+8. تحقق أن ستوري اليوم يعمل.
+9. تحقق أن الإشعارات تعمل.
+10. تحقق أن المراكز تعمل.
+11. تحقق أن حسابي يعمل.
+12. تحقق أن /admin يعمل.
+13. تحقق أن Supabase Auth ما زال يعمل.
+14. تحقق أنه لا API 500.
+15. تحقق أنه لا صفحات مكسورة.
+16. افحص service_role.
+17. افحص hardcoded secrets.
+
+==================================================
+9. معيار قبول المرحلة
+==================================================
+
+تقبل Phase 12B فقط إذا تحقق:
+
+- SUPABASE_SCHEMA_ALIGNMENT.sql موجود.
+- SQL غير تدميري.
+- لا يوجد DROP/TRUNCATE/DELETE.
+- user_id strategy موثقة.
+- legacy_id strategy موثقة.
+- UUID vs serial decision موثق.
+- RLS ownership impact موثق.
+- لا يتم نقل بيانات فعلي.
+- PostgreSQL/API الحالي لم ينكسر.
+- Supabase Auth و/admin سليمان.
+- build ناجح.
+- typecheck ناجح.
+- QA_REPORT محدث.
+- الحكم النهائي:
+Schema Alignment Ready / Needs RLS Ownership Fix / Needs Schema Fix / Needs Fixes
+
+==================================================
+10. التقرير النهائي المطلوب
+==================================================
+
+أعطني تقريراً بهذا الشكل فقط:
+
+1. هل تم إنشاء SUPABASE_SCHEMA_ALIGNMENT.sql؟
+2. هل تم إنشاء RLS_OWNERSHIP_ALIGNMENT.sql أم لم يكن ضرورياً؟
+3. هل تم إنشاء SUPABASE_ID_MAPPING_STRATEGY.md؟
+4. ما الجداول التي أُضيف لها user_id؟
+5. ما الجداول التي أُضيف لها legacy_id؟
+6. هل يوجد DROP/TRUNCATE/DELETE؟
+7. هل تم نقل أي بيانات فعلياً؟
+8. ما القرار النهائي لـ uuid vs serial؟
+9. كيف سيتم ربط بيانات المستخدم القديمة بـ user_id؟
+10. هل RLS تحتاج تعديل؟
+11. هل Supabase Auth و/admin بقيا سليمين؟
+12. هل المراحل السابقة سليمة؟
+13. هل build نجح؟ اذكر النتيجة صراحة.
+14. هل typecheck نجح؟ اذكر النتيجة صراحة.
+15. هل QA_REPORT تم تحديثه؟
+16. القيود المتبقية.
+17. الحكم النهائي:
+Schema Alignment Ready / Needs RLS Ownership Fix / Needs Schema Fix / Needs Fixes

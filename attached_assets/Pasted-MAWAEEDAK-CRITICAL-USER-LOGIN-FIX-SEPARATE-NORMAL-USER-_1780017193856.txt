@@ -1,0 +1,361 @@
+MAWAEEDAK CRITICAL USER LOGIN FIX
+SEPARATE NORMAL USER AUTH FROM OWNER/ADMIN AUTH — NO REFACTOR
+
+You are Replit Agent working inside the existing Mawaeedak project.
+
+This is a critical launch blocker.
+
+Problem observed after final verification:
+
+A normal user can register, but when trying to log in, the app shows the admin/owner permission message:
+
+"هذا الحساب لا يملك صلاحية الوصول"
+"هذا الحساب لا يملك صلاحية لوحة المالك."
+"لوحة المالك مخصصة للمالك وفريق الإدارة فقط."
+
+This means the normal user login flow is incorrectly routed through the admin/owner access gate, or the UI only exposes owner/admin login instead of regular user login.
+
+Do not refactor the whole app.
+Do not rebuild from scratch.
+Do not weaken admin protection.
+Do not remove requireAdmin.
+Do not restore localStorage admin bypass.
+Do not expose admin tools to normal users.
+Fix only the normal user authentication and routing flow.
+
+==================================================
+
+1. Required behavior
+   ==================================================
+
+There must be two clearly separated auth experiences:
+
+A. Normal User Auth
+
+Routes:
+
+* /login
+* /register
+* /forgot-password
+* /account
+
+Behavior:
+
+* Guest sees normal user login/register.
+* A normal registered user can log in successfully.
+* After normal login, redirect to /account or /.
+* Normal user must NOT be sent to /admin.
+* Normal user must NOT see the message "هذا الحساب لا يملك صلاحية لوحة المالك" after using normal login.
+* Normal user must NOT see owner/admin tools.
+* Normal user can use normal user features:
+
+  * account
+  * preferences
+  * appointments
+  * notifications
+  * user theme preference
+  * story/home/finance pages as allowed.
+
+B. Owner/Admin Auth
+
+Routes:
+
+* /admin
+* /admin/login if implemented, or admin gate inside /admin
+
+Behavior:
+
+* /admin remains protected.
+* Guest opening /admin sees admin login/access gate.
+* Normal user opening /admin may see "هذا الحساب لا يملك صلاحية لوحة المالك" because that route is admin-only.
+* Admin/super_admin can access /admin.
+* Admin API remains protected server-side.
+* Admin role must continue using trusted server-side/app_metadata logic, not localStorage.
+
+==================================================
+2. What to inspect
+==================
+
+Inspect these files and related auth/routing files:
+
+* artifacts/mawaeedak/src/App.tsx
+* artifacts/mawaeedak/src/pages/AuthPage.tsx
+* artifacts/mawaeedak/src/pages/MorePage.tsx
+* artifacts/mawaeedak/src/features/account/AccountPage.tsx
+* artifacts/mawaeedak/src/features/admin/AdminLayout.tsx
+* artifacts/mawaeedak/src/lib/auth.ts
+* artifacts/mawaeedak/src/hooks/useStore.tsx
+* artifacts/mawaeedak/src/main.tsx
+* any router/navigation/auth guard files.
+
+Find exactly why normal user login reaches admin permission handling.
+
+Possible causes to check:
+
+1. /login route renders admin login instead of user login.
+2. /login redirects to /admin after successful login.
+3. AuthPage uses admin-only sign-in handler.
+4. MorePage login button points to /admin instead of /login.
+5. AccountPage login CTA points to /admin.
+6. Auth guard treats any login as admin login.
+7. Post-login redirect is hardcoded to /admin.
+8. Supabase auth callback redirects to /admin.
+9. Role check runs admin permission check during normal login.
+10. Normal user profile role is not defaulting to user.
+11. Existing session recovery runs admin access check globally.
+12. Account page or auth store treats missing admin role as failed login.
+
+==================================================
+3. Required fix
+===============
+
+Implement the smallest safe fix so that:
+
+* Normal login route is user-facing only.
+* Admin login/access gate is admin-facing only.
+* Post-login redirect for normal users goes to /account or /.
+* Post-login redirect for admins can go to /admin only from admin flow.
+* Normal login never displays admin permission denial.
+* Admin permission denial appears only when accessing /admin or owner-only pages.
+* UI labels must distinguish:
+
+  * "تسجيل الدخول"
+  * "إنشاء حساب"
+  * "لوحة المالك" only for admins/owners.
+
+If a normal user has no admin role:
+
+* Do not show an error after normal login.
+* Allow login.
+* Redirect to user area.
+
+If a normal user tries /admin:
+
+* Show the admin-only access denial.
+
+Critical rule:
+
+Admin authorization must only run when accessing admin routes or admin APIs.
+
+Normal login must authenticate identity only.
+Normal login must not require admin role.
+Normal login must not call the admin access checker.
+Normal login must not display admin permission denial.
+
+==================================================
+4. UI copy requirements
+=======================
+
+Normal user login page must not look like owner login.
+
+Use user-facing Arabic copy:
+
+* تسجيل الدخول
+* إنشاء حساب جديد
+* نسيت كلمة المرور؟
+* دخول إلى حسابي
+* أهلاً بك في مواعيدك
+
+Do not show these on normal login:
+
+* لوحة المالك
+* دخول المالك
+* هذا الحساب لا يملك صلاحية لوحة المالك
+* مخصص للمالك وفريق الإدارة
+
+Admin-only page can use:
+
+* دخول لوحة المالك
+* هذه الصفحة مخصصة للمالك وفريق الإدارة فقط
+* هذا الحساب لا يملك صلاحية لوحة المالك
+
+==================================================
+5. Verification tests
+=====================
+
+Run these tests manually or through route smoke:
+
+1. Open /login as guest.
+   Expected:
+
+* normal user login UI appears.
+* no admin/owner wording.
+
+2. Register a normal user through /register.
+   Expected:
+
+* account created or clear success flow.
+* user role defaults to user if profile exists.
+
+3. Log in as normal user through /login.
+   Expected:
+
+* success.
+* redirect to /account or /.
+* no admin permission error.
+
+4. Open /account as normal user.
+   Expected:
+
+* account page works.
+
+5. Open /admin as normal user.
+   Expected:
+
+* access denied/admin-only message.
+
+6. Open /admin as guest.
+   Expected:
+
+* admin login/access gate.
+
+7. Confirm normal user cannot see admin links in:
+
+* Bottom navigation.
+* More menu.
+* Account page.
+* Header/mobile drawer.
+
+8. Confirm admin API still returns 401/403 without token.
+
+9. Confirm public endpoints still return 200.
+
+10. Confirm typecheck and build pass.
+
+==================================================
+5.A Real Normal User Session Verification
+=========================================
+
+Do not verify this issue by route rendering only.
+
+You must verify the actual normal user session behavior.
+
+Test or implement the following:
+
+1. Create or use a non-admin normal user account.
+2. Confirm the user has no admin/super_admin/content_manager/finance_manager role.
+3. Log in through /login.
+4. Confirm successful login does NOT trigger owner/admin access denial.
+5. Confirm post-login redirect goes to /account or /.
+6. Confirm /account loads as a normal user page.
+7. Confirm no admin/owner links appear anywhere in normal user UI.
+8. Confirm opening /admin as the same normal user shows admin-only denial.
+9. Confirm logout clears the user session UI state.
+10. Confirm after logout:
+
+    * no logout button appears for guest.
+    * login/register buttons appear.
+    * no admin tools appear.
+
+If a profile row is missing for a normal user, create/fix the profile creation flow so a new registered user defaults safely to role=user.
+
+Do not treat missing admin role as login failure.
+
+Missing admin role should only block /admin, not normal login.
+
+==================================================
+6. Commands
+===========
+
+Run available commands:
+
+* typecheck
+* build
+* route smoke for /login /register /account /admin
+* API admin protection smoke
+
+Do not claim success without running checks.
+
+If typecheck or build fails:
+
+* fix with the smallest safe change.
+* rerun the failed command.
+* document the result.
+
+==================================================
+7. Documentation
+================
+
+Update:
+
+* QA_REPORT.md
+* replit.md
+
+Add a section:
+
+CRITICAL USER LOGIN FIX
+
+Document:
+
+* root cause.
+* files changed.
+* final behavior.
+* normal user login test result.
+* normal user session test result.
+* logout UI state test result.
+* admin access test result.
+* typecheck/build results.
+* whether admin protection remained intact.
+
+Do not include passwords, tokens, or secret values.
+
+==================================================
+8. Final report
+===============
+
+Return this exact structure:
+
+1. Final Verdict:
+   PRODUCTION HANDOVER PASSED
+   or
+   NEEDS FIXES
+
+2. Root Cause:
+   Explain why normal users were seeing owner/admin permission denial.
+
+3. Fix Completed:
+   List what changed.
+
+4. User Login Verification:
+
+* /login
+* /register
+* /account
+* normal user redirect
+* normal user does not see admin error
+* normal user profile/role behavior
+* logout UI state
+
+5. Admin Verification:
+
+* /admin protected
+* normal user denied only on /admin
+* admin API 401/403 without token
+* no localStorage admin bypass
+* admin protection not weakened
+
+6. Command Results:
+
+* typecheck
+* build
+* route smoke
+* API smoke
+
+7. Modified Files:
+
+* path
+* reason
+
+8. Remaining Issues:
+
+* issue
+* severity
+* blocking/non-blocking
+* required action
+
+9. Final Launch Decision:
+   PRODUCTION HANDOVER PASSED
+   or
+   NEEDS FIXES
+
+Start now. Fix the normal user login flow without weakening owner/admin security.

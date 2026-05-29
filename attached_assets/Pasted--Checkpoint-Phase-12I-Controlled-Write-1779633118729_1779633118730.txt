@@ -1,0 +1,322 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 12I
+Controlled Write Cutover Preparation + Safe Mutations Gate
+
+الدور:
+تصرف كفريق Data Layer Architect + Supabase Engineer + Frontend Reliability Engineer + QA Lead + Security Reviewer.
+مهمتك الآن ليست تحويل كل الكتابة دفعة واحدة، وليست حذف API، وليست إعلان Production Ready.
+مهمتك تجهيز وتنفيذ Write Cutover محدود وآمن جداً لعمليات كتابة مختارة فقط، مع الحفاظ على API كـ fallback وعدم كسر أي مرحلة سابقة.
+
+==================================================
+0. السياق الحالي
+==================================================
+
+تم اعتماد Phase 12H:
+- Data Gateway موجود.
+- Supabase Data Adapter موجود.
+- Data Source Mode موجود.
+- mode=api يعمل.
+- mode=supabase_shadow يعمل.
+- mode=supabase يعمل للقراءة.
+- default = api.
+- القراءة عبر Gateway مفعلة في:
+  - CentersNewsPage عبر useGatewayNews
+  - CentersJobsPage عبر useGatewayJobs
+  - AccountPage Theme Picker عبر useGatewayThemes
+  - StoryPage templates عبر useGatewayStoryTemplates
+
+Supabase يحتوي 40 صفاً مطابقاً لـ API:
+- daily_messages = 8
+- story_templates = 2
+- themes = 10
+- news = 2
+- jobs = 2
+- appointments = 2
+- financial_events = 8
+- notifications = 3
+- complaints = 3
+
+القيد الحالي:
+- الكتابة Mutations كلها ما زالت على API.
+- CalendarPage/FinancePage/NotificationsPage/HomePage ما زالت على Orval.
+- Admin pages ما زالت على Orval.
+- mode=supabase يجب التأكد أنه يحترم env فعلاً قبل أي تحويل كتابة.
+
+==================================================
+1. الهدف التنفيذي
+==================================================
+
+نفّذ Write Cutover محدود وآمن جداً.
+
+المطلوب:
+1. تأكد أولاً أن dataSourceMode يحترم VITE_DATA_SOURCE_MODE فعلياً:
+   - api
+   - supabase_shadow
+   - supabase
+   ولا يرجع api دائماً إذا env=supabase.
+
+2. لا تغيّر default. يجب أن يبقى default = api.
+
+3. افحص جميع mutations الحالية وحددها في تقرير:
+   - calendar appointments add/edit/delete
+   - financial_events add/edit/delete
+   - notifications send/mark-read/delete
+   - daily_messages add/edit/delete/toggle
+   - story_templates add/edit/delete/toggle
+   - themes toggle/apply/admin update
+   - news add/edit/delete
+   - jobs add/edit/delete
+   - complaints/contact forms
+   - audit_logs
+
+4. لا تحوّل كل mutations دفعة واحدة.
+
+5. اختر أقل نطاق آمن لتحويل الكتابة أولاً، مع تبرير القرار.
+
+6. النطاق المقترح الأول:
+   - notifications mark-read فقط
+   أو
+   - story_templates admin CRUD إذا كان واضحاً
+   أو
+   - news/jobs admin CRUD إذا كان واضحاً
+
+7. تجنب في هذه المرحلة:
+   - appointments write
+   - financial_events write
+   لأنها مرتبطة بالرئيسية والتقويم والمال وستوري اليوم.
+
+8. عند mode=api:
+   - الكتابة تبقى API.
+
+9. عند mode=supabase_shadow:
+   - الكتابة تبقى API.
+   - لا تكتب في Supabase.
+
+10. عند mode=supabase:
+   - فقط النطاق المختار يكتب إلى Supabase.
+   - بقية mutations تبقى API.
+   - وثّق ذلك بوضوح.
+
+11. لا تحذف API.
+12. لا تحذف PostgreSQL.
+13. لا تضغط Publish.
+14. حدّث QA_REPORT والوثائق.
+
+==================================================
+2. خارج النطاق
+==================================================
+
+هذه المرحلة ليست:
+- Full Write Cutover.
+- حذف API.
+- حذف PostgreSQL.
+- تحويل Calendar/Finance الآن.
+- تحويل كل Admin CRUD دفعة واحدة.
+- Production Ready.
+- Publish.
+- Firebase.
+- Offline.
+- إعادة تصميم UI.
+
+==================================================
+3. ممنوعات صارمة
+==================================================
+
+ممنوع:
+- لا تحول كل mutations مرة واحدة.
+- لا تجعل Supabase default.
+- لا تحذف API endpoints.
+- لا تستخدم service_role في الواجهة.
+- لا تضع أسرار في الكود.
+- لا تستخدم DROP/TRUNCATE/DELETE.
+- لا تنقل بيانات جديدة خارج mutation الاختبارية المختارة.
+- لا تضغط Publish.
+- لا تدّع Production Ready.
+- لا تكسر أي صفحة.
+- لا تكسر RLS.
+- لا تكتب إلى API وSupabase معاً لنفس العملية إلا إذا كان dual-write موثقاً ومقصوداً ومؤقتاً، والأفضل تجنبه الآن.
+
+==================================================
+4. بروتوكول التشخيص قبل التنفيذ
+==================================================
+
+قبل أي تعديل:
+
+1. افحص dataSourceMode.ts وتأكد عملياً أنه يقرأ env عند ضبط VITE_DATA_SOURCE_MODE.
+2. افحص dataGateway.ts.
+3. افحص supabaseData.ts.
+4. افحص كل mutations في المشروع.
+5. صنّف mutations حسب الخطورة:
+   - Low risk
+   - Medium risk
+   - High risk
+
+6. حدّد النطاق الأول للتحويل.
+7. وثّق سبب اختياره.
+8. افحص RLS لذلك الجدول.
+9. افحص هل المستخدم current session يملك صلاحية الكتابة.
+10. افحص هل shape البيانات مناسب.
+11. افحص fallback behavior.
+12. لا تبدأ التنفيذ قبل اكتمال التشخيص.
+
+==================================================
+5. سياسة التنفيذ
+==================================================
+
+نفذ بأقل تغيير آمن:
+
+1. أضف write functions في Supabase adapter فقط للنطاق المختار.
+2. أضف gateway mutation function فقط للنطاق المختار.
+3. اربط صفحة واحدة أو flow واحد فقط إذا كان آمناً.
+4. mode=api:
+   يستخدم API.
+5. mode=supabase_shadow:
+   يستخدم API.
+6. mode=supabase:
+   يستخدم Supabase للنطاق المختار فقط.
+7. عند فشل Supabase write:
+   - لا تنفذ fallback صامت إلى API إذا كان ذلك يسبب divergence.
+   - اعرض خطأ واضح أو وثق القرار.
+8. لا تغيّر بقية mutations.
+
+==================================================
+6. النطاقات المسموحة للتحويل الأول
+==================================================
+
+اختر واحداً فقط:
+
+A. notifications mark-read
+- منخفض الخطورة.
+- يمكن اختباره بسهولة.
+- لا يؤثر على المال أو التقويم.
+
+B. news/jobs admin CRUD
+- مناسب لأنه admin-managed.
+- يحتاج صلاحيات admin.
+- يجب اختبار add/edit/delete بعناية.
+
+C. story_templates admin toggle فقط
+- نطاق صغير.
+- يؤثر على StoryPage.
+- يحتاج اختبار active/inactive.
+
+لا تختر appointments أو financial_events في هذه المرحلة إلا إذا بررت ذلك بقوة، والأصل ممنوع.
+
+==================================================
+7. الاختبارات الإلزامية
+==================================================
+
+اختبر:
+
+1. mode=api:
+   - النطاق المختار لا يزال يكتب عبر API.
+   - لا كسر.
+
+2. mode=supabase_shadow:
+   - لا write إلى Supabase.
+   - لا كسر.
+
+3. mode=supabase:
+   - النطاق المختار يكتب إلى Supabase.
+   - تحقق من تغير الصف في Supabase.
+   - تحقق من RLS.
+   - تحقق من عدم وجود duplicate.
+   - تحقق من عدم كسر API.
+
+4. افتح:
+   - الرئيسية
+   - التقويم
+   - المال
+   - ستوري اليوم
+   - الإشعارات
+   - المراكز
+   - حسابي
+   - /admin
+   - /admin/data-layer
+   - الصفحات القانونية
+   - 404
+
+5. شغّل build.
+6. شغّل typecheck.
+7. افحص service_role.
+8. افحص hardcoded secrets.
+9. افحص DROP/TRUNCATE/DELETE.
+
+==================================================
+8. تحديث التوثيق
+==================================================
+
+حدّث:
+- QA_REPORT.md
+- DATA_SOURCE_MAP.md
+- SUPABASE_MIGRATION_PLAN.md
+- SUPABASE_MIGRATION_CHECKLIST.md
+- ARCHITECTURE.md
+- README.md إن لزم
+
+وثّق:
+- feature flag behavior.
+- النطاق الذي تم تحويل كتابته.
+- ما بقي على API.
+- هل يوجد divergence risk.
+- هل المرحلة Read+Partial Write فقط.
+- القيود المتبقية.
+
+==================================================
+9. معيار قبول المرحلة
+==================================================
+
+تقبل Phase 12I فقط إذا تحقق:
+
+- dataSourceMode يقرأ env فعلياً.
+- default = api.
+- mutation inventory موثق.
+- تم اختيار نطاق واحد منخفض المخاطر.
+- mode=api يعمل.
+- mode=supabase_shadow يعمل.
+- mode=supabase يكتب للنطاق المختار فقط.
+- لا API حذف.
+- لا PostgreSQL حذف.
+- لا service_role.
+- لا أسرار.
+- لا DROP/TRUNCATE/DELETE.
+- كل الصفحات سليمة.
+- build ناجح.
+- typecheck ناجح.
+- QA_REPORT محدث.
+
+الحكم النهائي:
+Partial Write Cutover Ready / Needs Write Gateway Fix / Needs Mode Fix / Needs Fixes
+
+==================================================
+10. التقرير النهائي المطلوب
+==================================================
+
+أعطني تقريراً بهذا الشكل فقط:
+
+1. هل dataSourceMode يقرأ VITE_DATA_SOURCE_MODE فعلياً؟
+2. ما القيمة الافتراضية؟
+3. هل تم جرد mutations؟
+4. ما النطاق المختار للتحويل الأول؟
+5. لماذا اختير؟
+6. هل mode=api يعمل؟
+7. هل mode=supabase_shadow يعمل؟
+8. هل mode=supabase يكتب للنطاق المختار؟
+9. هل تم تحويل أي نطاق آخر غير المختار؟
+10. هل الكتابة لبقية النظام ما زالت API؟
+11. هل يوجد خطر divergence؟ أين؟
+12. هل API endpoints ما زالت موجودة؟
+13. هل PostgreSQL ما زال موجوداً؟
+14. هل يوجد service_role في الواجهة؟
+15. هل توجد أسرار hardcoded؟
+16. هل يوجد DROP/TRUNCATE/DELETE؟
+17. هل Supabase Auth و/admin بقيا سليمين؟
+18. هل الصفحات السابقة سليمة؟
+19. هل build نجح؟ اذكر النتيجة صراحة.
+20. هل typecheck نجح؟ اذكر النتيجة صراحة.
+21. هل QA_REPORT تم تحديثه؟
+22. القيود المتبقية.
+23. الحكم النهائي:
+Partial Write Cutover Ready / Needs Write Gateway Fix / Needs Mode Fix / Needs Fixes

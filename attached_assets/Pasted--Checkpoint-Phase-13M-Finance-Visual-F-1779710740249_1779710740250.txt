@@ -1,0 +1,147 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 13M
+Finance Visual Final Polish + Owner Preview Package
+
+الحكم:
+Phase 13L مكتملة تقنياً، لكن غير معتمدة بصرياً نهائياً.
+FinancePage حصلت على 8.5/10 فقط، وهذا أقل من شرط القبول.
+المطلوب الآن إصلاح FinancePage فقط ورفعها إلى 9/10 أو أعلى، ثم تجهيز مراجعة بصرية للمالك.
+
+ممنوع:
+- لا تغيّر Supabase.
+- لا تغيّر Auth.
+- لا تغيّر RLS.
+- لا تغيّر Data Gateway.
+- لا تغيّر Automation.
+- لا تغيّر Location/Timezone.
+- لا تغيّر HomePage إلا إذا ظهر كسر واضح.
+- لا تضغط Publish.
+- لا تكتب Ready to Publish.
+- لا تكتب Reference Design Matched.
+- الحكم النهائي يبقى Pending Owner Visual Approval.
+
+==================================================
+1. المطلوب في FinancePage
+==================================================
+
+ارفع FinancePage من 8.5/10 إلى 9/10 أو أعلى.
+
+المطلوب:
+1. جعل صفحة المال أقرب للمرجع الشامل.
+2. تحسين Summary header.
+3. تحسين بطاقات الرواتب/الدعم/الفواتير.
+4. جعل الأرقام والأيقونات أكثر فخامة ووضوحاً.
+5. إضافة زخارف خفيفة مثل المرجع.
+6. توحيد البطاقات مع الهوية التراثية.
+7. تحسين spacing.
+8. تحسين empty/loading states إن وجدت.
+9. عدم كسر الحاسبات.
+10. عدم تغيير البيانات أو الوظائف.
+
+لا تستخدم ألوان خارج الهوية:
+- بني داكن
+- ذهبي
+- كريمي
+- بيج ورقي
+- حدود ذهبية
+- ظلال بنية ناعمة
+
+==================================================
+2. Owner Preview Package
+==================================================
+
+بعد إصلاح FinancePage، جهّز للمالك مراجعة بصرية واضحة.
+
+اعرض أو جهّز لقطات Preview/وصف بصري للصفحات:
+1. HomePage
+2. CalendarPage
+3. FinancePage
+4. StoryPage
+5. CentersPage
+6. AccountPage
+7. NotificationsPage
+8. Admin Dashboard
+9. Admin Visual Guide
+
+لا تعلن الاعتماد النهائي.
+اكتب فقط:
+Pending Owner Visual Approval
+
+==================================================
+3. الاختبارات
+==================================================
+
+اختبر:
+- HomePage
+- CalendarPage
+- FinancePage
+- StoryPage
+- CentersPage
+- AccountPage
+- NotificationsPage
+- /admin
+- /admin/visual-guide
+- /admin/automation
+- RTL
+- mobile layout
+- Supabase mode
+- no API 500
+- no white screen
+
+شغّل:
+- build
+- typecheck
+
+افحص:
+- لا service_role
+- لا hardcoded secrets
+- لا DROP/TRUNCATE
+- لا كسر في Data Gateway
+- لا كسر في Automation
+
+==================================================
+4. تحديث QA
+==================================================
+
+حدّث:
+- QA_REPORT.md
+- replit.md
+
+أضف:
+- Phase 13M
+- ما الذي تغير في FinancePage
+- درجة FinancePage الجديدة
+- Visual QA Matrix محدث
+- أن الحكم النهائي بيد المالك
+
+==================================================
+5. التقرير النهائي المطلوب
+==================================================
+
+أعطني التقرير بهذا الشكل فقط:
+
+1. هل تم تحسين FinancePage فقط؟
+2. ما الملفات التي تم تعديلها؟
+3. ما درجة FinancePage بعد التحسين؟
+4. هل Summary header أصبح أقرب للمرجع؟
+5. هل البطاقات المالية أصبحت فاخرة ومتناسقة؟
+6. هل الحاسبات بقيت سليمة؟
+7. هل باقي الصفحات لم تنكسر؟
+8. هل Visual Guide بقي يعمل؟
+9. هل Supabase/Auth/Data Gateway بقيت سليمة؟
+10. هل Automation/Location بقيت سليمة؟
+11. هل RTL سليم؟
+12. هل mobile layout سليم؟
+13. هل توجد API 500؟
+14. هل توجد شاشة بيضاء؟
+15. هل build نجح؟
+16. هل typecheck نجح؟
+17. هل QA_REPORT تم تحديثه؟
+18. هل تم تجهيز Owner Preview Package؟
+19. الحكم النهائي:
+Pending Owner Visual Approval
+
+ممنوع استخدام أي حكم آخر.
+ممنوع اقتراح Publish.

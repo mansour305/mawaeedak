@@ -1,0 +1,406 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 12O
+Finance Events Gateway Cutover Gate
+
+الدور:
+تصرف كفريق Data Layer Architect + Supabase Engineer + Frontend Reliability Engineer + QA Lead + Security Reviewer.
+مهمتك الآن ليست تحويل كل النظام دفعة واحدة، وليست حذف API، وليست إعلان Production Ready.
+مهمتك فقط تحويل قراءة وكتابة financial_events إلى Gateway بشكل آمن ومتسق، مع الحفاظ على API كـ fallback وعدم كسر FinancePage أو HomePage أو StoryPage.
+
+==================================================
+0. السياق الحالي
+==================================================
+
+تم اعتماد Phase 12N:
+- CalendarPage appointments أصبح Gateway.
+- HomePage upcoming appointments أصبح Gateway.
+- create/update/delete appointments أصبح Gateway.
+- mode=api يعمل.
+- mode=supabase_shadow يعمل.
+- mode=supabase يعمل للمواعيد.
+- لا fallback صامت في write عند mode=supabase.
+- FinancePage و financial_events لم تُلمس.
+- API وPostgreSQL ما زالا موجودين.
+- default data source = api.
+- build ناجح.
+- typecheck ناجح.
+- لا service_role.
+- لا أسرار hardcoded.
+- لا DROP/TRUNCATE/DELETE غير مقصود.
+
+حالة بيانات Supabase:
+- financial_events = 8
+- financial_events مرتبطة بـ user_id الخاص بـ hrq@hotmail.com.
+- legacy_id محفوظ.
+- migration_batch محفوظ.
+- amount قد يكون numeric في Supabase ويحتاج Number() في الواجهة.
+
+القيد الحالي:
+- FinancePage CRUD ما زال Orval/API.
+- HomePage financial countdown غالباً ما زال API.
+- StoryPage counters غالباً ما زالت API.
+- Admin financial events إن وجدت غالباً ما زالت API.
+- عند mode=supabase، أي صفحة تقرأ financial_events من Supabase بينما تكتب API قد تسبب divergence.
+
+==================================================
+1. الهدف التنفيذي
+==================================================
+
+حوّل financial_events فقط إلى Gateway:
+
+1. FinancePage list/read financial_events.
+2. FinancePage add financial event.
+3. FinancePage edit financial event.
+4. FinancePage delete financial event.
+5. FinancePage countdown أو أي قراءة مالية محسوبة.
+6. HomePage financial countdown.
+7. StoryPage financial counters.
+8. Admin financial events CRUD إن كان موجوداً ومباشراً.
+
+المطلوب حسب mode:
+
+أ. mode=api:
+- القراءة والكتابة عبر API كما كانت.
+- لا تغيير سلوك المستخدم.
+
+ب. mode=supabase_shadow:
+- القراءة والكتابة عبر API.
+- لا كتابة إلى Supabase.
+- يمكن إجراء shadow comparison فقط.
+
+ج. mode=supabase:
+- قراءة financial_events من Supabase.
+- إضافة financial_event إلى Supabase.
+- تعديل financial_event في Supabase.
+- حذف financial_event من Supabase.
+- HomePage countdown يقرأ من نفس مصدر FinancePage قدر الإمكان.
+- StoryPage counters تقرأ من نفس مصدر FinancePage قدر الإمكان.
+- لا fallback صامت إلى API في write.
+- عند فشل write، أظهر toast/error واضح.
+
+ممنوع تحويل:
+- appointments لأنها اكتملت في Phase 12N ولا تُلمس إلا إذا لزم invalidation.
+- notifications/news/jobs/themes/story_templates/daily_messages لأنها منتهية.
+- profiles.
+- audit_logs.
+- أي نطاق جديد خارج financial_events.
+
+==================================================
+2. خارج النطاق
+==================================================
+
+هذه المرحلة ليست:
+- Full Supabase Data Source النهائي.
+- حذف API.
+- حذف PostgreSQL.
+- Production Ready.
+- Publish.
+- Firebase.
+- Offline.
+- إعادة تصميم UI.
+- تعديل Theme Engine.
+- نقل SQL جديد.
+- تغيير الحاسبات نفسها إلا إذا كانت تعتمد على financial_events read فقط.
+
+==================================================
+3. ممنوعات صارمة
+==================================================
+
+ممنوع:
+- لا تلمس appointments إلا invalidation ضروري موثق.
+- لا تلمس CalendarPage.
+- لا تحذف API endpoints.
+- لا تحذف PostgreSQL.
+- لا تستخدم service_role في الواجهة.
+- لا تضع أسرار في الكود.
+- لا تستخدم DROP/TRUNCATE/DELETE غير مقصود.
+- لا تنقل بيانات جديدة عبر SQL.
+- لا تجعل Supabase هو default.
+- لا تضغط Publish.
+- لا تدّع Production Ready.
+- لا تكسر FinancePage.
+- لا تكسر HomePage.
+- لا تكسر StoryPage.
+- لا تكسر الحاسبات.
+
+==================================================
+4. تدقيق إلزامي قبل التنفيذ
+==================================================
+
+قبل أي تعديل:
+
+1. افحص FinancePage.
+2. افحص hooks الحالية للمال:
+   - list financial_events
+   - financial_events countdown
+   - create financial_event
+   - update financial_event
+   - delete financial_event
+
+3. افحص HomePage وأي مكون يستخدم financial countdown.
+4. افحص StoryPage وأي مكون يستخدم العدادات المالية.
+5. افحص Admin financial events إن وجد.
+6. افحص dataGateway.ts.
+7. افحص supabaseData.ts.
+8. افحص شكل financial_event في API مقابل Supabase.
+9. افحص هل UI يستخدم id كـ legacy integer أو uuid.
+10. افحص fields:
+   - name/title
+   - amount
+   - date
+   - type/category
+   - emoji إن وجد
+   - is_active/status إن وجد
+   - user_id
+   - legacy_id
+   - created_at/updated_at
+
+11. افحص endpoint:
+   - /api/financial-events/countdown
+   وهل يحسب days/remaining server-side.
+
+12. إذا كان countdown server-calculated:
+   - عند mode=supabase يجب إما إعادة نفس الحساب بدقة في Gateway.
+   - أو إبقاء countdown على API مع توثيق صريح أن التحويل جزئي.
+   - لا تقبل cutover كامل إذا الحساب غير مطابق.
+
+13. حدد mapping واضح:
+   - id في الواجهة = legacy_id إن كان legacy موجوداً.
+   - عند إنشاء صف جديد في Supabase، ما قيمة legacy_id؟
+   - إذا legacy_id مطلوب لتوافق الواجهة، ضع استراتيجية آمنة:
+     أ. إما توليد legacy_id جديد من max(legacy_id)+1 داخل Supabase.
+     ب. أو استخدام Supabase id وإرجاع id متوافق موثق.
+   - لا تنفذ شيئاً حتى توثق القرار.
+
+14. افحص RLS:
+   - المستخدم يرى أحداثه المالية فقط.
+   - المستخدم يضيف أحداثه المالية فقط.
+   - المستخدم يعدّل أحداثه المالية فقط.
+   - المستخدم يحذف أحداثه المالية فقط.
+
+15. حدد استراتيجية invalidation بعد كل mutation:
+   - Finance list.
+   - Finance countdown.
+   - HomePage financial counters.
+   - StoryPage counters.
+   - أي Orval keys متبقية للتوافق.
+
+==================================================
+5. متطلبات التنفيذ
+==================================================
+
+أ. Supabase adapter:
+أضف في supabaseData.ts دوال آمنة مثل:
+
+- getFinancialEventsFromSupabase إن لم تكن كافية.
+- getFinancialCountdownFromSupabase أو equivalent يحاكي API shape.
+- createFinancialEventInSupabase.
+- updateFinancialEventInSupabase.
+- deleteFinancialEventInSupabase.
+
+ب. Data Gateway:
+أضف في dataGateway.ts:
+
+- gwGetFinancialEvents.
+- gwGetFinancialCountdown.
+- gwCreateFinancialEvent.
+- gwUpdateFinancialEvent.
+- gwDeleteFinancialEvent.
+
+ج. Hooks:
+أضف أو حدّث hooks في useGatewayData أو المكان المناسب:
+
+- useGatewayFinancialEvents.
+- useGatewayFinancialCountdown.
+- mutations للـ create/update/delete إن كان النمط موجوداً.
+
+د. FinancePage:
+- القراءة عبر Gateway.
+- create/edit/delete عبر Gateway.
+- لا تكسر الحاسبات.
+- لا تكسر ConfirmDialog.
+- لا تكسر toast.
+- لا تكسر countdown.
+
+هـ. HomePage:
+- financial countdown عبر Gateway إذا كان آمناً.
+- يجب أن يرى نفس بيانات FinancePage في mode=supabase.
+
+و. StoryPage:
+- counters المالية عبر Gateway إذا كان آمناً.
+- يجب أن تتطابق مع FinancePage في mode=supabase.
+
+ز. السلوك حسب mode:
+- api: API.
+- supabase_shadow: API.
+- supabase: Supabase.
+
+ح. Write behavior:
+- لا fallback صامت إلى API عند mode=supabase.
+- إذا فشل Supabase write، اعرض خطأ واضح.
+- لا تكتب API وSupabase معاً.
+
+==================================================
+6. اختبارات إلزامية
+==================================================
+
+اختبر:
+
+أ. mode=api:
+1. FinancePage يعرض 8 أحداث مالية من API.
+2. countdown يعمل كما كان.
+3. إضافة حدث مالي تعمل عبر API.
+4. تعديل حدث مالي يعمل عبر API.
+5. حذف حدث مالي يعمل عبر API.
+6. HomePage counters تعمل كما كانت.
+7. StoryPage counters تعمل كما كانت.
+8. لا كسر.
+
+ب. mode=supabase_shadow:
+1. FinancePage يعرض API.
+2. كل write عبر API.
+3. لا كتابة إلى Supabase.
+4. لا كسر.
+
+ج. mode=supabase:
+1. FinancePage يعرض 8 أحداث مالية من Supabase.
+2. countdown مطابق أو موثق إن بقي API.
+3. إضافة حدث مالي تكتب Supabase.
+4. تعديل حدث مالي يكتب Supabase.
+5. حذف حدث مالي يكتب Supabase.
+6. HomePage counters تعكس Supabase.
+7. StoryPage counters تعكس Supabase.
+8. لا fallback صامت إلى API في write.
+9. RLS يعمل.
+10. user_id صحيح.
+11. amount يتحول رقمياً بشكل صحيح.
+12. legacy_id/id strategy لا تكسر الواجهة.
+13. لا duplicates.
+
+اختبر الصفحات:
+- الرئيسية
+- التقويم
+- المال
+- ستوري اليوم
+- الإشعارات
+- المراكز
+- مركز الأخبار
+- مركز الوظائف
+- حسابي
+- /admin
+- /admin/data-layer
+- الصفحات القانونية
+- 404
+
+==================================================
+7. أوامر الفحص
+==================================================
+
+شغّل:
+- pnpm build أو npm run build
+- pnpm typecheck أو npm run typecheck إن وجد
+
+وافحص:
+- service_role
+- SUPABASE_SERVICE_ROLE
+- hardcoded Supabase keys
+- hardcoded passwords
+- DROP
+- TRUNCATE
+- DELETE غير مقصود
+- أي لمس غير مقصود لـ appointments
+
+إذا lint/test غير موجود:
+اذكر أنه غير متوفر ولا تدّع تشغيله.
+
+==================================================
+8. تحديث التوثيق
+==================================================
+
+حدّث:
+- QA_REPORT.md
+- DATA_SOURCE_MAP.md
+- SUPABASE_MIGRATION_PLAN.md
+- SUPABASE_MIGRATION_CHECKLIST.md
+- ARCHITECTURE.md
+- README.md إن لزم
+
+وثّق:
+- أن Finance financial_events CRUD أصبح Gateway.
+- أن HomePage financial counters يستخدم Gateway إن تم.
+- أن StoryPage counters يستخدم Gateway إن تم.
+- أن default لا يزال api.
+- أن mode=supabase يكتب financial_events إلى Supabase.
+- أن Calendar لم يُلمس.
+- استراتيجية id/legacy_id عند create.
+- كيفية حساب countdown.
+- أي divergence risk متبقٍ.
+- أن Phase 12P مخصصة للاتساق النهائي قبل Production Gate.
+
+==================================================
+9. معيار قبول المرحلة
+==================================================
+
+تقبل Phase 12O فقط إذا تحقق:
+
+- FinancePage financial_events read يستخدم Gateway.
+- FinancePage create/update/delete يستخدم Gateway.
+- HomePage financial countdown/counters يستخدم Gateway أو موثق سبب عدم تحويله.
+- StoryPage financial counters يستخدم Gateway أو موثق سبب عدم تحويله.
+- mode=api يعمل.
+- mode=supabase_shadow يعمل.
+- mode=supabase يعمل لـ financial_events قراءة وكتابة.
+- لا fallback صامت في write عند mode=supabase.
+- Calendar لم يُلمس.
+- API لم يُحذف.
+- PostgreSQL لم يُحذف.
+- لا بيانات SQL جديدة.
+- لا DROP/TRUNCATE/DELETE غير مقصود.
+- لا service_role.
+- لا أسرار hardcoded.
+- Supabase Auth و/admin سليمان.
+- كل الصفحات سليمة.
+- build ناجح.
+- typecheck ناجح.
+- QA_REPORT محدث.
+
+الحكم النهائي:
+Finance Events Gateway Ready / Partial Finance Cutover / Needs Finance Gateway Fix / Needs Fixes
+
+==================================================
+10. التقرير النهائي المطلوب
+==================================================
+
+أعطني تقريراً بهذا الشكل فقط:
+
+1. هل تم تدقيق financial_event id/legacy_id strategy؟
+2. ما القرار عند إنشاء financial_event جديد في Supabase؟
+3. هل FinancePage read أصبح Gateway؟
+4. هل FinancePage add/edit/delete أصبح Gateway؟
+5. هل HomePage financial countdown أصبح Gateway؟
+6. هل StoryPage financial counters أصبحت Gateway؟
+7. هل countdown من Supabase مطابق لـ API أو موثق جزئياً؟
+8. هل mode=api يعمل؟
+9. هل mode=supabase_shadow يعمل؟
+10. هل mode=supabase يعمل لـ financial_events؟
+11. هل إضافة حدث مالي في mode=supabase تكتب Supabase؟
+12. هل تعديل حدث مالي في mode=supabase يكتب Supabase؟
+13. هل حذف حدث مالي في mode=supabase يكتب Supabase؟
+14. هل amount يتحول رقمياً بشكل صحيح؟
+15. هل يوجد fallback صامت إلى API في write عند mode=supabase؟
+16. هل تم لمس CalendarPage أو appointments؟
+17. هل API endpoints ما زالت موجودة؟
+18. هل PostgreSQL ما زال موجوداً؟
+19. هل يوجد service_role في الواجهة؟
+20. هل توجد أسرار hardcoded؟
+21. هل يوجد DROP/TRUNCATE/DELETE غير مقصود؟
+22. هل Supabase Auth و/admin بقيا سليمين؟
+23. هل الصفحات السابقة سليمة؟
+24. هل build نجح؟ اذكر النتيجة صراحة.
+25. هل typecheck نجح؟ اذكر النتيجة صراحة.
+26. هل QA_REPORT تم تحديثه؟
+27. القيود المتبقية.
+28. الحكم النهائي:
+Finance Events Gateway Ready / Partial Finance Cutover / Needs Finance Gateway Fix / Needs Fixes

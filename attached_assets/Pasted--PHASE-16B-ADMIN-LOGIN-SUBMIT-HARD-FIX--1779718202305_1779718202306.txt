@@ -1,0 +1,273 @@
+نفّذ الآن PHASE 16B — ADMIN LOGIN SUBMIT HARD FIX.
+
+الحكم:
+المشكلة لم تُحل عملياً.
+الصورة تثبت أن /admin لم يعد عالقاً على "جارٍ التحقق" فقط، لكنه الآن يعلق بعد الضغط على زر "تسجيل الدخول".
+زر تسجيل الدخول يبقى في حالة loading ولا يرجع بنتيجة واضحة.
+
+هذا Blocker نهائي.
+
+ممنوع:
+- لا تعمل على التصميم.
+- لا تعمل على صفحات المستخدم.
+- لا تغيّر Supabase schema.
+- لا تستخدم service_role.
+- لا تضع secrets في الكود.
+- لا تغيّر Data Gateway.
+- لا تغيّر Automation.
+- لا تغيّر Location/Timezone.
+- لا تضغط Publish.
+
+==================================================
+1. التشخيص الصحيح
+==================================================
+
+المشكلة الحالية:
+Login form يظهر.
+لكن عند الضغط على "تسجيل الدخول":
+- الزر يدخل loading
+- ولا يظهر Dashboard
+- ولا يظهر Access Denied
+- ولا تظهر رسالة خطأ
+- ولا يتوقف loading
+
+إذن الخلل في:
+- handleLogin
+- authSignIn
+- supabase.auth.signInWithPassword
+- finally/setSubmitting
+- أو Promise معلّق بدون timeout
+
+المطلوب:
+منع زر تسجيل الدخول من التعليق نهائياً.
+
+==================================================
+2. قاعدة إلزامية
+==================================================
+
+زر "تسجيل الدخول" لا يجوز أن يبقى loading أكثر من 8 ثوانٍ.
+
+بعد 8 ثوانٍ يجب أن يحدث واحد فقط:
+1. دخول Dashboard
+2. Access Denied بسبب role
+3. رسالة "بيانات الدخول غير صحيحة"
+4. رسالة "تعذر الاتصال بخدمة الدخول"
+5. رجوع الزر للحالة الطبيعية
+
+ممنوع أي حالة loading أبدي.
+
+==================================================
+3. أصلح handleLogin
+==================================================
+
+في AdminLayout أو ملف login:
+
+أعد كتابة handleLogin بهذه القواعد:
+
+1. عند بدء login:
+   setIsSubmitting(true)
+   clear error
+
+2. استخدم timeout صريح 8 ثوانٍ عبر Promise.race:
+
+- promise الأساسي:
+  supabase.auth.signInWithPassword({ email, password })
+
+- timeout:
+  reject(new Error("LOGIN_TIMEOUT"))
+
+3. يجب أن يكون هناك finally دائماً:
+   setIsSubmitting(false)
+
+4. ممنوع وجود أي return قبل finally.
+
+5. إذا LOGIN_TIMEOUT:
+   اعرض:
+   "انتهت مهلة تسجيل الدخول، تحقق من الاتصال أو امسح الجلسة وحاول مرة أخرى"
+
+6. إذا Invalid login credentials:
+   اعرض:
+   "بيانات الدخول غير صحيحة"
+
+7. إذا email not confirmed:
+   اعرض:
+   "الحساب غير مؤكد في Supabase Auth"
+
+8. إذا network/fetch error:
+   اعرض:
+   "تعذر الاتصال بخدمة الدخول"
+
+==================================================
+4. لا تعتمد على authSignIn إذا كان يعلق
+==================================================
+
+افحص authSignIn في src/lib/auth.ts.
+
+إذا authSignIn wrapper لا يرجع نتيجة واضحة:
+- أصلحه.
+- أو اجعل AdminLayout يستخدم supabase.auth.signInWithPassword مباشرة.
+- لكن لا تسمح بأي Promise يظل معلقاً.
+
+المطلوب:
+كل auth function يجب أن ترجع:
+{
+  success: boolean,
+  error?: string,
+  user?: ...
+}
+
+أو throw خطأ واضح يمسكه handleLogin.
+
+==================================================
+5. بعد نجاح login
+==================================================
+
+بعد signInWithPassword الناجح:
+
+1. نفّذ مباشرة:
+   supabase.auth.getUser()
+
+2. اقرأ الدور من:
+   user.user_metadata.role
+   ثم
+   user.app_metadata.role
+
+3. إذا role = super_admin أو admin:
+   setPhase("ready")
+   navigate("/admin/dashboard")
+
+4. إذا role غير موجود:
+   signOut local
+   setPhase("access_denied")
+   اعرض:
+   "الحساب موجود لكن لا يملك صلاحية المالك"
+   واعرض SQL Fix.
+
+مهم:
+إذا role غير صحيح، ممنوع الرجوع إلى loading.
+لازم Access Denied واضح.
+
+==================================================
+6. زر مسح الجلسة
+==================================================
+
+تأكد أن زر:
+"مسح الجلسة والبدء من جديد"
+
+يعمل من كل الحالات:
+- login
+- auth_error
+- access_denied
+- checking timeout
+
+ويفعل:
+- supabase.auth.signOut({ scope: "local" })
+- حذف localStorage keys التي تحتوي:
+  supabase
+  sb-
+  auth
+- sessionStorage.clear()
+- setIsSubmitting(false)
+- setPhase("login")
+- clear errors
+
+==================================================
+7. Debug Box مؤقت
+==================================================
+
+أضف في DEV فقط صندوق debug صغير في شاشة login يعرض:
+
+- phase
+- isSubmitting
+- isSupabaseEnabled
+- supabaseClientReady
+- lastAuthError
+- lastRole
+- hasSession
+
+لا تعرض:
+- password
+- tokens
+- anon key
+
+==================================================
+8. اختبارات إلزامية
+==================================================
+
+اختبر عملياً:
+
+1. فتح /admin
+   النتيجة: login form
+
+2. إدخال كلمة مرور خاطئة
+   النتيجة: رسالة خطأ واضحة والزر يرجع طبيعي
+
+3. إدخال كلمة مرور صحيحة لكن role ناقص
+   النتيجة: Access Denied واضح والزر لا يعلق
+
+4. إدخال كلمة مرور صحيحة وrole=super_admin
+   النتيجة: Dashboard
+
+5. محاكاة timeout أو قطع اتصال
+   النتيجة: رسالة timeout خلال 8 ثوانٍ والزر يرجع طبيعي
+
+6. زر مسح الجلسة
+   النتيجة: يمسح الجلسة ويرجع login
+
+7. direct routes:
+   /admin
+   /admin/dashboard
+   /admin/automation
+   /admin/visual-guide
+
+كلها لا تعلق.
+
+==================================================
+9. شغّل الفحص
+==================================================
+
+شغّل:
+- typecheck
+- build
+
+وافحص:
+- لا API 500
+- لا شاشة بيضاء
+- لا loading أبدي
+- لا console errors جوهرية
+- لا service_role
+- لا hardcoded secrets
+- Supabase/Auth/Data Gateway سليمة
+- Automation/Location سليمة
+
+==================================================
+10. التقرير النهائي المطلوب
+==================================================
+
+أعطني التقرير بهذا الشكل فقط:
+
+1. هل تم إصلاح تعليق زر تسجيل الدخول؟
+2. هل يوجد timeout 8 ثوانٍ على login submit؟
+3. هل setSubmitting(false) مضمون في finally؟
+4. هل كلمة المرور الخاطئة تعرض رسالة واضحة؟
+5. هل network/timeout يعرض رسالة واضحة؟
+6. هل login الصحيح مع role ناقص يعرض Access Denied؟
+7. هل login الصحيح مع super_admin يدخل Dashboard؟
+8. هل زر مسح الجلسة يوقف submitting ويمسح الجلسة؟
+9. هل Debug Box أُضيف في DEV؟
+10. هل direct routes لا تعلق؟
+11. هل typecheck نجح؟
+12. هل build نجح؟
+13. هل توجد شاشة بيضاء؟
+14. هل توجد API 500؟
+15. الحكم النهائي:
+Admin Login Submit Fixed
+أو
+Needs Supabase Role Fix
+أو
+Needs Owner Password Reset
+أو
+Needs Fixes
+
+ممنوع استخدام أي حكم آخر.
+ممنوع اقتراح Publish.

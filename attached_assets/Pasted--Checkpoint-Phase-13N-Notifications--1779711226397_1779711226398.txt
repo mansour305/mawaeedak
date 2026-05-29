@@ -1,0 +1,185 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 13N
+Notifications + Admin Visual Final Polish Gate
+
+الحكم:
+Phase 13M أصلحت FinancePage بنجاح إلى 9/10، لكن الاعتماد البصري الشامل غير مكتمل لأن:
+- NotificationsPage = 8/10
+- Admin Dashboard/Login = 7.5/10
+
+المطلوب الآن إصلاح هذين النطاقين فقط، وعدم لمس الصفحات التي وصلت 9/10 أو أعلى.
+
+ممنوع:
+- لا تغيّر HomePage.
+- لا تغيّر CalendarPage.
+- لا تغيّر FinancePage.
+- لا تغيّر StoryPage.
+- لا تغيّر CentersPage.
+- لا تغيّر AccountPage.
+- لا تغيّر Supabase.
+- لا تغيّر Auth logic.
+- لا تغيّر RLS.
+- لا تغيّر Data Gateway.
+- لا تغيّر Automation.
+- لا تغيّر Location/Timezone.
+- لا تضغط Publish.
+- لا تكتب Ready to Publish.
+- لا تكتب Reference Design Matched.
+- الحكم النهائي يبقى Pending Owner Visual Approval.
+
+==================================================
+1. المطلوب في NotificationsPage
+==================================================
+
+ارفع NotificationsPage من 8/10 إلى 9/10 أو أعلى.
+
+المطلوب:
+1. جعل صفحة الإشعارات متطابقة مع الهوية التراثية الفاخرة.
+2. تحسين empty state ليكون فاخراً مثل المرجع.
+3. إضافة بطاقة/hero صغيرة للإشعارات إن كان مناسباً.
+4. تحسين بطاقات الإشعارات:
+   - خلفية كريمية.
+   - حدود ذهبية.
+   - أيقونة ذهبية.
+   - badge لحالة مقروء/غير مقروء.
+   - أزرار حذف/قراءة بتصميم متناسق.
+5. تحسين العنوان والزخارف.
+6. الحفاظ على:
+   - read من Gateway.
+   - mark-read.
+   - mark-all-read.
+   - delete.
+   - unread count.
+   - toast auto-dismiss 5s.
+7. لا تكسر سجل الإشعارات.
+
+==================================================
+2. المطلوب في Admin Login / Dashboard
+==================================================
+
+ارفع Admin Login/Dashboard من 7.5/10 إلى 9/10 أو أعلى.
+
+المطلوب:
+1. صفحة تسجيل الدخول يجب أن تتبع نفس الهوية:
+   - خلفية ورقية/تراثية.
+   - بطاقة login كريمية أو بنية داكنة فاخرة.
+   - شعار مواعيدك واضح.
+   - عبارة "لوحة المالك" أو "تسجيل دخول الإدارة" بشكل فاخر.
+   - أزرار بنية/ذهبية.
+   - حقول input متناسقة.
+   - لا مظهر Supabase/default خام.
+
+2. Admin Dashboard بعد الدخول يجب أن يكون متناسقاً:
+   - sidebar بني داكن.
+   - شعار مواعيدك واضح.
+   - بطاقات إحصائية كريمية/ذهبية.
+   - أزرار وأيقونات ذهبية.
+   - tables/cards بنفس نظام التصميم.
+   - لا admin default منفصل عن التطبيق.
+
+3. لا تغيّر منطق الحماية:
+   - /admin يبقى محمياً.
+   - hrq@hotmail.com super_admin يبقى كما هو.
+   - Auth guard لا ينكسر.
+   - sign out يعمل.
+
+==================================================
+3. Owner Preview Package
+==================================================
+
+بعد الإصلاح، جهّز مراجعة بصرية للمالك لهذه الصفحات فقط:
+
+1. NotificationsPage
+2. Admin Login
+3. Admin Dashboard بعد الدخول
+4. Admin Visual Guide
+
+لا تعلن الاعتماد النهائي.
+اكتب فقط:
+Pending Owner Visual Approval
+
+==================================================
+4. الاختبارات
+==================================================
+
+اختبر:
+- NotificationsPage
+- TopBar unread count
+- mark-read
+- mark-all-read
+- delete notification
+- toast auto-dismiss
+- /admin بدون تسجيل دخول
+- /admin مع تسجيل دخول
+- Admin Dashboard
+- Admin Visual Guide
+- Supabase mode
+- Auth
+- RTL
+- mobile layout
+
+شغّل:
+- build
+- typecheck
+
+افحص:
+- لا service_role
+- لا hardcoded secrets
+- لا API 500
+- لا شاشة بيضاء
+- لا console errors جوهرية
+- لا كسر Data Gateway
+- لا كسر Automation
+- لا كسر Location/Timezone
+
+==================================================
+5. تحديث QA
+==================================================
+
+حدّث:
+- QA_REPORT.md
+- replit.md
+
+أضف:
+- Phase 13N
+- ما الذي تغير في NotificationsPage
+- ما الذي تغير في Admin Login/Dashboard
+- الدرجات الجديدة
+- Visual QA Matrix محدث
+- أن الحكم النهائي بيد المالك
+
+==================================================
+6. التقرير النهائي المطلوب
+==================================================
+
+أعطني التقرير بهذا الشكل فقط:
+
+1. هل تم تحسين NotificationsPage فقط مع Admin؟
+2. ما الملفات التي تم تعديلها؟
+3. ما درجة NotificationsPage بعد التحسين؟
+4. هل empty state في الإشعارات أصبح فاخراً؟
+5. هل بطاقات الإشعارات أصبحت متناسقة مع المرجع؟
+6. هل mark-read/delete/unread count بقيت سليمة؟
+7. ما درجة Admin Login بعد التحسين؟
+8. ما درجة Admin Dashboard بعد التحسين؟
+9. هل /admin بقي محمياً؟
+10. هل super_admin بقي يعمل؟
+11. هل Admin Visual Guide بقي يعمل؟
+12. هل الصفحات المقبولة سابقاً لم تُكسر؟
+13. هل Supabase/Auth/Data Gateway بقيت سليمة؟
+14. هل Automation/Location بقيت سليمة؟
+15. هل RTL سليم؟
+16. هل mobile layout سليم؟
+17. هل توجد API 500؟
+18. هل توجد شاشة بيضاء؟
+19. هل build نجح؟
+20. هل typecheck نجح؟
+21. هل QA_REPORT تم تحديثه؟
+22. هل تم تجهيز Owner Preview Package؟
+23. الحكم النهائي:
+Pending Owner Visual Approval
+
+ممنوع استخدام أي حكم آخر.
+ممنوع اقتراح Publish.

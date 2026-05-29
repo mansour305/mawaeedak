@@ -1,0 +1,294 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 12C
+Admin-managed Data Seed Migration to Supabase Gate
+
+الدور:
+تصرف كفريق Database Migration Engineer + Supabase Engineer + Data Integrity Auditor + QA Lead.
+مهمتك الآن ليست نقل كل البيانات، وليست تغيير مصدر الحقيقة، وليست تعديل الواجهة.
+مهمتك فقط تجهيز وتنفيذ Seed آمن للبيانات العامة/الإدارية admin-managed من PostgreSQL/API الحالي إلى Supabase، مع legacy_id، وبدون أي بيانات شخصية.
+
+==================================================
+0. السياق الحالي
+==================================================
+
+المشروع وصل إلى:
+Schema Alignment Applied
+
+المعتمد حالياً:
+- Supabase Auth يعمل.
+- /admin يعمل.
+- hrq@hotmail.com دخل كـ super_admin.
+- 19/19 جداول موجودة.
+- RLS مفعّل.
+- SUPABASE_SCHEMA_ALIGNMENT.sql تم تطبيقه.
+- legacy_id/migrated_at/migration_batch موجودة.
+- PostgreSQL/API الحالي ما زال مصدر الحقيقة.
+- Supabase tables التشغيلية فارغة أو غير مستخدمة كمصدر حقيقة.
+- لم يتم نقل بيانات فعلية حتى الآن.
+- build ناجح.
+- typecheck ناجح.
+- لا service_role في الواجهة.
+- لا أسرار hardcoded.
+
+==================================================
+1. الهدف التنفيذي
+==================================================
+
+انقل فقط بيانات admin-managed الآمنة إلى Supabase كـ seed، مع الحفاظ على PostgreSQL/API كمصدر الحقيقة الحالي.
+
+الجداول المسموح نقلها في هذه المرحلة:
+1. daily_messages
+2. story_templates
+3. themes
+4. news
+5. jobs
+6. public_events
+
+اختياري فقط إذا كان آمناً ومناسباً:
+7. app_settings
+
+المطلوب:
+1. افحص بيانات PostgreSQL الحالية لهذه الجداول.
+2. احسب عدد الصفوف الحالية لكل جدول.
+3. طابق الأعمدة مع Supabase schema.
+4. جهّز SQL seed آمن.
+5. استخدم legacy_id لحفظ id القديم.
+6. استخدم migration_batch واضح مثل:
+   phase_12c_admin_seed_2026_05_24
+7. استخدم upsert أو INSERT آمن يمنع التكرار.
+8. لا تنقل بيانات شخصية.
+9. لا تغيّر Data Layer.
+10. لا تجعل Supabase مصدر الحقيقة بعد.
+11. لا تكسر PostgreSQL/API الحالي.
+12. حدّث التوثيق والـ QA.
+
+==================================================
+2. خارج النطاق
+==================================================
+
+هذه المرحلة ليست:
+- نقل appointments.
+- نقل financial_events.
+- نقل notifications.
+- نقل complaints.
+- نقل user-owned data.
+- تغيير hooks.
+- تغيير Data Layer.
+- إزالة PostgreSQL.
+- تشغيل التطبيق بالكامل من Supabase.
+- Production Ready.
+- Publish.
+- تعديل UI.
+- Firebase.
+- Offline.
+
+==================================================
+3. ممنوعات صارمة
+==================================================
+
+ممنوع:
+- لا تنقل بيانات شخصية.
+- لا تستخدم DROP.
+- لا تستخدم TRUNCATE.
+- لا تستخدم DELETE.
+- لا تمسح أي صفوف.
+- لا تستبدل API الحالي.
+- لا تغيّر مصدر الحقيقة.
+- لا تستخدم service_role في الواجهة.
+- لا تضع أسرار في الكود.
+- لا تضغط Publish.
+- لا تدّع Production Ready.
+- لا تدّع أن Supabase أصبح مصدر الحقيقة إذا لم يتم تبديل Data Layer.
+- لا تنفذ SQL خطير أو destructive.
+
+==================================================
+4. بروتوكول التشخيص قبل النقل
+==================================================
+
+قبل إنشاء SQL seed، افحص:
+
+1. مصدر daily_messages الحالي.
+2. مصدر story_templates الحالي.
+3. مصدر themes الحالي.
+4. مصدر news الحالي.
+5. مصدر jobs الحالي.
+6. مصدر public_events الحالي.
+7. عدد الصفوف في PostgreSQL لكل جدول.
+8. schema الحالي في Drizzle أو API.
+9. schema المقابل في Supabase.
+10. هل الأعمدة متوافقة؟
+11. هل يوجد status/is_active؟
+12. هل يوجد created_at/updated_at؟
+13. هل legacy_id موجود في Supabase؟
+14. هل RLS يسمح بالقراءة العامة أو الإدارية المناسبة؟
+15. هل seed يمكن أن يُعاد تشغيله بدون تكرار؟
+
+بعد التشخيص:
+- أنشئ SQL seed فقط للجداول الآمنة.
+- لا تغيّر الكود الوظيفي.
+- لا تغيّر مصدر الحقيقة.
+
+==================================================
+5. الملفات المطلوب إنشاؤها أو تحديثها
+==================================================
+
+أنشئ:
+
+1. SUPABASE_ADMIN_SEED_MIGRATION.sql
+   يحتوي seed/upsert للجداول admin-managed فقط.
+
+2. SUPABASE_ADMIN_SEED_COUNTS.md
+   يحتوي:
+   - عدد الصفوف في PostgreSQL قبل النقل.
+   - عدد الصفوف المتوقع في Supabase بعد النقل.
+   - الجداول المنقولة.
+   - الجداول غير المنقولة والسبب.
+
+3. SUPABASE_ADMIN_SEED_VERIFY.sql
+   يحتوي queries تحقق فقط:
+   - count لكل جدول.
+   - legacy_id not null حيث مناسب.
+   - migration_batch.
+   - عينات بسيطة.
+
+حدّث:
+4. SUPABASE_MIGRATION_PLAN.md
+5. SUPABASE_MIGRATION_CHECKLIST.md
+6. DATA_SOURCE_MAP.md
+7. QA_REPORT.md
+
+==================================================
+6. متطلبات SQL
+==================================================
+
+في SUPABASE_ADMIN_SEED_MIGRATION.sql:
+
+- استخدم INSERT ... ON CONFLICT أو upsert آمن.
+- استخدم legacy_id.
+- استخدم migrated_at = now().
+- استخدم migration_batch.
+- لا تستخدم DROP/TRUNCATE/DELETE.
+- لا تستخدم UPDATE شامل غير مقيّد.
+- لا تستخدم service_role.
+- لا تضع أسرار.
+- لا تنشئ مستخدمين.
+- لا تلمس auth.users.
+- لا تلمس user_roles/roles إلا إذا كان ضروري للتوثيق فقط، والأصل عدم لمسها.
+
+الجداول المسموحة:
+- daily_messages
+- story_templates
+- themes
+- news
+- jobs
+- public_events
+- app_settings إذا آمن
+
+الجداول الممنوعة:
+- appointments
+- financial_events
+- notifications
+- complaints
+- profiles
+- admin_users
+- user_roles
+- roles
+- permissions
+- audit_logs إلا إذا كان seed audit غير ضروري، والأفضل عدم نقله الآن.
+
+==================================================
+7. تنفيذ SQL
+==================================================
+
+إذا استطعت تشغيل SQL مباشرة من بيئة آمنة، افعل ذلك فقط إذا لا يستخدم service_role في الواجهة ولا يضع أسراراً.
+
+إذا لا تستطيع تشغيل SQL:
+- أنشئ الملف.
+- أعطني تعليمات تشغيله في Supabase SQL Editor.
+- لا تدّع أنه تم النقل.
+
+إذا شغّلت SQL:
+- شغّل verify queries.
+- اذكر counts قبل وبعد.
+- وثّق النتيجة.
+
+==================================================
+8. الاختبارات الإلزامية بعد seed
+==================================================
+
+بعد إنشاء/تشغيل seed:
+
+1. تحقق أن PostgreSQL/API الحالي ما زال يعمل.
+2. تحقق أن Supabase يحتوي البيانات المنقولة.
+3. تحقق أن counts متطابقة.
+4. تحقق أن legacy_id محفوظ.
+5. تحقق أن migration_batch محفوظ.
+6. تحقق أنه لا يوجد duplicate واضح.
+7. افتح Preview.
+8. افتح الرئيسية.
+9. افتح التقويم.
+10. افتح المال.
+11. افتح ستوري اليوم.
+12. افتح الإشعارات.
+13. افتح المراكز.
+14. افتح حسابي.
+15. افتح /admin.
+16. تحقق أن /admin وسوبابيس Auth سليمان.
+17. تحقق أنه لا API 500.
+18. تحقق أنه لا صفحات مكسورة.
+19. شغّل build.
+20. شغّل typecheck.
+21. افحص service_role.
+22. افحص hardcoded secrets.
+
+==================================================
+9. معيار قبول المرحلة
+==================================================
+
+تقبل Phase 12C فقط إذا تحقق:
+
+- SUPABASE_ADMIN_SEED_MIGRATION.sql موجود.
+- SUPABASE_ADMIN_SEED_COUNTS.md موجود.
+- SUPABASE_ADMIN_SEED_VERIFY.sql موجود.
+- لا بيانات شخصية نُقلت.
+- لا DROP/TRUNCATE/DELETE.
+- seed آمن وقابل لإعادة التشغيل.
+- legacy_id محفوظ.
+- migration_batch محفوظ.
+- counts موثقة.
+- PostgreSQL/API الحالي ما زال مصدر الحقيقة.
+- Supabase Auth و/admin سليمان.
+- build ناجح.
+- typecheck ناجح.
+- QA_REPORT محدث.
+- الحكم النهائي:
+Admin Seed Ready / Admin Seed Applied / Needs Seed SQL Run / Needs Fixes
+
+==================================================
+10. التقرير النهائي المطلوب
+==================================================
+
+أعطني تقريراً بهذا الشكل فقط:
+
+1. هل تم إنشاء SUPABASE_ADMIN_SEED_MIGRATION.sql؟
+2. هل تم إنشاء SUPABASE_ADMIN_SEED_COUNTS.md؟
+3. هل تم إنشاء SUPABASE_ADMIN_SEED_VERIFY.sql؟
+4. ما الجداول التي تم تجهيزها للـ seed؟
+5. ما عدد الصفوف الحالي في PostgreSQL لكل جدول؟
+6. هل تم تشغيل seed فعلياً في Supabase أم الملف جاهز فقط؟
+7. إذا تم تشغيله: ما عدد الصفوف في Supabase بعد النقل؟
+8. هل legacy_id محفوظ؟
+9. هل migration_batch محفوظ؟
+10. هل تم نقل أي بيانات شخصية؟
+11. هل يوجد DROP/TRUNCATE/DELETE؟
+12. هل PostgreSQL/API الحالي ما زال مصدر الحقيقة؟
+13. هل Supabase Auth و/admin بقيا سليمين؟
+14. هل المراحل السابقة سليمة؟
+15. هل build نجح؟ اذكر النتيجة صراحة.
+16. هل typecheck نجح؟ اذكر النتيجة صراحة.
+17. هل QA_REPORT تم تحديثه؟
+18. القيود المتبقية.
+19. الحكم النهائي:
+Admin Seed Ready / Admin Seed Applied / Needs Seed SQL Run / Needs Fixes

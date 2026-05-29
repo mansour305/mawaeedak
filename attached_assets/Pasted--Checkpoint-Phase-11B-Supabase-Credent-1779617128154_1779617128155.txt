@@ -1,0 +1,312 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 11B
+Supabase Credentials Connection + Auth/RLS Verification Gate
+
+الدور:
+تصرف كفريق Backend Engineer + Supabase Engineer + Security Reviewer + QA Tester داخل Replit Agent.
+مهمتك الآن ليست إضافة ميزات جديدة، وليست تغيير UI، وليست إعادة بناء المشروع.
+مهمتك التحقق من أن مفاتيح Supabase أُضيفت فعلياً، وأن الاتصال وAuth/RLS يعملان أو توثيق أي مانع بوضوح.
+
+==================================================
+0. السياق الحالي
+==================================================
+
+تم تنفيذ Phase 11 سابقاً كـ Supabase Readiness فقط.
+
+نتيجة Phase 11 السابقة:
+- VITE_SUPABASE_URL لم يكن موجوداً.
+- VITE_SUPABASE_ANON_KEY لم يكن موجوداً.
+- Supabase client أُنشئ بأمان ويعيد null عند غياب المفاتيح.
+- Auth layer جاهز للتحول إلى Supabase عند توفر المفاتيح.
+- /admin ما زال demo guard.
+- RLS_POLICIES.sql موجود لكنه غير مطبق.
+- SUPABASE_SCHEMA.sql موجود.
+- لا service_role في الواجهة.
+- build ناجح.
+- typecheck ناجح.
+- الحكم الحالي: Publishable Preview — Supabase Layer جاهز للربط.
+
+الآن يُفترض أن مفاتيح Supabase أُضيفت في Replit Secrets:
+- VITE_SUPABASE_URL
+- VITE_SUPABASE_ANON_KEY
+
+ويُفترض أن SQL تم تشغيله في Supabase SQL Editor:
+- SUPABASE_SCHEMA.sql
+- RLS_POLICIES.sql
+
+==================================================
+1. الهدف التنفيذي
+==================================================
+
+تحقق من ربط Supabase فعلياً.
+
+المطلوب:
+
+1. تحقق أن env موجودة:
+   - VITE_SUPABASE_URL
+   - VITE_SUPABASE_ANON_KEY
+
+2. تحقق أن Supabase client يعمل ولا يعيد null.
+
+3. تحقق أن الاتصال بقاعدة Supabase يعمل.
+
+4. تحقق أن الجداول الأساسية موجودة:
+   - profiles
+   - roles
+   - permissions
+   - role_permissions
+   - user_roles
+   - admin_users
+   - financial_events
+   - public_events
+   - appointments
+   - daily_messages
+   - story_templates
+   - themes
+   - notifications
+   - notification_preferences
+   - news
+   - jobs
+   - complaints
+   - audit_logs
+   - app_settings
+
+5. تحقق أن RLS مفعّل على الجداول المطلوبة.
+
+6. تحقق من Auth:
+   - signup أو login حسب البنية المتاحة.
+   - session.
+   - logout.
+   - auth state.
+
+7. تحقق من /admin:
+   - المستخدم غير المصرح لا يدخل.
+   - admin يدخل.
+   - super_admin إن وجد لديه صلاحيات أوسع.
+
+8. تحقق من roles/permissions:
+   - user.
+   - admin.
+   - super_admin.
+   - content_manager.
+   - finance_manager.
+
+9. تحقق أن المستخدم لا يرى بيانات غيره.
+
+10. تحقق أن admin يستطيع إدارة البيانات العامة.
+
+11. تحقق أن RLS لا يتم تجاوزه من الواجهة.
+
+12. تحقق أنه لا يوجد service_role في client-side code.
+
+13. حافظ على جميع وظائف التطبيق السابقة.
+
+==================================================
+2. خارج النطاق
+==================================================
+
+هذه المرحلة ليست:
+- Firebase Push.
+- Service Worker.
+- Offline fallback.
+- Expo.
+- Publish.
+- إعادة تصميم.
+- إضافة ميزات جديدة.
+- تغيير Theme Engine.
+- تغيير المراكز.
+- تغيير الحاسبات.
+
+لا تضغط Publish.
+
+==================================================
+3. ممنوعات صارمة
+==================================================
+
+ممنوع:
+- لا تستخدم service_role key في الواجهة.
+- لا تضع أي secret داخل ملفات عامة.
+- لا تضع مفاتيح حقيقية داخل README أو .env.example.
+- لا تتجاوز RLS من client-side.
+- لا تدّع RLS يعمل إذا لم يتم اختباره فعلياً.
+- لا تدّع /admin محمي إذا يمكن الدخول له بدون صلاحية.
+- لا تمسح بيانات حالية.
+- لا تنقل بيانات بشكل destructive.
+- لا تغيّر الحكم إلى Production Ready قبل Gate مستقل.
+- لا تضغط Publish.
+
+==================================================
+4. بروتوكول التشخيص
+==================================================
+
+قبل أي تعديل:
+
+1. اقرأ env.
+2. تحقق هل Supabase client يعيد instance فعلياً.
+3. اختبر اتصال بسيط بجدول عام.
+4. افحص أخطاء console/server.
+5. افحص الجداول الموجودة.
+6. افحص RLS.
+7. افحص Auth.
+8. افحص route guards.
+9. افحص roles/permissions.
+10. افحص عدم وجود أسرار.
+
+إذا المفاتيح غير موجودة:
+- لا تنفذ ربطاً وهمياً.
+- وثق أن المرحلة Blocked.
+- أبق الحكم Publishable Preview.
+
+إذا المفاتيح موجودة لكن SQL لم يُشغّل:
+- وثق الجداول الناقصة.
+- لا تدّع الاتصال مكتمل.
+- أعطني قائمة SQL المطلوب تشغيلها.
+
+==================================================
+5. قاعدة التنفيذ الآمن
+==================================================
+
+نفذ بأقل تغيير آمن.
+
+القواعد:
+- اجعل Supabase خلف service layer.
+- حافظ على fallback عند فشل الاتصال.
+- لا تكسر PostgreSQL/API الحالي قبل التحقق من Supabase.
+- لا تجعل المكونات تعتمد مباشرة على Supabase إذا كان service layer موجوداً.
+- RLS هو الحماية الحقيقية.
+- Route guard في الواجهة دعم إضافي فقط.
+- لا تكسر:
+  - الرئيسية.
+  - التقويم.
+  - المال.
+  - ستوري اليوم.
+  - الإشعارات.
+  - المراكز.
+  - حسابي.
+  - /admin.
+  - Theme Engine.
+
+==================================================
+6. اختبارات إلزامية
+==================================================
+
+اختبر عملياً:
+
+1. تحقق أن Supabase env موجود.
+2. تحقق أن Supabase client يعمل.
+3. تحقق من قراءة جدول عام مثل themes أو daily_messages.
+4. سجل دخول أو اختبر session حسب البنية.
+5. جرّب فتح /admin بدون صلاحية.
+6. جرّب فتح /admin كمستخدم admin.
+7. جرّب قراءة بيانات user-owned.
+8. جرّب منع قراءة بيانات مستخدم آخر إن أمكن.
+9. جرّب عملية admin مثل تعديل daily_message.
+10. تحقق أن audit_logs تسجل العملية.
+11. تحقق أن financial_events تعمل.
+12. تحقق أن appointments تعمل.
+13. تحقق أن notifications تعمل.
+14. افتح جميع الصفحات الأساسية.
+15. تحقق أنه لا توجد API 500.
+16. تحقق أنه لا توجد شاشة بيضاء.
+17. تحقق أنه لا توجد صفحات مكسورة.
+18. افحص عدم وجود service_role.
+19. افحص عدم وجود secrets في الكود.
+
+==================================================
+7. أوامر الفحص
+==================================================
+
+شغّل:
+
+- pnpm build أو npm run build
+- pnpm typecheck أو npm run typecheck إن وجد
+- npm run lint إن وجد
+- npm run test إن وجد
+
+وافحص الأسرار:
+- grep service_role
+- grep SUPABASE_SERVICE_ROLE
+- grep مفاتيح hardcoded إن أمكن
+
+اذكر النتائج صراحة.
+
+==================================================
+8. معيار قبول المرحلة
+==================================================
+
+تقبل المرحلة كـ Supabase Connected Preview فقط إذا:
+
+- env موجود.
+- Supabase client يعمل.
+- الجداول موجودة.
+- Auth يعمل.
+- session تعمل.
+- /admin محمي بصلاحيات.
+- RLS مطبق ومختبر.
+- roles/permissions تعمل.
+- لا service_role في الواجهة.
+- لا أسرار في الكود.
+- build ناجح.
+- typecheck ناجح.
+- لا API 500.
+- لا صفحات مكسورة.
+- QA_REPORT محدث.
+
+إذا env غير موجود أو SQL ناقص:
+الحكم = Blocked أو Needs Fixes حسب السبب.
+
+لا تستخدم Production Ready هنا.
+Production Ready يحتاج Gate لاحق مستقل.
+
+==================================================
+9. تحديث التوثيق
+==================================================
+
+حدّث:
+- README.md
+- ARCHITECTURE.md
+- QA_REPORT.md
+- FALLBACK_SERVICES.md
+- ENV_EXAMPLE.md
+- .env.example إذا احتاج بدون قيم حقيقية
+
+اذكر:
+- هل Supabase متصل فعلياً؟
+- هل Auth يعمل فعلياً؟
+- هل RLS مطبق؟
+- هل /admin محمي؟
+- ما القيود المتبقية؟
+- الحكم النهائي.
+
+==================================================
+10. التقرير النهائي المطلوب
+==================================================
+
+بعد الانتهاء، أعطني تقريراً مختصراً بهذا الشكل فقط:
+
+1. هل VITE_SUPABASE_URL موجود؟
+2. هل VITE_SUPABASE_ANON_KEY موجود؟
+3. هل Supabase client يعمل فعلياً؟
+4. هل الجداول موجودة؟
+5. هل RLS مفعّل؟
+6. هل Auth يعمل؟
+7. هل session تعمل؟
+8. هل /admin محمي فعلياً؟
+9. هل roles/permissions تعمل؟
+10. هل user-owned data محمية؟
+11. هل daily_messages تعمل عبر Supabase؟
+12. هل financial_events تعمل عبر Supabase؟
+13. هل appointments تعمل عبر Supabase؟
+14. هل notifications تعمل عبر Supabase؟
+15. هل audit_logs تعمل؟
+16. هل يوجد service_role في الواجهة؟
+17. هل توجد أسرار في الكود؟
+18. هل المراحل السابقة بقيت سليمة؟
+19. هل build نجح؟
+20. هل typecheck نجح؟
+21. هل QA_REPORT تم تحديثه؟
+22. القيود المتبقية.
+23. الحكم النهائي:
+Supabase Connected Preview / Publishable Preview / Needs Fixes / Blocked

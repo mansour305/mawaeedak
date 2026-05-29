@@ -1,0 +1,302 @@
+نفّذ الآن PHASE 17 — AGENT-RUN FULL E2E TEST, ADMIN LOGIN HARD FIX, AND PROJECT QA LOCKDOWN.
+
+الحكم:
+ممنوع تطلب من المالك يجرب.
+ممنوع ترجع تقول نفّذ SQL.
+ممنوع تسلّم تقرير نظري.
+المشكلة العملية: صفحة /admin تظهر، لكن أزرار تسجيل الدخول ومسح الجلسة لا تنفذ الإجراء عند المالك.
+المطلوب الآن: أنت كـ Replit Agent تدخل التطبيق، تضغط الأزرار بنفسك، تراقب النتيجة، تصلح الكود، ثم تعيد الاختبار حتى يعمل فعلياً.
+
+هذه مرحلة اختبار وتنفيذ فعلية، وليست تقرير.
+
+==================================================
+1. القاعدة العليا
+==================================================
+
+لا تعتمد على:
+- قراءة الكود فقط
+- build فقط
+- typecheck فقط
+- تقارير سابقة
+- قول “يحتاج SQL”
+- قول “المفروض يعمل”
+- طلب تجربة من المالك
+
+المطلوب:
+تشغيل التطبيق في Preview، فتح الصفحات، الضغط الفعلي، مراقبة النتيجة، إصلاح العطل، ثم إعادة الاختبار.
+
+الحكم لا يكون ناجحاً إلا إذا أنت ضغطت بنفسك وتأكدت أن الأزرار تتحرك وتظهر نتيجة واضحة.
+
+==================================================
+2. المطلوب الأول: اختبار /admin بالمتصفح
+==================================================
+
+افتح Preview بنفسك واختبر:
+
+1. افتح /admin
+2. اضغط زر "تسجيل الدخول" بدون بيانات
+3. يجب أن يحدث:
+   - submitFiredCount يزيد
+   - تظهر رسالة تحقق
+   - الزر لا يعلق
+
+4. اكتب بريد خاطئ وكلمة مرور خاطئة
+5. اضغط "تسجيل الدخول"
+6. يجب أن يحدث:
+   - submitFiredCount يزيد
+   - تظهر رسالة "بيانات الدخول غير صحيحة"
+   - الزر يعود طبيعي
+   - لا loading أبدي
+
+7. اضغط "مسح الجلسة والبدء من جديد"
+8. يجب أن يحدث:
+   - resetFiredCount يزيد
+   - يتم مسح localStorage/sessionStorage
+   - لا يعلق الزر
+
+9. افتح /admin?reset=1
+10. يجب أن يمسح الجلسة تلقائياً ويرجع /admin
+
+ممنوع تسليم المرحلة قبل تنفيذ هذه الاختبارات عملياً في المتصفح.
+
+==================================================
+3. إذا لم تتحرك الأزرار
+==================================================
+
+إذا ضغطت الأزرار ولم تتغير العدادات أو لم تظهر نتيجة، أصلح فوراً:
+
+- أزل أي overlay فوق الفورم.
+- أزل pointer-events: none من أي parent.
+- لا تستخدم زر custom معطل.
+- استبدل زر الدخول بزر HTML أصلي.
+- استبدل زر reset بزر HTML أصلي.
+- اجعل الفورم native:
+  <form onSubmit={handleLoginSubmit}>
+- اجعل زر الدخول:
+  <button type="submit">
+- اجعل زر مسح الجلسة:
+  <button type="button" onClick={handleHardResetAuth}>
+- ضع console.info في أول سطر من كل handler.
+- ضع onClick احتياطي على زر الدخول يستدعي نفس submit handler عند الحاجة.
+- لا تترك submit يعتمد على مكوّن Button مخصص.
+
+المطلوب:
+حتى لو كان CSS أو component هو سبب المشكلة، يجب أن يعمل الضغط فعلياً.
+
+==================================================
+4. أصلح Login بطريقة لا تعلق
+==================================================
+
+handleLoginSubmit يجب أن يكون بسيطاً وحاسماً:
+
+- event.preventDefault()
+- increment submitFiredCount فوراً
+- validate email/password
+- setSubmitting(true)
+- signInWithPassword عبر Supabase مباشرة
+- Promise.race timeout 8000ms
+- getUser timeout 5000ms
+- read role من user_metadata ثم app_metadata
+- role صحيح: phase ready + navigate /admin/dashboard
+- role ناقص: access_denied واضح
+- password خطأ: login error واضح
+- network/timeout: auth_error واضح
+- finally دائماً setSubmitting(false)
+
+ممنوع أي loading أبدي.
+
+==================================================
+5. أصلح Reset بطريقة لا تعلق
+==================================================
+
+handleHardResetAuth يجب أن يكون فورياً:
+
+- increment resetFiredCount فوراً
+- console.info("[AdminLogin] reset fired")
+- setSubmitting(false)
+- clear errors
+- signOut local داخل try/catch
+- حذف localStorage keys التي تحتوي:
+  supabase
+  sb-
+  auth
+- sessionStorage.clear()
+- setPhase("login")
+- clear password
+- history.replaceState إلى /admin
+
+حتى لو Supabase signOut فشل، يجب أن يكمل المسح المحلي ولا يعلق.
+
+==================================================
+6. أضف زر إنقاذ لا يعتمد على React
+==================================================
+
+داخل صفحة /admin أضف رابط HTML عادي:
+
+<a href="/admin?reset=1">إعادة ضبط الدخول عبر الرابط</a>
+
+هذا الرابط يجب أن يعمل حتى لو onClick لا يعمل.
+
+==================================================
+7. أضف Admin Self Test Page
+==================================================
+
+أنشئ صفحة مؤقتة:
+
+/admin-self-test
+
+تعرض نتائج مباشرة لهذه الاختبارات:
+
+- form submit event fires
+- reset button event fires
+- /admin?reset=1 works
+- Supabase client ready
+- invalid login returns error within 8s
+- localStorage clear works
+- sessionStorage clear works
+- no infinite loading
+
+كل اختبار يظهر:
+PASS / FAIL
+
+هذه الصفحة لا تعرض أسرار ولا كلمات مرور ولا tokens.
+
+==================================================
+8. اختبر بنفسك كل التطبيق
+==================================================
+
+بعد إصلاح /admin، اختبر الصفحات التالية بنفسك في Preview:
+
+User:
+- /
+- /calendar
+- /finance
+- /finance?tab=calculators
+- /centers
+- /story
+- /account
+- /notifications
+- /support أو complaints إن وجدت
+- legal pages
+- 404
+
+Admin:
+- /admin
+- /admin-self-test
+- /visual-reference-clone
+- /admin/dashboard إن أمكن بعد login
+- /admin/automation إن أمكن بعد login
+- /admin/visual-guide إن أمكن بعد login
+- /admin/data-layer إن أمكن بعد login
+
+إذا صفحات Admin بعد الدخول تحتاج كلمة مرور المالك:
+لا تطلب من المالك الآن.
+اختبر كل شيء يمكن اختباره بدون كلمة المرور:
+- login form
+- invalid login
+- reset button
+- reset link
+- timeout
+- access denied UI
+- self-test page
+- visual reference clone
+
+==================================================
+9. ممنوعات
+==================================================
+
+ممنوع:
+- لا تضغط Publish
+- لا تغير Supabase schema
+- لا تستخدم service_role
+- لا تضع secrets
+- لا تكسر Auth
+- لا تكسر Data Gateway
+- لا تكسر Automation
+- لا تكسر Location/Timezone
+- لا ترجع تقول "جرّب أنت"
+- لا ترجع تقول "نفّذ SQL" كحل وحيد
+- لا تسلّم بدون اختبار ضغط فعلي
+
+==================================================
+10. اختبارات فنية إلزامية
+==================================================
+
+شغّل:
+- typecheck
+- build
+
+وافحص:
+- لا API 500
+- لا شاشة بيضاء
+- لا loading أبدي
+- لا console errors جوهرية
+- لا service_role
+- لا hardcoded secrets
+- Supabase mode يعمل
+- Auth لا يعلق
+- Data Gateway سليم
+- Automation سليمة
+- Location/Timezone سليمة
+- Toast auto-dismiss = 5000ms
+
+==================================================
+11. تحديث QA
+==================================================
+
+حدّث:
+- QA_REPORT.md
+- replit.md
+
+وأضف جدول:
+
+Test | Performed by Agent? | Result | Evidence | Notes
+
+يجب أن يحتوي على:
+- /admin open
+- submit empty form
+- submit wrong credentials
+- reset button click
+- /admin?reset=1
+- admin-self-test
+- build
+- typecheck
+- API endpoints
+- user pages
+- visual pages
+
+==================================================
+12. التقرير النهائي المطلوب فقط
+==================================================
+
+أعطني تقريراً بهذا الشكل فقط:
+
+1. هل فتحت /admin بنفسك في Preview؟
+2. هل ضغطت زر تسجيل الدخول بنفسك؟
+3. هل submitFiredCount زاد فعلياً؟
+4. هل ضغطت زر مسح الجلسة بنفسك؟
+5. هل resetFiredCount زاد فعلياً؟
+6. هل /admin?reset=1 يعمل؟
+7. هل تم إنشاء /admin-self-test؟
+8. ما نتائج /admin-self-test؟
+9. هل كلمة المرور الخاطئة تعرض رسالة واضحة؟
+10. هل زر الدخول لا يعلق بعد الآن؟
+11. هل زر مسح الجلسة لا يعلق بعد الآن؟
+12. هل أزلت أي overlay أو pointer-events تسبب المشكلة؟
+13. هل direct routes لا تعلق؟
+14. هل اختبرت صفحات المستخدم؟
+15. هل اختبرت صفحات admin الممكنة بدون كلمة مرور المالك؟
+16. هل typecheck نجح؟
+17. هل build نجح؟
+18. هل توجد API 500؟
+19. هل توجد شاشة بيضاء؟
+20. هل توجد loading infinite؟
+21. هل QA_REPORT تم تحديثه بجدول الاختبارات؟
+22. ما النواقص المتبقية؟
+23. الحكم النهائي، اختر واحداً فقط:
+Admin Login UI Events Verified
+Needs Owner Password For Real Admin Dashboard
+Needs Fixes
+
+ممنوع استخدام أي حكم آخر.
+ممنوع اقتراح Publish.

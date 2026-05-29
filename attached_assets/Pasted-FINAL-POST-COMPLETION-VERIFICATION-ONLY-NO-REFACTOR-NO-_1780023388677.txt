@@ -1,0 +1,406 @@
+FINAL POST-COMPLETION VERIFICATION ONLY
+NO REFACTOR — NO FEATURE CHANGES — VERIFY BUILD, ROUTES, API, DATA, ADMIN, USER FLOWS
+
+You are Replit Agent working inside the existing Mawaeedak project.
+
+This is final verification only after the latest owner dashboard / complaints / suggestions / finance / support / X-Twitter automation changes.
+
+Do not refactor.
+Do not redesign.
+Do not add new features.
+Do not change business logic unless a verification failure requires a minimal safe fix.
+Do not weaken admin security.
+Do not remove previous fixes.
+Do not print secret values.
+
+Your task:
+Run final verification, prove the app still builds and works, then return a strict final verdict.
+
+==================================================
+
+1. Verify command results
+   ==================================================
+
+Run the real available commands using the actual package manager.
+
+Required:
+
+* typecheck
+* build
+* audit if available
+* API smoke
+* route/UI smoke
+
+Important:
+If web build requires PORT and BASE_PATH, provide the same required workflow env values and document that.
+
+Do not claim success unless the command actually ran.
+
+If build fails:
+
+* fix only the blocking build error.
+* rerun build.
+
+If typecheck fails:
+
+* fix only the blocking type error.
+* rerun typecheck.
+
+==================================================
+2. Route + UI smoke verification
+================================
+
+Do not rely on HTTP 200 alone because this is an SPA.
+
+For each route, verify:
+
+* route returns/loads.
+* page content is meaningful.
+* no white screen.
+* no infinite loading.
+* no visible error boundary.
+* no console crash.
+* no TODO / Demo / Coming Soon visible to users.
+* no admin tools visible to normal users.
+
+Routes to test:
+
+* /
+* /login
+* /register
+* /account
+* /finance
+* /story
+* /notifications
+* /admin
+* /admin/dashboard
+* /admin/complaints
+* /admin/themes
+* /admin/social if exists
+* /admin/financial
+* unknown route for 404
+
+For protected admin routes:
+
+* guest must see access protection or admin login gate.
+* normal user must not see owner dashboard.
+* owner/admin should access dashboard if authenticated.
+
+==================================================
+3. API smoke verification
+=========================
+
+Run API smoke for:
+
+* health/status if available.
+* complaints.
+* suggestions if separate.
+* public complaint/suggestion submission.
+* admin complaints list.
+* financial events.
+* salary schedule.
+* support schedule.
+* notifications.
+* default theme/settings.
+* social automation endpoints if added.
+* admin endpoints.
+
+Security requirements:
+
+* Admin endpoints without token must return 401 or 403.
+* Public endpoints must return 200.
+* No core API endpoint may return 500.
+* No admin data may be exposed publicly.
+* No X/Twitter secrets may be exposed.
+
+==================================================
+4. Data verification
+====================
+
+Verify real data behavior, not only code existence.
+
+Complaints/Suggestions:
+
+* user can submit complaint.
+* user can submit suggestion or complaint with type=suggestion.
+* owner/admin can see complaint list.
+* owner/admin can see suggestion list or filter suggestions.
+* counts are correct.
+* owner/admin can open, reply, change status.
+* admin API is protected.
+
+Salary schedule:
+
+* salary section shows current month + next 11 months.
+* current month appears even if salary day passed, marked correctly.
+* next salary is highlighted.
+* countdown uses Asia/Riyadh.
+* Home salary card matches Finance salary source.
+* Story Today salary countdown uses same source.
+
+Support programs:
+
+Verify required support programs exist in the current/live database or service layer:
+
+* حساب المواطن
+* الضمان الاجتماعي
+* الدعم السكني
+* حافز
+* التقاعد
+* التأمينات / ساند
+* التأهيل الشامل
+* الدعم الزراعي
+* دعم ريف if enabled/implemented
+
+Verify:
+
+* all configured programs appear.
+* each has next date/countdown.
+* Home/Finance/Story use same source.
+* production/backfilled DB contains required programs, not only fresh seed.
+
+Backfill verification:
+
+* confirm support-program backfill is idempotent.
+* running it again must not duplicate rows.
+* existing rows must remain readable.
+* verify that support-program backfill does not create duplicate rows after repeated runs.
+
+==================================================
+5. User flow verification
+=========================
+
+Verify real normal user behavior:
+
+1. Open HomePage as guest.
+2. Open /login.
+3. Normal login page appears, not admin login.
+4. Open /register.
+5. Registration page appears.
+6. Log in as normal user if available or verify session behavior with a non-admin user.
+7. Open /account.
+8. Normal user sees only:
+
+   * الوضع النهاري
+   * الوضع الليلي
+9. Normal user does not see decorative theme catalog.
+10. Normal user does not see Global App Theme controls.
+11. Log out.
+12. Confirm redirect goes to `/`.
+13. Guest after logout sees HomePage.
+14. Guest does not see logout button.
+15. Guest does not see admin tools.
+
+==================================================
+6. Owner/admin flow verification
+================================
+
+Verify owner/admin behavior:
+
+1. /admin is protected for guests.
+2. Admin API without token returns 401/403.
+3. Owner/admin can access dashboard when authenticated.
+4. Owner/admin can open complaints/suggestions.
+5. Owner/admin can view list, filters, counts, detail, reply/status actions.
+6. Owner/admin can open financial management.
+7. Salary 12-month schedule is visible.
+8. Support programs are visible.
+9. Owner/admin can open social automation.
+10. X/Twitter status is honest:
+
+    * if credentials missing: غير متصل / missing credentials.
+    * if credentials present: connection test may run.
+11. No live tweet is posted during verification unless owner explicitly triggers it.
+
+==================================================
+7. X/Twitter automation verification
+====================================
+
+Verify the module safely:
+
+* owner-only UI exists.
+* protected API endpoints exist.
+* settings can be saved if DB/schema exists.
+* tweet preview works from live app data.
+* missing credentials state is clear.
+* manual test without credentials returns clear error.
+* no fake "متصل" or "تم النشر" appears.
+* no secrets in frontend/client bundle.
+* no auto-post during smoke tests.
+
+If X credentials are missing:
+
+This is not blocking if:
+
+* P0 features pass.
+* X module is built safely.
+* missing secrets are documented.
+* no fake success is shown.
+
+==================================================
+8. Preserve previous production fixes
+=====================================
+
+Verify these are still intact:
+
+* /login is normal user login.
+* /register is normal user registration.
+* /forgot-password is normal user reset.
+* normal users are not routed to /admin.
+* /admin remains protected.
+* Admin API remains protected server-side.
+* no localStorage admin bypass.
+* no production trust in localStorage isAdmin.
+* admin role uses trusted server/app_metadata logic.
+* VITE_DATA_SOURCE_MODE=supabase remains active.
+* DATABASE_URL is available.
+* Global Theme remains owner/admin controlled.
+* User appearance remains separate.
+
+If any previous production fix is broken:
+Final verdict = NEEDS FIXES.
+
+==================================================
+9. Documentation update
+=======================
+
+Update only if needed:
+
+* QA_REPORT.md
+* replit.md
+* README.md if final commands or limitations changed.
+* ARCHITECTURE.md if architecture changed.
+* ENV_EXAMPLE.md / .env.example / MISSING_SECRETS.md if X/Twitter secrets or DB settings changed.
+
+Add or update a section:
+
+FINAL POST-COMPLETION VERIFICATION
+
+Include:
+
+* build result.
+* typecheck result.
+* route/UI smoke result.
+* API smoke result.
+* complaints/suggestions verification.
+* logout verification.
+* Light/Dark-only verification.
+* salary 12-month verification.
+* support programs verification.
+* support-program backfill idempotency / no-duplicate result.
+* X/Twitter module status.
+* admin API protection result.
+* remaining limitations.
+
+Do not include secret values.
+
+==================================================
+10. Final verdict rules
+=======================
+
+Final verdict must be exactly one of:
+
+PRODUCTION HANDOVER PASSED
+
+or
+
+NEEDS FIXES
+
+Use PRODUCTION HANDOVER PASSED only if:
+
+* build passes.
+* typecheck passes.
+* route/UI smoke passes.
+* API smoke passes.
+* admin API returns 401/403 without token.
+* public endpoints return 200.
+* logout redirects to `/`.
+* guest after logout sees HomePage.
+* owner can view/manage complaints and suggestions.
+* normal user sees only Light/Dark appearance.
+* salary schedule shows current month + next 11 months.
+* support programs appear with next-payment countdowns.
+* support-program backfill is idempotent and does not create duplicate rows after repeated runs.
+* Home/Finance/Story financial data remains consistent.
+* previous login/admin/security fixes remain intact.
+* X/Twitter is either safely built or documented as waiting for credentials.
+* no secrets are exposed.
+* documentation is updated.
+
+Use NEEDS FIXES if any P0/core item fails.
+
+Do not fail the whole app only because X/Twitter live credentials are missing, provided the module is safely built and documented.
+
+==================================================
+11. Final report format
+=======================
+
+Return only this structure:
+
+1. Final Verdict:
+   PRODUCTION HANDOVER PASSED
+   or
+   NEEDS FIXES
+
+2. Executive Summary.
+
+3. Command Results:
+
+* typecheck.
+* build.
+* audit if run.
+* route/UI smoke.
+* API smoke.
+
+4. P0 Verification:
+
+* logout to HomePage.
+* complaints/suggestions visible and manageable by owner.
+* Light/Dark only for normal user.
+* 12-month salary schedule.
+* support programs countdowns.
+* support-program backfill idempotency / no duplicates.
+* Home/Finance/Story consistency.
+* security preserved.
+
+5. P1/P2 Verification:
+
+* owner dashboard overview.
+* X/Twitter module.
+* credentials present/missing by name only.
+* live posting tested/not tested and why.
+
+6. API/Security Verification:
+
+* admin API protection.
+* public endpoints.
+* localStorage bypass.
+* secrets exposure.
+
+7. Data Verification:
+
+* complaints/suggestions source.
+* salary schedule source.
+* support programs source.
+* backfill/idempotency result.
+* duplicate-row check result.
+
+8. Modified Files:
+
+* path.
+* reason.
+* change type.
+
+9. Remaining Issues:
+
+* issue.
+* severity.
+* blocking/non-blocking.
+* required action.
+
+10. Final Launch Decision:
+    PRODUCTION HANDOVER PASSED
+    or
+    NEEDS FIXES
+
+Start now. Verification only. Do not refactor or add features.

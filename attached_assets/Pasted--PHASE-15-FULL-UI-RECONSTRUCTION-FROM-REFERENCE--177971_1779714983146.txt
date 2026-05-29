@@ -1,0 +1,435 @@
+نفّذ الآن PHASE 15 — FULL UI RECONSTRUCTION FROM REFERENCE.
+
+الحكم الرسمي:
+كل نتائج التصميم السابقة مرفوضة.
+التطبيق الحالي لا يطابق المرجع 10/10.
+ممنوع الاستمرار في الترقيع أو التحسين الجزئي.
+ممنوع تقديم تقرير نجاح قبل إعادة بناء الواجهة فعلياً.
+المطلوب الآن: إعادة بناء طبقة الواجهة بالكامل لتطابق صورة المرجع المرفقة، مع الحفاظ على الوظائف والبيانات.
+
+الصورة المرفقة هي مصدر التصميم الوحيد.
+
+==================================================
+1. القرار التنفيذي
+==================================================
+
+أوقف نهج:
+- تحسين صفحة واحدة.
+- تعديل ألوان.
+- رفع درجات وهمية.
+- تقرير 9/10.
+- Pending Owner Visual Approval بدون تنفيذ حقيقي.
+- استخدام مكونات قديمة مع شوية زخرفة.
+
+ابدأ نهج جديد:
+إعادة بناء UI Layer كامل من الصفر فوق المنطق الحالي.
+
+المطلوب:
+- لا تغيّر Supabase.
+- لا تغيّر Auth logic.
+- لا تغيّر RLS.
+- لا تغيّر Data Gateway.
+- لا تغيّر APIs.
+- لا تغيّر Automation.
+- لا تغيّر Location/Timezone.
+- لا تغيّر بيانات التطبيق.
+- غيّر فقط الواجهة والمكونات البصرية والـ CSS/Assets.
+
+==================================================
+2. ممنوعات نهائية
+==================================================
+
+ممنوع:
+- لا تكتب Reference Design Matched.
+- لا تكتب Ready to Publish.
+- لا تكتب Production Ready.
+- لا تكتب 9/10 أو 10/10 كتقييم ذاتي.
+- لا تقترح النشر.
+- لا تكتفِ بالـ HomePage.
+- لا تترك Admin loading screen بيضاء أو فارغة.
+- لا تترك /admin على شاشة "جار التحقق" بدون تصميم تراثي كامل.
+- لا تترك أي صفحة بتصميم قديم.
+- لا تستخدم shadcn default بدون تغليف كامل بالثيم.
+- لا تترك خلفية بيضاء كبيرة.
+- لا تترك بطاقات مسطحة.
+- لا تترك Header مختلف عن المرجع.
+- لا تترك BottomNav مختلف عن المرجع.
+- لا تترك الصور اليومية أو بطاقات المشاركة بدون شعار وحقوق.
+- لا تستخدم service_role.
+- لا تضع secrets في الكود.
+- لا تحذف أي وظيفة.
+
+==================================================
+3. المطلوب أولاً: بناء Clone Component System
+==================================================
+
+أنشئ نظام مكونات جديد واضح، مثلاً:
+
+src/components/mawaeedak/
+- MawaeedakAppShell.tsx
+- MawaeedakHeader.tsx
+- MawaeedakBottomNav.tsx
+- MawaeedakCard.tsx
+- MawaeedakSection.tsx
+- MawaeedakHeroDate.tsx
+- MawaeedakPrayerPanel.tsx
+- MawaeedakCalendar.tsx
+- MawaeedakFinanceCard.tsx
+- MawaeedakCenterTile.tsx
+- MawaeedakStoryCard.tsx
+- MawaeedakAdminShell.tsx
+- MawaeedakVisualGuide.tsx
+
+وأنشئ ملف تصميم مركزي:
+src/styles/mawaeedak-reference.css
+
+هذا الملف يجب أن يحتوي كل tokens والأنماط:
+- dark brown header
+- heritage gold
+- paper background
+- cream cards
+- gold borders
+- deep shadows
+- ornamental dividers
+- active nav capsule
+- dark admin sidebar
+- watermark
+- copyright strip
+
+==================================================
+4. المطلوب ثانياً: إنشاء صفحة مقارنة داخلية
+==================================================
+
+أنشئ صفحة داخلية مؤقتة:
+
+/admin/reference-clone
+
+أو:
+
+/visual-reference-clone
+
+تعرض نسخة من لوحة المرجع كاملة داخل التطبيق:
+- صف شاشات المستخدم
+- صف لوحة المالك
+- دليل العناصر
+- الألوان
+- البطاقات
+- الأزرار
+- Header
+- BottomNav
+- الحقوق
+
+الهدف:
+إثبات أن النظام البصري تم بناؤه فعلياً قبل توزيعه على الصفحات.
+
+لا تجعلها صورة فقط.
+اجعلها مكونات React/CSS حقيقية من نفس المكونات التي ستستخدمها الصفحات.
+
+==================================================
+5. تطبيق التصميم على صفحات المستخدم
+==================================================
+
+طبّق المكونات الجديدة على:
+
+1. HomePage
+يجب أن تطابق أول شاشة في المرجع:
+- Header داكن كامل.
+- Hero desert image.
+- رسالة اليوم.
+- مواقيت الصلاة.
+- مواعيد قادمة.
+- BottomNav.
+- لا فراغ أبيض كبير.
+- لا شاشة وسط صفحة.
+
+2. CalendarPage
+- تقويم شهري حقيقي.
+- أيام عربية.
+- اليوم محدد.
+- مواعيد اليوم.
+- أزرار إضافة/تعديل بنفس الهوية.
+
+3. FinancePage
+- ملخص مالي.
+- مواعيد مالية.
+- تبويب الحاسبات.
+- سلم الرواتب.
+- كل شيء مطابق للمرجع.
+
+4. Smart Calculators
+- لا يكون مجرد تبويب.
+- افتح /finance?tab=calculators واعرض شبكة حاسبات مثل المرجع.
+- كروت كريمية وأيقونات ذهبية ونتائج داخل panel.
+
+5. CentersPage
+- شبكة مراكز مثل المرجع.
+- أيقونات واضحة.
+- زخارف أركان.
+
+6. StoryPage
+- كرت ستوري مطابق.
+- شعار مواعيدك.
+- الحقوق: "مواعيدك — جميع الحقوق محفوظة".
+- أزرار مشاركة/حفظ/نسخ.
+
+7. AccountPage
+- هيرو حسابي تراثي.
+- profile card.
+- theme previews.
+- location/timezone section.
+- logout button.
+
+8. NotificationsPage
+- لا empty page عادية.
+- header/hero صغير.
+- bell luxury empty state.
+- cards فاخرة عند وجود إشعارات.
+- read/delete/mark-all محفوظة.
+
+9. الصفحات القانونية و404
+- لا تتركها خام.
+- طبّق نفس الخلفية والبطاقات والشعار.
+
+==================================================
+6. تطبيق التصميم على لوحة المالك
+==================================================
+
+طبّق المكونات الجديدة على:
+
+1. Admin Login
+- لا تكون شاشة بيضاء.
+- لا تكون Supabase default.
+- كرت دخول فاخر.
+- شعار مواعيدك.
+- خلفية ورقية.
+- هيدر داكن.
+- زر ذهبي.
+
+2. Admin Verification / Loading
+المشكلة الحالية:
+تظهر صفحة بيضاء تقريباً مع "جار التحقق".
+
+المطلوب:
+صمم شاشة تحقق تراثية كاملة:
+- خلفية ورقية.
+- شعار مواعيدك.
+- بطاقة داكنة أو كريمية.
+- spinner ذهبي.
+- نص "جار التحقق..." داخل بطاقة فاخرة.
+- لا فراغ أبيض كبير.
+
+3. Admin Dashboard
+- Sidebar داكن.
+- شعار مواعيدك.
+- stat cards.
+- activity list.
+- charts.
+- جدول.
+- نفس المرجع.
+
+4. Admin Automation
+- كروت للأتمتة.
+- daily messages.
+- scheduled notifications.
+- logs.
+- timezone note.
+- نفس الهوية.
+
+5. Admin Data Layer
+- جداول وكروت بنفس الهوية.
+- لا raw developer page.
+
+6. Admin Visual Guide
+- يجب أن يعرض نظام التصميم كله:
+  - colors
+  - typography
+  - cards
+  - buttons
+  - inputs
+  - badges
+  - icons
+  - header
+  - bottom nav
+  - story watermark
+  - copyright strip
+
+7. كل صفحات Admin الأخرى:
+- News/Jobs
+- Themes
+- Story
+- Messages
+- Notifications
+- Reports/Audit
+- Events/Financial إن وجدت
+
+لا تترك أي صفحة admin بتصميم مختلف.
+
+==================================================
+7. شعار وحقوق مواعيدك
+==================================================
+
+إلزامي:
+كل عنصر عام أو قابل للمشاركة يجب أن يحمل هوية مواعيدك.
+
+طبّق:
+- شعار مواعيدك في Header.
+- شعار مواعيدك في Admin.
+- شعار مواعيدك في Story.
+- شعار مواعيدك في الصور اليومية.
+- شعار مواعيدك في بطاقات المشاركة.
+- حقوق في كل بطاقة مشاركة:
+"مواعيدك — جميع الحقوق محفوظة"
+
+ممنوع:
+أي export/share/generated visual بدون شعار وحقوق.
+
+==================================================
+8. الأصول البصرية
+==================================================
+
+ثبّت الأصول داخل المشروع:
+
+- desert-hero.png
+- mawaeedak-emblem.svg أو png
+- paper-texture
+- heritage-pattern
+- dark-header-pattern
+- gold-divider
+- corner-ornament
+- story-watermark
+- rights-strip
+
+لا تستخدم روابط خارجية.
+لا تعتمد على صور remote.
+
+==================================================
+9. شرط اللقطة العملية
+==================================================
+
+بعد التنفيذ، يجب أن تجهز Screenshot Package فعلي، وليس كلاماً.
+
+الصور المطلوبة:
+1. HomePage
+2. CalendarPage
+3. FinancePage
+4. Smart Calculators مفتوح
+5. CentersPage
+6. StoryPage
+7. AccountPage
+8. NotificationsPage
+9. Admin Login
+10. Admin Verification/Loading
+11. Admin Dashboard بعد الدخول إن أمكن
+12. Admin Automation بعد الدخول إن أمكن
+13. Admin Visual Guide بعد الدخول إن أمكن
+14. /visual-reference-clone أو /admin/reference-clone
+
+إذا تعذر الدخول للصفحات المحمية:
+لا تدّعي أنها مصورة.
+لكن Admin Login وAdmin Loading يجب أن يكونا مصممين ومصورين.
+
+==================================================
+10. QA_REPORT
+==================================================
+
+حدّث QA_REPORT.md بجدول Visual QA Matrix فعلي:
+
+الصفحة | Screenshot جاهز؟ | هل تستخدم المكونات الجديدة؟ | النواقص | الحكم
+
+لا تستخدم درجات رقمية.
+استخدم حكم واضح:
+- Done
+- Needs Owner Login
+- Needs Owner Visual Approval
+- Needs Fix
+
+يجب أن تشمل:
+- HomePage
+- CalendarPage
+- FinancePage
+- Smart Calculators
+- CentersPage
+- StoryPage
+- AccountPage
+- NotificationsPage
+- Legal pages
+- 404
+- Admin Login
+- Admin Loading
+- Admin Dashboard
+- Admin Automation
+- Admin Data Layer
+- Admin Visual Guide
+- Reference Clone Page
+
+==================================================
+11. اختبارات إلزامية
+==================================================
+
+شغّل:
+- typecheck
+- build
+
+تحقق:
+- لا API 500.
+- لا شاشة بيضاء.
+- لا console errors جوهرية.
+- Supabase mode يعمل.
+- Auth يعمل.
+- /admin محمي.
+- Admin loading مصمم وليس أبيض.
+- Data Gateway سليم.
+- Automation سليمة.
+- Location/Timezone سليم.
+- Toast auto-dismiss = 5000ms.
+- RTL سليم.
+- mobile layout سليم.
+- لا overflow أفقي.
+- BottomNav لا يغطي المحتوى.
+- لا service_role.
+- لا hardcoded secrets.
+- لا DROP/TRUNCATE.
+
+==================================================
+12. التقرير النهائي المطلوب فقط
+==================================================
+
+أعطني تقريراً بهذه الصيغة فقط:
+
+1. هل تم إلغاء نهج الترقيع السابق؟
+2. هل تم إنشاء مكونات Mawaeedak UI الجديدة؟
+3. هل تم إنشاء ملف تصميم مركزي؟
+4. هل تم إنشاء صفحة reference clone؟
+5. هل تم تطبيق App Shell الجديد على كل صفحات المستخدم؟
+6. هل تم تطبيق Admin Shell الجديد على كل صفحات المالك؟
+7. هل تم إصلاح شاشة Admin Loading البيضاء؟
+8. هل Story/share/generated cards تحمل شعار وحقوق مواعيدك؟
+9. هل Screenshot Package جاهز للصفحات العامة؟
+10. هل Admin Login screenshot جاهز؟
+11. هل Admin Loading screenshot جاهز؟
+12. هل Admin Dashboard يحتاج دخول المالك؟
+13. هل Admin Automation يحتاج دخول المالك؟
+14. هل Admin Visual Guide يحتاج دخول المالك؟
+15. هل QA_REPORT يحتوي Visual QA Matrix بالحالات فقط؟
+16. هل build نجح؟
+17. هل typecheck نجح؟
+18. هل توجد API 500؟
+19. هل توجد شاشة بيضاء؟
+20. هل Supabase/Auth/Data Gateway سليمة؟
+21. هل Automation/Location سليمة؟
+22. ما النواقص المتبقية؟
+23. الحكم النهائي:
+Pending Owner Visual Approval
+
+الحكم النهائي الوحيد المسموح:
+Pending Owner Visual Approval
+
+ممنوع كتابة:
+- Reference Design Matched
+- Ready to Publish
+- Production Ready
+- 10/10
+- 9/10
+- مطابق نهائياً
+
+نفّذ الآن.

@@ -1,0 +1,87 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 11C
+Supabase Unblock Verification Gate
+
+تم الآن:
+1. إضافة VITE_SUPABASE_URL في Replit Secrets.
+2. إضافة VITE_SUPABASE_ANON_KEY في Replit Secrets.
+3. تشغيل SUPABASE_SCHEMA.sql في Supabase SQL Editor بنجاح.
+4. تشغيل RLS_POLICIES.sql في Supabase SQL Editor بنجاح.
+
+مهم:
+إذا كانت متغيرات البيئة لا تظهر فوراً، أعد تشغيل dev server أو التطبيق قبل الحكم.
+لا تعدل UI.
+لا تضف ميزات جديدة.
+لا تستخدم service_role.
+لا تضغط Publish.
+
+المطلوب الآن فقط:
+1. تحقق أن VITE_SUPABASE_URL موجود.
+2. تحقق أن VITE_SUPABASE_ANON_KEY موجود.
+3. تحقق أن Supabase client لا يعيد null.
+4. تحقق أن الاتصال مع Supabase يعمل.
+5. تحقق أن الجداول موجودة.
+6. تحقق أن RLS مفعّل.
+7. تحقق هل Auth يعمل فعلياً أم لا.
+8. تحقق هل session تعمل.
+9. تحقق هل /admin ما زال demo guard أم أصبح محمياً فعلياً.
+10. تحقق هل roles/permissions تعمل.
+11. تحقق هل daily_messages تعمل عبر Supabase أو ما زالت عبر API/PostgreSQL الحالي.
+12. تحقق هل financial_events تعمل عبر Supabase أو ما زالت عبر API/PostgreSQL الحالي.
+13. تحقق هل appointments تعمل عبر Supabase أو ما زالت عبر API/PostgreSQL الحالي.
+14. تحقق هل notifications تعمل عبر Supabase أو ما زالت عبر API/PostgreSQL الحالي.
+15. تحقق هل audit_logs تعمل.
+16. افحص عدم وجود service_role في الواجهة.
+17. افحص عدم وجود أسرار hardcoded في الكود.
+18. تأكد أن جميع المراحل السابقة سليمة.
+19. شغّل build.
+20. شغّل typecheck.
+21. حدّث QA_REPORT بالحالة الحقيقية.
+
+اختبر الصفحات:
+- الرئيسية
+- التقويم
+- المال
+- ستوري اليوم
+- الإشعارات
+- المراكز
+- حسابي
+- /admin
+- الصفحات القانونية
+- 404
+
+ممنوع:
+- لا تدّع Production Ready.
+- لا تدّع Supabase Connected Preview إلا إذا الاتصال والجداول وRLS وAuth أوضحوا نجاحاً فعلياً.
+- لا تدّع /admin محمي إنتاجياً إذا بقي demo guard.
+- لا تستخدم service_role.
+- لا تضع أسراراً داخل الكود.
+- لا تضغط Publish.
+
+التقرير النهائي المطلوب:
+
+1. هل VITE_SUPABASE_URL موجود؟
+2. هل VITE_SUPABASE_ANON_KEY موجود؟
+3. هل Supabase client يعمل فعلياً؟
+4. هل الجداول موجودة؟
+5. هل RLS مفعّل؟
+6. هل Auth يعمل فعلياً أم demo؟
+7. هل session تعمل؟
+8. هل /admin محمي فعلياً أم demo؟
+9. هل roles/permissions تعمل؟
+10. هل daily_messages تعمل عبر Supabase؟
+11. هل financial_events تعمل عبر Supabase؟
+12. هل appointments تعمل عبر Supabase؟
+13. هل notifications تعمل عبر Supabase؟
+14. هل audit_logs تعمل؟
+15. هل يوجد service_role في الواجهة؟
+16. هل توجد أسرار hardcoded؟
+17. هل المراحل السابقة بقيت سليمة؟
+18. هل build نجح؟ اذكر النتيجة صراحة.
+19. هل typecheck نجح؟ اذكر النتيجة صراحة.
+20. هل QA_REPORT تم تحديثه؟
+21. القيود المتبقية.
+22. الحكم النهائي:
+Supabase Connected Preview / Publishable Preview / Needs Fixes / Blocked

@@ -1,0 +1,396 @@
+FINAL MAWAEEDAK PRODUCTION VERIFICATION ONLY
+NO REFACTOR — NO FEATURE CHANGES — FINAL ENV/API/BUILD/SECURITY CHECK
+
+You are Replit Agent working inside the existing Mawaeedak project.
+
+This is FINAL VERIFICATION ONLY.
+
+Do not refactor.
+Do not rebuild from scratch.
+Do not redesign UI.
+Do not change features unless a blocking verification failure requires a minimal safe fix.
+Do not print or expose secret values.
+Only confirm whether required environment variables exist by name/status, never by value.
+
+I have added/confirmed these environment variables:
+
+* VITE_DATA_SOURCE_MODE=supabase
+* VITE_SUPABASE_URL
+* VITE_SUPABASE_ANON_KEY
+* SESSION_SECRET
+* DATABASE_URL
+
+Your task is to restart, verify, run final checks, update documentation, and return a strict final verdict.
+
+==================================================
+
+1. Required environment verification
+   ==================================================
+
+Verify that the following variables are available to the app/runtime:
+
+* DATABASE_URL
+* SESSION_SECRET
+* VITE_DATA_SOURCE_MODE
+* VITE_SUPABASE_URL
+* VITE_SUPABASE_ANON_KEY
+
+Requirements:
+
+* VITE_DATA_SOURCE_MODE must equal: supabase
+* DATABASE_URL must be available to the API server.
+* Do not print secret values.
+* If any required variable is missing, final verdict = NEEDS FIXES.
+
+==================================================
+2. Restart and runtime verification
+===================================
+
+Restart the app/API in the Replit environment.
+
+Verify:
+
+1. API server starts successfully.
+2. Frontend starts successfully.
+3. No crash on startup.
+4. No DATABASE_URL error.
+5. No blank screen.
+6. No unhandled runtime error in browser console.
+
+==================================================
+3. Required commands
+====================
+
+Run the available project commands using the actual package manager.
+
+Run:
+
+* typecheck
+* build
+* audit if available
+* API smoke
+* route smoke
+
+Do not claim a command passed unless it actually ran.
+
+If a command is not available, document that clearly.
+
+If typecheck or build fails, fix with the smallest safe change and rerun.
+
+==================================================
+4. API smoke verification
+=========================
+
+Run API smoke now that DATABASE_URL exists.
+
+Verify at minimum:
+
+* API health/status if available.
+* financial events endpoint.
+* countdown endpoint.
+* daily messages endpoint.
+* notifications endpoint.
+* complaints endpoint.
+* themes endpoint.
+* story data endpoint.
+* admin endpoints.
+
+Security checks:
+
+* Admin API without token must return 401 or 403.
+* Public endpoints must return 200.
+* No core API endpoint may return 500.
+* No sensitive data may be exposed.
+* No admin action may be allowed without valid admin authentication.
+
+If API smoke fails because of code, fix it and rerun.
+If API smoke fails because DATABASE_URL is still unavailable, final verdict = NEEDS FIXES.
+
+==================================================
+5. Route smoke verification
+===========================
+
+Run route smoke for:
+
+* /
+* /calendar
+* /finance
+* /centers
+* /account
+* /story
+* /notifications
+* /privacy
+* /terms
+* /disclaimer
+* /support
+* /login
+* /register
+* /forgot-password
+* /admin
+* /admin/dashboard
+* /admin/members
+* /admin/events
+* /admin/financial
+* /admin/messages
+* /admin/story
+* /admin/themes
+* /admin/notifications
+* /admin/news-jobs
+* /admin/reports
+* /admin/permissions
+* /admin/complaints
+* one unknown route for 404
+
+Verify each route:
+
+* no white screen.
+* no infinite loading.
+* no TODO / Coming Soon / Demo text in user-facing UI.
+* guest/user cannot see owner tools.
+* /admin is protected.
+* public pages render correctly.
+* unknown route shows a proper 404.
+
+==================================================
+6. Security verification
+========================
+
+Verify all of the following:
+
+1. /admin is protected.
+2. Admin API returns 401/403 without token.
+3. Public login does not route to admin.
+4. Guest does not see admin/owner tools.
+5. Regular user does not see admin/owner tools.
+6. No localStorage admin bypass.
+7. No production trust in admin_authenticated.
+8. No production trust in localStorage isAdmin.
+9. No service_role key in frontend/client.
+10. No secrets committed in code.
+11. Admin role verification uses server-side trusted metadata/app metadata, not user-editable metadata.
+
+If any security item fails, fix it and rerun verification.
+
+==================================================
+7. Data mode and Supabase verification
+======================================
+
+Verify:
+
+* VITE_DATA_SOURCE_MODE=supabase is active in the deployed/runtime configuration.
+* Supabase client initializes.
+* Supabase URL and anon key are present.
+* DATABASE_URL is available for server/API/database access.
+* RLS status is documented honestly.
+
+Do not claim full RLS verification unless it was actually verified.
+
+If Supabase/RLS cannot be fully verified, document exactly what is verified and what remains.
+However, do not fail launch if the app is secure, DATABASE_URL works, API smoke passes, and RLS setup is documented.
+
+==================================================
+8. Global Theme verification
+============================
+
+Verify:
+
+1. Global App Theme exists.
+2. Global App Theme is owner/admin controlled.
+3. Global App Theme is not visible to regular users.
+4. User Theme still works from account/user settings.
+5. User Theme and Global App Theme are separated.
+6. Theme persists after reload.
+7. Theme does not break HomePage, StoryPage, Theme Center, or Admin Dashboard.
+
+If Global Theme fails, fix it with the smallest safe change and rerun verification.
+
+==================================================
+9. Documentation update
+=======================
+
+Update documentation only to reflect the real final state.
+
+Update:
+
+* QA_REPORT.md
+* replit.md
+* README.md if needed
+* ARCHITECTURE.md if needed
+* MISSING_SECRETS.md if needed
+
+QA_REPORT.md must include:
+
+* Final Verification Snapshot.
+* Environment variable status by name only.
+* Typecheck result.
+* Build result.
+* API smoke result.
+* Route smoke result.
+* Security verification result.
+* Supabase/data mode result.
+* Global Theme result.
+* Final verdict.
+
+Do not include secret values.
+
+==================================================
+10. Deployment Environment Verification
+=======================================
+
+Verify that the required environment variables are available in the actual Replit deployment/runtime environment, not only in the local development shell.
+
+Required deployment/runtime variables:
+
+* DATABASE_URL
+* SESSION_SECRET
+* VITE_DATA_SOURCE_MODE
+* VITE_SUPABASE_URL
+* VITE_SUPABASE_ANON_KEY
+
+Requirements:
+
+* VITE_DATA_SOURCE_MODE must equal supabase in the deployed/runtime configuration.
+* Do not print secret values.
+* If a variable exists in development but is missing in deployment/runtime, final verdict = NEEDS FIXES.
+
+==================================================
+11. Database Schema / Global Theme Storage Verification
+=======================================================
+
+Verify that the database/schema required for Global Theme is available.
+
+Check:
+
+* app_settings table or equivalent central settings storage exists.
+* Global App Theme can be read from the central storage.
+* Owner/admin can update Global App Theme.
+* Regular users cannot update Global App Theme.
+* User Theme remains separate from Global App Theme.
+* Reload preserves theme behavior.
+
+If the database table or equivalent storage is missing and Global Theme cannot persist centrally, final verdict = NEEDS FIXES.
+
+==================================================
+12. Final verdict rules
+=======================
+
+Final verdict must be exactly one of:
+
+PRODUCTION HANDOVER PASSED
+
+or
+
+NEEDS FIXES
+
+Use PRODUCTION HANDOVER PASSED only if:
+
+1. DATABASE_URL is available.
+2. VITE_DATA_SOURCE_MODE=supabase is active.
+3. VITE_DATA_SOURCE_MODE=supabase is active in the actual deployment/runtime environment.
+4. API server starts.
+5. API smoke passes.
+6. Typecheck passes.
+7. Build passes.
+8. Route smoke passes.
+9. /admin is protected.
+10. Admin API returns 401/403 without token.
+11. Public endpoints return 200.
+12. No localStorage admin bypass.
+13. Public login does not route to admin.
+14. Owner/admin tools do not appear to guest/user.
+15. Global Theme works and is admin-controlled.
+16. Global Theme is persisted centrally through app_settings or equivalent database-backed storage.
+17. User Theme works separately.
+18. No secrets are exposed in code or logs.
+19. QA_REPORT.md and replit.md are updated.
+
+If any condition fails, final verdict = NEEDS FIXES.
+
+==================================================
+13. Final report format
+=======================
+
+Return only this report:
+
+1. Final Verdict:
+   PRODUCTION HANDOVER PASSED
+   or
+   NEEDS FIXES
+
+2. Executive Summary.
+
+3. Environment Verification:
+
+* DATABASE_URL: present/missing
+* SESSION_SECRET: present/missing
+* VITE_DATA_SOURCE_MODE: supabase/not supabase/missing
+* VITE_SUPABASE_URL: present/missing
+* VITE_SUPABASE_ANON_KEY: present/missing
+* Deployment/runtime variables: verified/not verified
+
+4. Command Results:
+
+* typecheck
+* build
+* audit
+* API smoke
+* route smoke
+
+5. API Verification:
+
+* API server start
+* public endpoints
+* admin endpoints
+* unauthorized admin access result
+* core 500 errors if any
+
+6. Security Verification:
+
+* /admin protection
+* Admin API protection
+* localStorage bypass
+* guest/user/admin visibility
+* secrets exposure
+
+7. Data/Supabase Verification:
+
+* active data mode
+* Supabase client status
+* DATABASE_URL usage
+* RLS status
+
+8. Global Theme Verification:
+
+* User Theme
+* Global Theme
+* central storage/app_settings status
+* permissions
+* persistence
+
+9. Documentation Updated:
+
+* QA_REPORT.md
+* replit.md
+* README.md if changed
+* ARCHITECTURE.md if changed
+* MISSING_SECRETS.md if changed
+
+10. Modified Files:
+
+* path
+* reason
+* change type
+
+11. Remaining Issues:
+
+* issue
+* severity
+* blocking/non-blocking
+* required action
+
+12. Final Launch Decision:
+    PRODUCTION HANDOVER PASSED
+    or
+    NEEDS FIXES
+
+Start now.

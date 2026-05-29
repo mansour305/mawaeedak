@@ -1,0 +1,407 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Deep Product Completion — Phase 10
+Documentation + QA Hardening + Reality Alignment Gate
+
+الدور:
+تصرف كفريق Technical Writer + QA Lead + Product Reliability Engineer + Release Manager داخل Replit Agent.
+مهمتك الآن ليست إضافة ميزات منتج جديدة، وليست تغيير UI، وليست تغيير API أو Data Layer، وليست تفعيل Supabase.
+مهمتك تدقيق وتحديث التوثيق والـ QA بحيث يطابق الواقع الفعلي للمشروع 100%، ويمنع أي ادعاء غير صحيح، ويجهز المشروع للمرحلة التالية Supabase/Auth/RLS.
+
+==================================================
+0. السياق الحالي
+==================================================
+
+المشروع وصل إلى Publishable Preview مستقر.
+
+المراحل المعتمدة:
+1. Visual Polish — معتمد.
+2. Calendar CRUD + Appointment Data Flow — معتمد.
+3. Finance Center + Calculators — معتمد.
+4. Story Today Advanced — معتمد.
+5. Notification Center + Admin Send Flow — معتمد.
+6. Admin Deep Control + Data Impact — معتمد.
+7. Theme Engine — معتمد.
+8. Centers Completion — معتمد.
+9. Account + Legal UX + User Preferences — معتمد.
+10. PWA + Error Handling + Accessibility — معتمد.
+
+الحالة الحالية المثبتة:
+- Preview يعمل.
+- build ناجح.
+- typecheck ناجح.
+- لا توجد شاشة بيضاء.
+- لا توجد API 500.
+- لا توجد صفحات مكسورة.
+- الرئيسية تعمل.
+- التقويم يعمل.
+- المال والحاسبات تعمل.
+- ستوري اليوم يعمل.
+- الإشعارات تعمل.
+- المراكز الثمانية تعمل.
+- حسابي يعمل.
+- الصفحات القانونية تعمل.
+- /admin يعمل.
+- Theme Engine يعمل.
+- Error Boundary موجود.
+- صفحة 404 عربية موجودة.
+- manifest محدث.
+- QA_REPORT محدث حتى Phase 9.
+- الحكم الحالي: Publishable Preview.
+
+القيود المؤجلة الموثقة:
+- Auth demo mode.
+- Supabase/Auth/RLS غير مفعلة إنتاجياً.
+- Push Notifications مؤجل.
+- Service Worker مؤجل.
+- Offline Fallback مؤجل.
+- الصفحات القانونية مسودة تشغيلية.
+- الحاسبات تقديرية.
+- بعض البيانات admin_managed أو fallback وليست official.
+
+==================================================
+1. الهدف التنفيذي
+==================================================
+
+اجعل توثيق المشروع وملفات الجودة تعكس الواقع الفعلي بدقة.
+
+المطلوب:
+1. مراجعة README.md وتحديثه.
+2. مراجعة ARCHITECTURE.md أو إنشاؤه إذا كان ناقصاً.
+3. مراجعة QA_REPORT.md وتوحيده مع آخر حالة.
+4. مراجعة FALLBACK_SERVICES.md أو إنشاؤه إذا كان ناقصاً.
+5. مراجعة ENV_EXAMPLE.md أو إنشاؤه إذا كان ناقصاً.
+6. مراجعة .env.example أو إنشاؤه إذا كان ناقصاً.
+7. مراجعة SUPABASE_SCHEMA.sql.
+8. مراجعة RLS_POLICIES.sql.
+9. إنشاء أو تحديث Smoke Checklist واضح.
+10. توثيق كل القيود المتبقية بصدق.
+11. توثيق الفرق بين:
+    - Publishable Preview.
+    - Production Ready.
+12. التأكد أن التوثيق لا يدّعي شيئاً غير منفذ.
+13. تشغيل build وtypecheck بعد تحديث التوثيق.
+14. تحديث QA_REPORT بنتيجة هذه المرحلة.
+
+==================================================
+2. خارج النطاق
+==================================================
+
+هذه المرحلة ليست:
+- إضافة ميزات جديدة.
+- تعديل UI.
+- تعديل Theme Engine.
+- تعديل Calendar/Finance/Story/Notifications/Centers.
+- تفعيل Supabase.
+- تفعيل Auth/RLS.
+- تفعيل Firebase.
+- إضافة Service Worker الآن.
+- Publish.
+- Production Ready Gate.
+
+لا تغيّر الوظائف إلا إذا وجدت كسر توثيقي بسيط أو مسار مكسور متعلق بالتوثيق.
+
+==================================================
+3. ممنوعات صارمة
+==================================================
+
+ممنوع:
+- لا تعيد بناء المشروع من البداية.
+- لا تضف ميزات جديدة.
+- لا تغيّر API.
+- لا تغيّر Data Layer.
+- لا تضف Supabase الآن.
+- لا تضف Firebase الآن.
+- لا تضغط Publish.
+- لا تدّع Production Ready.
+- لا تدّع أن Supabase متصل فعلياً إذا لم يكن كذلك.
+- لا تدّع أن Auth/RLS يعملان إنتاجياً.
+- لا تدّع Push Notifications حقيقية.
+- لا تدّع Offline Support إن لم يعمل.
+- لا تدّع أن البيانات official إذا كانت admin_managed أو fallback أو estimated.
+- لا تكتب في التوثيق اختباراً لم يتم تنفيذه.
+- لا تترك README أو QA_REPORT يخالفان الواقع.
+- لا تغيّر الحكم إلى Production Ready.
+
+==================================================
+4. بروتوكول التشخيص قبل التحديث
+==================================================
+
+قبل تعديل التوثيق، افحص:
+
+1. الملفات الموجودة:
+   - README.md
+   - ARCHITECTURE.md
+   - QA_REPORT.md
+   - FALLBACK_SERVICES.md
+   - ENV_EXAMPLE.md
+   - .env.example
+   - SUPABASE_SCHEMA.sql
+   - RLS_POLICIES.sql
+
+2. افحص هل README يذكر طريقة التشغيل الصحيحة.
+3. افحص هل README يذكر الحكم الحالي الصحيح.
+4. افحص هل ARCHITECTURE يشرح البنية الفعلية.
+5. افحص هل QA_REPORT يحتوي كل المراحل حتى Phase 9.
+6. افحص هل FALLBACK_SERVICES يشرح demo/localStorage/fallback.
+7. افحص هل ENV_EXAMPLE يوضح متغيرات Supabase/Firebase المستقبلية دون أسرار.
+8. افحص هل SUPABASE_SCHEMA.sql يطابق الجداول الحالية قدر الإمكان.
+9. افحص هل RLS_POLICIES.sql لا يدعي تطبيق RLS فعلياً.
+10. افحص هل توجد عبارات خاطئة مثل:
+    - Production Ready
+    - Supabase connected
+    - Firebase enabled
+    - Push enabled
+    - Official data
+    - Offline supported
+    إذا لم تكن منفذة فعلياً.
+
+بعد التشخيص:
+- حدّث الناقص فقط.
+- لا تغيّر الكود الوظيفي إلا عند وجود خطأ صغير واضح.
+- اجعل التوثيق مصدر حقيقة للمرحلة الحالية.
+
+==================================================
+5. قاعدة التوثيق الآمن
+==================================================
+
+القواعد:
+- التوثيق يصف الواقع، لا الخطة فقط.
+- أي ميزة fallback يجب توضيحها.
+- أي ميزة مؤجلة يجب وضعها في قسم القيود.
+- أي حكم جاهزية يجب أن يكون من:
+  - Publishable Preview.
+  - Production Ready.
+  - Needs Fixes.
+- الحكم الحالي يجب أن يبقى:
+  Publishable Preview.
+- لا تستخدم Production Ready إلا بعد Supabase/Auth/RLS الحقيقي.
+- لا تضع أسرار أو مفاتيح حقيقية في أي ملف.
+- لا تضع service_role key في الواجهة أو الأمثلة العامة.
+- .env.example يحتوي أسماء متغيرات فقط، لا قيم حقيقية.
+
+==================================================
+6. المتطلبات التفصيلية للتوثيق
+==================================================
+
+أ. README.md يجب أن يحتوي:
+- اسم المشروع: مواعيدك.
+- وصف مختصر.
+- الحكم الحالي: Publishable Preview.
+- لماذا ليس Production Ready بعد.
+- طريقة التشغيل.
+- أوامر build/typecheck.
+- أهم المسارات.
+- الوظائف المنفذة.
+- القيود المتبقية.
+- ملاحظات PWA.
+- ملاحظات Supabase/Auth/RLS.
+- عدم وجود Push حقيقي حالياً.
+- طريقة الانتقال لاحقاً للإنتاج.
+
+ب. ARCHITECTURE.md يجب أن يحتوي:
+- بنية المشروع الفعلية.
+- Frontend.
+- API/server.
+- Data Layer.
+- PostgreSQL الحالي أو قاعدة البيانات المستخدمة.
+- fallback/localStorage.
+- Theme Engine.
+- Notification Center.
+- Admin workflows.
+- Story Today.
+- PWA/Error Boundary/404.
+- كيف سيتم الانتقال لاحقاً إلى Supabase/Auth/RLS.
+- ما يمكن نقله لاحقاً إلى Expo.
+- Single Source of Truth لكل نوع بيانات قدر الإمكان.
+
+ج. QA_REPORT.md يجب أن يحتوي:
+- ملخص كل المراحل المعتمدة.
+- نتيجة build الأخيرة.
+- نتيجة typecheck الأخيرة.
+- نتيجة API.
+- نتيجة الصفحات.
+- القيود.
+- الحكم النهائي الحالي.
+- Smoke Checklist.
+
+د. FALLBACK_SERVICES.md يجب أن يحتوي:
+- ما هو demo/localStorage.
+- ما هو admin_managed.
+- ما هو estimated.
+- ما هو fallback.
+- Push مؤجل.
+- Service Worker مؤجل.
+- Auth demo mode.
+- كيف يتم استبدالها لاحقاً بـ Supabase/Firebase.
+
+هـ. ENV_EXAMPLE.md و .env.example:
+- متغيرات Supabase المستقبلية:
+  - VITE_SUPABASE_URL
+  - VITE_SUPABASE_ANON_KEY
+- متغيرات Firebase المستقبلية إن وجدت.
+- تحذير صريح:
+  لا تضع service_role key في الواجهة.
+- لا تضع قيماً حقيقية.
+
+و. SUPABASE_SCHEMA.sql:
+- يجب أن يحتوي أو يوثق الجداول المطلوبة قدر الإمكان:
+  - profiles
+  - admin_users
+  - roles
+  - permissions
+  - role_permissions
+  - user_roles
+  - financial_events
+  - public_events
+  - appointments
+  - daily_messages
+  - story_templates
+  - themes
+  - notifications
+  - notification_preferences
+  - news
+  - jobs
+  - complaints
+  - audit_logs
+  - app_settings
+- لا تنشئ public.users إذا كان سيتعارض مع auth.users.
+- استخدم profiles عند الربط المستقبلي.
+
+ز. RLS_POLICIES.sql:
+- يجب أن يوضح سياسات RLS المقترحة.
+- لا يدعي أنها مطبقة حالياً إذا لم تُنفّذ في Supabase.
+- يراعي:
+  - المستخدم يرى بياناته.
+  - admin/super_admin لإدارة البيانات.
+  - audit_logs للقراءة الإدارية.
+  - public active data للقراءة حسب الحالة.
+
+ح. Smoke Checklist:
+يجب أن يشمل:
+- فتح الرئيسية.
+- فتح التقويم.
+- إضافة/تعديل/حذف موعد.
+- فتح المال.
+- تشغيل حاسبة.
+- فتح ستوري اليوم.
+- تغيير الثيم.
+- إرسال إشعار من /admin.
+- فتح المراكز.
+- فتح حسابي.
+- فتح الصفحات القانونية.
+- فتح /admin.
+- فتح 404.
+- build.
+- typecheck.
+
+==================================================
+7. اختبارات الجودة الإلزامية
+==================================================
+
+بعد تحديث التوثيق، اختبر:
+
+1. افتح Preview.
+2. افتح الرئيسية.
+3. افتح التقويم.
+4. افتح المال.
+5. افتح ستوري اليوم.
+6. افتح الإشعارات.
+7. افتح المراكز.
+8. افتح حسابي.
+9. افتح /admin.
+10. افتح /privacy.
+11. افتح /terms.
+12. افتح /disclaimer.
+13. افتح /support.
+14. افتح /not-found-test.
+15. تحقق أنه لا توجد شاشة بيضاء.
+16. تحقق أنه لا توجد API 500.
+17. تحقق أن Theme Engine لم ينكسر.
+18. تحقق أن Error Boundary و404 ما زالا موجودين.
+19. تحقق أن التوثيق لا يدعي Production Ready.
+20. تحقق أن القيود مذكورة بوضوح.
+
+==================================================
+8. أوامر الفحص
+==================================================
+
+شغّل حسب المتاح:
+
+- pnpm build أو npm run build
+- pnpm typecheck أو npm run typecheck إن وجد
+- npm run lint إن وجد
+- npm run test إن وجد
+
+إذا لم يكن lint/test موجوداً:
+اذكر أنه غير متوفر ولا تدّع تشغيله.
+
+مطلوب ذكر نتيجة build وtypecheck صراحة.
+
+==================================================
+9. معيار قبول المرحلة
+==================================================
+
+تقبل Phase 10 فقط إذا تحقق التالي:
+
+- README محدث ويطابق الواقع.
+- ARCHITECTURE محدث أو منشأ.
+- QA_REPORT محدث حتى Phase 10.
+- FALLBACK_SERVICES محدث أو منشأ.
+- ENV_EXAMPLE محدث أو منشأ.
+- .env.example موجود ومناسب.
+- SUPABASE_SCHEMA.sql موجود أو محدث.
+- RLS_POLICIES.sql موجود أو محدث.
+- Smoke Checklist موجود.
+- لا يوجد ادعاء Production Ready.
+- لا يوجد ادعاء Supabase/Auth/RLS فعلي.
+- لا يوجد ادعاء Push حقيقي.
+- لا يوجد ادعاء Offline Support غير منفذ.
+- build ناجح ومذكور صراحة.
+- typecheck ناجح ومذكور صراحة.
+- Preview يعمل.
+- لا توجد API 500.
+- لا توجد شاشة بيضاء.
+- لا توجد صفحات مكسورة.
+- المراحل السابقة لم تنكسر.
+- الحكم يبقى Publishable Preview.
+
+إذا فشل بند جوهري:
+الحكم = Needs Fixes
+
+==================================================
+10. التقرير النهائي المطلوب
+==================================================
+
+بعد الانتهاء، أعطني تقريراً مختصراً بهذا الشكل فقط:
+
+1. هل README كان ناقصاً؟ ماذا تم تحديثه؟
+2. هل ARCHITECTURE موجود ومطابق للواقع؟
+3. هل QA_REPORT محدث حتى Phase 10؟
+4. هل FALLBACK_SERVICES موجود؟
+5. هل ENV_EXAMPLE موجود؟
+6. هل .env.example موجود ولا يحتوي أسرار؟
+7. هل SUPABASE_SCHEMA.sql موجود ومراجع؟
+8. هل RLS_POLICIES.sql موجود ومراجع؟
+9. هل Smoke Checklist موجود؟
+10. هل التوثيق يمنع ادعاء Production Ready؟
+11. هل القيود المتبقية موثقة؟
+12. هل Preview يعمل؟
+13. هل الرئيسية بقيت سليمة؟
+14. هل التقويم بقي سليماً؟
+15. هل المال بقي سليماً؟
+16. هل ستوري اليوم بقي سليماً؟
+17. هل الإشعارات بقيت سليمة؟
+18. هل المراكز بقيت سليمة؟
+19. هل حسابي بقي سليماً؟
+20. هل /admin بقي سليماً؟
+21. هل الصفحات القانونية بقيت سليمة؟
+22. هل 404 بقيت سليمة؟
+23. هل build نجح؟ اذكر النتيجة صراحة.
+24. هل typecheck نجح؟ اذكر النتيجة صراحة.
+25. هل توجد API 500؟
+26. هل توجد صفحات مكسورة؟
+27. القيود المتبقية.
+28. الحكم النهائي:
+Publishable Preview / Needs Fixes

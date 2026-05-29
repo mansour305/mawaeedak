@@ -1,0 +1,599 @@
+MAWAEEDAK HOMEPAGE ACCURACY + VISUAL REFERENCE CLONE
+FIX DATES, HIJRI CALENDAR, PRAYER TIMES, FINANCIAL COUNTDOWNS, AND MAKE HOMEPAGE MATCH THE PROVIDED REFERENCE
+
+You are Replit Agent working inside the existing Mawaeedak project.
+
+This is a focused production fix.
+
+Do not refactor the whole app.
+Do not rebuild from scratch.
+Do not weaken admin protection.
+Do not break normal user login.
+Do not break the separated user auth flow.
+Do not route normal users to /admin.
+Do not change unrelated pages unless required by shared data/components.
+Do not use fake dates or hardcoded countdowns.
+Do not copy the sample dates/times from the reference image.
+Do not claim official accuracy unless the source is actually official and verified.
+
+The user has provided a mandatory HomePage visual reference.
+Use it as the required visual direction for the HomePage.
+
+Reference image location:
+
+* references/home-page.png
+
+If the image does not exist, record that it must be placed at:
+
+* references/home-page.png
+
+Important:
+
+The image is a visual reference only.
+Do not copy the sample dates, sample prayer times, or sample countdowns from the image as real data.
+The app must calculate/display the real current date, real Hijri date, prayer times, and financial countdowns from the app data/source layer.
+
+Use this accuracy language:
+
+accurate by configured source and verified runtime calculation
+
+Do not use or claim:
+
+100/100 official
+
+unless a direct official verified source is implemented and documented.
+
+==================================================
+
+1. Goal
+   ==================================================
+
+Fix and complete the HomePage so that:
+
+1. Gregorian date is accurate by runtime current date.
+2. Hijri date is accurate by configured Hijri method.
+3. Prayer times are accurate by configured city/location source and calculation method.
+4. Financial salary/support countdowns come from one source of truth.
+5. HomePage visually matches the provided reference image.
+6. No hardcoded fake date/time/countdown remains in HomePage.
+7. No sample data from the reference image is used as live data.
+8. No broken buttons or decorative-only components remain.
+9. Mobile RTL layout is premium and polished.
+10. Build/typecheck pass.
+11. QA_REPORT.md and replit.md are updated.
+
+==================================================
+2. Date and calendar accuracy
+=============================
+
+Implement or verify a reliable centralized date service.
+
+Required behavior:
+
+* Use current actual runtime date.
+* Use timezone: Asia/Riyadh.
+* Gregorian date must match the current Saudi local date.
+* Hijri date must be calculated using Umm Al-Qura style where supported.
+* Prefer Intl.DateTimeFormat with islamic-umalqura.
+* If Intl.DateTimeFormat islamic-umalqura is unsupported, use a documented fallback.
+* Do not show a wrong Hijri date silently.
+* Do not hardcode Hijri or Gregorian values.
+* Do not copy the reference sample date.
+
+Required display:
+
+* Day name in Arabic.
+* Hijri date in Arabic.
+* Gregorian date in Arabic.
+* Date card should visually match the reference:
+
+  * parchment/paper card.
+  * centered Arabic date.
+  * small premium circular icon on the side.
+  * soft shadow and border.
+  * heritage/official Saudi-inspired feel.
+
+==================================================
+3. Prayer times accuracy
+========================
+
+Fix or verify the prayer time service.
+
+Required behavior:
+
+Prayer times must be based on one of:
+
+1. User GPS/location if permission is granted.
+2. User-selected city.
+3. Saved city preference.
+4. Riyadh as default fallback.
+
+Default fallback city:
+
+الرياض
+
+Timezone:
+
+Asia/Riyadh
+
+Every prayer time must be calculated/displayed for the selected city/location.
+
+Show source text in the UI:
+
+* حسب موقعك
+* حسب مدينة: {city}
+* الرياض - افتراضي
+
+The next prayer and remaining time must be calculated from current Saudi local time.
+
+Forbidden:
+
+* Do not use UTC incorrectly.
+* Do not copy the reference prayer times as static data.
+* Do not claim official 100% accuracy if using a calculation library or fallback seed data.
+* Do not leave prayer times without city/source.
+* Do not calculate prayer times inside the HomePage component.
+
+Implementation requirement:
+
+* If a prayer calculation library/service already exists, audit it and fix it.
+* If no reliable calculation exists, implement a centralized prayerTimes service using city coordinates and a documented calculation method suitable for Saudi context.
+* Keep the implementation centralized in a service/helper, not inside HomePage.
+
+HomePage visual requirement for prayer card:
+
+Match the reference style:
+
+* Dark brown horizontal prayer card.
+* Hijri/prayer date title.
+* Prayer chips/cards for:
+
+  * الفجر
+  * الشروق
+  * الظهر
+  * العصر
+  * المغرب
+  * العشاء
+* Each prayer chip shows Arabic name + time.
+* Include mosque/minaret visual element or icon style.
+* Include "غداً" or next-day marker only if logically correct.
+* Mobile layout must remain clean and readable.
+
+==================================================
+3.A Accuracy Source of Truth Requirement
+========================================
+
+For all date, Hijri, prayer time, and financial countdown values, implement and document a clear source of truth.
+
+Required:
+
+1. Gregorian date:
+
+   * Must come from runtime current date.
+   * Must use Asia/Riyadh timezone.
+   * Must not be hardcoded.
+
+2. Hijri date:
+
+   * Prefer Intl.DateTimeFormat with islamic-umalqura.
+   * If unsupported, use a documented fallback.
+   * Do not silently show an uncertain Hijri date as fully verified.
+
+3. Prayer times:
+
+   * Must use one centralized prayer time service.
+   * Must use selected city/location coordinates.
+   * Must document calculation method/source.
+   * Must show city/source in UI.
+   * Must not copy prayer times from the reference image.
+   * Must not claim official 100% accuracy unless an official verified data source is used.
+
+4. Financial countdowns:
+
+   * Must use one centralized financial events service/data layer.
+   * Home, Finance, and Story must read from the same source.
+   * Must not contain hardcoded countdown values in HomePage components.
+
+5. QA_REPORT.md must include:
+
+   * Gregorian date source.
+   * Hijri date method.
+   * Prayer time city/source/method.
+   * Financial data source.
+   * Known limitations, if any.
+
+==================================================
+4. Financial dates and countdown accuracy
+=========================================
+
+Financial events must come from one source of truth.
+
+Required events:
+
+* الراتب
+* حساب المواطن
+* الضمان الاجتماعي
+* الدعم السكني
+* حافز
+* التقاعد
+* التأمينات / ساند
+* التأهيل الشامل
+* الدعم الزراعي
+* دعم ريف if implemented
+
+Rules:
+
+* No hardcoded countdowns inside HomePage.
+* No duplicate date definitions across Home/Finance/Story.
+* HomePage, FinancePage, and StoryPage must use the same financial data source/service.
+* Admin-managed public events should update Home/Finance/Story if backend is available.
+* If a date is estimated or platform-managed, classify it clearly in data/source metadata.
+* Do not display a date as official unless its source is official/verified.
+* Countdown must use Asia/Riyadh date boundaries.
+* Countdown must handle:
+
+  * today
+  * tomorrow
+  * remaining days
+  * next cycle/month if current date passed.
+
+HomePage visual requirement for financial cards:
+
+Match the reference:
+
+* Large main salary countdown card.
+* Title like:
+  راتب مايو - ذو الحجة
+* Secondary date line:
+  {gregorian_date} الموافق {hijri_date}
+* Large countdown:
+  يوم / ساعة / دقيقة / ثانية
+* Circular wallet icon on the side.
+* Followed by smaller list cards:
+
+  * الدعم السكني
+  * التأهيل الشامل
+  * الضمان
+  * etc.
+* Each smaller card has:
+
+  * remaining label such as غداً or (3) أيام.
+  * event name.
+  * circular icon on the side.
+* "عرض التفاصيل" link works and routes to Finance/details or Finance page.
+
+==================================================
+5. HomePage visual reference matching
+=====================================
+
+Make the HomePage match the provided reference image as closely as possible.
+
+Required visual structure:
+
+Top area:
+
+* Mobile-first full-screen page.
+* Heritage dark brown background/header.
+* Top status spacing must look natural on mobile.
+* Header includes:
+
+  * mail/message icon.
+  * share icon.
+  * hide ads button.
+  * page title "الرئيسية".
+  * menu icon.
+
+Hide ads button:
+
+* Must be functional as UI preference.
+* Must persist where app preferences are stored.
+* Must not be decorative.
+
+Main content:
+
+1. Date card.
+2. Daily message / greeting image card.
+3. Prayer times card.
+4. Main salary countdown card.
+5. Support/financial list cards.
+6. Details link.
+7. Bottom navigation.
+
+Visual identity:
+
+* Premium Saudi heritage.
+* Brown / beige / copper / gold.
+* Parchment cards.
+* Soft shadows.
+* Rounded cards.
+* Leather/paper texture feel.
+* Subtle sadu/desert pattern if already available.
+* No official Saudi emblem.
+* Use Saudi-inspired icons only.
+* RTL natural Arabic layout.
+* Typography must be readable and elegant.
+* Spacing must match a high-end mobile app.
+
+Bottom navigation should match the reference style:
+
+* الرئيسية
+* الرواتب
+* المواطن
+* التقويم
+* المزيد
+
+If existing navigation names differ, do not break routing; map them cleanly or keep existing labels only if product architecture requires.
+
+Important:
+
+Do not add a phone frame inside the app.
+The app itself is what appears inside the phone.
+The reference phone frame/background is not part of the app UI.
+
+==================================================
+6. Daily message card
+=====================
+
+HomePage daily message card should match the visual reference:
+
+* Large image-like hero card.
+* Desert/camp/heritage feel.
+* Message overlay in Arabic.
+* Polished premium visual treatment.
+
+Example style only:
+
+مساء الخير
+ابدأ يومك بذكر الله
+وتوكل على الله وحقق أهدافك
+
+But the actual message must come from the data layer/daily message service, not hardcoded.
+
+If no image asset exists:
+
+* Use CSS background/gradient/heritage illustration style.
+* Do not block build.
+* Keep it polished and close to the reference.
+
+==================================================
+7. Functional buttons
+=====================
+
+Verify these HomePage buttons:
+
+* Share button: opens share/copy behavior where supported.
+* Messages/mail icon: routes to notifications/messages.
+* Hide ads: toggles UI preference and persists.
+* Menu icon: opens menu or routes to More.
+* عرض التفاصيل: routes to Finance/details page or Finance page.
+* Bottom nav buttons route correctly.
+
+No button should be dead.
+
+==================================================
+8. Preserve previous production fixes
+=====================================
+
+Do not break previous fixes.
+
+Verify:
+
+* Normal user login remains separated from admin login.
+* /login remains normal user login.
+* /register remains normal user registration.
+* /forgot-password remains normal user password reset.
+* Normal users are not routed to /admin after login.
+* /admin remains protected.
+* Admin API remains protected server-side.
+* No localStorage admin bypass returns.
+* VITE_DATA_SOURCE_MODE=supabase remains active.
+* Global Theme remains admin-controlled.
+* User Theme remains separate.
+
+If any previous production fix is broken, final verdict = NEEDS FIXES.
+
+==================================================
+9. Accuracy verification tests
+==============================
+
+Add or run verification for:
+
+1. Gregorian date for current runtime date in Asia/Riyadh.
+2. Hijri date output is generated from service, not hardcoded.
+3. Prayer times generated for selected/default city.
+4. Prayer source/city shown in UI.
+5. Next prayer calculation.
+6. Financial countdown for at least:
+
+   * الراتب
+   * حساب المواطن
+   * الضمان
+   * الدعم السكني
+7. Home/Finance/Story use the same financial source.
+8. No hardcoded sample dates from the reference image.
+9. Reload does not break date/prayer/theme/countdowns.
+
+==================================================
+10. Route and UI smoke
+======================
+
+Run route smoke for:
+
+* /
+* /finance
+* /story
+* /account
+* /notifications
+* /calendar
+* /login
+* /register
+* /admin
+
+Verify:
+
+* HomePage renders.
+* No white screen.
+* No infinite loading.
+* No console crash.
+* No TODO / Demo / Coming Soon visible to user.
+* HomePage is RTL.
+* Mobile layout at iPhone width looks clean.
+* User login still works.
+* Admin protection remains unchanged.
+
+==================================================
+11. Commands
+============
+
+Run available commands:
+
+* typecheck
+* build
+* route smoke
+* API smoke if needed/available
+
+If build fails:
+
+* fix with smallest safe change.
+* rerun.
+
+If typecheck fails:
+
+* fix with smallest safe change.
+* rerun.
+
+Do not claim success without command results.
+
+==================================================
+11.A Manual Visual Reference Acceptance
+=======================================
+
+After implementation, produce a HomePage visual matching summary.
+
+Compare the HomePage against the provided reference image:
+
+* Header layout.
+* Date card.
+* Hero daily message card.
+* Prayer card.
+* Main salary countdown card.
+* Financial list cards.
+* Bottom navigation.
+* Colors.
+* Card radius.
+* Shadows.
+* RTL layout.
+* Mobile spacing.
+
+Document:
+
+* What was matched.
+* What was adapted.
+* What remains different.
+* Whether differences are blocking or non-blocking.
+
+Do not add the phone frame/background from the reference into the app UI.
+Only match the in-app interface.
+
+==================================================
+12. Documentation
+=================
+
+Update:
+
+* QA_REPORT.md
+* replit.md
+* README.md if relevant
+* ARCHITECTURE.md if date/prayer/data architecture changed
+
+Add section:
+
+HOMEPAGE ACCURACY + VISUAL REFERENCE FIX
+
+Document:
+
+* date source.
+* Hijri source/fallback.
+* prayer time source/method.
+* default city behavior.
+* financial countdown source.
+* HomePage visual changes.
+* buttons verified.
+* preservation of user login fix.
+* preservation of admin protection.
+* command results.
+* remaining limitations if any.
+
+Do not write "100% official" unless official data source is implemented and verified.
+
+Use:
+
+accurate by configured source and verified runtime calculation
+
+if using calculation/service data.
+
+==================================================
+13. Final report
+================
+
+Return this structure:
+
+1. Final Verdict:
+   PRODUCTION HANDOVER PASSED
+   or
+   NEEDS FIXES
+
+2. Root Cause:
+   Explain what was wrong with HomePage dates/prayer/visual matching.
+
+3. Fix Completed:
+
+* Date/Hijri.
+* Prayer times.
+* Financial countdowns.
+* Home visual reference.
+* Buttons.
+* Data consistency.
+* Preservation of login/admin security.
+
+4. Accuracy Verification:
+
+* Gregorian date.
+* Hijri date.
+* Prayer city/source.
+* Next prayer.
+* Financial countdown source.
+* Home/Finance/Story consistency.
+
+5. Visual Matching:
+
+* what matched from the reference.
+* what was adapted.
+* what remains.
+* blocking/non-blocking differences.
+
+6. Command Results:
+
+* typecheck.
+* build.
+* route smoke.
+* API smoke if run.
+
+7. Modified Files:
+
+* path.
+* reason.
+
+8. Remaining Issues:
+
+* issue.
+* severity.
+* blocking/non-blocking.
+* required action.
+
+9. Final Launch Decision:
+   PRODUCTION HANDOVER PASSED
+   or
+   NEEDS FIXES
+
+Start now. Fix HomePage accuracy and visual matching without breaking login, admin security, Supabase data mode, Global Theme, or existing production verification.

@@ -1,0 +1,211 @@
+نفّذ الآن PHASE 18B — ADMIN SESSION PERSISTENCE HARD RELOAD GATE.
+
+الحكم:
+Phase 18 نجحت في دخول /admin عبر متصفح Playwright حقيقي، لكن T4 أعطى WARN:
+استمرار الجلسة بعد hard reload غير مثبت بالكامل.
+
+هذا ليس مقبولاً للإغلاق النهائي.
+المطلوب الآن إصلاح وتثبيت session persistence بعد refresh/direct route.
+
+ممنوع:
+- لا تعمل على التصميم.
+- لا تعمل على صفحات المستخدم.
+- لا تغيّر Supabase schema.
+- لا تستخدم service_role.
+- لا تحفظ كلمات مرور.
+- لا تطبع أسرار.
+- لا تكسر Auth/Data Gateway/Automation/Location.
+- لا تضغط Publish.
+
+==================================================
+1. الهدف
+==================================================
+
+بعد تسجيل الدخول كـ super_admin:
+
+هذه الحالات يجب أن تعمل:
+
+1. /admin/dashboard ثم hard reload
+   النتيجة: يبقى داخل Dashboard
+
+2. /admin/automation ثم hard reload
+   النتيجة: يبقى داخل Automation
+
+3. /admin/visual-guide ثم hard reload
+   النتيجة: يبقى داخل Visual Guide
+
+4. فتح /admin/dashboard مباشرة في تبويب جديد بعد login
+   النتيجة: يدخل الصفحة بدون Login
+
+5. فتح /admin بعد login
+   النتيجة: يوجّه إلى Dashboard أو يعرض لوحة المالك
+
+ممنوع:
+- رجوع غير مبرر إلى Login
+- loading أبدي
+- Access Denied خاطئ
+- فقدان session بعد refresh
+
+==================================================
+2. افحص سبب T4
+==================================================
+
+شخّص بدقة:
+
+1. هل Supabase persistSession = true؟
+2. هل storage key محفوظ في localStorage؟
+3. هل AdminLayout يمسح session عند INITIAL_SESSION؟
+4. هل onAuthStateChange يتعارض مع checkInitialSession؟
+5. هل timeout 8s يسبق رجوع getSession/getUser؟
+6. هل hard reload يفقد env؟
+7. هل direct route يمر عبر AdminLayout قبل جاهزية Supabase؟
+8. هل authSignOut يُستدعى خطأ عند refresh؟
+9. هل role parser يقرأ metadata بعد reload؟
+10. هل router يعيد /admin بدل المسار المطلوب؟
+
+==================================================
+3. إصلاح AdminLayout
+==================================================
+
+اجعل منطق session بعد reload كالتالي:
+
+1. عند mount:
+   phase = checking
+
+2. نفّذ supabase.auth.getSession() مع timeout مناسب 10 ثوانٍ.
+
+3. إذا session موجودة:
+   نفّذ supabase.auth.getUser() مع timeout 8 ثوانٍ.
+
+4. اقرأ role من:
+   user.user_metadata.role
+   ثم user.app_metadata.role
+
+5. إذا role = super_admin أو admin:
+   phase = ready
+   لا تغيّر المسار الحالي إذا المستخدم على:
+   - /admin/dashboard
+   - /admin/automation
+   - /admin/visual-guide
+   - /admin/data-layer
+   - أي admin route صحيح
+
+6. إذا المستخدم فقط على /admin:
+   وجّه إلى /admin/dashboard
+
+7. إذا لا session:
+   phase = login
+
+8. إذا session تالفة:
+   phase = auth_error مع زر reset
+
+مهم:
+لا تستخدم signOut تلقائياً عند refresh إلا إذا role مرفوض صراحة.
+لا تمسح الجلسة بسبب timeout فقط؛ اعرض auth_error وزر reset.
+
+==================================================
+4. onAuthStateChange
+==================================================
+
+اضبطه بحيث:
+
+- INITIAL_SESSION لا يسبب reset ولا signOut.
+- SIGNED_IN يحدث check user/role.
+- SIGNED_OUT يعرض login فقط.
+- TOKEN_REFRESHED يحافظ على ready.
+- USER_UPDATED يعيد قراءة role.
+
+ممنوع:
+أي event يرجع phase إلى login إذا session ما زالت موجودة.
+
+==================================================
+5. اختبارات Playwright إلزامية
+==================================================
+
+حدّث اختبار Playwright ليشمل:
+
+T1: /admin?reset=1 → login form
+T2: login credentials من Replit Secrets → dashboard يظهر
+T3: انتقل إلى /admin/dashboard → hard reload → dashboard يبقى
+T4: انتقل إلى /admin/automation → hard reload → automation تبقى
+T5: انتقل إلى /admin/visual-guide → hard reload → visual guide تبقى
+T6: direct open /admin/data-layer بعد login → الصفحة تعمل
+T7: close page/new page بنفس browser context → /admin/dashboard يعمل
+T8: sign out → /admin يرجع login
+T9: بعد sign out، direct /admin/dashboard يعرض login
+
+كل اختبار يجب أن يكون PASS.
+أي WARN غير مقبول في هذه المرحلة.
+
+==================================================
+6. شغّل الفحوص
+==================================================
+
+شغّل:
+
+- typecheck
+- build
+- Playwright admin session persistence test
+
+وافحص:
+- لا API 500
+- لا شاشة بيضاء
+- لا loading infinite
+- لا console errors جوهرية
+- لا secrets في logs
+- لا service_role
+- Auth/Data Gateway/Automation/Location سليمة
+
+==================================================
+7. تحديث QA
+==================================================
+
+حدّث:
+
+- QA_REPORT.md
+- replit.md
+
+وأضف جدول:
+
+Test | Result | Evidence | Screenshot | Notes
+
+يجب أن يحتوي:
+- login
+- dashboard reload
+- automation reload
+- visual guide reload
+- direct route after login
+- new page same context
+- sign out
+- direct route after sign out
+
+==================================================
+8. التقرير النهائي المطلوب
+==================================================
+
+أعطني التقرير بهذا الشكل فقط:
+
+1. ما سبب WARN في T4؟
+2. هل تم إصلاح session persistence؟
+3. هل persistSession=true مؤكد؟
+4. هل hard reload على /admin/dashboard نجح؟
+5. هل hard reload على /admin/automation نجح؟
+6. هل hard reload على /admin/visual-guide نجح؟
+7. هل direct route بعد login يعمل؟
+8. هل new page بنفس browser context يعمل؟
+9. هل sign out يعمل؟
+10. هل direct route بعد sign out يعرض login؟
+11. هل كل اختبارات Playwright أصبحت PASS بلا WARN؟
+12. هل typecheck نجح؟
+13. هل build نجح؟
+14. هل توجد API 500؟
+15. هل توجد شاشة بيضاء؟
+16. هل توجد loading infinite؟
+17. هل QA_REPORT تم تحديثه؟
+18. الحكم النهائي:
+Admin Session Persistence Verified
+أو
+Needs Fixes
+
+ممنوع استخدام أي حكم آخر.
+ممنوع اقتراح Publish.

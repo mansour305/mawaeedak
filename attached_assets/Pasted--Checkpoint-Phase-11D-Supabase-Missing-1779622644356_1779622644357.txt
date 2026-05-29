@@ -1,0 +1,90 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 11D
+Supabase Missing Tables Fix Verification + Admin Access Gate
+
+تم تنفيذ الخطوات اليدوية التالية:
+1. تشغيل SUPABASE_MISSING_TABLES_FIX.sql في Supabase SQL Editor بنجاح.
+2. تشغيل RLS_POLICIES_FIX.sql في Supabase SQL Editor بنجاح.
+3. إنشاء مستخدم Auth في Supabase بالبريد hrq@hotmail.com.
+4. تشغيل SUPABASE_ADMIN_BOOTSTRAP.sql بنجاح.
+
+مهمتك الآن فقط التحقق، وليس إضافة ميزات جديدة.
+
+المطلوب:
+1. تحقق أن الجداول السبعة الناقصة أصبحت موجودة:
+   - roles
+   - permissions
+   - role_permissions
+   - user_roles
+   - admin_users
+   - notification_preferences
+   - app_settings
+
+2. تحقق أن RLS مفعّل على هذه الجداول.
+3. تحقق أن سياسات RLS تعمل بلا أخطاء.
+4. تحقق أن المستخدم hrq@hotmail.com موجود في Supabase Auth.
+5. تحقق أنه مربوط بدور super_admin.
+6. تحقق هل Supabase client يعمل فعلياً.
+7. تحقق هل Auth/session يعملان فعلياً أم ما زال demo.
+8. تحقق هل /admin أصبح محمياً فعلياً أم ما زال demo guard.
+9. تحقق هل roles/permissions تعمل فعلياً.
+10. تحقق هل daily_messages تعمل عبر Supabase أم عبر API/PostgreSQL الحالي.
+11. تحقق هل financial_events تعمل عبر Supabase أم عبر API/PostgreSQL الحالي.
+12. تحقق هل appointments تعمل عبر Supabase أم عبر API/PostgreSQL الحالي.
+13. تحقق هل notifications تعمل عبر Supabase أم عبر API/PostgreSQL الحالي.
+14. تحقق هل audit_logs تعمل.
+15. افحص عدم وجود service_role في الواجهة.
+16. افحص عدم وجود أسرار hardcoded في الكود.
+17. تحقق أن جميع المراحل السابقة سليمة.
+18. شغّل build.
+19. شغّل typecheck.
+20. حدّث QA_REPORT بالحالة الحقيقية.
+
+اختبر الصفحات:
+- الرئيسية
+- التقويم
+- المال
+- ستوري اليوم
+- الإشعارات
+- المراكز
+- حسابي
+- /admin
+- الصفحات القانونية
+- 404
+
+ممنوع:
+- لا تضغط Publish.
+- لا تستخدم service_role.
+- لا تضع أسراراً في الكود.
+- لا تدّع Production Ready.
+- لا تدّع Supabase Connected Preview إلا إذا الاتصال والجداول وRLS وAuth/admin تحققوا فعلياً.
+- لا تغيّر UI.
+- لا تضف ميزات جديدة.
+
+التقرير النهائي المطلوب:
+
+1. هل الجداول السبعة أصبحت موجودة؟
+2. هل RLS مفعّل على الجداول السبعة؟
+3. هل RLS policies تعمل بلا أخطاء؟
+4. هل hrq@hotmail.com موجود في Auth؟
+5. هل hrq@hotmail.com مربوط بدور super_admin؟
+6. هل Supabase client يعمل فعلياً؟
+7. هل Auth/session يعملان فعلياً أم demo؟
+8. هل /admin محمي فعلياً أم demo؟
+9. هل roles/permissions تعمل؟
+10. هل daily_messages تعمل عبر Supabase؟
+11. هل financial_events تعمل عبر Supabase؟
+12. هل appointments تعمل عبر Supabase؟
+13. هل notifications تعمل عبر Supabase؟
+14. هل audit_logs تعمل؟
+15. هل يوجد service_role في الواجهة؟
+16. هل توجد أسرار hardcoded؟
+17. هل المراحل السابقة بقيت سليمة؟
+18. هل build نجح؟ اذكر النتيجة صراحة.
+19. هل typecheck نجح؟ اذكر النتيجة صراحة.
+20. هل QA_REPORT تم تحديثه؟
+21. القيود المتبقية.
+22. الحكم النهائي:
+Supabase Connected Preview / Publishable Preview / Needs Fixes / Blocked

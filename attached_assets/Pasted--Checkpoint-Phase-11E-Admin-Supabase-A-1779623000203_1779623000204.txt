@@ -1,0 +1,303 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 11E
+Admin Supabase Auth Guard Integration Gate
+
+الدور:
+تصرف كفريق Auth Engineer + Supabase Security Reviewer + Frontend Reliability Engineer + QA Tester.
+مهمتك الآن ليست إضافة ميزات جديدة، وليست تعديل التصميم، وليست نقل بيانات التطبيق إلى Supabase.
+مهمتك الوحيدة ربط لوحة المالك /admin بـ Supabase Auth الحقيقي بدلاً من demo guard، مع التحقق من roles/permissions وsuper_admin بأمان.
+
+==================================================
+0. السياق الحالي
+==================================================
+
+نتيجة Phase 11D:
+- Supabase client يعمل فعلياً.
+- 19/19 جداول موجودة.
+- RLS مفعّل.
+- RLS policies تعمل بلا أخطاء.
+- Auth endpoint يعمل.
+- roles موجودة: 5 أدوار.
+- permissions موجودة: 10 صلاحيات.
+- لا service_role في الواجهة.
+- لا أسرار hardcoded.
+- جميع المراحل السابقة سليمة.
+- build ناجح.
+- typecheck ناجح.
+- QA_REPORT محدث.
+- الحكم الحالي: Supabase Connected Preview — Partial.
+
+القيد الحرج المتبقي:
+- AdminLayout ما زال يستخدم demo guard/localStorage.
+- /admin لم يُربط فعلياً بـ authSignIn / Supabase session.
+- لا يمكن التحقق من ربط hrq@hotmail.com بدور super_admin بدون session حقيقية.
+
+==================================================
+1. الهدف التنفيذي
+==================================================
+
+حوّل حماية /admin من demo guard إلى Supabase Auth guard فعلي.
+
+المطلوب:
+1. افحص src/lib/auth.ts.
+2. افحص AdminLayout.
+3. افحص مسار /admin وصفحة تسجيل دخول المالك.
+4. اربط تسجيل دخول المالك بـ Supabase Auth عند توفر المفاتيح.
+5. حافظ على demo fallback فقط عند غياب مفاتيح Supabase.
+6. تحقق من session عبر Supabase.
+7. تحقق من دور المستخدم من:
+   - user_roles
+   - roles
+   - admin_users إن كان مستخدماً في البنية
+8. اسمح بالدخول إلى /admin فقط إذا كان الدور:
+   - admin
+   - super_admin
+   - content_manager
+   - finance_manager
+   حسب صلاحيات القسم.
+9. امنع user العادي أو unauthenticated من دخول /admin.
+10. لا تستخدم service_role.
+11. لا تضع كلمات مرور أو أسرار في الكود.
+12. لا تغيّر UI إلا بقدر بسيط جداً لتوضيح تسجيل الدخول الحقيقي.
+13. حدّث QA_REPORT بالحالة الحقيقية.
+
+==================================================
+2. خارج النطاق
+==================================================
+
+هذه المرحلة ليست:
+- Data migration إلى Supabase.
+- نقل daily_messages أو financial_events أو appointments إلى Supabase.
+- Firebase.
+- Push Notifications.
+- Service Worker.
+- Offline.
+- Production Ready.
+- Publish.
+- إعادة تصميم.
+- إضافة ميزات منتج جديدة.
+- تغيير Theme Engine.
+- تغيير المراكز أو الحاسبات.
+
+ممنوع تعديل الوظائف المعتمدة إلا إذا ظهر كسر مباشر.
+
+==================================================
+3. ممنوعات صارمة
+==================================================
+
+ممنوع:
+- لا تعيد بناء المشروع من البداية.
+- لا تستخدم service_role في الواجهة.
+- لا تضع كلمة مرور في الكود.
+- لا تضع مفاتيح في الملفات.
+- لا تتجاوز RLS من client-side.
+- لا تجعل /admin يعتمد فقط على localStorage إذا Supabase env موجود.
+- لا تدّع أن /admin محمي فعلياً إذا بقي demo guard.
+- لا تنقل البيانات إلى Supabase في هذه المرحلة.
+- لا تضغط Publish.
+- لا تدّع Production Ready.
+- لا تكسر المراحل السابقة.
+
+==================================================
+4. بروتوكول التشخيص قبل التنفيذ
+==================================================
+
+قبل التعديل، افحص:
+
+1. هل VITE_SUPABASE_URL موجود؟
+2. هل VITE_SUPABASE_ANON_KEY موجود؟
+3. هل getSupabaseClient يعيد client فعلي؟
+4. كيف يعمل authSignIn حالياً؟
+5. كيف يعمل authSignOut؟
+6. كيف تُقرأ session؟
+7. أين يوجد AdminLayout؟
+8. كيف يتم السماح حالياً لـ /admin؟
+9. هل يعتمد على localStorage؟
+10. هل يوجد AdminLogin؟
+11. أين يتم التحقق من role؟
+12. هل user_roles مرتبط بـ auth.users.id؟
+13. هل hrq@hotmail.com موجود في auth.users؟
+14. هل يمكن التحقق من role بعد login؟
+15. هل هناك fallback عند غياب Supabase env؟
+
+بعد التشخيص:
+- أصلح فقط مسار auth/admin guard.
+- لا تلمس بقية النظام.
+
+==================================================
+5. قاعدة التنفيذ الآمن
+==================================================
+
+القواعد:
+- عند توفر Supabase env، استخدم Supabase Auth.
+- عند غياب Supabase env فقط، اسمح بـ demo mode كما كان.
+- route guard يجب أن ينتظر loading/session check.
+- أثناء التحقق اعرض loading state لا شاشة بيضاء.
+- عند فشل تسجيل الدخول اعرض رسالة عربية واضحة.
+- عند عدم وجود صلاحية اعرض رسالة منع وصول عربية.
+- لا تعرض تفاصيل تقنية للمستخدم.
+- لا تكسر /admin dashboard بعد الدخول.
+- لا تكسر كل أقسام /admin الحالية.
+
+==================================================
+6. المتطلبات التفصيلية
+==================================================
+
+أ. Auth service:
+- signInWithPassword أو المسار المناسب الموجود في auth.ts.
+- signOut.
+- getSession.
+- onAuthStateChange إن كان مناسباً.
+- قراءة المستخدم الحالي.
+- fallback demo عند غياب env فقط.
+
+ب. Role check:
+- بعد login اقرأ role من Supabase.
+- اربط المستخدم بـ roles/user_roles.
+- إن كان الدور super_admin يسمح بكل /admin.
+- إن كان admin يسمح بالأقسام الإدارية الأساسية.
+- إن كان content_manager يسمح بالمحتوى فقط إن كان التقسيم موجوداً.
+- إن كان finance_manager يسمح بالمال فقط إن كان التقسيم موجوداً.
+- إن لم تكن الصلاحيات التفصيلية جاهزة، طبق الحد الأدنى:
+  super_admin/admin فقط يدخلان /admin، ووثق الباقي كقيد.
+
+ج. AdminLayout:
+- لا يعتمد على localStorage عندما Supabase env موجود.
+- يستخدم session + role check.
+- يعرض Login عند عدم تسجيل الدخول.
+- يمنع الدخول عند عدم الصلاحية.
+- يسمح بالدخول بعد تحقق role.
+
+د. Login UX:
+- لا تضع كلمة مرور ثابتة.
+- المستخدم يدخل بريده وكلمة مروره.
+- يمكن استخدام hrq@hotmail.com كإيميل مقترح فقط بدون كلمة مرور.
+- لا تحفظ كلمة المرور في localStorage.
+- لا تطبعها في console.
+
+==================================================
+7. الاختبارات الإلزامية
+==================================================
+
+اختبر عملياً:
+
+1. افتح /admin بدون login.
+2. يجب أن يظهر Login أو منع وصول، وليس Dashboard.
+3. سجّل الدخول بـ hrq@hotmail.com من الواجهة.
+4. تحقق أن session موجودة.
+5. تحقق أن role يُقرأ.
+6. تحقق أن super_admin/admin يدخل /admin.
+7. جرّب sign out.
+8. بعد sign out لا يجب أن تبقى /admin مفتوحة.
+9. تحقق أن user غير مصرح لا يدخل إن أمكن.
+10. تحقق أن demo fallback لا يعمل إلا عند غياب Supabase env.
+11. افتح admin dashboard بعد الدخول.
+12. افتح أقسام /admin الحالية.
+13. تحقق أنه لا توجد شاشة بيضاء.
+14. تحقق أنه لا توجد API 500.
+15. تحقق أن الصفحات السابقة سليمة:
+    - الرئيسية
+    - التقويم
+    - المال
+    - ستوري اليوم
+    - الإشعارات
+    - المراكز
+    - حسابي
+    - الصفحات القانونية
+    - 404
+16. افحص عدم وجود service_role.
+17. افحص عدم وجود secrets hardcoded.
+18. شغّل build.
+19. شغّل typecheck.
+
+==================================================
+8. أوامر الفحص
+==================================================
+
+شغّل:
+- pnpm build أو npm run build
+- pnpm typecheck أو npm run typecheck إن وجد
+
+وافحص:
+- service_role
+- SUPABASE_SERVICE_ROLE
+- hardcoded password
+- hardcoded Supabase keys
+
+إذا لم يكن lint/test موجوداً:
+اذكر أنه غير متوفر ولا تدّع تشغيله.
+
+==================================================
+9. معيار قبول المرحلة
+==================================================
+
+تقبل المرحلة كـ Supabase Connected Preview أقوى فقط إذا تحقق:
+
+- Supabase env موجود.
+- Supabase client يعمل.
+- Admin login يستخدم Supabase Auth.
+- session تعمل.
+- /admin لا يفتح بدون login.
+- role check يعمل.
+- hrq@hotmail.com يدخل كـ super_admin أو admin.
+- sign out يعمل.
+- demo guard لا يستخدم عند توفر Supabase.
+- لا service_role في الواجهة.
+- لا أسرار hardcoded.
+- build ناجح.
+- typecheck ناجح.
+- لا API 500.
+- لا صفحات مكسورة.
+- QA_REPORT محدث.
+
+إذا لم يستطع تسجيل الدخول بسبب عدم وجود كلمة مرور:
+- لا تغيّر الكود عشوائياً.
+- وثق أن Auth UI جاهز، وأن المستخدم يحتاج إعداد كلمة المرور من Supabase Auth.
+- الحكم يبقى Needs Admin Password Setup أو Needs Fixes حسب السبب.
+
+لا تستخدم Production Ready في هذه المرحلة.
+
+==================================================
+10. تحديث التوثيق
+==================================================
+
+حدّث:
+- QA_REPORT.md
+- README.md إذا تغيرت حالة admin auth
+- ARCHITECTURE.md إذا تغيرت حماية /admin
+- FALLBACK_SERVICES.md إذا أصبح demo guard مقتصراً على غياب env فقط
+
+اذكر:
+- هل /admin أصبح Supabase Auth فعلي؟
+- هل demo guard ما زال موجوداً؟
+- متى يستخدم demo fallback؟
+- هل hrq@hotmail.com أصبح super_admin؟
+- القيود المتبقية.
+
+==================================================
+11. التقرير النهائي المطلوب
+==================================================
+
+أعطني تقريراً بهذا الشكل فقط:
+
+1. هل AdminLayout كان يستخدم demo guard؟
+2. هل تم ربط /admin بـ Supabase Auth؟
+3. هل Login يستخدم authSignIn فعلياً؟
+4. هل session تعمل؟
+5. هل hrq@hotmail.com استطاع تسجيل الدخول؟
+6. هل role/super_admin تم التحقق منه؟
+7. هل /admin يمنع غير المسجل؟
+8. هل /admin يمنع غير المصرح؟
+9. هل sign out يعمل؟
+10. هل demo fallback بقي فقط عند غياب Supabase env؟
+11. هل لا يوجد service_role في الواجهة؟
+12. هل لا توجد أسرار أو كلمات مرور hardcoded؟
+13. هل المراحل السابقة بقيت سليمة؟
+14. هل build نجح؟ اذكر النتيجة صراحة.
+15. هل typecheck نجح؟ اذكر النتيجة صراحة.
+16. هل QA_REPORT تم تحديثه؟
+17. القيود المتبقية.
+18. الحكم النهائي:
+Supabase Connected Preview / Needs Admin Password Setup / Needs Fixes

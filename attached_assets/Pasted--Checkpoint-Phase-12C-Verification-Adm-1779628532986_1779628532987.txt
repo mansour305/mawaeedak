@@ -1,0 +1,85 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 12C Verification
+Admin-managed Seed Applied Verification Gate
+
+تم الآن يدوياً:
+1. تشغيل SUPABASE_ADMIN_SEED_MIGRATION.sql في Supabase SQL Editor.
+2. تشغيل SUPABASE_ADMIN_SEED_VERIFY.sql في Supabase SQL Editor.
+3. ظهرت نتيجة تحقق تؤكد وجود بيانات في jobs مع:
+   - legacy_id
+   - migration_batch = phase_12c_admin_seed_2026_05_24
+
+مهمتك الآن فقط التحقق النهائي، وليس نقل بيانات جديدة، وليس تغيير مصدر الحقيقة، وليس تعديل الواجهة.
+
+المطلوب:
+1. تحقق أن admin-managed seed تم تطبيقه في Supabase.
+2. تحقق عدد الصفوف في Supabase للجداول:
+   - daily_messages
+   - story_templates
+   - themes
+   - news
+   - jobs
+
+3. تحقق أن الأعداد المتوقعة هي:
+   - daily_messages = 8
+   - story_templates = 2
+   - themes = 10
+   - news = 2
+   - jobs = 2
+   - total = 24
+
+4. تحقق أن legacy_id محفوظ في كل الصفوف المنقولة.
+5. تحقق أن migration_batch محفوظ وقيمته:
+   phase_12c_admin_seed_2026_05_24
+
+6. تحقق عدم وجود duplicates حسب legacy_id لكل جدول.
+7. تحقق أنه لم يتم نقل أي بيانات شخصية:
+   - appointments
+   - financial_events
+   - notifications
+   - complaints
+   - profiles
+   - auth.users
+
+8. تحقق أنه لا يوجد DROP/TRUNCATE/DELETE.
+9. تحقق أن PostgreSQL/API الحالي ما زال مصدر الحقيقة.
+10. تحقق أن Supabase Auth و/admin ما زالا سليمين.
+11. تحقق أن المراحل السابقة سليمة.
+12. شغّل build.
+13. شغّل typecheck.
+14. حدّث QA_REPORT بالحالة الحقيقية.
+
+ممنوع:
+- لا تنقل بيانات شخصية.
+- لا تغيّر Data Layer.
+- لا تجعل Supabase مصدر الحقيقة الآن.
+- لا تضغط Publish.
+- لا تستخدم service_role.
+- لا تضع أسراراً في الكود.
+- لا تدّع Production Ready.
+
+التقرير النهائي المطلوب:
+
+1. هل SUPABASE_ADMIN_SEED_MIGRATION.sql تم تطبيقه؟
+2. ما عدد صفوف daily_messages في Supabase؟
+3. ما عدد صفوف story_templates في Supabase؟
+4. ما عدد صفوف themes في Supabase؟
+5. ما عدد صفوف news في Supabase؟
+6. ما عدد صفوف jobs في Supabase؟
+7. هل المجموع = 24؟
+8. هل legacy_id محفوظ؟
+9. هل migration_batch محفوظ؟
+10. هل توجد duplicates؟
+11. هل تم نقل أي بيانات شخصية؟
+12. هل يوجد DROP/TRUNCATE/DELETE؟
+13. هل PostgreSQL/API الحالي ما زال مصدر الحقيقة؟
+14. هل Supabase Auth و/admin بقيا سليمين؟
+15. هل المراحل السابقة سليمة؟
+16. هل build نجح؟ اذكر النتيجة صراحة.
+17. هل typecheck نجح؟ اذكر النتيجة صراحة.
+18. هل QA_REPORT تم تحديثه؟
+19. القيود المتبقية.
+20. الحكم النهائي:
+Admin Seed Applied / Needs Seed Fix / Needs Verification / Needs Fixes

@@ -1,0 +1,324 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 12L
+Admin News/Jobs CRUD Gateway Cutover Gate
+
+الدور:
+تصرف كفريق Data Layer Architect + Supabase Engineer + Frontend Reliability Engineer + QA Lead + Security Reviewer.
+مهمتك الآن ليست تحويل كل النظام إلى Supabase، وليست حذف API، وليست تحويل Calendar/Finance.
+مهمتك فقط تحويل CRUD الإداري لجداول news و jobs إلى Gateway بشكل آمن ومتسق مع قراءة المستخدم الحالية.
+
+==================================================
+0. السياق الحالي
+==================================================
+
+تم اعتماد Phase 12K:
+- نظام الإشعارات أصبح متسقاً عبر Gateway.
+- TopBar unread count يستخدم Gateway.
+- NotificationsPage يستخدم Gateway قراءة وكتابة.
+- AdminNotifications read/delete يستخدم Gateway.
+- AdminNotifications send بقي API عمداً.
+- mode=api يعمل.
+- mode=supabase_shadow يعمل.
+- mode=supabase يعمل لنظام الإشعارات.
+- لا service_role.
+- لا أسرار hardcoded.
+- build ناجح.
+- typecheck ناجح.
+
+الحالة الحالية للبيانات:
+- Supabase يحتوي 40 صفاً.
+- news = 2
+- jobs = 2
+- Pages:
+  - CentersNewsPage تستخدم useGatewayNews
+  - CentersJobsPage تستخدم useGatewayJobs
+
+القيد الحالي:
+- Admin CRUD للأخبار والوظائف ما زال عبر Orval/API.
+- هذا قد يسبب divergence عند mode=supabase لأن صفحات المستخدم تقرأ news/jobs من Supabase بينما admin يكتب إلى API.
+
+==================================================
+1. الهدف التنفيذي
+==================================================
+
+حوّل Admin CRUD لجداول news و jobs فقط إلى Gateway.
+
+المطلوب:
+1. تحويل قراءة AdminNews/AdminJobs إلى Gateway إن لم تكن كذلك.
+2. تحويل add/edit/delete للأخبار إلى Gateway.
+3. تحويل add/edit/delete للوظائف إلى Gateway.
+4. عند mode=api:
+   - القراءة والكتابة عبر API كما كانت.
+5. عند mode=supabase_shadow:
+   - القراءة والكتابة عبر API.
+   - لا كتابة إلى Supabase.
+6. عند mode=supabase:
+   - القراءة والكتابة لـ news/jobs عبر Supabase.
+   - لا fallback صامت إلى API في write.
+   - عند فشل write، أظهر toast/error واضح.
+7. لا تحوّل أي نطاق آخر.
+8. لا تحوّل themes.
+9. لا تحوّل story_templates.
+10. لا تحوّل daily_messages.
+11. لا تحوّل appointments أو financial_events.
+12. لا تحذف API.
+13. لا تضغط Publish.
+
+==================================================
+2. خارج النطاق
+==================================================
+
+هذه المرحلة ليست:
+- Calendar CRUD Cutover.
+- Finance CRUD Cutover.
+- Theme Engine CRUD Cutover.
+- Story Templates CRUD Cutover.
+- Daily Messages Cutover.
+- Notifications send fan-out.
+- Full Write Cutover.
+- حذف API.
+- حذف PostgreSQL.
+- Production Ready.
+- Publish.
+- Firebase.
+- Offline.
+- إعادة تصميم UI.
+
+==================================================
+3. ممنوعات صارمة
+==================================================
+
+ممنوع:
+- لا تلمس appointments.
+- لا تلمس financial_events.
+- لا تلمس themes.
+- لا تلمس story_templates.
+- لا تلمس daily_messages.
+- لا تحذف API endpoints.
+- لا تستخدم service_role في الواجهة.
+- لا تضع أسرار في الكود.
+- لا تستخدم DROP/TRUNCATE/DELETE.
+- لا تنقل بيانات جديدة عبر SQL.
+- لا تجعل Supabase هو default.
+- لا تضغط Publish.
+- لا تدّع Production Ready.
+- لا تكسر CentersNewsPage أو CentersJobsPage.
+
+==================================================
+4. بروتوكول التشخيص قبل التنفيذ
+==================================================
+
+قبل التعديل، افحص:
+
+1. AdminNews الحالي.
+2. AdminJobs الحالي.
+3. hooks الحالية المستخدمة للقراءة والكتابة.
+4. dataGateway.ts.
+5. supabaseData.ts.
+6. شكل بيانات news في API مقابل Supabase.
+7. شكل بيانات jobs في API مقابل Supabase.
+8. هل id في الواجهة يعتمد على legacy_id أو uuid.
+9. ما الحقول المطلوبة في add/edit.
+10. هل RLS يسمح لـ admin/super_admin بإدارة news/jobs.
+11. هل create/update/delete يجب أن يستخدم legacy_id أو uuid.
+12. كيف سيتم تحديث React Query cache بعد add/edit/delete.
+13. كيف سنمنع divergence في mode=supabase.
+
+لا تبدأ التنفيذ قبل تحديد mapping واضح.
+
+==================================================
+5. متطلبات التنفيذ
+==================================================
+
+أ. Supabase adapter:
+أضف في supabaseData.ts دوال آمنة مثل:
+- createNewsInSupabase
+- updateNewsInSupabase
+- deleteNewsInSupabase
+- createJobInSupabase
+- updateJobInSupabase
+- deleteJobInSupabase
+
+ب. Data Gateway:
+أضف في dataGateway.ts:
+- gwCreateNews
+- gwUpdateNews
+- gwDeleteNews
+- gwCreateJob
+- gwUpdateJob
+- gwDeleteJob
+
+ج. السلوك حسب mode:
+- api:
+  API فقط.
+- supabase_shadow:
+  API فقط.
+- supabase:
+  Supabase فقط لنطاق news/jobs.
+  لا fallback صامت للكتابة إلى API.
+
+د. Query invalidation:
+بعد أي عملية:
+- حدّث gw news/jobs query keys.
+- حدّث Orval query keys للتوافق إن بقيت بعض الصفحات API.
+- لا تترك stale cache.
+
+هـ. IDs:
+- إذا واجهة admin تستخدم legacy integer id، استخدم legacy_id في Supabase.
+- إذا احتجت uuid، وثّق ذلك ولا تكسر الواجهة.
+- الأفضل لهذه المرحلة: الحفاظ على legacy_id كـ id المعروض للواجهة.
+
+==================================================
+6. اختبارات إلزامية
+==================================================
+
+اختبر:
+
+أ. mode=api:
+1. Admin news list يعمل.
+2. add/edit/delete news يعمل عبر API.
+3. Admin jobs list يعمل.
+4. add/edit/delete job يعمل عبر API.
+5. CentersNewsPage وCentersJobsPage تعمل.
+
+ب. mode=supabase_shadow:
+1. كل شيء يبقى API.
+2. لا كتابة إلى Supabase.
+3. لا كسر.
+
+ج. mode=supabase:
+1. Admin news list يقرأ من Supabase.
+2. add news يكتب Supabase.
+3. edit news يكتب Supabase.
+4. delete news يكتب Supabase أو soft-delete إذا هذا هو التصميم.
+5. CentersNewsPage يعكس التغيير من Supabase.
+6. Admin jobs list يقرأ من Supabase.
+7. add job يكتب Supabase.
+8. edit job يكتب Supabase.
+9. delete job يكتب Supabase أو soft-delete إذا هذا هو التصميم.
+10. CentersJobsPage يعكس التغيير من Supabase.
+11. لا fallback صامت في write.
+12. لا duplicates.
+13. RLS يعمل.
+14. user/admin permissions تعمل.
+
+اختبر الصفحات:
+- الرئيسية
+- التقويم
+- المال
+- ستوري اليوم
+- الإشعارات
+- المراكز
+- مركز الأخبار
+- مركز الوظائف
+- حسابي
+- /admin
+- /admin/data-layer
+- /admin/news أو مسار الأخبار الإداري
+- /admin/jobs أو مسار الوظائف الإداري
+- الصفحات القانونية
+- 404
+
+==================================================
+7. أوامر الفحص
+==================================================
+
+شغّل:
+- pnpm build أو npm run build
+- pnpm typecheck أو npm run typecheck إن وجد
+
+وافحص:
+- service_role
+- SUPABASE_SERVICE_ROLE
+- hardcoded Supabase keys
+- hardcoded passwords
+- DROP
+- TRUNCATE
+- DELETE غير مقصود
+
+إذا lint/test غير موجود:
+اذكر أنه غير متوفر ولا تدّع تشغيله.
+
+==================================================
+8. تحديث التوثيق
+==================================================
+
+حدّث:
+- QA_REPORT.md
+- DATA_SOURCE_MAP.md
+- SUPABASE_MIGRATION_PLAN.md
+- SUPABASE_MIGRATION_CHECKLIST.md
+- ARCHITECTURE.md
+- README.md إن لزم
+
+وثّق:
+- أن Admin news/jobs CRUD أصبح Gateway.
+- أن default لا يزال api.
+- أن mode=supabase يكتب news/jobs إلى Supabase.
+- أن Calendar/Finance لم يتحولا.
+- أن themes/story/daily_messages لم تتحول.
+- أي divergence risk متبقٍ.
+- أن Phase 12M مخصصة للثيمات/القوالب/رسائل اليوم أو النطاق الإداري التالي.
+
+==================================================
+9. معيار قبول المرحلة
+==================================================
+
+تقبل Phase 12L فقط إذا تحقق:
+
+- Admin news CRUD يستخدم Gateway.
+- Admin jobs CRUD يستخدم Gateway.
+- mode=api يعمل.
+- mode=supabase_shadow يعمل.
+- mode=supabase يعمل news/jobs قراءة وكتابة.
+- CentersNewsPage وCentersJobsPage تعكسان البيانات.
+- لا fallback صامت في write عند mode=supabase.
+- لا يتم تحويل نطاق آخر.
+- API لم يُحذف.
+- PostgreSQL لم يُحذف.
+- لا بيانات SQL جديدة.
+- لا DROP/TRUNCATE/DELETE غير مقصود.
+- لا service_role.
+- لا أسرار hardcoded.
+- Supabase Auth و/admin سليمان.
+- كل الصفحات سليمة.
+- build ناجح.
+- typecheck ناجح.
+- QA_REPORT محدث.
+
+الحكم النهائي:
+Admin News/Jobs CRUD Gateway Ready / Partial Admin CRUD Cutover / Needs Admin CRUD Fix / Needs Fixes
+
+==================================================
+10. التقرير النهائي المطلوب
+==================================================
+
+أعطني تقريراً بهذا الشكل فقط:
+
+1. هل Admin news read أصبح Gateway؟
+2. هل Admin news add/edit/delete أصبح Gateway؟
+3. هل Admin jobs read أصبح Gateway؟
+4. هل Admin jobs add/edit/delete أصبح Gateway؟
+5. هل mode=api يعمل؟
+6. هل mode=supabase_shadow يعمل؟
+7. هل mode=supabase يعمل لـ news/jobs؟
+8. هل CentersNewsPage يعكس تغييرات Supabase؟
+9. هل CentersJobsPage يعكس تغييرات Supabase؟
+10. هل يوجد fallback صامت إلى API في write عند mode=supabase؟
+11. هل تم تحويل أي نطاق آخر؟
+12. هل Calendar/Finance بقيا كما هما؟
+13. هل API endpoints ما زالت موجودة؟
+14. هل PostgreSQL ما زال موجوداً؟
+15. هل يوجد service_role في الواجهة؟
+16. هل توجد أسرار hardcoded؟
+17. هل يوجد DROP/TRUNCATE/DELETE غير مقصود؟
+18. هل Supabase Auth و/admin بقيا سليمين؟
+19. هل الصفحات السابقة سليمة؟
+20. هل build نجح؟ اذكر النتيجة صراحة.
+21. هل typecheck نجح؟ اذكر النتيجة صراحة.
+22. هل QA_REPORT تم تحديثه؟
+23. القيود المتبقية.
+24. الحكم النهائي:
+Admin News/Jobs CRUD Gateway Ready / Partial Admin CRUD Cutover / Needs Admin CRUD Fix / Needs Fixes

@@ -1,0 +1,335 @@
+استمر من آخر Checkpoint. لا تعيد البناء من البداية.
+
+المرحلة الحالية:
+Phase 12E
+Notifications + Complaints Migration Preparation Gate
+
+الدور:
+تصرف كفريق Database Migration Engineer + Supabase Security Reviewer + Data Integrity Auditor + QA Lead.
+مهمتك الآن ليست تغيير مصدر الحقيقة، وليست تعديل الواجهة، وليست تحويل Data Layer.
+مهمتك فقط تجهيز SQL آمن لنقل البيانات المؤجلة المتبقية:
+notifications و complaints
+من PostgreSQL الحالي إلى Supabase، مع ربطها بالمستخدم الموثق:
+hrq@hotmail.com
+
+==================================================
+0. السياق الحالي
+==================================================
+
+المشروع حالياً:
+- Full Supabase Connected Preview.
+- Supabase Auth يعمل.
+- /admin يعمل.
+- hrq@hotmail.com دخل كـ super_admin.
+- Schema Alignment Applied.
+- Admin Seed Applied:
+  daily_messages = 8
+  story_templates = 2
+  themes = 10
+  news = 2
+  jobs = 2
+  total = 24
+
+- User Core Migration Applied:
+  appointments = 2
+  financial_events = 8
+  total = 10
+
+إجمالي Supabase المنقول حتى الآن:
+34 صف
+
+مصدر الحقيقة الحالي ما زال:
+PostgreSQL/Express API
+
+الجداول المتبقية المؤجلة:
+- notifications = 3
+- complaints = 3
+
+هذه المرحلة تنقل فقط:
+- notifications
+- complaints
+
+ولا تنقل:
+- profiles
+- auth.users
+- roles
+- permissions
+- user_roles
+- admin_users
+- أي جداول أخرى
+
+==================================================
+1. الهدف التنفيذي
+==================================================
+
+جهّز Migration آمن لـ:
+1. notifications الحالية في PostgreSQL وعددها المتوقع 3.
+2. complaints الحالية في PostgreSQL وعددها المتوقع 3.
+
+المطلوب:
+1. استخراج user_id الحقيقي من Supabase Auth للمستخدم:
+   hrq@hotmail.com
+
+2. تجهيز SQL آمن ينقل:
+   - notifications
+   - complaints
+
+3. ربط الصفوف المناسبة بـ:
+   user_id = auth.users.id الخاص بـ hrq@hotmail.com
+
+4. حفظ id القديم في:
+   legacy_id
+
+5. حفظ:
+   migrated_at = now()
+   migration_batch = phase_12e_support_seed_2026_05_24
+
+6. استخدام INSERT آمن يمنع التكرار عند إعادة التشغيل.
+
+7. لا تغيّر Data Layer.
+
+8. لا تجعل Supabase مصدر الحقيقة الآن.
+
+9. لا تنقل profiles أو auth.users أو roles.
+
+10. لا تستخدم service_role في الواجهة.
+
+11. لا تضع أسرار في الكود.
+
+==================================================
+2. خارج النطاق
+==================================================
+
+هذه المرحلة ليست:
+- تحويل التطبيق ليقرأ من Supabase.
+- حذف PostgreSQL.
+- تغيير hooks.
+- تغيير API.
+- نقل profiles.
+- إنشاء users.
+- تغيير UI.
+- Production Ready.
+- Publish.
+- Firebase.
+- Offline.
+
+==================================================
+3. ممنوعات صارمة
+==================================================
+
+ممنوع:
+- لا تستخدم DROP.
+- لا تستخدم TRUNCATE.
+- لا تستخدم DELETE.
+- لا تمسح أي بيانات.
+- لا تغيّر مصدر الحقيقة.
+- لا تغيّر Data Layer.
+- لا تنقل أكثر من notifications و complaints.
+- لا تستخدم service_role في الواجهة.
+- لا تضع مفاتيح أو كلمات مرور في الملفات.
+- لا تضغط Publish.
+- لا تدّع Production Ready.
+- لا تدّع أن Supabase أصبح مصدر الحقيقة.
+
+==================================================
+4. بروتوكول التشخيص قبل إنشاء SQL
+==================================================
+
+افحص أولاً:
+
+1. عدد notifications في PostgreSQL.
+2. عدد complaints في PostgreSQL.
+3. schema الحالي لكل جدول في PostgreSQL.
+4. schema المقابل في Supabase.
+5. وجود user_id في Supabase tables.
+6. وجود legacy_id/migrated_at/migration_batch.
+7. وجود hrq@hotmail.com في auth.users.
+8. طريقة جلب user_id من auth.users.
+9. هل notifications.user_id nullable أو required؟
+10. هل complaints.user_id nullable أو required؟
+11. هل RLS يسمح بالإدخال عند التشغيل من SQL Editor بدور postgres؟
+12. هل seed يمكن إعادة تشغيله بدون duplicate؟
+13. هل هناك اختلاف أعمدة يحتاج mapping؟
+14. هل complaint status/category/message/email fields متوافقة؟
+15. هل notification is_read/type/title/message/date fields متوافقة؟
+
+لا تنشئ SQL قبل إكمال التشخيص.
+
+==================================================
+5. الملفات المطلوب إنشاؤها
+==================================================
+
+أنشئ:
+
+1. SUPABASE_SUPPORT_DATA_MIGRATION.sql
+   يحتوي insert/upsert آمن لـ:
+   - notifications
+   - complaints
+
+2. SUPABASE_SUPPORT_DATA_COUNTS.md
+   يحتوي:
+   - عدد الصفوف في PostgreSQL.
+   - العدد المتوقع في Supabase.
+   - mapping الأعمدة.
+   - طريقة ربط user_id.
+   - الجداول التي لم تُنقل والسبب.
+
+3. SUPABASE_SUPPORT_DATA_VERIFY.sql
+   يحتوي queries تحقق:
+   - count notifications
+   - count complaints
+   - join مع auth.users حيث ينطبق
+   - user_id not null إن كان مطلوباً
+   - legacy_id not null
+   - migration_batch
+   - duplicate check
+   - sample rows
+
+حدّث:
+4. SUPABASE_MIGRATION_PLAN.md
+5. SUPABASE_MIGRATION_CHECKLIST.md
+6. DATA_SOURCE_MAP.md
+7. QA_REPORT.md
+
+==================================================
+6. متطلبات SQL
+==================================================
+
+في SUPABASE_SUPPORT_DATA_MIGRATION.sql:
+
+- استخدم DO block أو CTE آمن لجلب user_id:
+  SELECT id FROM auth.users WHERE email = 'hrq@hotmail.com'
+
+- إذا لم يوجد المستخدم:
+  RAISE EXCEPTION واضح ولا تنشئ بيانات ناقصة.
+
+- notifications:
+  أدخل كل صف مع:
+  user_id إن كان مناسباً حسب schema
+  legacy_id
+  migrated_at
+  migration_batch
+
+- complaints:
+  أدخل كل صف مع:
+  user_id إن كان مناسباً حسب schema
+  legacy_id
+  migrated_at
+  migration_batch
+
+- استخدم WHERE NOT EXISTS أو ON CONFLICT إذا كان آمناً.
+
+- لا تستخدم DROP/TRUNCATE/DELETE.
+
+- لا تلمس auth.users.
+
+- لا تلمس user_roles/admin_users.
+
+- لا تنقل profiles.
+
+- لا تلمس appointments أو financial_events.
+
+==================================================
+7. تنفيذ SQL
+==================================================
+
+إذا لا تستطيع تشغيل SQL مباشرة بأمان:
+- أنشئ الملفات فقط.
+- أعطني تعليمات تشغيلها في Supabase SQL Editor.
+- لا تدّع أن النقل تم.
+
+إذا شغّلت SQL:
+- شغّل verify.
+- اذكر counts قبل وبعد.
+- وثّق النتيجة.
+
+لكن لا تستخدم service_role في الواجهة أو الكود.
+
+==================================================
+8. الاختبارات الإلزامية
+==================================================
+
+بعد إنشاء الملفات، أو بعد تشغيلها إن تم:
+
+1. تحقق أن PostgreSQL/API الحالي ما زال مصدر الحقيقة.
+2. تحقق أن notifications في PostgreSQL ما زالت 3.
+3. تحقق أن complaints في PostgreSQL ما زالت 3.
+4. تحقق أن Supabase يحتوي نفس الأعداد بعد التشغيل إن تم.
+5. تحقق أن user_id محفوظ حيث يلزم.
+6. تحقق أن legacy_id محفوظ.
+7. تحقق أن migration_batch محفوظ.
+8. تحقق عدم وجود duplicate.
+9. تحقق أنه لم يتم نقل profiles.
+10. تحقق أنه لم يتم لمس appointments و financial_events.
+11. افتح Preview.
+12. افتح الرئيسية.
+13. افتح التقويم.
+14. افتح المال.
+15. افتح ستوري اليوم.
+16. افتح الإشعارات.
+17. افتح المراكز.
+18. افتح حسابي.
+19. افتح /admin.
+20. تحقق أن Supabase Auth و/admin سليمان.
+21. تحقق أنه لا API 500.
+22. تحقق أنه لا صفحات مكسورة.
+23. شغّل build.
+24. شغّل typecheck.
+25. افحص service_role.
+26. افحص hardcoded secrets.
+
+==================================================
+9. معيار قبول المرحلة
+==================================================
+
+تقبل المرحلة فقط إذا تحقق:
+
+- SUPABASE_SUPPORT_DATA_MIGRATION.sql موجود.
+- SUPABASE_SUPPORT_DATA_COUNTS.md موجود.
+- SUPABASE_SUPPORT_DATA_VERIFY.sql موجود.
+- SQL غير تدميري.
+- لا DROP/TRUNCATE/DELETE.
+- لا نقل profiles.
+- لا لمس appointments/financial_events.
+- user_id strategy واضحة.
+- legacy_id محفوظ.
+- migration_batch محفوظ.
+- PostgreSQL/API الحالي ما زال مصدر الحقيقة.
+- Supabase Auth و/admin سليمان.
+- build ناجح.
+- typecheck ناجح.
+- QA_REPORT محدث.
+
+الحكم النهائي يكون:
+Support Data Migration Ready / Support Data Migration Applied / Needs SQL Run / Needs Fixes
+
+==================================================
+10. التقرير النهائي المطلوب
+==================================================
+
+أعطني تقريراً بهذا الشكل فقط:
+
+1. هل تم إنشاء SUPABASE_SUPPORT_DATA_MIGRATION.sql؟
+2. هل تم إنشاء SUPABASE_SUPPORT_DATA_COUNTS.md؟
+3. هل تم إنشاء SUPABASE_SUPPORT_DATA_VERIFY.sql؟
+4. كم عدد notifications في PostgreSQL؟
+5. كم عدد complaints في PostgreSQL؟
+6. هل تم العثور على user_id الخاص بـ hrq@hotmail.com؟
+7. كيف سيتم ربط الصفوف بـ user_id؟
+8. هل تم تشغيل migration فعلياً أم الملف جاهز فقط؟
+9. إذا تم تشغيله: كم عدد notifications في Supabase؟
+10. إذا تم تشغيله: كم عدد complaints في Supabase؟
+11. هل legacy_id محفوظ؟
+12. هل migration_batch محفوظ؟
+13. هل تم نقل profiles أو auth.users؟
+14. هل تم لمس appointments أو financial_events؟
+15. هل يوجد DROP/TRUNCATE/DELETE؟
+16. هل PostgreSQL/API الحالي ما زال مصدر الحقيقة؟
+17. هل Supabase Auth و/admin بقيا سليمين؟
+18. هل المراحل السابقة سليمة؟
+19. هل build نجح؟ اذكر النتيجة صراحة.
+20. هل typecheck نجح؟ اذكر النتيجة صراحة.
+21. هل QA_REPORT تم تحديثه؟
+22. القيود المتبقية.
+23. الحكم النهائي:
+Support Data Migration Ready / Support Data Migration Applied / Needs SQL Run / Needs Fixes
