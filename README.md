@@ -79,16 +79,20 @@ pnpm --filter @workspace/db run push
 - **Environment variable names only**: `VITE_DATA_SOURCE_MODE`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `PORT`, `BASE_PATH`
 - **Production smoke results**:
   - `/` → 200 OK
-  - `/login` → pending redeploy after rewrite fix
-  - `/register` → pending redeploy after rewrite fix
-  - `/account` → pending redeploy after rewrite fix
-  - `/finance` → pending redeploy after rewrite fix
-  - `/story` → pending redeploy after rewrite fix
-  - `/notifications` → pending redeploy after rewrite fix
-  - `/admin` → pending redeploy after rewrite fix
+  - `/login` → 200 OK (SPA shell)
+  - `/register` → 200 OK (SPA shell)
+  - `/account` → 200 OK (SPA shell)
+  - `/finance` → 200 OK (SPA shell)
+  - `/story` → 200 OK (SPA shell)
+  - `/notifications` → 200 OK (SPA shell)
+  - `/admin` → 200 OK (SPA shell)
+- **PWA smoke results**:
+  - `/manifest.json` → 200 OK
+  - `/icons/icon-192.svg` → 200 OK
+  - `/icons/icon-512.svg` → 200 OK
 - **Remaining limitations**:
-  - التحقق النهائي من الإنتاج ينتظر إعادة نشر Vercel بعد اعتماد `vercel.json`.
-  - عند إعادة النشر، سيتم التحقق من `manifest.json` والأيقونات ومسارات SPA.
+  - لا توجد قيود تشغيلية متبقية في التحقق البيئي الحالي بعد إعادة نشر Vercel.
+  - حماية `/admin` تعتمد على الحارس التشغيلي للواجهة مع بقاء التحقق الأمني في وقت التشغيل.
 
 ## PWA / Mobile Install
 

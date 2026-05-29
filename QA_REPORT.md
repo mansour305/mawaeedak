@@ -57,20 +57,21 @@
   - Android Chrome: ⋮ menu → Install app / Add to Home screen.
 - **Production smoke results**:
   - `/` → 200 OK, homepage HTML and asset bundle load.
-  - `/login` → pending redeploy; rewrite configured to serve app shell.
-  - `/register` → pending redeploy; rewrite configured to serve app shell.
-  - `/account` → pending redeploy; rewrite configured to serve app shell.
-  - `/finance` → pending redeploy; rewrite configured to serve app shell.
-  - `/story` → pending redeploy; rewrite configured to serve app shell.
-  - `/notifications` → pending redeploy; rewrite configured to serve app shell.
-  - `/admin` → pending redeploy; rewrite configured to serve app shell.
+  - `/login` → 200 OK, SPA shell returned.
+  - `/register` → 200 OK, SPA shell returned.
+  - `/account` → 200 OK, SPA shell returned.
+  - `/finance` → 200 OK, SPA shell returned.
+  - `/story` → 200 OK, SPA shell returned.
+  - `/notifications` → 200 OK, SPA shell returned.
+  - `/admin` → 200 OK, SPA shell returned.
 - **PWA verification**:
   - Rebuilt output contains `manifest.json`, `/icons/icon-192.svg`, and `/icons/icon-512.svg`.
   - Manifest exposes icon entries for `/icons/icon-192.svg`, `/icons/icon-512.svg`, and `/favicon.svg`.
+  - `/icons/icon-192.svg` and `/icons/icon-512.svg` both return 200 from production.
   - Mobile viewport metadata is present in the root HTML (`width=device-width, initial-scale=1.0`).
 - **Remaining limitations**:
-  - Production runtime verification remains pending until Vercel redeploy publishes the new rewrite and asset serving.
-  - Admin protection and route gating will be rechecked against the redeployed production after the fix.
+  - Production runtime now serves SPA shell correctly and PWA assets correctly.
+  - Admin protection remains runtime-managed through the client guard and route shell, with no exposed service-role secrets in production bundle.
 
 ## Deployment / Mobile Notes
 
@@ -81,6 +82,6 @@
 ## Current Verdict
 
 - **Build gate**: Passed
-- **PWA readiness**: Blocked by production manifest/icon mismatch
+- **PWA readiness**: Production manifest and icons are served successfully
 - **Native packaging**: Waiting for platform credentials
-- **Production deployment**: Blocked by missing SPA rewrite and stale production assets
+- **Production deployment**: SPA rewrite fixed and production smoke checks passing
