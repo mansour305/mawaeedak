@@ -40,6 +40,13 @@ export default function WelcomePage() {
   const [selectedInterests, setSelectedInterests] = useState<string[]>(user?.interests || []);
   
   const { data: themes } = useListThemes();
+  // Normalize themes response: API may return an array or an object { data: [] }.
+  // Protect against unexpected shapes so `.map` won't throw at runtime.
+  const normalizedThemes = Array.isArray(themes)
+    ? themes
+    : (themes && typeof themes === "object" && Array.isArray((themes as any).data))
+      ? (themes as any).data
+      : [];
 
   const handleNext = () => {
     if (step < 3) {
@@ -154,7 +161,7 @@ export default function WelcomePage() {
             </p>
 
             <div className="space-y-4">
-              {themes?.map((theme) => (
+              {normalizedThemes.map((theme) => (
                 <Card 
                   key={theme.slug} 
                   className="p-4 cursor-pointer hover:border-primary transition-colors border-2 group"
