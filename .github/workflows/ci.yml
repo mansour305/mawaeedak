@@ -22,19 +22,22 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
+          cache: pnpm
 
       - name: Enable Corepack and pnpm
-        run: corepack pnpm@11.5.0 --version
+        run: |
+          corepack enable
+          corepack prepare pnpm@11.5.0 --activate
+          pnpm --version
 
       - name: Install dependencies
         env:
           CI: "false"
           npm_config_ignore_scripts: "false"
-          npm_config_user_agent: "pnpm/11.5.0"
-        run: corepack pnpm@11.5.0 install --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Typecheck
-        run: corepack pnpm@11.5.0 run typecheck
+        run: pnpm run typecheck
 
       - name: Build
-        run: corepack pnpm@11.5.0 run build
+        run: pnpm run build
