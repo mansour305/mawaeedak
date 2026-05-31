@@ -1,0 +1,98 @@
+name: Production Environment Gate
+
+on:
+  workflow_dispatch:
+
+jobs:
+  verify-production-env:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      ADMIN_API_TOKEN: ${{ secrets.ADMIN_API_TOKEN }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Verify required secrets are present without exposing values
+        shell: bash
+        run: |
+          set -euo pipefail
+          required=(
+            DATABASE_URL
+            VITE_SUPABASE_URL
+            VITE_SUPABASE_ANON_KEY
+            SUPABASE_URL
+            SUPABASE_ANON_KEY
+            SUPABASE_SERVICE_ROLE_KEY
+            SESSION_SECRET
+            JWT_SECRET
+            ADMIN_API_TOKEN
+          )
+
+          missing=0
+          for name in "${required[@]}"; do
+            if [ -z "${!name:-}" ]; then
+              echo "❌ $name is missing"
+              missing=1
+            else
+              echo "✅ $name is present"
+            fi
+          done
+
+          if [ "$missing" -ne 0 ]; then
+            echo "Required production secrets are missing. Add them in GitHub repository secrets and rerun this workflow."
+            exit 1
+          fi
+
+      - name: Ensure service role key is not referenced in frontend source
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -R "SUPABASE_SERVICE_ROLE_KEY" artifacts/mawaeedak/src artifacts/mawaeedak --exclude-dir=node_modules --exclude-dir=dist 2>/dev/null; then
+            echo "❌ SUPABASE_SERVICE_ROLE_KEY is referenced in frontend source. It must remain server-only."
+            exit 1
+          fi
+          echo "✅ No frontend reference to SUPABASE_SERVICE_ROLE_KEY found."
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Enable Corepack and pnpm
+        shell: bash
+        run: |
+          corepack enable
+          corepack prepare pnpm@11.5.0 --activate
+          pnpm --version
+
+      - name: Install dependencies
+        env:
+          CI: "false"
+          npm_config_ignore_scripts: "false"
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Production gate summary
+        shell: bash
+        run: |
+          echo "✅ Production environment gate completed."
+          echo "Secrets were present, frontend service-role exposure check passed, typecheck passed, and build passed."
+          echo "Next manual gates remain: apply Supabase SQL schema/RLS policies and run live user/admin smoke tests against the deployed environment."
