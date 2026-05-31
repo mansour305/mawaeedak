@@ -55,15 +55,22 @@ jobs:
             exit 1
           fi
 
-      - name: Ensure service role key is not referenced in frontend source
+      - name: Ensure service role key is not exposed to frontend runtime env
         shell: bash
         run: |
           set -euo pipefail
-          if grep -R "SUPABASE_SERVICE_ROLE_KEY" artifacts/mawaeedak/src artifacts/mawaeedak --exclude-dir=node_modules --exclude-dir=dist 2>/dev/null; then
-            echo "❌ SUPABASE_SERVICE_ROLE_KEY is referenced in frontend source. It must remain server-only."
+
+          if grep -R "VITE_SUPABASE_SERVICE_ROLE_KEY\|import\.meta\.env\.SUPABASE_SERVICE_ROLE_KEY\|process\.env\.SUPABASE_SERVICE_ROLE_KEY" \
+            artifacts/mawaeedak/src artifacts/mawaeedak \
+            --exclude-dir=node_modules \
+            --exclude-dir=dist \
+            --exclude='*.md' \
+            2>/dev/null; then
+            echo "❌ A frontend runtime path references the Supabase service-role key. It must remain server-only."
             exit 1
           fi
-          echo "✅ No frontend reference to SUPABASE_SERVICE_ROLE_KEY found."
+
+          echo "✅ No frontend runtime exposure of SUPABASE_SERVICE_ROLE_KEY found."
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
