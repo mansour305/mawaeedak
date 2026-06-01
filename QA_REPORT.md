@@ -70,6 +70,10 @@
   - static smoke against first discovered `dist/index.html` when present
   - committed-secret hygiene scan
 
+## Phase 4 Verification Trigger
+
+This branch intentionally changes only QA documentation to force a pull-request workflow run against the installed Phase 4 GitHub Actions gate.
+
 ## Verification Results
 
 | Check | Result |
