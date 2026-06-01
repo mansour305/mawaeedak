@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "preinstall": "sh -c 'rm -f package-lock.json yarn.lock'",
+    "preinstall": "node ./scripts/preinstall-clean.cjs",
     "build": "pnpm run typecheck && pnpm -r --if-present run build",
     "production-readiness-gate": "pnpm --filter @workspace/scripts run production-readiness-gate",
     "typecheck:libs": "tsc --build",
@@ -11,6 +11,8 @@
   },
   "private": true,
   "devDependencies": {
+    "@types/pg": "^8.20.0",
+    "pg": "^8.20.0",
     "prettier": "^3.8.3",
     "typescript": "~5.9.3"
   }

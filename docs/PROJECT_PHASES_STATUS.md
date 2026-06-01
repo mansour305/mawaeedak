@@ -154,3 +154,30 @@ PASSED — PHASE 4 ADMIN CONTROL AND LIVE PERSISTENCE COMPLETE
 ```
 
 ويجب أن يكون الحكم مبنياً على نتائج فعلية، لا على توقعات أو توثيق فقط.
+## Latest Phase 4 Smoke Snapshot
+
+Updated: 2026-06-02
+
+### Current Gate
+
+Phase 4 remains **NEEDS FIXES**.
+
+Live environment loading is fixed and `work/phase4-admin-smoke.cjs` now reports step-by-step progress with bounded external calls. The latest blocker is not a missing secret or a hanging process. The live mutation proof fails because the live `financial_events` table requires `name_ar`, while the current smoke payload/API alignment does not yet satisfy that live schema.
+
+### Verification Snapshot
+
+| Check | Status | Evidence |
+|---|---|---|
+| Env loading | PASS | `.env.local` loads and reports PRESENT/MISSING only |
+| `pnpm run typecheck` | PASS | Workspace typecheck completed |
+| `pnpm run build` | PASS | API, app, and mockup sandbox build completed |
+| DB proof | PASS | `select 1` succeeded with SSL |
+| Supabase REST proof | PASS | REST probe returned HTTP 200 |
+| Frontend service-role exposure scan | PASS | No frontend source/bundle reference found |
+| Guest mutation denial | PASS | Guest create returned HTTP 401 |
+| Admin mutation proof | FAIL | Live schema requires `financial_events.name_ar` |
+| Audit proof | NOT COMPLETE | Admin mutation did not create the test record |
+
+### Phase 4 Decision
+
+Do not proceed to Phase 5 until admin mutation, public read, audit log proof, and guest/user audit denial all pass against the live runtime.

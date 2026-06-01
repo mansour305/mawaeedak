@@ -194,9 +194,9 @@ export declare const complaintsTable: import("drizzle-orm/pg-core").PgTableWithC
     dialect: "pg";
 }>;
 export declare const insertComplaintSchema: z.ZodObject<{
-    type: z.ZodString;
-    category: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     title: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    category: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    type: z.ZodString;
     message: z.ZodString;
     contact: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     user_id: z.ZodOptional<z.ZodNullable<z.ZodString>>;

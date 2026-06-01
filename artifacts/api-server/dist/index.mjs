@@ -28012,7 +28012,7 @@ var require_pino = __commonJS({
     function pinoBundlerAbsolutePath(p) {
       try {
         const path = __require("path");
-        const outputDir = "/workspaces/mawaeedak/artifacts/api-server/dist";
+        const outputDir = "C:\\Users\\mn9\\Documents\\Codex\\2026-05-30\\github-plugin-github-openai-curated-dangermans\\mawaeedak\\artifacts\\api-server\\dist";
         return path.resolve(outputDir, p.replace(/^\.\//, ""));
       } catch (e) {
         const f = new Function("p", "return new URL(p, import.meta.url).pathname");
@@ -39415,6 +39415,57 @@ var health_default = router;
 
 // src/routes/appointments.ts
 var import_express2 = __toESM(require_express2(), 1);
+
+// src/middlewares/requireAdmin.ts
+var ADMIN_ROLES = /* @__PURE__ */ new Set(["admin", "super_admin"]);
+function extractRole(user) {
+  const appRole = user.app_metadata?.role;
+  if (typeof appRole === "string") return appRole;
+  const appRoles = user.app_metadata?.roles;
+  if (Array.isArray(appRoles)) {
+    const match = appRoles.find((r) => typeof r === "string" && ADMIN_ROLES.has(r));
+    if (typeof match === "string") return match;
+  }
+  return "user";
+}
+var requireAdmin = async (req, res, next) => {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const anonKey = process.env.SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !anonKey) {
+    req.log?.error("requireAdmin: SUPABASE_URL \u0623\u0648 SUPABASE_ANON_KEY \u063A\u064A\u0631 \u0645\u0636\u0628\u0648\u0637\u064A\u0646");
+    res.status(503).json({ error: "\u062E\u062F\u0645\u0629 \u0627\u0644\u0645\u0635\u0627\u062F\u0642\u0629 \u063A\u064A\u0631 \u0645\u0647\u064A\u0623\u0629 \u0639\u0644\u0649 \u0627\u0644\u062E\u0627\u062F\u0645" });
+    return;
+  }
+  const authHeader = req.headers.authorization ?? "";
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
+  if (!token) {
+    res.status(401).json({ error: "\u0645\u0637\u0644\u0648\u0628 \u062A\u0633\u062C\u064A\u0644 \u062F\u062E\u0648\u0644 \u0627\u0644\u0645\u0627\u0644\u0643" });
+    return;
+  }
+  try {
+    const resp = await fetch(`${supabaseUrl.replace(/\/+$/, "")}/auth/v1/user`, {
+      headers: {
+        apikey: anonKey,
+        Authorization: `Bearer ${token}`
+      }
+    });
+    if (!resp.ok) {
+      res.status(401).json({ error: "\u062C\u0644\u0633\u0629 \u063A\u064A\u0631 \u0635\u0627\u0644\u062D\u0629 \u0623\u0648 \u0645\u0646\u062A\u0647\u064A\u0629" });
+      return;
+    }
+    const user = await resp.json();
+    const role = extractRole(user);
+    if (!ADMIN_ROLES.has(role)) {
+      res.status(403).json({ error: "\u0635\u0644\u0627\u062D\u064A\u0627\u062A \u063A\u064A\u0631 \u0643\u0627\u0641\u064A\u0629" });
+      return;
+    }
+    req.adminUser = user;
+    next();
+  } catch (err) {
+    req.log?.error({ err }, "requireAdmin: \u0641\u0634\u0644 \u0627\u0644\u062A\u062D\u0642\u0642 \u0645\u0646 Supabase");
+    res.status(401).json({ error: "\u062A\u0639\u0630\u0631 \u0627\u0644\u062A\u062D\u0642\u0642 \u0645\u0646 \u0627\u0644\u062C\u0644\u0633\u0629" });
+  }
+};
 
 // ../../node_modules/.pnpm/pg@8.20.0/node_modules/pg/esm/index.mjs
 var import_lib = __toESM(require_lib5(), 1);
@@ -57559,7 +57610,7 @@ function date5(params) {
 // ../../node_modules/.pnpm/zod@3.25.76/node_modules/zod/v4/classic/external.js
 config(en_default2());
 
-// ../../node_modules/.pnpm/drizzle-zod@0.8.3_drizzle-orm@0.45.2_@types+pg@8.20.0_pg@8.20.0__zod@3.25.76/node_modules/drizzle-zod/index.mjs
+// ../../node_modules/.pnpm/drizzle-zod@0.8.3_drizzle-o_388078da7d074fc4ad4cae0eacfc8b59/node_modules/drizzle-zod/index.mjs
 var CONSTANTS = {
   INT8_MIN: -128,
   INT8_MAX: 127,
@@ -58049,13 +58100,13 @@ router2.get("/appointments/:id", async (req, res) => {
   if (!row) return res.status(404).json({ error: "\u063A\u064A\u0631 \u0645\u0648\u062C\u0648\u062F" });
   return res.json(row);
 });
-router2.post("/appointments", async (req, res) => {
+router2.post("/appointments", requireAdmin, async (req, res) => {
   const parsed = CreateAppointmentBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error });
   const [row] = await db.insert(appointmentsTable).values(parsed.data).returning();
   return res.status(201).json(row);
 });
-router2.patch("/appointments/:id", async (req, res) => {
+router2.patch("/appointments/:id", requireAdmin, async (req, res) => {
   const id = parseInt(req.params.id);
   const parsed = UpdateAppointmentBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error });
@@ -58063,7 +58114,7 @@ router2.patch("/appointments/:id", async (req, res) => {
   if (!row) return res.status(404).json({ error: "\u063A\u064A\u0631 \u0645\u0648\u062C\u0648\u062F" });
   return res.json(row);
 });
-router2.delete("/appointments/:id", async (req, res) => {
+router2.delete("/appointments/:id", requireAdmin, async (req, res) => {
   const id = parseInt(req.params.id);
   const [deleted] = await db.delete(appointmentsTable).where(eq(appointmentsTable.id, id)).returning();
   if (!deleted) return res.status(404).json({ error: "\u063A\u064A\u0631 \u0645\u0648\u062C\u0648\u062F" });
@@ -58126,7 +58177,7 @@ router3.get("/financial-events/countdown", async (req, res) => {
   );
   return res.json(countdown);
 });
-router3.post("/financial-events", async (req, res) => {
+router3.post("/financial-events", requireAdmin, async (req, res) => {
   const parsed = CreateFinancialEventBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error });
   const insertData = { ...parsed.data, amount: parsed.data.amount != null ? String(parsed.data.amount) : void 0 };
@@ -58134,7 +58185,7 @@ router3.post("/financial-events", async (req, res) => {
   await logAudit("create", "financial_event", row.id, row.name, `\u0625\u0636\u0627\u0641\u0629 \u062D\u062F\u062B \u0645\u0627\u0644\u064A: ${row.name}`);
   return res.status(201).json(row);
 });
-router3.patch("/financial-events/:id", async (req, res) => {
+router3.patch("/financial-events/:id", requireAdmin, async (req, res) => {
   const id = parseInt(req.params.id);
   const parsed = UpdateFinancialEventBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error });
@@ -58144,7 +58195,7 @@ router3.patch("/financial-events/:id", async (req, res) => {
   await logAudit("update", "financial_event", row.id, row.name, `\u062A\u0639\u062F\u064A\u0644 \u062D\u062F\u062B \u0645\u0627\u0644\u064A: ${row.name}`);
   return res.json(row);
 });
-router3.delete("/financial-events/:id", async (req, res) => {
+router3.delete("/financial-events/:id", requireAdmin, async (req, res) => {
   const id = parseInt(req.params.id);
   const [deleted] = await db.delete(financialEventsTable).where(eq(financialEventsTable.id, id)).returning();
   if (!deleted) return res.status(404).json({ error: "\u063A\u064A\u0631 \u0645\u0648\u062C\u0648\u062F" });
@@ -58155,59 +58206,6 @@ var financial_default = router3;
 
 // src/routes/notifications.ts
 var import_express4 = __toESM(require_express2(), 1);
-
-// src/middlewares/requireAdmin.ts
-var ADMIN_ROLES = /* @__PURE__ */ new Set(["admin", "super_admin"]);
-function extractRole(user) {
-  const appRole = user.app_metadata?.role;
-  if (typeof appRole === "string") return appRole;
-  const appRoles = user.app_metadata?.roles;
-  if (Array.isArray(appRoles)) {
-    const match = appRoles.find((r) => typeof r === "string" && ADMIN_ROLES.has(r));
-    if (typeof match === "string") return match;
-  }
-  return "user";
-}
-var requireAdmin = async (req, res, next) => {
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const anonKey = process.env.SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !anonKey) {
-    req.log?.error("requireAdmin: SUPABASE_URL \u0623\u0648 SUPABASE_ANON_KEY \u063A\u064A\u0631 \u0645\u0636\u0628\u0648\u0637\u064A\u0646");
-    res.status(503).json({ error: "\u062E\u062F\u0645\u0629 \u0627\u0644\u0645\u0635\u0627\u062F\u0642\u0629 \u063A\u064A\u0631 \u0645\u0647\u064A\u0623\u0629 \u0639\u0644\u0649 \u0627\u0644\u062E\u0627\u062F\u0645" });
-    return;
-  }
-  const authHeader = req.headers.authorization ?? "";
-  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7).trim() : "";
-  if (!token) {
-    res.status(401).json({ error: "\u0645\u0637\u0644\u0648\u0628 \u062A\u0633\u062C\u064A\u0644 \u062F\u062E\u0648\u0644 \u0627\u0644\u0645\u0627\u0644\u0643" });
-    return;
-  }
-  try {
-    const resp = await fetch(`${supabaseUrl.replace(/\/+$/, "")}/auth/v1/user`, {
-      headers: {
-        apikey: anonKey,
-        Authorization: `Bearer ${token}`
-      }
-    });
-    if (!resp.ok) {
-      res.status(401).json({ error: "\u062C\u0644\u0633\u0629 \u063A\u064A\u0631 \u0635\u0627\u0644\u062D\u0629 \u0623\u0648 \u0645\u0646\u062A\u0647\u064A\u0629" });
-      return;
-    }
-    const user = await resp.json();
-    const role = extractRole(user);
-    if (!ADMIN_ROLES.has(role)) {
-      res.status(403).json({ error: "\u0635\u0644\u0627\u062D\u064A\u0627\u062A \u063A\u064A\u0631 \u0643\u0627\u0641\u064A\u0629" });
-      return;
-    }
-    req.adminUser = user;
-    next();
-  } catch (err) {
-    req.log?.error({ err }, "requireAdmin: \u0641\u0634\u0644 \u0627\u0644\u062A\u062D\u0642\u0642 \u0645\u0646 Supabase");
-    res.status(401).json({ error: "\u062A\u0639\u0630\u0631 \u0627\u0644\u062A\u062D\u0642\u0642 \u0645\u0646 \u0627\u0644\u062C\u0644\u0633\u0629" });
-  }
-};
-
-// src/routes/notifications.ts
 var router4 = (0, import_express4.Router)();
 async function logAudit2(action, entityType, entityId, entityName, description) {
   await db.insert(auditLogsTable).values({ action, entity_type: entityType, entity_id: entityId, entity_name: entityName, description, performed_by: "admin", status: "success" });
@@ -58229,17 +58227,17 @@ router4.post("/notifications", requireAdmin, async (req, res) => {
   await logAudit2("create", "notification", row.id, row.title, `\u0625\u0631\u0633\u0627\u0644 \u0625\u0634\u0639\u0627\u0631: ${row.title}`);
   return res.status(201).json(row);
 });
-router4.patch("/notifications/:id/read", async (req, res) => {
+router4.patch("/notifications/:id/read", requireAdmin, async (req, res) => {
   const id = parseInt(req.params.id);
   const [row] = await db.update(notificationsTable).set({ is_read: true }).where(eq(notificationsTable.id, id)).returning();
   if (!row) return res.status(404).json({ error: "\u063A\u064A\u0631 \u0645\u0648\u062C\u0648\u062F" });
   return res.json(row);
 });
-router4.patch("/notifications/read-all", async (req, res) => {
+router4.patch("/notifications/read-all", requireAdmin, async (req, res) => {
   await db.update(notificationsTable).set({ is_read: true });
   return res.json({ success: true, message: "\u062A\u0645 \u062A\u062D\u062F\u064A\u062F \u0627\u0644\u0643\u0644 \u0643\u0645\u0642\u0631\u0648\u0621" });
 });
-router4.delete("/notifications/:id", async (req, res) => {
+router4.delete("/notifications/:id", requireAdmin, async (req, res) => {
   const id = parseInt(req.params.id);
   const [row] = await db.delete(notificationsTable).where(eq(notificationsTable.id, id)).returning();
   if (!row) return res.status(404).json({ error: "\u063A\u064A\u0631 \u0645\u0648\u062C\u0648\u062F" });

@@ -126,8 +126,8 @@ export declare const automationLogsTable: import("drizzle-orm/pg-core").PgTableW
     dialect: "pg";
 }>;
 export declare const insertAutomationLogSchema: z.ZodObject<{
-    job_name: z.ZodString;
     status: z.ZodOptional<z.ZodString>;
+    job_name: z.ZodString;
     details: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     items_created: z.ZodOptional<z.ZodInt>;
     run_at: z.ZodString;

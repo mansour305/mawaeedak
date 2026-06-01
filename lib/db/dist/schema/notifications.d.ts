@@ -127,8 +127,8 @@ export declare const notificationsTable: import("drizzle-orm/pg-core").PgTableWi
 }>;
 export declare const insertNotificationSchema: z.ZodObject<{
     title: z.ZodString;
-    body: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     type: z.ZodOptional<z.ZodString>;
+    body: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     is_read: z.ZodOptional<z.ZodBoolean>;
     source_key: z.ZodOptional<z.ZodNullable<z.ZodString>>;
 }, {

@@ -1,0 +1,96 @@
+{
+  "loadedEnvFiles": [
+    ".env.local"
+  ],
+  "envAvailability": {
+    "DATABASE_URL": "PRESENT",
+    "SUPABASE_URL": "PRESENT",
+    "SUPABASE_ANON_KEY": "PRESENT",
+    "VITE_SUPABASE_URL": "PRESENT",
+    "VITE_SUPABASE_ANON_KEY": "PRESENT",
+    "ADMIN_API_TOKEN": "PRESENT",
+    "SUPABASE_JWT_SECRET": "PRESENT",
+    "SUPABASE_SERVICE_ROLE_KEY": "PRESENT"
+  },
+  "sourceExposureScan": {
+    "serviceRoleReferenced": false,
+    "viteAdminTokenReferenced": false,
+    "status": "passed"
+  },
+  "dbConnection": {
+    "status": "passed",
+    "evidence": "select 1 succeeded with SSL"
+  },
+  "supabaseRest": {
+    "status": "passed",
+    "evidence": "HTTP 200"
+  },
+  "apiStartup": {
+    "status": "passed",
+    "evidence": "GET /api/healthz HTTP 200"
+  },
+  "rlsProof": {
+    "status": "passed",
+    "evidence": "guest=passed; user=documented"
+  },
+  "adminMutationProof": {
+    "status": "failed",
+    "evidence": "create=failed; update=not_run; cleanup=not_run"
+  },
+  "publicReadProof": {
+    "status": "not_run",
+    "evidence": "not run"
+  },
+  "auditLogProof": {
+    "status": "not_run",
+    "evidence": "not run"
+  },
+  "guestUserAuditDenial": {
+    "status": "failed",
+    "evidence": "guest=not_run; user=documented"
+  },
+  "details": {
+    "apiStartup": {
+      "status": "passed",
+      "evidence": "GET /api/healthz HTTP 200"
+    },
+    "guestMutationDenial": {
+      "status": "passed",
+      "evidence": "guest create financial event HTTP 401"
+    },
+    "userMutationDenial": {
+      "status": "documented",
+      "evidence": "USER_API_TOKEN/PHASE4_USER_API_TOKEN unavailable"
+    },
+    "adminCreate": {
+      "status": "failed",
+      "evidence": "service-role create HTTP 400 23502 null value in column \"name_ar\" of relation \"financial_events\" violates not-null constraint"
+    },
+    "adminUpdate": {
+      "status": "not_run",
+      "evidence": "not run"
+    },
+    "publicRead": {
+      "status": "not_run",
+      "evidence": "not run"
+    },
+    "auditLogProof": {
+      "status": "not_run",
+      "evidence": "not run"
+    },
+    "guestAuditDenial": {
+      "status": "not_run",
+      "evidence": "not run"
+    },
+    "userAuditDenial": {
+      "status": "documented",
+      "evidence": "USER_API_TOKEN/PHASE4_USER_API_TOKEN unavailable"
+    },
+    "cleanup": {
+      "status": "not_run",
+      "evidence": "not run"
+    }
+  },
+  "missing": [],
+  "passed": false
+}

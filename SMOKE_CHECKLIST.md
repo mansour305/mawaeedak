@@ -168,3 +168,24 @@
 
 **إذا اجتاز الكل → Publishable Preview**
 **إذا فشل بند إلزامي → Needs Fixes**
+
+## Phase 4 Live Env/RLS Gate - 2026-06-01
+
+- [x] Worktree safety gate executed on clean cloned `main`.
+- [x] Secret availability checked without printing values.
+- [x] `work/phase4-admin-smoke.cjs` added for safe PRESENT/MISSING diagnostics.
+- [x] `pnpm install --frozen-lockfile` passes in this runtime.
+- [x] `pnpm run typecheck` passes in this runtime.
+- [x] `pnpm run build` passes in this runtime.
+- [x] Frontend service-role exposure scan passes.
+- [ ] `DATABASE_URL` present in this runtime.
+- [ ] Supabase server/client env present in this runtime.
+- [ ] Admin auth env present in this runtime.
+- [ ] Live DB connection proof.
+- [ ] Supabase REST proof.
+- [ ] Guest/user denial proof for protected admin mutation.
+- [ ] Admin create/update/deactivate proof for official financial override.
+- [ ] Public active override read proof.
+- [ ] Audit log write/read proof.
+
+Current smoke status: live env is available and DB/Supabase probes pass, but Phase 4 remains NEEDS FIXES. Latest blocker: admin mutation fails because live `financial_events.name_ar` is NOT NULL, so the test record cannot be created and audit proof cannot run.

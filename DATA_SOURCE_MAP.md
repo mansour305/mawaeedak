@@ -516,3 +516,22 @@ mode=supabase:
 | NotificationsPage | getGetUnreadNotificationsCountQueryKey | cache invalidation فقط |
 | AdminMessages/Story/Themes | get*QueryKey | cache invalidation فقط |
 | AdminNewsJobs | getListNewsQueryKey, getListJobsQueryKey | cache invalidation فقط |
+
+## Phase 4 Live Env/RLS Gate - 2026-06-01
+
+Runtime env availability for this Codex session is MISSING for `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `ADMIN_API_TOKEN`, and `SUPABASE_JWT_SECRET`. `SUPABASE_SERVICE_ROLE_KEY` is also missing and is not referenced by the current server guard.
+
+Data-source proof status:
+
+| Data path | Status | Evidence |
+|---|---|---|
+| PostgreSQL via `DATABASE_URL` | Blocked | Secret missing, DB connection cannot run |
+| Supabase REST via anon key | Blocked | Supabase URL/key missing |
+| Official financial override mutation | Blocked | Admin live auth and DB unavailable |
+| Public active override read path | Blocked | No live override can be created/read |
+| Audit logs | Blocked | Admin mutation cannot run |
+| Frontend service-role exposure | PASS | `work/phase4-admin-smoke.cjs` found no frontend source/bundle service-role references after rebuild |
+
+Build/typecheck status: `pnpm install --frozen-lockfile`, `pnpm run typecheck`, and `pnpm run build` pass in this runtime after the Windows-safe package script and platform-native dependency fixes.
+
+Latest live proof update: env, DB, Supabase REST, frontend exposure scan, and guest mutation denial pass. Admin mutation/audit proof remains blocked by live schema drift: `financial_events.name_ar` is required in the live database but not satisfied by the current app/smoke payload.

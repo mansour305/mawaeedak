@@ -110,7 +110,7 @@
 
 ## Build Notes
 
-- `pnpm run build` يحتاج `PORT` env — استخدم `PORT=5173 pnpm --filter @workspace/mawaeedak run build` من CLI
+- `pnpm run build` يعمل بدون `PORT` ويستخدم `4173` افتراضياً في Vite configs
 - `pnpm run typecheck` يعمل بدون PORT (الموصى به للتحقق)
 - api-server build: `pnpm --filter @workspace/api-server run build` (لا يحتاج PORT)
 - mockup-sandbox build مُستثنى من النشر الإنتاجي
@@ -505,3 +505,20 @@ Full Reference Design System Clone Gate — Visual Rebuild مكتمل:
 - Global Theme: app_settings → `/api/settings/default-theme`={"slug":"heritage"} · PUT admin-only · user theme منفصل (localStorage)
 - أمان: لا service_role/JWT في الواجهة · demo mode معطّل عند isSupabaseEnabled · الخادم لا يثق بـ localStorage
 - تفاصيل كاملة: QA_REPORT.md → FINAL PRODUCTION VERIFICATION SNAPSHOT
+
+## Phase 4 Live Env/RLS Blocker Gate - 2026-06-01
+
+This Codex runtime does not currently expose the required live secrets. Values were not printed; only PRESENT/MISSING status was checked.
+
+| Secret | Status |
+|---|---|
+| `DATABASE_URL` | MISSING |
+| `SUPABASE_URL` | MISSING |
+| `SUPABASE_ANON_KEY` | MISSING |
+| `VITE_SUPABASE_URL` | MISSING |
+| `VITE_SUPABASE_ANON_KEY` | MISSING |
+| `ADMIN_API_TOKEN` | MISSING |
+| `SUPABASE_JWT_SECRET` | MISSING |
+| `SUPABASE_SERVICE_ROLE_KEY` | MISSING / not used by current server guard |
+
+`work/phase4-admin-smoke.cjs` loads ignored `.env.local`/`.env` files when present, emits PRESENT/MISSING diagnostics only, scans frontend source/bundle for service-role exposure, writes `work/phase4-admin-smoke/report.json`, and has 10s timeouts plus STEP progress output for DB/REST/admin/audit checks. Latest local checks: `pnpm install --frozen-lockfile` PASS, `pnpm run typecheck` PASS, `pnpm run build` PASS, DB proof PASS, Supabase REST PASS, frontend service-role exposure scan PASS, guest mutation denial PASS. `node work/phase4-admin-smoke.cjs` remains NEEDS FIXES because admin mutation fails against the live schema: `financial_events.name_ar` is NOT NULL. Audit proof remains not run because the test record is not created.

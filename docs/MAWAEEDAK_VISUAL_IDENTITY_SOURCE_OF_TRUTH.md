@@ -32,3 +32,43 @@
 ## معيار القبول
 
 لا تعتمد أي نسخة للإطلاق إلا إذا ظهرت الخلفية الكريمية، البطاقات الناعمة، الذهبي الرسمي، الشعار الرسمي، والصور المعمارية السعودية بشكل واضح في الواجهة المنشورة.
+## Phase 2 Baseline Notes
+
+Updated: 2026-06-02
+
+This document records the approved Phase 2 visual direction so future implementation work stays aligned.
+
+## Direction
+
+- Arabic-first RTL interface.
+- Warm white base with gold accents.
+- Calm Saudi-inspired visual details.
+- Rounded cards and soft borders.
+- Bottom navigation tabs: الرئيسية، الرواتب، الخدمات، التقويم، المزيد.
+- Side menu items: الرئيسية، بطاقة يومية أرسلها، شارك التطبيق، سياسة الخصوصية، الشروط والأحكام، المساعدة والدعم، تسجيل الخروج or تسجيل الدخول for guests.
+
+## Core Screens
+
+The mandatory app baseline remains:
+
+- Home
+- Salaries and support
+- Services
+- Calendar and appointments
+- More/account
+- Login/auth
+- Notifications
+- Daily share
+- Privacy
+- Terms
+- Support
+- Admin, protected from guest/user access
+
+## Security Boundary
+
+Visual implementation must not weaken the Phase 4 boundary:
+
+- No service-role secret in frontend source or bundle.
+- No admin token in `VITE_*`.
+- No demo admin bypass.
+- `/admin` remains guarded by server-side role checks.

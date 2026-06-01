@@ -126,3 +126,70 @@
 **Publishable Preview / Stabilized Web-PWA baseline with Phase 4 GitHub Actions Gate installed and verified, plus final live-production gate prepared.**
 
 Not yet full Production Ready because live Supabase credentials, RLS execution, authorized smoke tests, native packaging, and final visual-reference validation remain external/runtime gates.
+
+## Next Required Runtime Gate
+
+Run from a clean checkout of `main`:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm run typecheck
+pnpm run build
+pnpm --filter @workspace/api-server run typecheck
+pnpm --filter @workspace/api-server run build
+pnpm --filter @workspace/mawaeedak run typecheck
+pnpm --filter @workspace/mawaeedak run build
+```
+
+Then run smoke tests for:
+
+- `/`
+- `/login`
+- `/register`
+- `/finance`
+- `/story`
+- `/notifications`
+- `/admin`
+- unauthenticated protected API mutations → must return 401/403
+- authorized admin API mutations → must succeed with real Supabase admin token
+- normal user RLS isolation → cannot access another user’s rows
+
+## PHASE 4 LIVE ENV/RLS BLOCKER CHECK - 2026-06-01
+
+Verdict for this Codex runtime: **NEEDS FIXES — PHASE 4 ADMIN CONTROL AND LIVE PERSISTENCE INCOMPLETE**.
+
+Environment availability was checked without printing secret values:
+
+| Secret | Status |
+|---|---|
+| `DATABASE_URL` | MISSING |
+| `SUPABASE_URL` | MISSING |
+| `SUPABASE_ANON_KEY` | MISSING |
+| `VITE_SUPABASE_URL` | MISSING |
+| `VITE_SUPABASE_ANON_KEY` | MISSING |
+| `ADMIN_API_TOKEN` | MISSING |
+| `SUPABASE_JWT_SECRET` | MISSING |
+| `SUPABASE_SERVICE_ROLE_KEY` | MISSING / not used by current server guard |
+
+Commands executed after the Windows/runtime fixes:
+
+| Command | Result | Notes |
+|---|---|---|
+| `pnpm install --frozen-lockfile` | PASS | pnpm 10.33.4 local runtime, lockfile frozen |
+| `pnpm run typecheck` | PASS | Workspace libs, api-server, mawaeedak, mockup-sandbox, scripts |
+| `pnpm run build` | PASS | api-server, mawaeedak, mockup-sandbox built |
+| `node work/phase4-admin-smoke.cjs` | FAIL / BLOCKED | Required live secrets missing |
+
+Latest Phase 4 blocker rerun after `.env.local` became available in the correct runtime:
+
+| Check | Result | Evidence |
+|---|---|---|
+| Env loading | PASS | `.env.local` loaded; secrets reported as PRESENT/MISSING only |
+| DB proof | PASS | `select 1` succeeded with SSL |
+| Supabase REST proof | PASS | HTTP 200 |
+| Guest mutation denial | PASS | Guest create returned HTTP 401 |
+| Admin mutation proof | FAIL | Live `financial_events.name_ar` is NOT NULL and the current app/smoke payload is not aligned |
+| Audit log proof | NOT RUN | Admin mutation did not create the test record |
+| Frontend service-role exposure | PASS | No frontend source/bundle reference found |
+
+Commands on the latest run: `pnpm run typecheck` PASS, `pnpm run build` PASS, `node work/phase4-admin-smoke.cjs` FAIL/NEEDS FIXES. Do not mark Phase 4 complete until the live schema alignment allows admin create/update/cleanup, public read, and audit proof to pass.
