@@ -1,0 +1,126 @@
+name: Phase 4 GitHub Actions Gate
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: phase-4-gate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  phase-4-smoke-gate:
+    name: Typecheck, Build, Smoke, Security Gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify workspace scripts
+        run: |
+          set -euo pipefail
+          node -e "const pkg=require('./package.json'); const required=['typecheck','build']; const missing=required.filter(s=>!pkg.scripts?.[s]); if(missing.length){console.error('Missing required root scripts: '+missing.join(', ')); process.exit(1)}"
+          pnpm -v
+          node -v
+
+      - name: Typecheck gate
+        run: pnpm run typecheck
+
+      - name: Lint gate if present
+        run: pnpm -r --if-present run lint
+
+      - name: Build gate
+        run: pnpm run build
+
+      - name: Workspace smoke scripts if present
+        run: pnpm -r --if-present run smoke
+
+      - name: Static build smoke gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          DIST_INDEX="$(find . -path '*/dist/index.html' -not -path '*/node_modules/*' -print -quit)"
+          if [ -z "$DIST_INDEX" ]; then
+            echo "::warning::No dist/index.html found after build; static smoke skipped. Build and script smoke gates already ran."
+            exit 0
+          fi
+
+          DIST_DIR="$(dirname "$DIST_INDEX")"
+          echo "Serving built asset directory: $DIST_DIR"
+          python3 -m http.server 4173 --directory "$DIST_DIR" >/tmp/phase4-static-smoke.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+
+          for i in {1..20}; do
+            if curl -fsS http://127.0.0.1:4173/ >/tmp/phase4-home.html; then
+              break
+            fi
+            sleep 1
+          done
+
+          test -s /tmp/phase4-home.html
+          grep -qi '<!doctype\|<html' /tmp/phase4-home.html
+          echo "Static smoke passed against http://127.0.0.1:4173/"
+
+      - name: Security hygiene gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Scanning repository for committed production secrets patterns..."
+          if grep -RInE '(SUPABASE_SERVICE_ROLE_KEY\s*=|service_role\s*[:=]|ghp_[A-Za-z0-9_]{30,}|github_pat_[A-Za-z0-9_]{20,}|BEGIN (RSA |OPENSSH |EC )?PRIVATE KEY)' \
+            . \
+            --exclude-dir=.git \
+            --exclude-dir=node_modules \
+            --exclude=pnpm-lock.yaml; then
+            echo "Potential committed secret detected. Remove or document a safe false positive before passing this gate."
+            exit 1
+          fi
+          echo "Security hygiene scan passed."
+
+      - name: Produce Phase 4 QA summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "# Phase 4 GitHub Actions Gate Summary"
+            echo
+            echo "- Commit: $GITHUB_SHA"
+            echo "- Ref: $GITHUB_REF_NAME"
+            echo "- Trigger: $GITHUB_EVENT_NAME"
+            echo "- Node: $(node -v 2>/dev/null || echo unavailable)"
+            echo "- pnpm: $(pnpm -v 2>/dev/null || echo unavailable)"
+            echo
+            echo "## Required gates"
+            echo "- Dependency install: pnpm install --frozen-lockfile"
+            echo "- Typecheck: pnpm run typecheck"
+            echo "- Lint if present: pnpm -r --if-present run lint"
+            echo "- Build: pnpm run build"
+            echo "- Smoke if present: pnpm -r --if-present run smoke"
+            echo "- Static smoke: serve first built dist/index.html when present"
+            echo "- Security hygiene: committed secret pattern scan"
+          } >> "$GITHUB_STEP_SUMMARY"
