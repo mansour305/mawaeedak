@@ -40,8 +40,8 @@
 - Demo admin fallback cannot grant production admin access.
 - Frontend admin role reads trust Supabase `app_metadata`, not user-editable `user_metadata`.
 - Hardcoded demo admin password was removed from frontend source; development demo auth requires an environment value.
-- No service-role key should be exposed in frontend assets.
-- Phase 4 GitHub Actions gate now includes a committed-secret hygiene scan for service-role keys, GitHub token patterns, and private keys.
+- No elevated backend credential should be exposed in frontend assets.
+- Phase 4 GitHub Actions gate now includes a deterministic committed credential value scan.
 
 ## Deployment / API Routing
 
@@ -68,11 +68,11 @@
   - `pnpm run build`
   - `pnpm -r --if-present run smoke`
   - static smoke against first discovered `dist/index.html` when present
-  - committed-secret hygiene scan
+  - deterministic committed credential value scan
 
 ## Phase 4 Verification Trigger
 
-This branch intentionally changes only QA documentation to force a pull-request workflow run against the installed Phase 4 GitHub Actions gate.
+This branch intentionally changes only QA documentation to force a pull-request workflow run against the installed Phase 4 GitHub Actions gate from the current `main` baseline.
 
 ## Verification Results
 
