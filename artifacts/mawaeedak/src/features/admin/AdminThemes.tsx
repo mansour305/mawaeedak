@@ -34,9 +34,9 @@ const TIER_LABELS: Record<string, string> = {
 };
 
 function getSwatchColors(colors: unknown): [string, string, string] {
-  if (!colors || typeof colors !== "object") return ["#8B6914", "#FFF8E7", "#3D2B1F"];
+  if (!colors || typeof colors !== "object") return ["#1D5FA8", "#F8FAFC", "#FFFFFF"];
   const c = colors as Record<string, string>;
-  return [c.primary || "#8B6914", c.background || "#FFF8E7", c.card || c.background || "#F5EDD8"];
+  return [c.primary || "#1D5FA8", c.background || "#F8FAFC", c.card || c.background || "#FFFFFF"];
 }
 
 export default function AdminThemes() {

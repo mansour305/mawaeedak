@@ -1,15 +1,14 @@
-/**
+﻿/**
  * HomePage — Phase 20: Exact Reference Screen Rebuild
  * Layout rebuilt from scratch to match the owner's reference image.
  * Data logic (Supabase, Gateway, Location, Prayer) unchanged.
  */
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import desertHeroImg from "@assets/desert-hero.png";
 import { Link } from "wouter";
 import {
   Menu, Share2, Bell, Eye, EyeOff, Wallet, Home,
-  UserCheck, Users, ChevronLeft,
+  UserCheck, Users, ChevronLeft, CalendarDays,
 } from "lucide-react";
 import {
   Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger,
@@ -45,7 +44,7 @@ function getDaysLabel(days: number): string {
 // ── Icon for financial item ──────────────────────────────────────────────────
 function ItemIcon({ name, small = false }: { name: string; small?: boolean }) {
   const cls = small ? "w-[14px] h-[14px]" : "w-[18px] h-[18px]";
-  const color = "rgba(255,218,160,0.92)";
+  const color = "hsl(var(--primary-foreground))";
   if (name.includes("سكن"))   return <Home      className={cls} style={{ color }} />;
   if (name.includes("تأهيل")) return <UserCheck className={cls} style={{ color }} />;
   if (name.includes("ضمان"))  return <Users     className={cls} style={{ color }} />;
@@ -56,25 +55,12 @@ function ItemIcon({ name, small = false }: { name: string; small?: boolean }) {
 const LogoEmblem = ({ size = 40 }: { size?: number }) => (
   <div style={{
     width: size, height: size, borderRadius: "50%", flexShrink: 0,
-    background: "radial-gradient(circle at 38% 36%, hsl(28 60% 26%), hsl(20 74% 11%))",
-    border: "2px solid hsl(38 68% 50% / 0.80)",
+    background: "hsl(var(--primary))",
+    border: "2px solid hsl(var(--primary) / 0.18)",
     display: "flex", alignItems: "center", justifyContent: "center",
-    boxShadow: "0 0 0 1.5px hsl(38 60% 26% / 0.40), 0 3px 12px rgba(0,0,0,0.40)",
+    boxShadow: "0 8px 18px hsl(var(--primary) / 0.18)",
   }}>
-    <svg viewBox="0 0 36 36" width={size * 0.70} height={size * 0.70} fill="none">
-      <line x1="24" y1="14" x2="22" y2="28" stroke="#D4A040" strokeWidth="1.8" strokeLinecap="round" />
-      <path d="M23,14 Q31,9 33,12 Q27,14 23,15Z" fill="#B08828" />
-      <path d="M23,14 Q15,9 13,12 Q19,14 23,15Z" fill="#B08828" opacity="0.90" />
-      <path d="M23,14 Q24,7 23,4 Q22,8 23,15Z" fill="#B08828" />
-      <ellipse cx="12.5" cy="24.5" rx="7.5" ry="4" fill="#D4A040" />
-      <path d="M10,20 Q12.5,15.5 15,20Z" fill="#D4A040" />
-      <path d="M7,22 Q4,17 5,14 Q7.5,13 7.5,18 Q9.5,20 7.5,23Z" fill="#D4A040" />
-      <circle cx="5.2" cy="13.5" r="1" fill="#D4A040" />
-      <line x1="8.5"  y1="28" x2="7.5"  y2="33" stroke="#D4A040" strokeWidth="1.6" strokeLinecap="round" />
-      <line x1="11.5" y1="28.5" x2="10.5" y2="33" stroke="#D4A040" strokeWidth="1.6" strokeLinecap="round" />
-      <line x1="15"   y1="28.5" x2="16"   y2="33" stroke="#D4A040" strokeWidth="1.6" strokeLinecap="round" />
-      <line x1="18"   y1="27.5" x2="19.5" y2="32" stroke="#D4A040" strokeWidth="1.6" strokeLinecap="round" />
-    </svg>
+    <CalendarDays size={size * 0.56} color="hsl(var(--primary-foreground))" strokeWidth={2.4} />
   </div>
 );
 
@@ -242,13 +228,9 @@ export default function HomePage() {
         className="sticky top-0 z-40 w-full shrink-0"
         style={{
           height: "60px",
-          background: [
-            "linear-gradient(180deg, hsl(20 70% 15%) 0%, hsl(18 74% 10%) 60%, hsl(16 76% 8%) 100%)",
-            "repeating-linear-gradient(45deg,  rgba(210,162,60,0.08) 0px, rgba(210,162,60,0.08) 1px, transparent 1px, transparent 11px)",
-            "repeating-linear-gradient(-45deg, rgba(210,162,60,0.08) 0px, rgba(210,162,60,0.08) 1px, transparent 1px, transparent 11px)",
-          ].join(", "),
-          borderBottom: "2px solid hsl(38 70% 44%)",
-          boxShadow: "0 4px 20px rgba(8,3,0,0.52)",
+          background: "hsl(var(--header-bg))",
+          borderBottom: "1px solid hsl(var(--header-border))",
+          boxShadow: "var(--shadow-sm)",
         }}
       >
         <div className="flex items-center h-full px-2 gap-1.5">
@@ -261,7 +243,7 @@ export default function HomePage() {
                 className="w-9 h-9 rounded-xl hover:bg-white/10 shrink-0"
                 aria-label="القائمة"
               >
-                <Menu className="w-5 h-5" style={{ color: "hsl(38 74% 64%)" }} />
+                <Menu className="w-5 h-5" style={{ color: "hsl(var(--primary))" }} />
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[280px] rtl bg-card border-border">
@@ -299,7 +281,7 @@ export default function HomePage() {
               style={{
                 fontSize: "17px",
                 fontWeight: 800,
-                color: "hsl(38 86% 90%)",
+                color: "hsl(var(--header-fg))",
                 letterSpacing: "0.02em",
                 whiteSpace: "nowrap",
               }}
@@ -310,10 +292,10 @@ export default function HomePage() {
               onClick={() => setHideAds(!hideAds)}
               className="flex items-center gap-1 px-2 py-1 rounded-full transition-colors hover:bg-white/10 shrink-0"
               style={{
-                background: "rgba(200,160,50,0.15)",
-                border: "1px solid rgba(210,170,65,0.40)",
+                background: "hsl(var(--primary) / 0.08)",
+                border: "1px solid hsl(var(--primary) / 0.18)",
                 fontSize: "10.5px",
-                color: "rgba(255,218,130,0.90)",
+                color: "hsl(var(--primary))",
                 fontWeight: 700,
               }}
             >
@@ -338,7 +320,7 @@ export default function HomePage() {
               className="w-9 h-9 rounded-xl hover:bg-white/10"
               aria-label="مشاركة"
             >
-              <Share2 className="w-[17px] h-[17px]" style={{ color: "hsl(38 74% 64%)" }} />
+              <Share2 className="w-[17px] h-[17px]" style={{ color: "hsl(var(--primary))" }} />
             </Button>
             <Link href="/notifications">
               <Button
@@ -346,13 +328,13 @@ export default function HomePage() {
                 className="w-9 h-9 rounded-xl hover:bg-white/10 relative"
                 aria-label="الإشعارات"
               >
-                <Bell className="w-[18px] h-[18px]" style={{ color: "hsl(38 74% 64%)" }} />
+                <Bell className="w-[18px] h-[18px]" style={{ color: "hsl(var(--primary))" }} />
                 {notifCount > 0 && (
                   <span
                     className="absolute top-[5px] left-[5px] min-w-[16px] h-4 flex items-center justify-center rounded-full text-[9px] font-extrabold text-white px-0.5"
                     style={{
                       background: "hsl(var(--nav-active))",
-                      boxShadow: "0 0 0 1.5px hsl(18 74% 10%)",
+                      boxShadow: "0 0 0 1.5px hsl(var(--header-bg))",
                     }}
                   >
                     {notifCount > 9 ? "9+" : notifCount}
@@ -371,11 +353,7 @@ export default function HomePage() {
         className="flex-1 overflow-y-auto"
         style={{
           paddingBottom: "76px",
-          backgroundImage: [
-            "linear-gradient(180deg, hsl(34 30% 92%) 0%, hsl(33 28% 88%) 100%)",
-            "radial-gradient(rgba(140,90,20,0.10) 1.1px, transparent 1.1px)",
-          ].join(", "),
-          backgroundSize: "100% 100%, 18px 18px",
+          background: "hsl(var(--background))",
         }}
       >
         <div className="flex flex-col gap-2.5 px-3 pt-2.5 pb-2">
@@ -384,17 +362,15 @@ export default function HomePage() {
           <div
             className="flex items-center gap-3 px-4 py-3 rounded-2xl"
             style={{
-              background: "linear-gradient(135deg, hsl(36 44% 96%) 0%, hsl(34 38% 92%) 100%)",
-              border: "1.5px solid hsl(38 58% 52% / 0.60)",
-              boxShadow:
-                "0 4px 16px -3px rgba(70,32,8,0.20), " +
-                "inset 0 1px 0 rgba(255,242,200,0.24)",
+              background: "hsl(var(--card))",
+              border: "1px solid hsl(var(--border))",
+              boxShadow: "var(--shadow-sm)",
             }}
           >
             <div className="flex-1 min-w-0">
               <p
                 className="font-extrabold leading-snug text-right"
-                style={{ fontSize: "13px", color: "hsl(20 58% 13%)" }}
+                style={{ fontSize: "13px", color: "hsl(var(--foreground))" }}
               >
                 تاريخ اليوم {dayStr} {hijriStr}
               </p>
@@ -408,50 +384,38 @@ export default function HomePage() {
             <LogoEmblem size={40} />
           </div>
 
-          {/* ── HERO IMAGE ───────────────────────────────────── */}
+          {/* Neutral hero area. New identity assets can replace this block later. */}
           <div
             className="relative overflow-hidden"
             style={{
               height: "196px",
               borderRadius: "18px",
-              border: "1.5px solid hsl(38 60% 44% / 0.65)",
+              border: "1px solid hsl(var(--border))",
               boxShadow:
-                "0 12px 40px -6px rgba(20,8,0,0.55), " +
-                "inset 0 0 0 1px rgba(210,170,65,0.08)",
+                "var(--shadow-md), " +
+                "0 0 0 1px hsl(var(--border))",
+              background:
+                "linear-gradient(135deg, hsl(var(--primary) / 0.12), hsl(var(--accent) / 0.10)), hsl(var(--card))",
             }}
           >
-            {/* Photo */}
-            <img
-              src={desertHeroImg}
-              alt="منظر صحراوي سعودي"
-              style={{
-                position: "absolute", inset: 0,
-                width: "100%", height: "100%",
-                objectFit: "cover",
-                objectPosition: "center 38%",
-              }}
-            />
-            {/* Gradient overlay (lighter than old version for photo clarity) */}
+            {/* Neutral placeholder frame */}
             <div
               style={{
-                position: "absolute", inset: 0,
-                background:
-                  "linear-gradient(to top, " +
-                  "rgba(8,3,0,0.88) 0%, " +
-                  "rgba(8,3,0,0.38) 42%, " +
-                  "rgba(8,3,0,0.08) 100%)",
+                position: "absolute",
+                inset: 18,
+                borderRadius: 18,
+                border: "1px dashed hsl(var(--primary) / 0.18)",
               }}
             />
-            {/* Greeting text — bottom of image */}
+            {/* Greeting text */}
             <div
-              className="absolute bottom-0 left-0 right-0 px-5 pb-4 text-right z-10"
+              className="absolute inset-0 z-10 flex flex-col justify-center px-5 text-right"
             >
               <p
                 className="font-extrabold leading-none mb-1.5"
                 style={{
                   fontSize: "clamp(20px, 5.8vw, 26px)",
-                  color: "#FFF8E4",
-                  textShadow: "0 2px 16px rgba(0,0,0,0.90)",
+                  color: "hsl(var(--foreground))",
                 }}
               >
                 {greeting}
@@ -459,8 +423,7 @@ export default function HomePage() {
               <p
                 style={{
                   fontSize: "13px",
-                  color: "rgba(255,232,180,0.88)",
-                  textShadow: "0 1px 8px rgba(0,0,0,0.80)",
+                  color: "hsl(var(--muted-foreground))",
                   fontWeight: 600,
                 }}
               >
@@ -469,8 +432,7 @@ export default function HomePage() {
               <p
                 style={{
                   fontSize: "11.5px",
-                  color: "rgba(255,220,160,0.75)",
-                  textShadow: "0 1px 8px rgba(0,0,0,0.80)",
+                  color: "hsl(var(--muted-foreground))",
                   fontWeight: 500,
                   marginTop: "2px",
                 }}
@@ -770,3 +732,4 @@ export default function HomePage() {
     </div>
   );
 }
+

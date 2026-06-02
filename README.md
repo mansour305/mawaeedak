@@ -2,7 +2,7 @@
 
 منصة سعودية ذكية تجمع المواعيد اليومية والمالية ومواقيت الصلاة والأخبار والوظائف وأدوات الاحتساب في مكان واحد.
 
-> The latest owner-provided screenshots are the active mandatory visual source of truth. Previous deprecated visual references must not guide future implementation unless explicitly re-approved.
+> The latest owner-provided screenshots are the active mandatory visual source of truth. Previous brown/heritage visual references are deprecated and must not guide future implementation unless explicitly re-approved.
 
 ---
 

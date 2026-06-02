@@ -18,7 +18,7 @@ export function MawaeedakEmptyState({ icon, title, subtitle, action }: Mawaeedak
           style={{
             fontSize: "15px",
             fontWeight: 800,
-            color: "hsl(20 52% 12%)",
+            color: "hsl(var(--foreground))",
             fontFamily: "'Tajawal', sans-serif",
           }}
         >
@@ -29,7 +29,7 @@ export function MawaeedakEmptyState({ icon, title, subtitle, action }: Mawaeedak
             style={{
               fontSize: "12px",
               fontWeight: 500,
-              color: "hsl(24 18% 52%)",
+              color: "hsl(var(--muted-foreground))",
               fontFamily: "'Tajawal', sans-serif",
             }}
           >

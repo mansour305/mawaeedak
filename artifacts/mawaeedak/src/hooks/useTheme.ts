@@ -4,7 +4,7 @@ type ThemeType = 'light' | 'dark';
 
 const PERSONAL_KEY = 'app-theme';
 const MODE_KEY = 'app-mode';
-const BASE_SLUG = 'heritage';
+const BASE_SLUG = 'neutral';
 
 let cachedGlobal: string | null = null;
 let inflight: Promise<string> | null = null;

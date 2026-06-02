@@ -1,74 +1,50 @@
-# مواعيدك — الهوية الرسمية المعتمدة
-
-هذه الوثيقة هي مصدر الحقيقة البصري الرسمي لتطبيق مواعيدك.
-
-## الحكم
-
-الهوية المعتمدة هي الهوية الكريمية الذهبية الهادئة ذات الطابع السعودي الفاخر. الصور المرجعية التي أرسلها المالك بتاريخ 2026-06-01 إلزامية وليست إلهاماً.
-
-## الألوان الرسمية
-
-- الذهبي الفاخر: #C9A063
-- البني الدافئ: #8A6B3D
-- البيج الرملي: #F3E8D6
-- الكريمي الفاتح: #FAF7F2
-- الأبيض الدافئ: #FFFFFF
-- الزيتوني الهادئ: #6F7C5B
-- الأزرق الغائم: #8FA1B3
-- الرمادي الناعم: #DCD7CF
-- الوردي الترابي: #E9D7C8
-- النص الأساسي: #2F2B25
-- النص الثانوي: #6F6557
-
-## قواعد التطبيق
-
-- الهوية الرسمية هي الافتراضية وليست ثيم اختياري.
-- لا يجوز رجوع الثيم البني الداكن كواجهة افتراضية.
-- كل الصفحات يجب أن تعمل Mobile-first RTL.
-- الصفحة الرئيسية والخدمات والمزيد والقائمة الجانبية ولوحة المالك يجب أن تطابق المراجع البصرية.
-- لا تظهر أدوات مالك للمستخدم العادي.
-- لا تظهر صفحات فارغة أو أزرار غير عاملة.
-
-## معيار القبول
-
-لا تعتمد أي نسخة للإطلاق إلا إذا ظهرت الخلفية الكريمية، البطاقات الناعمة، الذهبي الرسمي، الشعار الرسمي، والصور المعمارية السعودية بشكل واضح في الواجهة المنشورة.
-## Phase 2 Baseline Notes
+# Mawaeedak Visual Identity Source Of Truth
 
 Updated: 2026-06-02
 
-This document records the approved Phase 2 visual direction so future implementation work stays aligned.
+## Current Decision
 
-## Direction
+The previous brown / gold / heritage identity is no longer approved as the product identity.
 
-- Arabic-first RTL interface.
-- Warm white base with gold accents.
-- Calm Saudi-inspired visual details.
-- Rounded cards and soft borders.
-- Bottom navigation tabs: الرئيسية، الرواتب، الخدمات، التقويم، المزيد.
-- Side menu items: الرئيسية، بطاقة يومية أرسلها، شارك التطبيق، سياسة الخصوصية، الشروط والأحكام، المساعدة والدعم، تسجيل الخروج or تسجيل الدخول for guests.
+The application now uses a neutral baseline only. This baseline is temporary and exists to keep the product usable while a new identity is defined.
 
-## Core Screens
+## Deprecated References
 
-The mandatory app baseline remains:
+Do not use these as implementation guidance unless the owner explicitly re-approves them:
 
-- Home
-- Salaries and support
-- Services
-- Calendar and appointments
-- More/account
-- Login/auth
-- Notifications
-- Daily share
-- Privacy
-- Terms
-- Support
-- Admin, protected from guest/user access
+- Brown or espresso headers
+- Gold heritage accents as the primary brand signal
+- Desert imagery
+- Paper / parchment textures
+- Camel, palm, or heritage ornaments
+- "Saudi luxury heritage" wording as the visual direction
+- The old `/visual-reference-clone` screen as a design reference
+
+## Active Baseline
+
+- Arabic-first RTL interface
+- Neutral background and card surfaces
+- Token-driven colors in `src/index.css`
+- Legacy `mw-*` classes retained only as compatibility wrappers
+- No final brand palette is approved yet
+
+## Required Inputs For The New Identity
+
+Before rebuilding the visual system, define:
+
+- Identity name or short direction
+- Primary, secondary, and status color rules
+- Logo or app mark direction
+- Image or illustration style
+- Icon style
+- Component density and radius rules
+- Screens that must represent the new identity first
 
 ## Security Boundary
 
-Visual implementation must not weaken the Phase 4 boundary:
+Visual changes must not weaken existing security boundaries:
 
-- No service-role secret in frontend source or bundle.
-- No admin token in `VITE_*`.
-- No demo admin bypass.
-- `/admin` remains guarded by server-side role checks.
+- No service-role secret in frontend source or bundle
+- No admin token in `VITE_*`
+- No demo admin bypass
+- `/admin` remains guarded by server-side role checks
