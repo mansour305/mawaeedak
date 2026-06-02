@@ -1,1 +1,0 @@
-const n="mawaeedak_demo_session";const i=["admin","super_admin"];function o(){sessionStorage.removeItem(n)}async function u(){o()}function s(e){return!e?.user?.id||e.isDemo?!1:i.includes(e.user.role)}function t(e){return s(e)}globalThis.isAllowedAdminSession=t;export{u as authSignOut,s as isAdminUser,t as isAllowedAdminSession};
