@@ -1,3 +1,4 @@
+// Re‑export all schemas including the new official tables and updated schemas
 export * from "./appointments";
 export * from "./financial_events";
 export * from "./notifications";
@@ -13,3 +14,7 @@ export * from "./story_templates";
 export * from "./automation_logs";
 export * from "./app_settings";
 export * from "./social_automation";
+
+// New official tables
+export * from "./official_financial_dates";
+export * from "./official_prayer_times";

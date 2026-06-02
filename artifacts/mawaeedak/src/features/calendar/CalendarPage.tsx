@@ -29,6 +29,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Plus, Loader2, Calendar as CalIcon, Clock, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { useGatewayAppointments, gwQueryKeys } from "@/hooks/useGatewayData";
 import {
+  useOfficialAppointments,
+  useCreateOfficialAppointment,
+  useUpdateOfficialAppointment,
+  useDeleteOfficialAppointment,
+} from "@/hooks/useOfficialData";
+import {
   gwCreateAppointment,
   gwUpdateAppointment,
   gwDeleteAppointment,
@@ -90,22 +96,33 @@ export default function CalendarPage() {
   };
 
   /* ── Data ── */
+  // Fetch appointments from both gateway and Supabase.  If the user has
+  // official (Supabase) appointments, those take precedence; otherwise
+  // gateway appointments (demo mode) are used.
   const { data: allAppointments, isLoading, refetch: refetchAppointments } = useGatewayAppointments();
+  const { data: officialAppointments, isLoading: isOfficialLoading } = useOfficialAppointments();
 
   const grid = useMemo(() => buildCalendarGrid(viewYear, viewMonth), [viewYear, viewMonth]);
 
   /* days that have appointments — for dots */
+  // Determine which appointments to display: official appointments if any,
+  // otherwise fallback to gateway appointments.
+  const appointments = useMemo(() => {
+    if (Array.isArray(officialAppointments) && officialAppointments.length > 0) {
+      return officialAppointments as any;
+    }
+    return allAppointments ?? [];
+  }, [officialAppointments, allAppointments]);
   const datesWithAppts = useMemo(() => {
     const s = new Set<string>();
-    allAppointments?.forEach(a => s.add(a.date));
+    appointments.forEach((a: any) => s.add(a.date));
     return s;
-  }, [allAppointments]);
+  }, [appointments]);
 
   /* appointments for selected day */
   const listAppts = useMemo(() => {
-    if (!allAppointments) return [];
-    return allAppointments.filter(a => a.date === selectedDate);
-  }, [allAppointments, selectedDate]);
+    return appointments.filter((a: any) => a.date === selectedDate);
+  }, [appointments, selectedDate]);
 
   /* ── Form state ── */
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -136,6 +153,12 @@ export default function CalendarPage() {
     setCat("شخصي"); setPriority("متوسطة");
   };
 
+  // Supabase mutations: create, update and delete appointments.  These
+  // invalidate the official appointments cache on success.
+  const createOfficialMutation = useCreateOfficialAppointment(["official-appointments"]);
+  const updateOfficialMutation = useUpdateOfficialAppointment(["official-appointments"]);
+  const deleteOfficialMutation = useDeleteOfficialAppointment(["official-appointments"]);
+
   const handleAdd = async () => {
     if (!title || !date) {
       toast({ title: "خطأ", description: "الرجاء إدخال العنوان والتاريخ", variant: "destructive" });
@@ -143,18 +166,40 @@ export default function CalendarPage() {
     }
     setSavePending(true);
     try {
-      const result = await gwCreateAppointment({
-        title, date, time: time || undefined, category: cat,
-        priority, description: notes || undefined, color: "#9c6a1a",
-      });
-      if (result.success) {
+      // Prefer Supabase official appointments if available; otherwise use gateway
+      if (Array.isArray(officialAppointments)) {
+        await createOfficialMutation.mutateAsync({
+          title,
+          date,
+          time: time || undefined,
+          category: cat,
+          priority,
+          description: notes || undefined,
+          color: "#9c6a1a",
+        });
         toast({ title: "تم الإضافة" });
-        setIsAddOpen(false);
-        resetForm();
-        invalidateAppointments();
       } else {
-        toast({ title: "فشل الإضافة", description: result.error ?? "خطأ غير معروف", variant: "destructive" });
+        const result = await gwCreateAppointment({
+          title,
+          date,
+          time: time || undefined,
+          category: cat,
+          priority,
+          description: notes || undefined,
+          color: "#9c6a1a",
+        });
+        if (result.success) {
+          toast({ title: "تم الإضافة" });
+        } else {
+          toast({ title: "فشل الإضافة", description: result.error ?? "خطأ غير معروف", variant: "destructive" });
+        }
       }
+      setIsAddOpen(false);
+      resetForm();
+      invalidateAppointments();
+      queryClient.invalidateQueries(["official-appointments"]);
+    } catch (error: any) {
+      toast({ title: "فشل الإضافة", description: error.message ?? "خطأ غير معروف", variant: "destructive" });
     } finally {
       setSavePending(false);
     }
@@ -175,17 +220,39 @@ export default function CalendarPage() {
     if (!editApp) return;
     setSavePending(true);
     try {
-      const result = await gwUpdateAppointment(editApp.id, {
-        title, date, time: time || undefined, category: cat,
-        priority, description: notes || undefined,
-      });
-      if (result.success) {
+      if (Array.isArray(officialAppointments)) {
+        await updateOfficialMutation.mutateAsync({
+          id: editApp.id,
+          data: {
+            title,
+            date,
+            time: time || undefined,
+            category: cat,
+            priority,
+            description: notes || undefined,
+          },
+        });
         toast({ title: "تم التعديل" });
-        setIsEditOpen(false);
-        invalidateAppointments();
       } else {
-        toast({ title: "فشل التعديل", description: result.error ?? "خطأ غير معروف", variant: "destructive" });
+        const result = await gwUpdateAppointment(editApp.id, {
+          title,
+          date,
+          time: time || undefined,
+          category: cat,
+          priority,
+          description: notes || undefined,
+        });
+        if (result.success) {
+          toast({ title: "تم التعديل" });
+        } else {
+          toast({ title: "فشل التعديل", description: result.error ?? "خطأ غير معروف", variant: "destructive" });
+        }
       }
+      setIsEditOpen(false);
+      invalidateAppointments();
+      queryClient.invalidateQueries(["official-appointments"]);
+    } catch (error: any) {
+      toast({ title: "فشل التعديل", description: error.message ?? "خطأ غير معروف", variant: "destructive" });
     } finally {
       setSavePending(false);
     }
@@ -195,17 +262,25 @@ export default function CalendarPage() {
     if (!deleteId) return;
     setDeletePending(true);
     try {
-      const result = await gwDeleteAppointment(deleteId);
-      if (result.success) {
+      if (Array.isArray(officialAppointments)) {
+        await deleteOfficialMutation.mutateAsync(deleteId);
         toast({ title: "تم الحذف" });
-        setDeleteId(null);
-        setIsEditOpen(false);
-        setIsDeleteOpen(false);
-        invalidateAppointments();
       } else {
-        toast({ title: "فشل الحذف", description: result.error ?? "خطأ غير معروف", variant: "destructive" });
-        setIsDeleteOpen(false);
+        const result = await gwDeleteAppointment(deleteId);
+        if (result.success) {
+          toast({ title: "تم الحذف" });
+        } else {
+          toast({ title: "فشل الحذف", description: result.error ?? "خطأ غير معروف", variant: "destructive" });
+        }
       }
+      setDeleteId(null);
+      setIsEditOpen(false);
+      setIsDeleteOpen(false);
+      invalidateAppointments();
+      queryClient.invalidateQueries(["official-appointments"]);
+    } catch (error: any) {
+      toast({ title: "فشل الحذف", description: error.message ?? "خطأ غير معروف", variant: "destructive" });
+      setIsDeleteOpen(false);
     } finally {
       setDeletePending(false);
     }

@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ChevronLeft, Home, ShieldCheck, Users, Wallet, Zap } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { useGatewayFinancialCountdown } from "@/hooks/useGatewayData";
+import { useOfficialFinancialDates } from "@/hooks/useOfficialData";
 
 const GOLD = "#C9A063";
 const BROWN = "#8A6B3D";
@@ -21,11 +22,58 @@ function dateLabel(date: string) {
   return parsed.toLocaleDateString("ar-SA", { month: "long", day: "numeric", year: "numeric" });
 }
 
+/**
+ * FinancePage uses either official, confirmed financial dates (from Supabase)
+ * or falls back to the gateway countdown service. This ensures the UI always
+ * displays up-to-date events, while preferring vetted official data when
+ * available. The page supports tabs for upcoming and previous events; only
+ * upcoming events are currently rendered.
+ */
 export default function FinancePage() {
   const [tab, setTab] = useState<"upcoming" | "previous">("upcoming");
-  const { data, isLoading } = useGatewayFinancialCountdown();
+  // Fetch official confirmed dates
+  const {
+    data: officialData,
+    isLoading: isOfficialLoading,
+  } = useOfficialFinancialDates();
+  // Fallback: fetch gateway countdown
+  const {
+    data: gatewayData,
+    isLoading: isGatewayLoading,
+  } = useGatewayFinancialCountdown();
 
-  const items = tab === "upcoming" ? (data?.slice(0, 6) ?? []) : [];
+  // Compute items by selecting official data if present, else gateway data
+  const computedItems = useMemo(() => {
+    // Helper to compute difference in days from today to target date
+    const computeDaysRemaining = (dateStr: string): number => {
+      const today = new Date();
+      const target = new Date(`${dateStr}T12:00:00`);
+      const diffMs = target.getTime() - today.getTime();
+      const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      return days >= 0 ? days : 0;
+    };
+    // Use official if exists
+    if (Array.isArray(officialData) && officialData.length > 0) {
+      return officialData.map((record: any) => {
+        const nextDate = record.occurrence_date_gregorian as string;
+        return {
+          id: record.id ?? record.event_key,
+          name: record.event_name_ar ?? record.event_key,
+          type: record.event_key ?? "",
+          next_date: nextDate,
+          days_remaining: computeDaysRemaining(nextDate),
+        };
+      });
+    }
+    // Otherwise fallback to gateway data
+    return Array.isArray(gatewayData) ? gatewayData : [];
+  }, [officialData, gatewayData]);
+
+  // Determine loading state: loading if official still loading,
+  // or if no official records and gateway is loading
+  const isLoading = isOfficialLoading || (Array.isArray(officialData) && officialData.length === 0 && isGatewayLoading);
+
+  const items = tab === "upcoming" ? computedItems.slice(0, 6) : [];
 
   return (
     <AppShell title="الرواتب والدعم" showBack>
@@ -87,7 +135,7 @@ export default function FinancePage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {items.map((item) => {
+            {items.map((item: any) => {
               const itemName = String(item.name);
               const itemType = String(item.type ?? "");
               const days = Number(item.days_remaining ?? 0);

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,14 +11,24 @@ import { useGatewayStoryTemplates, useGatewayFinancialCountdown } from "@/hooks/
 import { useLocationPrefs } from "@/hooks/useLocationPrefs";
 import { useStore } from "@/hooks/useStore";
 import { formatHijriDate, formatGregorianDate, getDayName } from "@/lib/utils";
-import { Copy, Share2, Save, Loader2, CheckCircle2, AlertCircle, Zap } from "lucide-react";
+import {
+  Copy,
+  Share2,
+  Save,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+  Zap,
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+// New: import official data hooks to prefer confirmed records
+import { useOfficialPrayerTimes, useOfficialFinancialDates } from "@/hooks/useOfficialData";
 
 const EVENT_EMOJI: Record<string, string> = {
-  salary: "💼",
-  support: "👨‍👩‍👧",
-  bill: "📄",
-  other: "🎯",
+  salary: "\uD83D\uDCBC",
+  support: "\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67",
+  bill: "\uD83D\uDCC4",
+  other: "\uD83C\uDFC0",
 };
 
 const NAME_HASHTAG: Record<string, string> = {
@@ -62,6 +72,12 @@ const PRAYER_LABELS: Record<string, string> = {
   isha: "العشاء",
 };
 
+/**
+ * StoryPage shows a shareable daily story. This implementation prefers
+ * official data sources (financial dates and prayer times) when available,
+ * and falls back to existing gateway services otherwise. Users can toggle
+ * various elements of the story and save their preferences locally.
+ */
 export default function StoryPage() {
   const { toast } = useToast();
   const { user } = useStore();
@@ -76,13 +92,24 @@ export default function StoryPage() {
     isError: msgError,
   } = useGetTodayMessage();
 
+  // Fallback countdowns from gateway
   const {
     data: countdowns,
     isLoading: cdLoading,
     isError: cdError,
   } = useGatewayFinancialCountdown();
 
-  const { data: prayerData } = useGetPrayerTimes({ city: prayerCity });
+  // Fallback prayer times from gateway
+  const { data: fallbackPrayerData } = useGetPrayerTimes({ city: prayerCity });
+
+  // Determine city key and date for official data queries
+  const cityKey = prayerCity.trim().toLowerCase().replace(/\s+/g, "_");
+  const todayIso = new Date().toISOString().split("T")[0];
+
+  // Fetch official prayer times and financial events
+  const { data: officialPrayer } = useOfficialPrayerTimes(cityKey, todayIso);
+  const { data: officialFinancial } = useOfficialFinancialDates();
+
   const { data: templates, isLoading: tplLoading } = useGatewayStoryTemplates();
 
   const [customMessage, setCustomMessage] = useState("");
@@ -128,25 +155,61 @@ export default function StoryPage() {
 
   const bgColor = activeTemplate?.background_color ?? "#5C3D11";
   const textColor = activeTemplate?.text_color ?? "#FFF8E7";
-  const safeCountdowns = countdowns ?? [];
+
+  // Compute safe countdowns: prefer official confirmed records with days_remaining
+  const safeCountdowns = useMemo(() => {
+    // helper to compute days remaining from today to a target date (YYYY-MM-DD)
+    const computeDaysRemaining = (dateStr: string): number => {
+      const today = new Date();
+      const target = new Date(`${dateStr}T12:00:00`);
+      const diffMs = target.getTime() - today.getTime();
+      const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      return days >= 0 ? days : 0;
+    };
+    if (Array.isArray(officialFinancial) && officialFinancial.length > 0) {
+      return officialFinancial.map((record: any) => ({
+        id: record.id ?? record.event_key,
+        name: record.event_name_ar ?? record.event_key,
+        type: record.event_key ?? "",
+        days_remaining: computeDaysRemaining(record.occurrence_date_gregorian as string),
+      }));
+    }
+    return Array.isArray(countdowns) ? countdowns : [];
+  }, [officialFinancial, countdowns]);
+
+  // Determine prayer data: prefer official if available, else fallback
+  const prayerData = useMemo(() => {
+    if (officialPrayer) {
+      return {
+        city: officialPrayer.city_name_ar ?? prayerCity,
+        fajr: officialPrayer.fajr_time,
+        sunrise: officialPrayer.sunrise_time,
+        dhuhr: officialPrayer.dhuhr_time,
+        asr: officialPrayer.asr_time,
+        maghrib: officialPrayer.maghrib_time,
+        isha: officialPrayer.isha_time,
+      };
+    }
+    return fallbackPrayerData;
+  }, [officialPrayer, fallbackPrayerData, prayerCity]);
 
   const generateStoryText = useCallback((): string => {
     const parts: string[] = [];
 
     if (showDate) {
       parts.push(
-        `📌 تاريخ اليوم\n📅 ${getDayName()}\n🌙 هجري: ${formatHijriDate()}\n🗓️ ميلادي: ${formatGregorianDate()}`
+        `\uD83D\uDCCD تاريخ اليوم\n\uD83D\uDCC5 ${getDayName()}\n\uD83C\uDF19 هجري: ${formatHijriDate()}\n\uD83D\uDCCB ميلادي: ${formatGregorianDate()}`
       );
     }
 
     if (showMessage && customMessage.trim()) {
-      parts.push(`💡 ${customMessage.trim()}`);
+      parts.push(`\uD83D\uDCA1 ${customMessage.trim()}`);
     }
 
     if (showCountdowns && safeCountdowns.length > 0) {
       const lines = ["⏳ كم باقي على:"];
-      safeCountdowns.forEach((item) => {
-        const emoji = EVENT_EMOJI[item.type] ?? "📌";
+      safeCountdowns.forEach((item: any) => {
+        const emoji = EVENT_EMOJI[item.type] ?? "\uD83D\uDCCD";
         const hashtag = resolveHashtag(item.name);
         lines.push(`${emoji} ${hashtag} 🔻 ${item.days_remaining} يوم`);
       });
@@ -155,7 +218,7 @@ export default function StoryPage() {
 
     if (showPrayer && prayerData) {
       parts.push(
-        `🕌 مواقيت الصلاة — ${prayerData.city ?? prayerCity}\n` +
+        `\uD83C\uDFE0 مواقيت الصلاة — ${prayerData.city ?? prayerCity}\n` +
           `الفجر: ${prayerData.fajr}  الشروق: ${prayerData.sunrise}  الظهر: ${prayerData.dhuhr}\n` +
           `العصر: ${prayerData.asr}  المغرب: ${prayerData.maghrib}  العشاء: ${prayerData.isha}`
       );
@@ -248,10 +311,12 @@ export default function StoryPage() {
         )}
 
         <div className="flex justify-center">
-          <Badge variant="outline" className="gap-1.5 border-[hsl(var(--gold)/0.4)] bg-[hsl(var(--gold)/0.06)] text-[11px] text-[hsl(var(--gold-muted))]">
+          <Badge
+            variant="outline"
+            className="gap-1.5 border-[hsl(var(--gold)/0.4)] bg-[hsl(var(--gold)/0.06)] text-[11px] text-[hsl(var(--gold-muted))]"
+          >
             <Zap className="h-3 w-3" />
-            مُنشأ تلقائياً · {getDayName()}{" "}
-            {new Date().toLocaleDateString("ar-SA-u-ca-gregory", { day: "numeric", month: "short" })}
+            مُنشأ تلقائياً · {getDayName()} {new Date().toLocaleDateString("ar-SA-u-ca-gregory", { day: "numeric", month: "short" })}
           </Badge>
         </div>
 
@@ -286,11 +351,11 @@ export default function StoryPage() {
                   <div className="text-[12px] font-semibold" style={{ color: textColor }}>
                     {formatHijriDate()}
                   </div>
-                  <div className="text-[11px] opacity-70" style={{ color: textColor }}>
-                    {formatGregorianDate()}
+                    <div className="text-[11px] opacity-70" style={{ color: textColor }}>
+                      {formatGregorianDate()}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {showDate && <div className="gold-divider" />}
 
@@ -320,10 +385,10 @@ export default function StoryPage() {
                     ⏳ كم باقي على:
                   </div>
                   <div className="space-y-1.5">
-                    {safeCountdowns.map((item) => (
+                    {safeCountdowns.map((item: any) => (
                       <div key={item.id} className="flex items-center justify-between gap-1">
                         <span className="text-[10px] font-medium" style={{ color: textColor }}>
-                          {EVENT_EMOJI[item.type] ?? "📌"} {item.name}
+                          {EVENT_EMOJI[item.type] ?? "\uD83D\uDCCD"} {item.name}
                         </span>
                         <span className="shrink-0 text-[11px] font-extrabold" style={{ color: "hsl(var(--nav-active))" }}>
                           {item.days_remaining} يوم
