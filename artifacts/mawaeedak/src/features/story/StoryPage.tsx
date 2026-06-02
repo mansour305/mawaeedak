@@ -23,6 +23,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 // New: import official data hooks to prefer confirmed records
 import { useOfficialPrayerTimes, useOfficialFinancialDates } from "@/hooks/useOfficialData";
+import { useTimeFormat } from "@/hooks/useTimeFormat";
 
 const EVENT_EMOJI: Record<string, string> = {
   salary: "\uD83D\uDCBC",
@@ -81,6 +82,7 @@ const PRAYER_LABELS: Record<string, string> = {
 export default function StoryPage() {
   const { toast } = useToast();
   const { user } = useStore();
+  const { formatTime } = useTimeFormat();
   const { prefs: locPrefs } = useLocationPrefs();
   const currentYear = new Date().getFullYear();
 
@@ -219,15 +221,15 @@ export default function StoryPage() {
     if (showPrayer && prayerData) {
       parts.push(
         `\uD83C\uDFE0 مواقيت الصلاة — ${prayerData.city ?? prayerCity}\n` +
-          `الفجر: ${prayerData.fajr}  الشروق: ${prayerData.sunrise}  الظهر: ${prayerData.dhuhr}\n` +
-          `العصر: ${prayerData.asr}  المغرب: ${prayerData.maghrib}  العشاء: ${prayerData.isha}`
+          `الفجر: ${formatTime(prayerData.fajr)}  الشروق: ${formatTime(prayerData.sunrise)}  الظهر: ${formatTime(prayerData.dhuhr)}\n` +
+          `العصر: ${formatTime(prayerData.asr)}  المغرب: ${formatTime(prayerData.maghrib)}  العشاء: ${formatTime(prayerData.isha)}`
       );
     }
 
     parts.push("━━━━━━━━━━━━━━\nمواعيدك\nمنصة تجمع وقتك، راتبك، دعمك، وأهم مواعيدك.");
 
     return parts.join("\n\n━━━━━━━━━━━━━━\n\n");
-  }, [showDate, showMessage, showCountdowns, showPrayer, customMessage, safeCountdowns, prayerData, prayerCity]);
+  }, [showDate, showMessage, showCountdowns, showPrayer, customMessage, safeCountdowns, prayerData, prayerCity, formatTime]);
 
   const handleCopy = async () => {
     try {
@@ -439,7 +441,7 @@ export default function StoryPage() {
                           {PRAYER_LABELS[key]}
                         </span>
                         <span className="text-[9px] font-bold" style={{ color: textColor }}>
-                          {value}
+                          {formatTime(value)}
                         </span>
                       </div>
                     ))}

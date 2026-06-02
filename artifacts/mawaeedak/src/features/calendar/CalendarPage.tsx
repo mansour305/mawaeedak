@@ -19,7 +19,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useTimeFormat } from "@/hooks/useTimeFormat";
-import { formatAppTime } from "@/lib/utils";
 import { ConfirmDialog } from "@/components/layout/ConfirmDialog";
 import {
   getListAppointmentsQueryKey,
@@ -72,7 +71,7 @@ const Dia = () => (
 
 export default function CalendarPage() {
   const { toast } = useToast();
-  const { format: timeFormat } = useTimeFormat();
+  const { formatTime } = useTimeFormat();
   const queryClient = useQueryClient();
 
   /* ── Month navigation ── */
@@ -532,7 +531,7 @@ export default function CalendarPage() {
                     {app.time && (
                       <div className="flex items-center gap-1.5">
                         <Clock className="w-3 h-3" style={{ color: "hsl(var(--primary)/0.7)" }} />
-                        <span className="font-medium">{formatAppTime(app.time, timeFormat)}</span>
+                        <span className="font-medium">{formatTime(app.time)}</span>
                       </div>
                     )}
                     {app.priority && (

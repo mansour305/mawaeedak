@@ -1,0 +1,39 @@
+:root {
+  --mawaeedak-paper: #FAF7F2;
+  --mawaeedak-card: #FFFCF7;
+  --mawaeedak-cream: #F3E8D6;
+  --mawaeedak-gold: #C9A063;
+  --mawaeedak-gold-soft: #E3C383;
+  --mawaeedak-brown: #8A6B3D;
+  --mawaeedak-ink: #2F2B25;
+  --mawaeedak-muted: #6F6557;
+  --mawaeedak-border: rgba(201, 160, 99, 0.24);
+  --mawaeedak-shadow: 0 14px 34px rgba(138, 107, 61, 0.12);
+}
+
+html, body {
+  background: radial-gradient(circle at top, #fff8eb 0%, var(--mawaeedak-paper) 34%, #f1e4cf 100%);
+}
+
+.heritage-card,
+.brand-card,
+.mawaeedak-card {
+  background: rgba(255, 252, 247, 0.88);
+  border: 1px solid var(--mawaeedak-border);
+  box-shadow: var(--mawaeedak-shadow);
+  border-radius: 24px;
+}
+
+.gold-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--mawaeedak-gold), transparent);
+}
+
+button, a, input, textarea, select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+[dir="rtl"] .mawaeedak-number,
+.mawaeedak-number {
+  font-variant-numeric: tabular-nums;
+}

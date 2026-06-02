@@ -1,37 +1,45 @@
-/**
- * useTimeFormat — hook لإدارة صيغة عرض الوقت (12h / 24h)
- * localStorage key: mawaeedak_time_format_v1
- * الافتراضي: "12h"
- */
-import { useState, useEffect } from "react";
-
-const KEY = "mawaeedak_time_format_v1";
-
-function readFormat(): "12h" | "24h" {
-  try {
-    const v = localStorage.getItem(KEY);
-    return v === "24h" ? "24h" : "12h";
-  } catch {
-    return "12h";
-  }
-}
+import { useCallback, useEffect, useState } from "react";
+import {
+  formatClockTime,
+  getPreferredTimeFormat,
+  type TimeFormatPreference,
+} from "@/lib/timeFormat";
 
 export function useTimeFormat() {
-  const [format, setFormatState] = useState<"12h" | "24h">(readFormat);
+  const [format, setFormatState] = useState<TimeFormatPreference>(() => getPreferredTimeFormat("12h"));
 
   useEffect(() => {
-    const handler = () => setFormatState(readFormat());
-    window.addEventListener("storage", handler);
-    return () => window.removeEventListener("storage", handler);
+    const refresh = () => setFormatState(getPreferredTimeFormat("12h"));
+    window.addEventListener("storage", refresh);
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
+
+    return () => {
+      window.removeEventListener("storage", refresh);
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
   }, []);
 
-  const setFormat = (fmt: "12h" | "24h") => {
-    setFormatState(fmt);
+  const setFormat = useCallback((nextFormat: TimeFormatPreference) => {
+    setFormatState(nextFormat);
     try {
-      localStorage.setItem(KEY, fmt);
-      window.dispatchEvent(new StorageEvent("storage", { key: KEY, newValue: fmt }));
-    } catch { /* silent */ }
-  };
+      window.localStorage.setItem("mawaeedak-time-format", nextFormat);
+      window.localStorage.setItem("timeFormat", nextFormat);
+    } catch {
+      // Ignore storage failures.
+    }
+  }, []);
 
-  return { format, setFormat };
+  const formatTime = useCallback((value?: string | null) => formatClockTime(value, format), [format]);
+
+  return {
+    format,
+    timeFormat: format,
+    is24Hour: format === "24h",
+    is12Hour: format === "12h",
+    setFormat,
+    setTimeFormat: setFormat,
+    formatTime,
+  };
 }

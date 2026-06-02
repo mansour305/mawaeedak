@@ -8,10 +8,13 @@ import { useStore } from "@/hooks/useStore";
 import { formatGregorianDate, formatHijriDate, getDayName } from "@/lib/utils";
 import { useOfficialPrayerTimes, useOfficialFinancialDates } from "@/hooks/useOfficialData";
 import { useMemo, useState, useEffect } from "react";
+import { useTimeFormat } from "@/hooks/useTimeFormat";
+import { createDateForToday, formatCountdown } from "@/lib/timeFormat";
 
 const GOLD = "#C9A063";
 const BROWN = "#8A6B3D";
 const INK = "#2F2B25";
+const PAPER = "#FAF7F2";
 
 function currentGreeting() {
   const hour = new Date().getHours();
@@ -33,6 +36,7 @@ function PrayerIcon({ keyName }: { keyName: string }) {
  */
 export default function HomePage() {
   const { user } = useStore();
+  const { formatTime } = useTimeFormat();
   // Determine city: if user.city is not set or contains placeholder, default to Riyadh
   const cityName = user.city && !user.city.includes("ط") ? user.city : "الرياض";
   const { data: fallbackPrayerData } = useGetPrayerTimes({ city: cityName });
@@ -114,32 +118,28 @@ export default function HomePage() {
   useEffect(() => {
     function computeNext() {
       const now = new Date();
-      // Build an array of Date objects representing each prayer time today.
-      const upcoming = prayers.map((p) => {
-        // Parse HH:MM into a Date object.  Assume times are for the current day
-        const [h, m] = p.time.split(":");
-        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), Number(h), Number(m), 0);
-        return { prayer: p, date: d };
-      });
-      // Find the first prayer time that is still in the future.
+      const upcoming = prayers
+        .map((p) => {
+          const date = createDateForToday(p.time, now);
+          return date ? { prayer: p, date } : null;
+        })
+        .filter(Boolean) as Array<{ prayer: { key: string; label: string; time: string }; date: Date }>;
+
       let next = upcoming.find((item) => item.date.getTime() > now.getTime());
-      // If none are remaining today, schedule the next day’s fajr.
       if (!next) {
-        const fajr = prayers.find((p) => p.key === "fajr")!;
-        const [h, m] = fajr.time.split(":");
-        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, Number(h), Number(m), 0);
-        next = { prayer: fajr, date: d };
+        const fajr = prayers.find((p) => p.key === "fajr") ?? prayers[0];
+        const fajrDate = createDateForToday(fajr?.time, now);
+        if (!fajr || !fajrDate) {
+          setNextPrayer(null);
+          setCountdown("--:--:--");
+          return;
+        }
+        fajrDate.setDate(fajrDate.getDate() + 1);
+        next = { prayer: fajr, date: fajrDate };
       }
-      setNextPrayer(next!.prayer);
-      // Compute countdown string (hh:mm:ss) for the difference between target and now.
-      const diff = next!.date.getTime() - now.getTime();
-      const totalSeconds = Math.max(0, Math.floor(diff / 1000));
-      const hours = Math.floor(totalSeconds / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
-      // Pad with leading zeros and assemble string.
-      const pad = (n: number) => String(n).padStart(2, "0");
-      setCountdown(`${pad(hours)}:${pad(minutes)}:${pad(seconds)}`);
+
+      setNextPrayer(next.prayer);
+      setCountdown(formatCountdown(next.date.getTime() - now.getTime()));
     }
     // Compute immediately and then every second.
     computeNext();
@@ -204,7 +204,7 @@ export default function HomePage() {
                 >
                   <span style={{ color: GOLD }}><PrayerIcon keyName={prayer.key} /></span>
                   <span className="text-[13px] font-extrabold">{prayer.label}</span>
-                  <span className="text-[14px] font-bold" dir="ltr">{prayer.time}</span>
+                  <span className="text-[14px] font-bold" dir="ltr">{formatTime(prayer.time)}</span>
                 </div>
               );
             })}
