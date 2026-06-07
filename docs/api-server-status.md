@@ -13,7 +13,7 @@
 4. Root `vercel.json` only configures `artifacts/mawaeedak/` for Vercel deployment
 5. api-server is a standalone Express server, not designed for Vercel serverless
 
-## Build Status (Local)
+### Build Status (Local)
 ```bash
 cd artifacts/api-server && pnpm run build
 # ✅ Build succeeded
@@ -26,21 +26,46 @@ cd artifacts/api-server && pnpm run build
 - **Build command**: `pnpm run build`
 - **Build status**: ✅ PASSED
 
-## API Server Purpose
+## api-server Purpose
 The api-server is a standalone backend for:
 - Gateway data fetching (optional)
 - Server-side cron jobs
 - Advanced features requiring server-side logic
 
 It is NOT required for the core application functionality which uses:
-- Supabase for database (when configured)
-- localStorage for persistence (fallback)
+- Supabase for database (when configured with `VITE_DATA_SOURCE_MODE=supabase`)
+- localStorage for persistence (fallback/demo mode)
 - Client-side rendering
 
-## Conclusion
-`mawaeedak-api-server` is **OUT OF SCOPE** of this repository's Vercel deployment. It must be deployed separately (e.g., via Docker, AWS, or a dedicated hosting service) if needed.
+## Production Data Flow
 
-The core application (`mawaeedak-mawaeedak`) deploys and functions correctly without the api-server.
+### Recommended Production Setup:
+```bash
+# Set in Vercel environment variables:
+VITE_SUPABASE_URL=https://xxxx.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJ...
+VITE_DATA_SOURCE_MODE=supabase
+```
+
+With `VITE_DATA_SOURCE_MODE=supabase`:
+- App reads/writes directly to Supabase
+- api-server NOT needed
+- All admin operations work via Supabase
+
+### Legacy API Mode (requires api-server):
+```bash
+VITE_DATA_SOURCE_MODE=api
+VITE_API_BASE_URL=https://your-api-server.com
+```
+
+## Conclusion
+`mawaeedak-api-server` is **OUT OF SCOPE** of this repository's Vercel deployment.
+
+**Two valid production paths:**
+1. **Supabase only** (recommended): Set `VITE_DATA_SOURCE_MODE=supabase` — api-server NOT needed
+2. **API + Supabase**: Deploy api-server separately (Docker/Railway/etc.) — OUT OF SCOPE of this repo
+
+The core application (`mawaeedak-mawaeedak`) deploys and functions correctly with Supabase mode.
 
 ---
 Generated: 2026-06-07
