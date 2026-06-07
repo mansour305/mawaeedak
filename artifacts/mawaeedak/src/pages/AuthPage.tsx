@@ -4,8 +4,9 @@ import { CheckCircle2, Eye, EyeOff, Loader2, Lock, Mail, User } from "lucide-rea
 import desertHeroImg from "@assets/desert-hero.png";
 import { Input } from "@/components/ui/input";
 import { MawaeedakLogo } from "@/components/layout/TopBar";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseEnabled } from "@/lib/supabase";
 import { useStore } from "@/hooks/useStore";
+import { authSignIn } from "@/lib/auth";
 
 export type AuthMode = "login" | "signup" | "forgot";
 
@@ -143,40 +144,15 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
     setSubmitting(true);
 
     try {
-      if (!supabase) {
-        setLoginError("تعذر الاتصال بخدمة المصادقة حالياً");
+      const result = await authSignIn(identifier.trim(), password);
+      
+      if (!result.success) {
+        setLoginError(result.error || "خطأ في تسجيل الدخول");
+        setSubmitting(false);
         return;
       }
 
-      const { error: signInError } = await withTimeout(
-        supabase.auth.signInWithPassword({ email: identifier.trim(), password }),
-        SUBMIT_TIMEOUT_MS,
-        "signIn",
-      );
-
-      if (signInError) {
-        setLoginError(translateLoginError(signInError));
-        return;
-      }
-
-      const {
-        data: { user },
-        error: userError,
-      } = await withTimeout(supabase.auth.getUser(), 5000, "getUser");
-
-      if (userError || !user) {
-        setLoginError("تعذر قراءة بيانات الحساب، حاول مرة أخرى");
-        await supabase.auth.signOut({ scope: "local" });
-        return;
-      }
-
-      const displayName =
-        (user.user_metadata?.display_name as string | undefined) ??
-        (user.user_metadata?.name as string | undefined) ??
-        user.email?.split("@")[0] ??
-        "";
-
-      setUser({ email: user.email ?? "", name: displayName });
+      // Auth succeeded — useStore auth listener will update user state
       setLocation("/");
     } catch (err) {
       setLoginError(translateLoginError(err));
@@ -208,15 +184,16 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
       return;
     }
 
+    if (!isSupabaseEnabled) {
+      setSignupError("إنشاء الحساب يتطلب إعداد Supabase في بيئة الإنتاج.\nيُرجى التواصل مع مدير النظام.");
+      setSignupLoading(false);
+      return;
+    }
+
     setSignupLoading(true);
     try {
-      if (!supabase) {
-        setSignupError("إنشاء الحساب يتطلب الاتصال بخدمة المصادقة");
-        return;
-      }
-
       const emailRedirectTo = typeof window !== "undefined" ? `${window.location.origin}/auth/callback` : "/auth/callback";
-      const { error } = await supabase.auth.signUp({
+      const { error } = await supabase!.auth.signUp({
         email: signupEmail.trim(),
         password: signupPwd,
         options: {
