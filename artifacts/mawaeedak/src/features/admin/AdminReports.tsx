@@ -3,8 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useListAuditLogs } from "@workspace/api-client-react";
-import { Search, Loader2, Download, FileSpreadsheet, Calendar } from "lucide-react";
+import { Search, Download, FileSpreadsheet, Calendar, Info } from "lucide-react";
 import { format } from "date-fns";
 
 const TIME_FILTERS = [
@@ -14,11 +13,50 @@ const TIME_FILTERS = [
   { value: "all", label: "كل السجلات" },
 ];
 
+type ReportLog = {
+  id: number;
+  created_at: string;
+  action: string;
+  entity_type: string;
+  entity_name?: string | null;
+  performed_by?: string | null;
+};
+
+const LOCAL_AUDIT_KEYS = [
+  "mawaeedak_admin_audit_logs_v1",
+  "mawaeedak_admin_social_logs_v1",
+];
+
+function readLocalLogs(): ReportLog[] {
+  const collected: ReportLog[] = [];
+  for (const key of LOCAL_AUDIT_KEYS) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) continue;
+      const rows = JSON.parse(raw);
+      if (!Array.isArray(rows)) continue;
+      rows.forEach((row: any, index: number) => {
+        collected.push({
+          id: Number(row.id ?? Date.now() + index),
+          created_at: String(row.created_at ?? new Date().toISOString()),
+          action: String(row.action ?? row.kind ?? "LOCAL"),
+          entity_type: String(row.entity_type ?? key),
+          entity_name: row.entity_name ?? row.detail ?? row.status ?? null,
+          performed_by: row.performed_by ?? "local-admin",
+        });
+      });
+    } catch {
+      // ignore malformed local report source
+    }
+  }
+  return collected.sort((a, b) => b.created_at.localeCompare(a.created_at));
+}
+
 export default function AdminReports() {
   const [search, setSearch] = useState("");
   const [timeFilter, setTimeFilter] = useState("30d");
   const [exporting, setExporting] = useState(false);
-  const { data: logs, isLoading } = useListAuditLogs({ limit: 500 });
+  const logs = useMemo(() => readLocalLogs(), []);
 
   const filteredLogs = useMemo(() => {
     const cutoff = new Date();
@@ -27,7 +65,7 @@ export default function AdminReports() {
     else if (timeFilter === "90d") cutoff.setDate(cutoff.getDate() - 90);
     else cutoff.setFullYear(2000);
 
-    return (logs ?? []).filter(log => {
+    return logs.filter(log => {
       const logDate = new Date(log.created_at);
       if (logDate < cutoff) return false;
       if (!search) return true;
@@ -58,7 +96,7 @@ export default function AdminReports() {
         log.action,
         log.entity_name ?? "-",
         log.entity_type,
-        log.performed_by,
+        log.performed_by ?? "-",
       ]);
       const csv = [headers, ...rows].map(row => row.join(",")).join("\n");
       const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -75,25 +113,28 @@ export default function AdminReports() {
 
   return (
     <div className="space-y-6">
-      {/* Page Title */}
       <div className="flex items-center gap-3">
-        <div 
-          className="w-1 h-6 rounded-full"
-          style={{ background: "linear-gradient(180deg, hsl(38 62% 52%), hsl(32 55% 42%))" }}
-        />
-        <h1 className="text-2xl font-extrabold" style={{ color: "hsl(22 62% 18%)" }}>
-          التقارير
-        </h1>
+        <div className="w-1 h-6 rounded-full" style={{ background: "linear-gradient(180deg, hsl(38 62% 52%), hsl(32 55% 42%))" }} />
+        <h1 className="text-2xl font-extrabold" style={{ color: "hsl(22 62% 18%)" }}>التقارير</h1>
       </div>
+
+      <Card className="border-blue-500/30 bg-blue-50/60 shadow-sm">
+        <CardContent className="p-4 flex gap-3 text-sm leading-7 text-blue-900">
+          <Info className="w-5 h-5 shrink-0 mt-1" />
+          <div>
+            <div className="font-bold">التقارير تعمل في وضع محلي بدون api-server.</div>
+            <div>تمت إزالة استدعاء Audit API. عند الحاجة لتقارير مركزية كاملة يجب إضافة جدول audit_logs في Supabase وربطه لاحقًا.</div>
+          </div>
+        </CardContent>
+      </Card>
       
       <div className="flex justify-end">
         <Button variant="outline" size="sm" onClick={handleExportCSV} disabled={exporting || filteredLogs.length === 0}>
-          {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4 ml-1" />}
+          <Download className="w-4 h-4 ml-1" />
           <FileSpreadsheet className="w-4 h-4 ml-1" /> تصدير CSV
         </Button>
       </div>
 
-      {/* Stats summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
           { label: "إجمالي العمليات", value: stats.total, color: "text-primary" },
@@ -110,7 +151,6 @@ export default function AdminReports() {
         ))}
       </div>
 
-      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-2">
         <div className="relative flex-1">
           <Search className="absolute right-3 top-2.5 w-4 h-4 text-muted-foreground" />
@@ -138,35 +178,21 @@ export default function AdminReports() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {isLoading ? (
-                  <tr>
-                    <td colSpan={5} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin text-primary mx-auto" /></td>
-                  </tr>
-                ) : filteredLogs.length > 0 ? (
+                {filteredLogs.length > 0 ? (
                   filteredLogs.map(log => (
                     <tr key={log.id} className="hover:bg-muted/30">
                       <td className="px-4 py-3 text-muted-foreground dir-ltr text-right">
                         <div className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {format(new Date(log.created_at), "yyyy-MM-dd")}</div>
                         <div className="text-[10px]">{format(new Date(log.created_at), "HH:mm")}</div>
                       </td>
-                      <td className="px-4 py-3">
-                        <span className={`px-2 py-0.5 rounded text-[10px] ${
-                          log.action === "CREATE" ? "bg-emerald-500/10 text-emerald-600" :
-                          log.action === "UPDATE" ? "bg-blue-500/10 text-blue-600" :
-                          "bg-destructive/10 text-destructive"
-                        }`}>
-                          {log.action}
-                        </span>
-                      </td>
+                      <td className="px-4 py-3"><span className="px-2 py-0.5 rounded text-[10px] bg-primary/10 text-primary">{log.action}</span></td>
                       <td className="px-4 py-3 font-medium">{log.entity_name || "-"}</td>
                       <td className="px-4 py-3 text-muted-foreground">{log.entity_type}</td>
                       <td className="px-4 py-3 text-muted-foreground">{log.performed_by}</td>
                     </tr>
                   ))
                 ) : (
-                  <tr>
-                    <td colSpan={5} className="p-8 text-center text-muted-foreground">لا توجد سجلات</td>
-                  </tr>
+                  <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">لا توجد سجلات محلية</td></tr>
                 )}
               </tbody>
             </table>
