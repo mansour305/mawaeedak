@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,28 +9,25 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ConfirmDialog } from "@/components/layout/ConfirmDialog";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { 
-  useListFinancialEvents, 
-  useCreateFinancialEvent, 
-  useUpdateFinancialEvent, 
-  useDeleteFinancialEvent,
-  getListFinancialEventsQueryKey 
-} from "@workspace/api-client-react";
+import { useGatewayFinancialEvents, gwQueryKeys } from "@/hooks/useGatewayData";
+import { gwCreateFinancialEvent, gwUpdateFinancialEvent, gwDeleteFinancialEvent } from "@/lib/dataGateway";
 import { Plus, Edit2, Trash2, Loader2, Wallet, Receipt } from "lucide-react";
 
 export default function AdminFinancial() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [filterType, setFilterType] = useState("all");
-  const { data: events, isLoading } = useListFinancialEvents(filterType !== 'all' ? { type: filterType } : undefined);
-  
-  const createEvent = useCreateFinancialEvent();
-  const updateEvent = useUpdateFinancialEvent();
-  const deleteEvent = useDeleteFinancialEvent();
+  const { data: allEvents, isLoading } = useGatewayFinancialEvents();
+  const events = useMemo(() => {
+    const rows = Array.isArray(allEvents) ? allEvents : [];
+    if (filterType === "all") return rows;
+    return rows.filter((event: any) => event.type === filterType);
+  }, [allEvents, filterType]);
 
   const [isOpen, setIsOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
   
   const [name, setName] = useState("");
   const [type, setType] = useState("salary");
@@ -40,59 +37,88 @@ export default function AdminFinancial() {
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const invalidateFinancial = () => {
+    queryClient.invalidateQueries({ queryKey: gwQueryKeys.financialEvents });
+    queryClient.invalidateQueries({ queryKey: gwQueryKeys.financialCountdown });
+  };
 
   const openAdd = () => {
-    setIsEdit(false); setEditId(null);
-    setName(""); setType("salary"); setNextDate(""); setAmount(""); setIsActive(true);
+    setIsEdit(false);
+    setEditId(null);
+    setName("");
+    setType("salary");
+    setNextDate("");
+    setAmount("");
+    setIsActive(true);
     setIsOpen(true);
   };
 
   const openEdit = (ev: any) => {
-    setIsEdit(true); setEditId(ev.id);
-    setName(ev.name); setType(ev.type); setNextDate(ev.next_date); 
-    setAmount(ev.amount ? String(ev.amount) : ""); setIsActive(ev.is_active);
+    setIsEdit(true);
+    setEditId(ev.id);
+    setName(ev.name);
+    setType(ev.type);
+    setNextDate(ev.next_date);
+    setAmount(ev.amount ? String(ev.amount) : "");
+    setIsActive(ev.is_active);
     setIsOpen(true);
   };
 
-  const handleSave = () => {
-    if (!name || !nextDate) { toast({ title: "خطأ", description: "الاسم والتاريخ مطلوبان", variant: "destructive" }); return; }
+  const handleSave = async () => {
+    if (!name.trim() || !nextDate) {
+      toast({ title: "خطأ", description: "الاسم والتاريخ مطلوبان", variant: "destructive" });
+      return;
+    }
 
-    const data = { 
-      name, type, next_date: nextDate, 
-      amount: amount ? Number(amount) : undefined, 
-      is_active: isActive 
+    const data = {
+      name: name.trim(),
+      type,
+      next_date: nextDate,
+      amount: amount ? Number(amount) : null,
+      is_active: isActive,
     };
 
-    if (isEdit && editId) {
-      updateEvent.mutate({ id: editId, data }, {
-        onSuccess: () => {
-          toast({ title: "تم التعديل" }); setIsOpen(false);
-          queryClient.invalidateQueries({ queryKey: getListFinancialEventsQueryKey() });
-        }
-      });
-    } else {
-      createEvent.mutate({ data }, {
-        onSuccess: () => {
-          toast({ title: "تمت الإضافة" }); setIsOpen(false);
-          queryClient.invalidateQueries({ queryKey: getListFinancialEventsQueryKey() });
-        }
-      });
+    setIsSaving(true);
+    try {
+      const result = isEdit && editId
+        ? await gwUpdateFinancialEvent(editId, data)
+        : await gwCreateFinancialEvent(data);
+
+      if (!result.success) {
+        toast({ title: "فشل الحفظ", description: result.error ?? "تعذر حفظ الموعد المالي", variant: "destructive" });
+        return;
+      }
+
+      toast({ title: isEdit ? "تم التعديل" : "تمت الإضافة" });
+      setIsOpen(false);
+      invalidateFinancial();
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (!deleteId) return;
-    deleteEvent.mutate({ id: deleteId }, {
-      onSuccess: () => {
-        toast({ title: "تم الحذف" }); setIsDeleteOpen(false);
-        queryClient.invalidateQueries({ queryKey: getListFinancialEventsQueryKey() });
+    setIsDeleting(true);
+    try {
+      const result = await gwDeleteFinancialEvent(deleteId);
+      if (!result.success) {
+        toast({ title: "فشل الحذف", description: result.error ?? "تعذر حذف الموعد المالي", variant: "destructive" });
+        return;
       }
-    });
+      toast({ title: "تم الحذف" });
+      setIsDeleteOpen(false);
+      setDeleteId(null);
+      invalidateFinancial();
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
     <div className="space-y-6">
-      {/* Page Title */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div 
@@ -155,8 +181,8 @@ export default function AdminFinancial() {
               <Label>مفعّل ويظهر للجميع</Label>
               <Switch checked={isActive} onCheckedChange={setIsActive} />
             </div>
-            <Button className="w-full" onClick={handleSave} disabled={createEvent.isPending || updateEvent.isPending}>
-              {(createEvent.isPending || updateEvent.isPending) ? <Loader2 className="w-4 h-4 animate-spin" /> : "حفظ"}
+            <Button className="w-full" onClick={handleSave} disabled={isSaving}>
+              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "حفظ"}
             </Button>
           </div>
         </DialogContent>
@@ -164,9 +190,9 @@ export default function AdminFinancial() {
 
       {isLoading ? (
         <div className="flex justify-center p-8"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
-      ) : events && events.length > 0 ? (
+      ) : events.length > 0 ? (
         <div className="space-y-3">
-          {(Array.isArray(events) ? events : []).map(ev => (
+          {events.map((ev: any) => (
             <Card key={ev.id} className={`border-border shadow-sm overflow-hidden ${!ev.is_active ? 'opacity-60' : ''}`}>
               <div className="flex border-r-4" style={{ borderRightColor: ev.type === 'salary' ? 'hsl(var(--primary))' : ev.type === 'bill' ? 'hsl(var(--destructive))' : 'hsl(var(--accent))' }}>
                 <CardContent className="p-4 w-full">
@@ -203,6 +229,7 @@ export default function AdminFinancial() {
         open={isDeleteOpen} onOpenChange={setIsDeleteOpen}
         title="حذف الموعد المالي" description="هل أنت متأكد من الحذف؟ هذا سيؤثر على عدادات جميع المستخدمين."
         onConfirm={handleDelete}
+        confirmText={isDeleting ? "جاري الحذف..." : "تأكيد"}
       />
     </div>
   );
