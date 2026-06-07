@@ -55,6 +55,10 @@ import AdminStory from "@/features/admin/AdminStory";
 import AdminDataLayer from "@/features/admin/AdminDataLayer";
 import AdminAutomation from "@/features/admin/AdminAutomation";
 import AdminVisualGuide from "@/features/admin/AdminVisualGuide";
+import AdminSettings from "@/features/admin/AdminSettings";
+import AdminSupport from "@/features/admin/AdminSupport";
+import AdminOfficialFinancial from "@/features/admin/AdminOfficialFinancial";
+import AdminOfficialPrayer from "@/features/admin/AdminOfficialPrayer";
 import { AdminRuntimeBoundary } from "@/features/admin/AdminRuntimeBoundary";
 
 const queryClient = new QueryClient({
@@ -122,6 +126,8 @@ function AdminRouter() {
           <Route path="/members" component={AdminMembers} />
           <Route path="/events" component={AdminEvents} />
           <Route path="/financial" component={AdminFinancial} />
+          <Route path="/official-financial" component={AdminOfficialFinancial} />
+          <Route path="/official-prayer" component={AdminOfficialPrayer} />
           <Route path="/messages" component={AdminMessages} />
           <Route path="/story" component={AdminStory} />
           <Route path="/themes" component={AdminThemes} />
@@ -131,6 +137,8 @@ function AdminRouter() {
           <Route path="/social" component={AdminSocial} />
           <Route path="/reports" component={AdminReports} />
           <Route path="/permissions" component={AdminPermissions} />
+          <Route path="/settings" component={AdminSettings} />
+          <Route path="/support" component={AdminSupport} />
           <Route path="/data-layer" component={AdminDataLayer} />
           <Route path="/automation" component={AdminAutomation} />
           <Route path="/visual-guide" component={AdminVisualGuide} />

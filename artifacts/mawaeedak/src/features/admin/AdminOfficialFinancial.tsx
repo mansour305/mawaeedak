@@ -8,13 +8,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ConfirmDialog } from "@/components/layout/ConfirmDialog";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseEnabled } from "@/lib/supabase";
 import {
   useCreateOfficialFinancialDate,
   useUpdateOfficialFinancialDate,
   useDeleteOfficialFinancialDate,
 } from "@/hooks/useOfficialData";
-import { Plus, Edit2, Trash2, Loader2 } from "lucide-react";
+import { Plus, Edit2, Trash2, Loader2, AlertTriangle } from "lucide-react";
 
 /**
  * AdminOfficialFinancial — a simple admin page for managing official
@@ -29,6 +29,7 @@ export default function AdminOfficialFinancial() {
   const { data: events, isLoading } = useQuery({
     queryKey: ["admin-official-financial"],
     queryFn: async () => {
+      if (!isSupabaseEnabled || !supabase) throw new Error("Supabase غير مفعّل");
       const { data, error } = await supabase
         .from("official_financial_dates")
         .select("*")

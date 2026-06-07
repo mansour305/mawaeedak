@@ -133,10 +133,10 @@ router.get("/prayer-times", async (req, res) => {
   const city = resolveCity(rawCity);
   const today = new Date().toISOString().split("T")[0];
 
-  const dbRows = await db.select().from(prayerTimesTable).where(eq(prayerTimesTable.city, city));
+  const dbRows = await db.select().from(prayerTimesTable).where(eq(prayerTimesTable.city_key, city));
   const dbRow = dbRows[0];
 
-  const times = dbRow ?? { ...DEFAULT_PRAYER[city] ?? DEFAULT_PRAYER["riyadh"], city };
+  const times = dbRow ?? { ...DEFAULT_PRAYER[city] ?? DEFAULT_PRAYER["riyadh"], city_key: city };
 
   const { next_prayer, time_remaining } = getNextPrayer(times);
 

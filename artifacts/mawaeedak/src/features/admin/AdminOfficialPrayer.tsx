@@ -8,13 +8,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { ConfirmDialog } from "@/components/layout/ConfirmDialog";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseEnabled } from "@/lib/supabase";
 import {
   useCreateOfficialPrayerTime,
   useUpdateOfficialPrayerTime,
   useDeleteOfficialPrayerTime,
 } from "@/hooks/useOfficialData";
-import { Plus, Edit2, Trash2, Loader2 } from "lucide-react";
+import { Plus, Edit2, Trash2, Loader2, AlertTriangle } from "lucide-react";
 
 /**
  * AdminOfficialPrayer — admin page to manage official prayer times. It lists
@@ -29,6 +29,7 @@ export default function AdminOfficialPrayer() {
   const { data: events, isLoading } = useQuery({
     queryKey: ["admin-official-prayer"],
     queryFn: async () => {
+      if (!isSupabaseEnabled || !supabase) throw new Error("Supabase غير مفعّل");
       const { data, error } = await supabase
         .from("official_prayer_times")
         .select("*")

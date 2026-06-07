@@ -50,16 +50,16 @@ async function seedFinancialEvents() {
   const c = await rowCount("financial_events");
   if (c > 0) { console.log(`  financial_events: ${c} صف موجود، تجاهل.`); return; }
   await db.insert(financialEventsTable).values([
-    { name: "الراتب الشهري", type: "salary", next_date: nextMonthDay(1), amount: "0", notes: "راتب أول الشهر", is_active: true, reminder_days_before: 3 },
-    { name: "حساب المواطن", type: "support", next_date: nextMonthDay(10), amount: "0", notes: "دعم نقدي شهري", is_active: true, reminder_days_before: 3 },
-    { name: "الضمان الاجتماعي", type: "support", next_date: nextMonthDay(25), amount: "0", notes: "مستحق الضمان", is_active: true, reminder_days_before: 3 },
-    { name: "حافز", type: "support", next_date: nextMonthDay(15), amount: "0", notes: "برنامج حافز", is_active: true, reminder_days_before: 3 },
-    { name: "الدعم السكني", type: "support", next_date: futureDate(37), amount: "0", notes: "دعم وزارة الإسكان", is_active: true, reminder_days_before: 5 },
-    { name: "ساند / التأمينات", type: "support", next_date: nextMonthDay(20), amount: "0", notes: "تأمين ضد التعطل", is_active: true, reminder_days_before: 3 },
-    { name: "التقاعد", type: "salary", next_date: nextMonthDay(1), amount: "0", notes: "راتب التقاعد", is_active: true, reminder_days_before: 3 },
-    { name: "الدعم الزراعي", type: "support", next_date: futureDate(45), amount: "0", notes: "دعم وزارة البيئة والمياه والزراعة", is_active: true, reminder_days_before: 5 },
-    { name: "التأهيل الشامل", type: "support", next_date: nextMonthDay(27), amount: "0", notes: "إعانة التأهيل الشامل - مدار من المنصة (تقديري)", is_active: true, reminder_days_before: 3 },
-    { name: "دعم ريف", type: "support", next_date: futureDate(52), amount: "0", notes: "دعم الأسر المنتجة والريف - مدار من المنصة (تقديري)", is_active: true, reminder_days_before: 5 },
+    { name: "الراتب الشهري", type: "salary", next_date: nextMonthDay(1), amount: "0", notes: "راتب أول الشهر", is_active: true, reminder_days_before: 3, user_id: "system" },
+    { name: "حساب المواطن", type: "support", next_date: nextMonthDay(10), amount: "0", notes: "دعم نقدي شهري", is_active: true, reminder_days_before: 3, user_id: "system" },
+    { name: "الضمان الاجتماعي", type: "support", next_date: nextMonthDay(25), amount: "0", notes: "مستحق الضمان", is_active: true, reminder_days_before: 3, user_id: "system" },
+    { name: "حافز", type: "support", next_date: nextMonthDay(15), amount: "0", notes: "برنامج حافز", is_active: true, reminder_days_before: 3, user_id: "system" },
+    { name: "الدعم السكني", type: "support", next_date: futureDate(37), amount: "0", notes: "دعم وزارة الإسكان", is_active: true, reminder_days_before: 5, user_id: "system" },
+    { name: "ساند / التأمينات", type: "support", next_date: nextMonthDay(20), amount: "0", notes: "تأمين ضد التعطل", is_active: true, reminder_days_before: 3, user_id: "system" },
+    { name: "التقاعد", type: "salary", next_date: nextMonthDay(1), amount: "0", notes: "راتب التقاعد", is_active: true, reminder_days_before: 3, user_id: "system" },
+    { name: "الدعم الزراعي", type: "support", next_date: futureDate(45), amount: "0", notes: "دعم وزارة البيئة والمياه والزراعة", is_active: true, reminder_days_before: 5, user_id: "system" },
+    { name: "التأهيل الشامل", type: "support", next_date: nextMonthDay(27), amount: "0", notes: "إعانة التأهيل الشامل - مدار من المنصة (تقديري)", is_active: true, reminder_days_before: 3, user_id: "system" },
+    { name: "دعم ريف", type: "support", next_date: futureDate(52), amount: "0", notes: "دعم الأسر المنتجة والريف - مدار من المنصة (تقديري)", is_active: true, reminder_days_before: 5, user_id: "system" },
   ]);
   console.log("  financial_events: تم إدراج 10 أحداث مالية.");
 }
@@ -82,7 +82,7 @@ async function ensureSupportPrograms() {
   const missing = required.filter(r => !have.has(r.name));
   if (missing.length === 0) { console.log("  support programs: مكتملة، لا حاجة للإضافة."); return; }
   await db.insert(financialEventsTable).values(
-    missing.map(r => ({ name: r.name, type: "support", next_date: r.next_date, amount: "0", notes: r.notes, is_active: true, reminder_days_before: r.reminder_days_before }))
+    missing.map(r => ({ name: r.name, type: "support", next_date: r.next_date, amount: "0", notes: r.notes, is_active: true, reminder_days_before: r.reminder_days_before, user_id: "system" }))
   );
   console.log(`  support programs: تمت إضافة ${missing.length} برنامج ناقص.`);
 }
@@ -169,6 +169,7 @@ async function seedAppointments() {
       color: "#4CAF50",
       priority: "high",
       reminder_enabled: true,
+      user_id: "system",
     },
     {
       title: "تجديد الرخصة",
@@ -179,6 +180,7 @@ async function seedAppointments() {
       color: "#2196F3",
       priority: "medium",
       reminder_enabled: true,
+      user_id: "system",
     },
   ]);
   console.log("  appointments: تم إدراج 2 موعد.");

@@ -42,7 +42,9 @@ router.get("/appointments/:id", async (req, res) => {
 router.post("/appointments", requireAdmin, async (req, res) => {
   const parsed = CreateAppointmentBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error });
-  const [row] = await db.insert(appointmentsTable).values(parsed.data).returning();
+  // Admin creates with system user_id as default
+  const dataWithUser = { ...parsed.data, user_id: "system" };
+  const [row] = await db.insert(appointmentsTable).values(dataWithUser).returning();
   return res.status(201).json(row);
 });
 

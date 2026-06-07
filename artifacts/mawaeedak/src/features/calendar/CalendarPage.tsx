@@ -501,7 +501,7 @@ export default function CalendarPage() {
               <Loader2 className="w-6 h-6 animate-spin" style={{ color: "hsl(var(--primary))" }} />
             </div>
           ) : listAppts.length > 0 ? (
-            listAppts.map((app) => (
+            listAppts.map((app: any) => (
               <div
                 key={app.id}
                 className="rounded-2xl overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-md active:scale-[0.98]"
