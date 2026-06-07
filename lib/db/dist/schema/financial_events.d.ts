@@ -1,4 +1,11 @@
 import { z } from "zod/v4";
+/**
+ * Financial events represent salary payments, support deposits or other
+ * recurring financial transactions. This schema introduces a `user_id`
+ * column so that events can be scoped per user. It also adds `confirmed`
+ * and `source` fields to indicate whether the date is official and where
+ * it originated.
+ */
 export declare const financialEventsTable: import("drizzle-orm/pg-core").PgTableWithColumns<{
     name: "financial_events";
     schema: undefined;
@@ -13,6 +20,23 @@ export declare const financialEventsTable: import("drizzle-orm/pg-core").PgTable
             notNull: true;
             hasDefault: true;
             isPrimaryKey: true;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
+        user_id: import("drizzle-orm/pg-core").PgColumn<{
+            name: "user_id";
+            tableName: "financial_events";
+            dataType: "string";
+            columnType: "PgUUID";
+            data: string;
+            driverParam: string;
+            notNull: true;
+            hasDefault: false;
+            isPrimaryKey: false;
             isAutoincrement: false;
             hasRuntimeDefault: false;
             enumValues: undefined;
@@ -139,6 +163,40 @@ export declare const financialEventsTable: import("drizzle-orm/pg-core").PgTable
             identity: undefined;
             generated: undefined;
         }, {}, {}>;
+        confirmed: import("drizzle-orm/pg-core").PgColumn<{
+            name: "confirmed";
+            tableName: "financial_events";
+            dataType: "boolean";
+            columnType: "PgBoolean";
+            data: boolean;
+            driverParam: boolean;
+            notNull: true;
+            hasDefault: true;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
+        source: import("drizzle-orm/pg-core").PgColumn<{
+            name: "source";
+            tableName: "financial_events";
+            dataType: "string";
+            columnType: "PgText";
+            data: string;
+            driverParam: string;
+            notNull: false;
+            hasDefault: false;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: [string, ...string[]];
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
         created_at: import("drizzle-orm/pg-core").PgColumn<{
             name: "created_at";
             tableName: "financial_events";
@@ -160,6 +218,7 @@ export declare const financialEventsTable: import("drizzle-orm/pg-core").PgTable
     dialect: "pg";
 }>;
 export declare const insertFinancialEventSchema: z.ZodObject<{
+    user_id: z.ZodUUID;
     name: z.ZodString;
     type: z.ZodString;
     next_date: z.ZodString;
@@ -167,6 +226,8 @@ export declare const insertFinancialEventSchema: z.ZodObject<{
     notes: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     is_active: z.ZodOptional<z.ZodBoolean>;
     reminder_days_before: z.ZodOptional<z.ZodInt>;
+    confirmed: z.ZodOptional<z.ZodBoolean>;
+    source: z.ZodOptional<z.ZodNullable<z.ZodString>>;
 }, {
     out: {};
     in: {};

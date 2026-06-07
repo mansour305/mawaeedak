@@ -1,4 +1,12 @@
 import { z } from "zod/v4";
+/**
+ * Prayer times table.
+ *
+ * This schema extends the original by including a `date` field (ISO
+ * YYYY-MM-DD), a `city_key` to identify the locality, and `source` / `method`
+ * fields to describe how the times were obtained (e.g. official data from
+ * وزارة الشؤون الإسلامية or calculations based on the Umm Al‑Qura calendar).
+ */
 export declare const prayerTimesTable: import("drizzle-orm/pg-core").PgTableWithColumns<{
     name: "prayer_times";
     schema: undefined;
@@ -20,14 +28,65 @@ export declare const prayerTimesTable: import("drizzle-orm/pg-core").PgTableWith
             identity: undefined;
             generated: undefined;
         }, {}, {}>;
-        city: import("drizzle-orm/pg-core").PgColumn<{
-            name: "city";
+        city_key: import("drizzle-orm/pg-core").PgColumn<{
+            name: "city_key";
             tableName: "prayer_times";
             dataType: "string";
             columnType: "PgText";
             data: string;
             driverParam: string;
             notNull: true;
+            hasDefault: false;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: [string, ...string[]];
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
+        city_name_ar: import("drizzle-orm/pg-core").PgColumn<{
+            name: "city_name_ar";
+            tableName: "prayer_times";
+            dataType: "string";
+            columnType: "PgText";
+            data: string;
+            driverParam: string;
+            notNull: true;
+            hasDefault: false;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: [string, ...string[]];
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
+        date_gregorian: import("drizzle-orm/pg-core").PgColumn<{
+            name: "date_gregorian";
+            tableName: "prayer_times";
+            dataType: "string";
+            columnType: "PgText";
+            data: string;
+            driverParam: string;
+            notNull: true;
+            hasDefault: false;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: [string, ...string[]];
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
+        date_hijri: import("drizzle-orm/pg-core").PgColumn<{
+            name: "date_hijri";
+            tableName: "prayer_times";
+            dataType: "string";
+            columnType: "PgText";
+            data: string;
+            driverParam: string;
+            notNull: false;
             hasDefault: false;
             isPrimaryKey: false;
             isAutoincrement: false;
@@ -139,6 +198,23 @@ export declare const prayerTimesTable: import("drizzle-orm/pg-core").PgTableWith
             identity: undefined;
             generated: undefined;
         }, {}, {}>;
+        source: import("drizzle-orm/pg-core").PgColumn<{
+            name: "source";
+            tableName: "prayer_times";
+            dataType: "string";
+            columnType: "PgText";
+            data: string;
+            driverParam: string;
+            notNull: false;
+            hasDefault: false;
+            isPrimaryKey: false;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: [string, ...string[]];
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
         created_at: import("drizzle-orm/pg-core").PgColumn<{
             name: "created_at";
             tableName: "prayer_times";
@@ -160,7 +236,11 @@ export declare const prayerTimesTable: import("drizzle-orm/pg-core").PgTableWith
     dialect: "pg";
 }>;
 export declare const insertPrayerTimesSchema: z.ZodObject<{
-    city: z.ZodString;
+    source: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    city_key: z.ZodString;
+    city_name_ar: z.ZodString;
+    date_gregorian: z.ZodString;
+    date_hijri: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     fajr: z.ZodString;
     sunrise: z.ZodString;
     dhuhr: z.ZodString;

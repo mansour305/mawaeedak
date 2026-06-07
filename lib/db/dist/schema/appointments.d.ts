@@ -1,4 +1,14 @@
 import { z } from "zod/v4";
+/**
+ * Appointments table schema.
+ *
+ * This version extends the original schema by adding a `user_id` column.
+ * Each appointment record is now associated with the authenticated user who
+ * created it. The `user_id` should reference the `auth.users.id` column in
+ * Supabase which is a UUID. When migrating an existing database, you must
+ * add a corresponding column and backfill with a default user or implement
+ * a migration script to assign appointments to users.
+ */
 export declare const appointmentsTable: import("drizzle-orm/pg-core").PgTableWithColumns<{
     name: "appointments";
     schema: undefined;
@@ -13,6 +23,23 @@ export declare const appointmentsTable: import("drizzle-orm/pg-core").PgTableWit
             notNull: true;
             hasDefault: true;
             isPrimaryKey: true;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
+        user_id: import("drizzle-orm/pg-core").PgColumn<{
+            name: "user_id";
+            tableName: "appointments";
+            dataType: "string";
+            columnType: "PgUUID";
+            data: string;
+            driverParam: string;
+            notNull: true;
+            hasDefault: false;
+            isPrimaryKey: false;
             isAutoincrement: false;
             hasRuntimeDefault: false;
             enumValues: undefined;
@@ -178,6 +205,7 @@ export declare const appointmentsTable: import("drizzle-orm/pg-core").PgTableWit
 }>;
 export declare const insertAppointmentSchema: z.ZodObject<{
     date: z.ZodString;
+    user_id: z.ZodUUID;
     title: z.ZodString;
     description: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     time: z.ZodOptional<z.ZodNullable<z.ZodString>>;

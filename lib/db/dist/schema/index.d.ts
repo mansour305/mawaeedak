@@ -13,4 +13,6 @@ export * from "./story_templates";
 export * from "./automation_logs";
 export * from "./app_settings";
 export * from "./social_automation";
+export * from "./official_financial_dates";
+export * from "./official_prayer_times";
 //# sourceMappingURL=index.d.ts.map

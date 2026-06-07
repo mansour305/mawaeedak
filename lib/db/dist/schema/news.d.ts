@@ -162,8 +162,8 @@ export declare const newsTable: import("drizzle-orm/pg-core").PgTableWithColumns
 export declare const insertNewsSchema: z.ZodObject<{
     title: z.ZodString;
     category: z.ZodString;
-    body: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     source: z.ZodOptional<z.ZodNullable<z.ZodString>>;
+    body: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     image_url: z.ZodOptional<z.ZodNullable<z.ZodString>>;
     is_published: z.ZodOptional<z.ZodBoolean>;
     published_at: z.ZodOptional<z.ZodNullable<z.ZodDate>>;

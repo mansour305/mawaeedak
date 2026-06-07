@@ -1,4 +1,9 @@
 import { z } from "zod/v4";
+/**
+ * Notifications table. Each notification is now associated with a user via
+ * `user_id`. You may also leave `user_id` null for broadcast messages
+ * delivered to all users.
+ */
 export declare const notificationsTable: import("drizzle-orm/pg-core").PgTableWithColumns<{
     name: "notifications";
     schema: undefined;
@@ -13,6 +18,23 @@ export declare const notificationsTable: import("drizzle-orm/pg-core").PgTableWi
             notNull: true;
             hasDefault: true;
             isPrimaryKey: true;
+            isAutoincrement: false;
+            hasRuntimeDefault: false;
+            enumValues: undefined;
+            baseColumn: never;
+            identity: undefined;
+            generated: undefined;
+        }, {}, {}>;
+        user_id: import("drizzle-orm/pg-core").PgColumn<{
+            name: "user_id";
+            tableName: "notifications";
+            dataType: "string";
+            columnType: "PgUUID";
+            data: string;
+            driverParam: string;
+            notNull: false;
+            hasDefault: false;
+            isPrimaryKey: false;
             isAutoincrement: false;
             hasRuntimeDefault: false;
             enumValues: undefined;
@@ -126,6 +148,7 @@ export declare const notificationsTable: import("drizzle-orm/pg-core").PgTableWi
     dialect: "pg";
 }>;
 export declare const insertNotificationSchema: z.ZodObject<{
+    user_id: z.ZodOptional<z.ZodNullable<z.ZodUUID>>;
     title: z.ZodString;
     type: z.ZodOptional<z.ZodString>;
     body: z.ZodOptional<z.ZodNullable<z.ZodString>>;
