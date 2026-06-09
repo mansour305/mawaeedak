@@ -4,35 +4,49 @@
  * Luxury design matching Mawaeedak identity:
  * - RTL order: الرئيسية, الرواتب, الخدمات, التقويم, المزيد
  * - Active: capsule with cream background + gold icon + gold text + gold underline
- * - Inactive: no background + brown/gray icon + brown/gray text
+ * - Inactive: no background + brown icon + brown text
  * - Ivory/cream background with gold border
  * - Soft shadow, large border-radius
  * - Support safe-area-bottom
+ * - Using Feather icons: Home, DollarSign, Grid, Calendar, MoreHorizontal
  */
 
 import { Tabs } from 'expo-router';
 import { Text, View, StyleSheet, Pressable } from 'react-native';
 import { I18nManager, useWindowDimensions } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 
 // Theme colors - Mawaeedak luxury identity
 const GOLD = '#C9A063';
 const BROWN = '#8A6B3D';
 const INK = '#2F2B25';
 const CREAM = '#FAF7F2';
-const SURFACE = '#FFFFFF';
 const LIGHT_CREAM = '#F5EFE4';
 
-// Tab data with icons (text-based for simplicity)
+// Tab data with Feather icon names
 const TABS = [
-  { name: 'home', label: 'الرئيسية', icon: '🏠' },
-  { name: 'salary', label: 'الرواتب', icon: '💰' },
-  { name: 'services', label: 'الخدمات', icon: '🏢' },
-  { name: 'calendar', label: 'التقويم', icon: '📅' },
-  { name: 'more', label: 'المزيد', icon: '☰' },
+  { name: 'home', label: 'الرئيسية', iconName: 'home' as const },
+  { name: 'salary', label: 'الرواتب', iconName: 'dollar-sign' as const },
+  { name: 'services', label: 'الخدمات', iconName: 'grid' as const },
+  { name: 'calendar', label: 'التقويم', iconName: 'calendar' as const },
+  { name: 'more', label: 'المزيد', iconName: 'more-horizontal' as const },
 ];
 
+// Icon component
+function TabIcon({ name, size, color }: { name: string; size: number; color: string }) {
+  return (
+    <Feather 
+      name={name as any} 
+      size={size} 
+      color={color} 
+    />
+  );
+}
+
 // Tab item component
-function TabItem({ label, icon, isActive, onPress }: { label: string; icon: string; isActive: boolean; onPress: () => void }) {
+function TabItem({ label, iconName, isActive, onPress }: { label: string; iconName: string; isActive: boolean; onPress: () => void }) {
+  const iconColor = isActive ? GOLD : BROWN;
+  
   return (
     <Pressable 
       onPress={onPress} 
@@ -41,8 +55,8 @@ function TabItem({ label, icon, isActive, onPress }: { label: string; icon: stri
       accessibilityRole="button"
       accessibilityState={isActive ? { selected: true } : undefined}
     >
-      <View style={[styles.iconContainer, isActive && styles.iconContainerActive]}>
-        <Text style={[styles.icon, isActive && styles.iconActive]}>{icon}</Text>
+      <View style={styles.iconContainer}>
+        <TabIcon name={iconName} size={22} color={iconColor} />
       </View>
       <Text style={[styles.label, isActive && styles.labelActive]}>{label}</Text>
       {isActive && <View style={styles.underline} />}
@@ -53,13 +67,12 @@ function TabItem({ label, icon, isActive, onPress }: { label: string; icon: stri
 // Custom tab bar
 function CustomTabBar({ state, descriptors, navigation }: any) {
   const { width } = useWindowDimensions();
-  const tabBarWidth = Math.min(width - 32, 400);
+  const tabBarWidth = Math.min(width - 32, 420);
   
   return (
     <View style={styles.tabBarContainer}>
       <View style={[styles.tabBar, { width: tabBarWidth }]}>
         {state.routes.map((route: any, index: number) => {
-          const { options } = descriptors[route.key];
           const isFocused = state.index === index;
           const tab = TABS[index];
           
@@ -79,7 +92,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
             <TabItem
               key={route.key}
               label={tab?.label || route.name}
-              icon={tab?.icon || '●'}
+              iconName={tab?.iconName || 'circle'}
               isActive={isFocused}
               onPress={onPress}
             />
@@ -126,48 +139,42 @@ const styles = StyleSheet.create({
   tabBar: {
     flexDirection: 'row',
     backgroundColor: CREAM,
-    borderRadius: 28,
+    borderRadius: 30,
     borderWidth: 1,
     borderColor: 'rgba(201,160,99,0.25)',
     shadowColor: '#8A6B3D',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
-    shadowRadius: 16,
+    shadowRadius: 20,
     elevation: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 6,
   },
   tabItem: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 8,
-    paddingHorizontal: 4,
-    borderRadius: 20,
+    paddingHorizontal: 2,
+    borderRadius: 22,
     marginHorizontal: 2,
+    minHeight: 58,
   },
   tabItemActive: {
     backgroundColor: LIGHT_CREAM,
   },
   iconContainer: {
     width: 36,
-    height: 28,
+    height: 26,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 2,
   },
-  iconContainerActive: {
-    // Active icon styling if needed
-  },
   icon: {
-    fontSize: 20,
-    color: BROWN,
-  },
-  iconActive: {
-    color: GOLD,
+    fontSize: 22,
   },
   label: {
-    fontSize: 10,
+    fontSize: 9,
     color: BROWN,
     fontWeight: '500',
     marginTop: 2,
@@ -177,10 +184,10 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   underline: {
-    width: 16,
-    height: 2,
+    width: 18,
+    height: 2.5,
     backgroundColor: GOLD,
-    borderRadius: 1,
-    marginTop: 4,
+    borderRadius: 1.25,
+    marginTop: 3,
   },
 });
