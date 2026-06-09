@@ -8,6 +8,7 @@ import { MawaeedakLogo } from "@/components/layout/TopBar";
 import { ConfirmDialog } from "@/components/layout/ConfirmDialog";
 import { showTopNotification } from "@/components/layout/TopNotificationBanner";
 import { useStore } from "@/hooks/useStore";
+import { authSignOut } from "@/lib/auth";
 
 function MoreRow({
   icon: Icon,
@@ -38,7 +39,6 @@ export default function MorePage() {
   const { user, isAdmin, setUser } = useStore();
   const [isLogoutOpen, setIsLogoutOpen] = useState(false);
   const isLoggedIn = Boolean(user?.email);
-  // Get user's display name or show "زائر مواعيدك" - no hardcoded names
   const displayName = (user?.name && user.name.length > 0) ? user.name : null;
 
   const shareApp = async () => {
@@ -48,7 +48,6 @@ export default function MorePage() {
         await navigator.share({ title: "مواعيدك", text: "كل مواعيدك في مكان واحد", url });
         showTopNotification("تمت المشاركة بنجاح", "success");
       } catch {
-        // User cancelled or failed
         showTopNotification("فشل مشاركة التطبيق", "error");
       }
     } else {
@@ -62,12 +61,11 @@ export default function MorePage() {
   };
 
   const logout = async () => {
-    const { authSignOut } = await import("@/lib/auth");
     await authSignOut().catch(() => {});
     localStorage.removeItem("app-user");
     localStorage.removeItem("mawaeedak_onboarded");
     sessionStorage.removeItem("mawaeedak_demo_session");
-    // Reset useStore to default user
+
     setUser({
       id: "",
       name: "",
@@ -79,6 +77,7 @@ export default function MorePage() {
       onboardingComplete: false,
       interests: [],
     });
+
     showTopNotification("تم تسجيل الخروج", "success");
     setLocation("/");
   };
