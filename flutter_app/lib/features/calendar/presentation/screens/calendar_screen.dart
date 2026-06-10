@@ -33,30 +33,39 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.paper,
-      body: SafeArea(
-        bottom: false,
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 40),
-              // Header
-              _buildHeader(),
-              const SizedBox(height: 16),
-              // Month Navigation
-              _buildMonthNavigation(),
-              const SizedBox(height: 16),
-              // Days Header
-              _buildDaysHeader(),
-              // Calendar Grid
-              _buildCalendarGrid(appointments),
-              const SizedBox(height: 24),
-              // Selected Day Appointments
-              _buildAppointmentsSection(selectedDayAppointments),
-              const SizedBox(height: 100),
-            ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Color(0xFFFAF7F2), Color(0xFFF3E8D6)],
+          ),
+        ),
+        child: SafeArea(
+          bottom: false,
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 16),
+                // Header
+                _buildHeader(),
+                const SizedBox(height: 16),
+                // Month Navigation
+                _buildMonthNavigation(),
+                const SizedBox(height: 16),
+                // Days Header
+                _buildDaysHeader(),
+                // Calendar Grid
+                _buildCalendarGrid(appointments),
+                const SizedBox(height: 24),
+                // Selected Day Appointments
+                _buildAppointmentsSection(selectedDayAppointments),
+                const SizedBox(height: 100),
+              ],
+            ),
           ),
         ),
       ),
@@ -67,13 +76,21 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
-          'التقويم',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.w800,
-            color: AppColors.ink,
-          ),
+        Row(
+          children: [
+            Container(
+              width: 56, height: 56,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.82),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColors.borderGold),
+                boxShadow: [BoxShadow(color: AppColors.brown.withOpacity(0.08), blurRadius: 12, offset: const Offset(0, 4))],
+              ),
+              child: Icon(Icons.calendar_month, color: AppColors.gold, size: 28),
+            ),
+            const SizedBox(width: 16),
+            Text('التقويم', style: GoogleFonts.cairo(fontSize: 28, fontWeight: FontWeight.w800, color: AppColors.ink, height: 1.3)),
+          ],
         ),
         GestureDetector(
           onTap: () {
@@ -86,16 +103,10 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               color: AppColors.gold,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [BoxShadow(color: AppColors.gold.withOpacity(0.3), blurRadius: 8, offset: const Offset(0, 4))],
             ),
-            child: const Text(
-              'اليوم',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            child: Text('اليوم', style: GoogleFonts.cairo(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
           ),
         ),
       ],
