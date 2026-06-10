@@ -51,29 +51,64 @@ class MoreScreen extends StatelessWidget {
         border: Border.all(color: AppColors.borderGold),
         boxShadow: [BoxShadow(color: AppColors.brown.withOpacity(0.12), blurRadius: 40, offset: const Offset(0, 16))],
       ),
-      child: Row(
+      child: Stack(
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('مرحباً بك', style: GoogleFonts.cairo(fontSize: 25, fontWeight: FontWeight.w800, color: AppColors.ink)),
-                const SizedBox(height: 8),
-                Text('يا ضيف مواعيدك', style: GoogleFonts.cairo(fontSize: 26, fontWeight: FontWeight.w800, color: AppColors.ink, height: 1.2)),
-                const SizedBox(height: 16),
-                Row(children: [
-                  Text('نسعد بخدمتك كل يوم', style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.brown)),
-                  const SizedBox(width: 6),
-                  Icon(Icons.auto_awesome, color: AppColors.gold, size: 16),
-                ]),
-              ],
+          // Background image (48% width on right)
+          Positioned(
+            top: 0, bottom: 0, right: 0,
+            width: MediaQuery.of(context).size.width * 0.42,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: Image.asset(
+                'assets/images/desert-hero.png',
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(color: AppColors.cream),
+              ),
             ),
           ),
-          const SizedBox(width: 16),
-          Container(
-            width: 60, height: 60,
-            decoration: BoxDecoration(color: AppColors.gold, borderRadius: BorderRadius.circular(16)),
-            child: Center(child: Text('م', style: GoogleFonts.cairo(fontSize: 32, fontWeight: FontWeight.w800, color: Colors.white))),
+          // Gradient overlay
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(26),
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [Colors.white, Colors.white.withOpacity(0.86), Colors.white.withOpacity(0.0)],
+                ),
+              ),
+            ),
+          ),
+          // Content
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('مرحباً بك', style: GoogleFonts.cairo(fontSize: 25, fontWeight: FontWeight.w800, color: AppColors.ink)),
+                    const SizedBox(height: 8),
+                    Text('يا ضيف مواعيدك', style: GoogleFonts.cairo(fontSize: 26, fontWeight: FontWeight.w800, color: AppColors.ink, height: 1.2)),
+                    const SizedBox(height: 16),
+                    Row(children: [
+                      Text('نسعد بخدمتك كل يوم', style: GoogleFonts.cairo(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.brown)),
+                      const SizedBox(width: 6),
+                      Icon(Icons.auto_awesome, color: AppColors.gold, size: 16),
+                    ]),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+              Container(
+                width: 60, height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.borderGold),
+                ),
+                child: Center(child: Text('م', style: GoogleFonts.cairo(fontSize: 32, fontWeight: FontWeight.w800, color: AppColors.gold))),
+              ),
+            ],
           ),
         ],
       ),
