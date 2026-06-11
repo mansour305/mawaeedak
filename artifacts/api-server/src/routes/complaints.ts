@@ -7,14 +7,14 @@ import { requireAdmin } from "../middlewares/requireAdmin";
 
 const router = Router();
 
-async function logAudit(action: string, entityId: number | null, entityName: string, description: string) {
+async function logAudit(actor: string | null, action: string, entityId: number | null, entityName: string, description: string) {
   await db.insert(auditLogsTable).values({
     action,
     entity_type: "complaint",
     entity_id: entityId,
     entity_name: entityName,
     description,
-    performed_by: "admin",
+    performed_by: actor ?? "system",
     status: "success",
   });
 }
@@ -38,22 +38,26 @@ router.patch("/complaints/:id", requireAdmin, async (req, res) => {
   const id = parseInt(String(req.params.id));
   const parsed = UpdateComplaintBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error });
+  const adminUser = (req as any).adminUser;
+  const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [row] = await db
     .update(complaintsTable)
     .set({ ...parsed.data, updated_at: sql`now()` })
     .where(eq(complaintsTable.id, id))
     .returning();
   if (!row) return res.status(404).json({ error: "غير موجود" });
-  await logAudit("update", row.id, row.title ?? row.type, `تحديث رسالة: ${row.title ?? row.type}`);
+  await logAudit(actorId, "update", row.id, row.title ?? row.type, `تحديث رسالة: ${row.title ?? row.type}`);
   return res.json(row);
 });
 
 // Delete complaint — admin only.
 router.delete("/complaints/:id", requireAdmin, async (req, res) => {
   const id = parseInt(String(req.params.id));
+  const adminUser = (req as any).adminUser;
+  const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [deleted] = await db.delete(complaintsTable).where(eq(complaintsTable.id, id)).returning();
   if (!deleted) return res.status(404).json({ error: "غير موجود" });
-  await logAudit("delete", id, deleted.title ?? deleted.type, `حذف رسالة: ${deleted.title ?? deleted.type}`);
+  await logAudit(actorId, "delete", id, deleted.title ?? deleted.type, `حذف رسالة: ${deleted.title ?? deleted.type}`);
   return res.status(204).send();
 });
 

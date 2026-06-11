@@ -154,6 +154,8 @@ export const ListFinancialEventsResponseItem = zod.object({
   "next_date": zod.string(),
   "amount": zod.number().nullish(),
   "notes": zod.string().nullish(),
+  "confirmed": zod.boolean().optional(),
+  "source": zod.string().optional(),
   "is_active": zod.boolean().optional(),
   "reminder_days_before": zod.number().optional(),
   "created_at": zod.string()
@@ -169,6 +171,8 @@ export const CreateFinancialEventBody = zod.object({
   "type": zod.string(),
   "next_date": zod.string(),
   "amount": zod.number().optional(),
+  "confirmed": zod.boolean().optional(),
+  "source": zod.string().optional(),
   "notes": zod.string().optional(),
   "is_active": zod.boolean().optional(),
   "reminder_days_before": zod.number().optional()
@@ -187,6 +191,8 @@ export const UpdateFinancialEventBody = zod.object({
   "type": zod.string().optional(),
   "next_date": zod.string().optional(),
   "amount": zod.number().optional(),
+  "confirmed": zod.boolean().optional(),
+  "source": zod.string().optional(),
   "notes": zod.string().optional(),
   "is_active": zod.boolean().optional(),
   "reminder_days_before": zod.number().optional()
@@ -199,6 +205,8 @@ export const UpdateFinancialEventResponse = zod.object({
   "next_date": zod.string(),
   "amount": zod.number().nullish(),
   "notes": zod.string().nullish(),
+  "confirmed": zod.boolean().optional(),
+  "source": zod.string().optional(),
   "is_active": zod.boolean().optional(),
   "reminder_days_before": zod.number().optional(),
   "created_at": zod.string()

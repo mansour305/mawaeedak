@@ -7,8 +7,16 @@ import { CreateNotificationBody } from "@workspace/api-zod";
 
 const router = Router();
 
-async function logAudit(action: string, entityType: string, entityId: number | null, entityName: string, description: string) {
-  await db.insert(auditLogsTable).values({ action, entity_type: entityType, entity_id: entityId, entity_name: entityName, description, performed_by: "admin", status: "success" });
+async function logAudit(actor: string | null, action: string, entityType: string, entityId: number | null, entityName: string, description: string) {
+  await db.insert(auditLogsTable).values({ 
+    action, 
+    entity_type: entityType, 
+    entity_id: entityId, 
+    entity_name: entityName, 
+    description, 
+    performed_by: actor ?? "system", 
+    status: "success" 
+  });
 }
 
 router.get("/notifications", async (req, res) => {
@@ -26,8 +34,10 @@ router.get("/notifications/unread-count", async (req, res) => {
 router.post("/notifications", requireAdmin, async (req, res) => {
   const parsed = CreateNotificationBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error });
+  const adminUser = (req as any).adminUser;
+  const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [row] = await db.insert(notificationsTable).values({ ...parsed.data, is_read: false }).returning();
-  await logAudit("create", "notification", row.id, row.title, `إرسال إشعار: ${row.title}`);
+  await logAudit(actorId, "create", "notification", row.id, row.title, `إرسال إشعار: ${row.title}`);
   return res.status(201).json(row);
 });
 
@@ -45,9 +55,11 @@ router.patch("/notifications/read-all", requireAdmin, async (req, res) => {
 
 router.delete("/notifications/:id", requireAdmin, async (req, res) => {
   const id = parseInt(req.params.id as string);
+  const adminUser = (req as any).adminUser;
+  const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [row] = await db.delete(notificationsTable).where(eq(notificationsTable.id, id)).returning();
   if (!row) return res.status(404).json({ error: "غير موجود" });
-  await logAudit("delete", "notification", row.id, row.title, `حذف إشعار: ${row.title}`);
+  await logAudit(actorId, "delete", "notification", row.id, row.title, `حذف إشعار: ${row.title}`);
   return res.status(204).send();
 });
 

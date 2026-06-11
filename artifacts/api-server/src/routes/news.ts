@@ -7,8 +7,16 @@ import { CreateNewsBody, UpdateNewsBody } from "@workspace/api-zod";
 
 const router = Router();
 
-async function logAudit(action: string, entityType: string, entityId: number | null, entityName: string, description: string) {
-  await db.insert(auditLogsTable).values({ action, entity_type: entityType, entity_id: entityId, entity_name: entityName, description, performed_by: "admin", status: "success" });
+async function logAudit(actor: string | null, action: string, entityType: string, entityId: number | null, entityName: string, description: string) {
+  await db.insert(auditLogsTable).values({ 
+    action, 
+    entity_type: entityType, 
+    entity_id: entityId, 
+    entity_name: entityName, 
+    description, 
+    performed_by: actor ?? "system", 
+    status: "success" 
+  });
 }
 
 router.get("/news", async (req, res) => {
@@ -23,8 +31,10 @@ router.get("/news", async (req, res) => {
 router.post("/news", requireAdmin, async (req, res) => {
   const parsed = CreateNewsBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error });
+  const adminUser = (req as any).adminUser;
+  const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [row] = await db.insert(newsTable).values(parsed.data).returning();
-  await logAudit("create", "news", row.id, row.title, `إضافة خبر: ${row.title}`);
+  await logAudit(actorId, "create", "news", row.id, row.title, `إضافة خبر: ${row.title}`);
   return res.status(201).json(row);
 });
 
@@ -32,17 +42,21 @@ router.patch("/news/:id", requireAdmin, async (req, res) => {
   const id = parseInt(req.params.id as string);
   const parsed = UpdateNewsBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error });
+  const adminUser = (req as any).adminUser;
+  const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [row] = await db.update(newsTable).set(parsed.data).where(eq(newsTable.id, id)).returning();
   if (!row) return res.status(404).json({ error: "غير موجود" });
-  await logAudit("update", "news", row.id, row.title, `تعديل خبر: ${row.title}`);
+  await logAudit(actorId, "update", "news", row.id, row.title, `تعديل خبر: ${row.title}`);
   return res.json(row);
 });
 
 router.delete("/news/:id", requireAdmin, async (req, res) => {
   const id = parseInt(req.params.id as string);
+  const adminUser = (req as any).adminUser;
+  const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [deleted] = await db.delete(newsTable).where(eq(newsTable.id, id)).returning();
   if (!deleted) return res.status(404).json({ error: "غير موجود" });
-  await logAudit("delete", "news", id, deleted.title, `حذف خبر: ${deleted.title}`);
+  await logAudit(actorId, "delete", "news", id, deleted.title, `حذف خبر: ${deleted.title}`);
   return res.status(204).send();
 });
 

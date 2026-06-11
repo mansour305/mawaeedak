@@ -7,8 +7,16 @@ import { CreateJobBody, UpdateJobBody } from "@workspace/api-zod";
 
 const router = Router();
 
-async function logAudit(action: string, entityType: string, entityId: number | null, entityName: string, description: string) {
-  await db.insert(auditLogsTable).values({ action, entity_type: entityType, entity_id: entityId, entity_name: entityName, description, performed_by: "admin", status: "success" });
+async function logAudit(actor: string | null, action: string, entityType: string, entityId: number | null, entityName: string, description: string) {
+  await db.insert(auditLogsTable).values({ 
+    action, 
+    entity_type: entityType, 
+    entity_id: entityId, 
+    entity_name: entityName, 
+    description, 
+    performed_by: actor ?? "system", 
+    status: "success" 
+  });
 }
 
 router.get("/jobs", async (req, res) => {
@@ -24,8 +32,10 @@ router.get("/jobs", async (req, res) => {
 router.post("/jobs", requireAdmin, async (req, res) => {
   const parsed = CreateJobBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error });
+  const adminUser = (req as any).adminUser;
+  const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [row] = await db.insert(jobsTable).values(parsed.data).returning();
-  await logAudit("create", "job", row.id, row.title, `إضافة وظيفة: ${row.title}`);
+  await logAudit(actorId, "create", "job", row.id, row.title, `إضافة وظيفة: ${row.title}`);
   return res.status(201).json(row);
 });
 
@@ -33,17 +43,21 @@ router.patch("/jobs/:id", requireAdmin, async (req, res) => {
   const id = parseInt(req.params.id as string);
   const parsed = UpdateJobBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error });
+  const adminUser = (req as any).adminUser;
+  const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [row] = await db.update(jobsTable).set(parsed.data).where(eq(jobsTable.id, id)).returning();
   if (!row) return res.status(404).json({ error: "غير موجود" });
-  await logAudit("update", "job", row.id, row.title, `تعديل وظيفة: ${row.title}`);
+  await logAudit(actorId, "update", "job", row.id, row.title, `تعديل وظيفة: ${row.title}`);
   return res.json(row);
 });
 
 router.delete("/jobs/:id", requireAdmin, async (req, res) => {
   const id = parseInt(req.params.id as string);
+  const adminUser = (req as any).adminUser;
+  const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [deleted] = await db.delete(jobsTable).where(eq(jobsTable.id, id)).returning();
   if (!deleted) return res.status(404).json({ error: "غير موجود" });
-  await logAudit("delete", "job", id, deleted.title, `حذف وظيفة: ${deleted.title}`);
+  await logAudit(actorId, "delete", "job", id, deleted.title, `حذف وظيفة: ${deleted.title}`);
   return res.status(204).send();
 });
 

@@ -20,6 +20,12 @@ export const appointmentsTable = pgTable("appointments", {
    * Set to null for global/public events.
    */
   user_id: uuid("user_id"),
+  /**
+   * Whether this appointment is public/global.
+   * Public appointments (is_public = true) are visible to all users.
+   * Private appointments (is_public = false) require user_id match.
+   */
+  is_public: boolean("is_public").notNull().default(false),
   title: text("title").notNull(),
   description: text("description"),
   /**

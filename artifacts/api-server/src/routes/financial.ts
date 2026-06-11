@@ -8,8 +8,16 @@ import type { InferInsertModel } from "drizzle-orm";
 
 const router = Router();
 
-async function logAudit(action: string, entityType: string, entityId: number | null, entityName: string, description: string) {
-  await db.insert(auditLogsTable).values({ action, entity_type: entityType, entity_id: entityId, entity_name: entityName, description, performed_by: "admin", status: "success" });
+async function logAudit(actor: string | null, action: string, entityType: string, entityId: number | null, entityName: string, description: string) {
+  await db.insert(auditLogsTable).values({ 
+    action, 
+    entity_type: entityType, 
+    entity_id: entityId, 
+    entity_name: entityName, 
+    description, 
+    performed_by: actor ?? "system", 
+    status: "success" 
+  });
 }
 
 router.get("/financial-events", async (req, res) => {
@@ -70,9 +78,11 @@ router.post("/financial-events", requireAdmin, async (req, res) => {
   const parsed = CreateFinancialEventBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error });
   // Admin creates global financial events - user_id is optional (null for global events)
+  const adminUser = (req as any).adminUser;
+  const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const dataWithAmount = { ...parsed.data, amount: parsed.data.amount != null ? String(parsed.data.amount) : undefined };
   const [row] = await db.insert(financialEventsTable).values(dataWithAmount).returning();
-  await logAudit("create", "financial_event", row.id, row.name, `إضافة حدث مالي: ${row.name}`);
+  await logAudit(actorId, "create", "financial_event", row.id, row.name, `إضافة حدث مالي: ${row.name}`);
   return res.status(201).json(row);
 });
 
@@ -80,18 +90,22 @@ router.patch("/financial-events/:id", requireAdmin, async (req, res) => {
   const id = parseInt(req.params.id as string);
   const parsed = UpdateFinancialEventBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error });
+  const adminUser = (req as any).adminUser;
+  const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const updateData = { ...parsed.data, amount: parsed.data.amount != null ? String(parsed.data.amount) : undefined };
   const [row] = await db.update(financialEventsTable).set(updateData).where(eq(financialEventsTable.id, id)).returning();
   if (!row) return res.status(404).json({ error: "غير موجود" });
-  await logAudit("update", "financial_event", row.id, row.name, `تعديل حدث مالي: ${row.name}`);
+  await logAudit(actorId, "update", "financial_event", row.id, row.name, `تعديل حدث مالي: ${row.name}`);
   return res.json(row);
 });
 
 router.delete("/financial-events/:id", requireAdmin, async (req, res) => {
   const id = parseInt(req.params.id as string);
+  const adminUser = (req as any).adminUser;
+  const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [deleted] = await db.delete(financialEventsTable).where(eq(financialEventsTable.id, id)).returning();
   if (!deleted) return res.status(404).json({ error: "غير موجود" });
-  await logAudit("delete", "financial_event", id, deleted.name, `حذف حدث مالي: ${deleted.name}`);
+  await logAudit(actorId, "delete", "financial_event", id, deleted.name, `حذف حدث مالي: ${deleted.name}`);
   return res.status(204).send();
 });
 

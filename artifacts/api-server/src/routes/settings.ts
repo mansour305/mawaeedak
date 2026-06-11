@@ -37,6 +37,8 @@ router.put("/settings/default-theme", requireAdmin, async (req, res) => {
   if (!parsed) return res.status(400).json({ error: "slug غير صالح" });
 
   const { slug } = parsed;
+  const adminUser = (req as any).adminUser;
+  const actorId = adminUser?.id ?? adminUser?.email ?? null;
 
   const [theme] = await db.select().from(themesTable).where(eq(themesTable.slug, slug));
   if (!theme) return res.status(404).json({ error: "ثيم غير موجود" });
@@ -56,7 +58,7 @@ router.put("/settings/default-theme", requireAdmin, async (req, res) => {
     entity_id: null,
     entity_name: DEFAULT_THEME_KEY,
     description: `تعيين الثيم الافتراضي العام: ${theme.name}`,
-    performed_by: "admin",
+    performed_by: actorId ?? "system",
     status: "success",
   });
 
