@@ -1,6 +1,7 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "VITE_DATA_SOURCE_MODE=supabase pnpm --filter @workspace/mawaeedak build",
+  "version": 2,
+  "installCommand": "corepack enable && pnpm install --no-frozen-lockfile",
+  "buildCommand": "cd artifacts/mawaeedak && pnpm run build",
   "outputDirectory": "artifacts/mawaeedak/dist/public",
   "rewrites": [
     {
