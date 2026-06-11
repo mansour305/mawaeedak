@@ -8,19 +8,16 @@ The active Codex work branch for controlled setup work is:
 
 `codex/setup-control-files`
 
-This project must be treated as a production-intended scheduling/events application until a full audit proves otherwise.
+This project is a **WEB-ONLY** production scheduling/events application. All mobile/Flutter artifacts have been removed.
 
 ## Repository Architecture
 
-Expected repository areas:
+Core areas:
 
+- `artifacts/mawaeedak/` - Main web application (Vite + React)
+- `artifacts/api-server/` - Backend API server
+- `lib/` - Shared libraries (API client, DB schemas, utilities)
 - Root workspace and package control files.
-- Frontend application artifacts.
-- API/backend server artifacts.
-- Shared API/schema/client libraries.
-- Documentation and QA control files under `docs/`.
-
-Do not assume the architecture is correct or complete until a full audit is performed.
 
 ## Absolute Forbidden Actions
 
@@ -36,6 +33,7 @@ Never do any of the following unless the user explicitly requests that exact act
 - Modify application source code during documentation/control-file tasks.
 - Claim the project is production ready before evidence-based QA and security checks are complete.
 - Expose secrets, tokens, service keys, or admin credentials.
+- Add mobile/Flutter/React Native code or dependencies.
 
 ## Security/Auth/Admin Rules
 
@@ -61,10 +59,10 @@ Never do any of the following unless the user explicitly requests that exact act
 - Frontend views must not silently fall back to fake data in production paths.
 - Any migration or data-shape change requires an explicit verification plan.
 
-## Frontend RTL/Mobile Rules
+## Frontend RTL/Web Rules
 
 - Arabic and RTL behavior must be treated as first-class requirements.
-- Mobile layout must be verified for primary flows.
+- Responsive layout must be verified for primary flows.
 - Text must not overlap, truncate critical meaning, or break controls on small screens.
 - Forms, navigation, dialogs, and admin screens must be usable in RTL.
 - Visual-reference work must be isolated and verified separately from functional fixes.

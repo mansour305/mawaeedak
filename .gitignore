@@ -34,3 +34,16 @@ temp/
 .env.production
 .env.development
 .env.test
+
+# Build outputs
+dist/
+build/
+artifacts/mawaeedak/dist/
+artifacts/api-server/dist/
+lib/api-client-react/dist/
+lib/api-zod/dist/
+lib/db/dist/
+
+# TypeScript build info
+*.tsbuildinfo
+tsconfig.tsbuildinfo

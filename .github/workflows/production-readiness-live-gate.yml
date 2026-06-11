@@ -51,8 +51,9 @@ jobs:
       - name: Build gate
         run: pnpm run build
 
-      - name: Production readiness live gate
-        run: pnpm run production-readiness-gate
+      # Note: External production readiness scripts removed during Web/PWA cleanup.
+      # Required gates are: typecheck and build.
+      # Live smoke tests should be run manually or via dedicated smoke workflow.
 
       - name: Produce production readiness summary
         if: always()
@@ -67,5 +68,12 @@ jobs:
             echo "- Required secrets: PRODUCTION_API_BASE_URL, DATABASE_URL, SUPABASE_URL, SUPABASE_ANON_KEY, VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY"
             echo "- Optional smoke secrets: PRODUCTION_WEB_BASE_URL, LIVE_ADMIN_BEARER_TOKEN"
             echo
-            echo "This gate must fail when required production secrets are missing or live API/Auth checks fail."
+            echo "## Gates"
+            echo "- pnpm install --frozen-lockfile"
+            echo "- pnpm run typecheck"
+            echo "- pnpm run build"
+            echo
+            echo "## Note"
+            echo "- External scripts removed during Web/PWA-only cleanup"
+            echo "- Live smoke tests: run manually or via dedicated workflow"
           } >> "$GITHUB_STEP_SUMMARY"

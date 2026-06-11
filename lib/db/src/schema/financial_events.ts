@@ -14,10 +14,9 @@ export const financialEventsTable = pgTable("financial_events", {
   /**
    * The unique identifier of the user this event belongs to. Use the UUID
    * from `auth.users.id` in Supabase. For global events (e.g. official
-   * announcements applicable to all users) you can set this to null and
-   * handle it separately in your queries.
+   * announcements applicable to all users) set this to null.
    */
-  user_id: uuid("user_id").notNull(),
+  user_id: uuid("user_id"),
   /**
    * Human‑readable name of the event (e.g. "راتب شهر ذو الحجة 1447").
    */

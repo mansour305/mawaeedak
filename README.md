@@ -2,22 +2,22 @@
 
 <div align="center">
 
-**تطبيق جوال عربي متكامل لإدارة المواعيد والمواعيد المالية**
+**تطبيق ويب عربي متكامل لإدارة المواعيد والمواعيد المالية**
 
-*سعودي فاخر · RTL-first · Mobile-First*
+*سعودي فاخر · RTL-first · Web-First*
 
-[![Expo](https://img.shields.io/badge/Expo-000020?style=flat-square&logo=expo&logoColor=white)](https://expo.dev)
-[![React Native](https://img.shields.io/badge/React_Native-20232A?style=flat-square&logo=react&logoColor=61DAFB)](https://reactnative.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![React](https://img.shields.io/badge/React-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
+[![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev)
 [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat-square&logo=supabase&logoColor=black)](https://supabase.com)
 
 </div>
 
 ---
 
-## 📱 نظرة عامة
+## 🌐 نظرة عامة
 
-**مواعيدك** هو تطبيق جوال عربي متكامل مبني بـ Expo + React Native، يساعد المستخدمين على:
+**مواعيدك** هو تطبيق ويب عربي متكامل يساعد المستخدمين على:
 
 - 📅 إدارة المواعيد والتقويم الشخصي
 - 💰 تتبع الرواتب والمواعيد المالية (راتب، دعم، فواتير)
@@ -31,10 +31,9 @@
 |---|---|
 | **RTL Arabic UI** | واجهة عربية كاملة من اليمين لليسار |
 | **Theme Engine** | 10 ثيمات قابلة للتخصيص مع حفظ التفضيل |
-| **Offline-First** | دعم البيانات المحلية مع localStorage |
-| **Push Notifications** | إشعارات داخلية مع подготовية لـ Expo Notifications |
-| **PWA Web** | إصدار ويب متكامل مع manifest.json |
+| **PWA Support** | إصدار PWA متكامل مع manifest.json |
 | **Admin Dashboard** | لوحة إدارة كاملة للوحة التحكم |
+| **Responsive Design** | تصميم متجاوب لجميع أحجام الشاشات |
 
 ---
 
@@ -42,12 +41,7 @@
 
 ```
 mawaeedak/
-├── mobile/                    # 📱 تطبيق Expo + React Native
-│   ├── app/                   # Expo Router pages
-│   ├── eas.json               # EAS Build configuration
-│   └── package.json
-│
-├── artifacts/                 # 💻 تطبيقات الويب
+├── artifacts/
 │   ├── mawaeedak/            # SPA — React 18 + Vite + Tailwind v4
 │   │   ├── src/
 │   │   │   ├── pages/        # صفحات المسارات
@@ -64,37 +58,24 @@ mawaeedak/
 │       │   └── index.ts
 │       └── package.json
 │
-├── lib/                       # 📚 مكتبات مشتركة
-│   ├── api-spec/             # OpenAPI 3.1 YAML
-│   ├── api-client-react/     # React Query hooks (Orval)
-│   ├── api-zod/              # Zod v4 schemas
-│   └── db/                   # Drizzle ORM schema
+├── lib/                      # مكتبات مشتركة
+│   ├── api-client-react/     # Generated API client
+│   ├── api-zod/              # Zod schemas
+│   ├── db/                   # Drizzle ORM schemas
+│   └── shared/               # Shared utilities
 │
-├── docs/                      # 📄 وثائق المشروع
-├── scripts/                  # 🔧 أدوات وscripts
-└── package.json              # pnpm workspaces root
+├── .github/workflows/        # CI/CD pipelines
+├── package.json              # pnpm workspaces root
+├── AGENTS.md                 # Agent instructions
+├── ARCHITECTURE.md           # Architecture docs
+└── .env.example              # Environment template
 ```
 
 ---
 
 ## 🛠️ التقنيات المستخدمة
 
-### Mobile Stack (التطبيق الجوال)
-
-| التقنية | الإصدار | الغرض |
-|---|---|---|
-| **Expo** | SDK 53+ | إطار عمل React Native |
-| **React Native** | 0.79+ | محرك التطبيق الأصلي |
-| **Expo Router** | 5+ | نظام التنقل المساحي |
-| **TypeScript** | 5.9+ | لغة البرمجة |
-| **TanStack Query** | 5+ | إدارة حالة البيانات |
-| **Zustand** | 5+ | إدارة الحالة العامة |
-| **React Hook Form** | 7+ | نماذج الإدخال |
-| **Zod** | 4+ | التحقق من البيانات |
-| **Expo Notifications** | — | Push Notifications |
-| **Sentry React Native** | — | مراقبة الأخطاء |
-
-### Web Stack (إصدار الويب)
+### Web Stack
 
 | التقنية | الإصدار | الغرض |
 |---|---|---|
@@ -127,32 +108,6 @@ mawaeedak/
 ---
 
 ## 📦 التثبيت والتشغيل
-
-### تطبيق الجوال (Mobile)
-
-```bash
-# الانتقال لمجلد mobile
-cd mobile
-
-# تثبيت الاعتماديات
-npm install
-
-# فحص البيئة
-npm run doctor
-
-# فحص الأنواع
-npm run typecheck
-
-# تشغيل في Expo
-npm run start
-
-# بناء APK/EAS
-npm run prebuild
-npx eas build --profile preview --platform android
-npx eas build --profile preview --platform ios
-```
-
-### تطبيق الويب (Web)
 
 ```bash
 # تثبيت من الجذر
@@ -350,19 +305,12 @@ cd artifacts/mawaeedak && pnpm run dev
 ├── AGENTS.md                          # تعليمات Codex Agent
 ├── ARCHITECTURE.md                    # البنية التقنية الكاملة
 ├── DATA_SOURCE_MAP.md                 # خريطة مصادر البيانات
-├── SMOKE_CHECKLIST.md                 # قائمة الاختبار الدخاني
+├── DESIGN_GUIDELINES.md               # إرشادات التصميم
 ├── ENV_EXAMPLE.md                     # متغيرات البيئة
-├── docs/
-│   ├── CODEX_START_HERE.md            # دليل البدء
-│   ├── PROJECT_PHASES_STATUS.md        # حالة المراحل
-│   ├── OPEN_ISSUES_LEDGER.md           # سجل المشاكل المفتوحة
-│   ├── SECURITY_RISK_REGISTER.md       # سجل المخاطر الأمنية
-│   ├── API_AUDIT_REPORT.md             # تقرير مراجعة API
-│   ├── PRODUCTION_READINESS_*.md        # بوابات الإنتاج
-│   ├── MAWAEEDAK_VISUAL_IDENTITY_*.md  # الهوية البصرية
-│   └── README_AUDIT_REPORT.md          # تقرير مراجعة README
-└── mobile/
-    └── README.md                      # دليل التطبيق الجوال
+├── artifacts/
+│   ├── mawaeedak/                     # تطبيق الويب
+│   └── api-server/                    # خادم API
+└── lib/                               # مكتبات مشتركة
 ```
 
 ---
@@ -374,19 +322,6 @@ cd artifacts/mawaeedak && pnpm run dev
 ```bash
 # ربط مع GitHub
 # النشر تلقائي مع GitHub Actions
-```
-
-### EAS Build (Mobile)
-
-```bash
-# Android
-npx eas build --profile preview --platform android
-
-# iOS
-npx eas build --profile preview --platform ios
-
-# Development Build
-npx eas build --profile development --platform android
 ```
 
 ### متغيرات البيئة المطلوبة
@@ -408,28 +343,6 @@ VITE_DATA_SOURCE_MODE=api
 
 ---
 
-## 📋 حالة المشروع
-
-```
-الحالة: Publishable Preview+
-المرحلة: Phase 4 Admin Smoke ✅
-الإنتاج: يحتاج Production Readiness Final Gate
-```
-
-### Phase 4 Status
-
-| الفحص | الحالة |
-|---|---|
-| typecheck | ✅ PASS |
-| build | ✅ PASS |
-| DB connection | ✅ PASS |
-| Supabase REST | ✅ PASS |
-| Guest mutation denial | ✅ PASS |
-| Admin mutation | ⚠️ يحتاج live proof |
-| Audit log | ⚠️ يحتاج live proof |
-
----
-
 ## 🤝 المساهمة
 
 1. اقرأ `AGENTS.md` قبل أي مهمة
@@ -441,9 +354,8 @@ VITE_DATA_SOURCE_MODE=api
 
 ## 📞 الدعم
 
-- **Documentation:** راجع `docs/`
+- **Documentation:** راجع `lib/` للمكتبات المشتركة
 - **Architecture:** راجع `ARCHITECTURE.md`
-- **Issues:** راجع `docs/OPEN_ISSUES_LEDGER.md`
 
 ---
 

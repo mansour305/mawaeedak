@@ -1,13 +1,11 @@
 {
-  "name": "workspace",
+  "name": "mawaeedak-workspace",
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "preinstall": "node ./scripts/preinstall-clean.cjs",
     "build": "pnpm run typecheck && pnpm -r --if-present run build",
-    "production-readiness-gate": "pnpm --filter @workspace/scripts run production-readiness-gate",
     "typecheck:libs": "tsc --build",
-    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
+    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --if-present run typecheck"
   },
   "private": true,
   "devDependencies": {

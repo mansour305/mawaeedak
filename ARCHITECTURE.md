@@ -1,12 +1,14 @@
-# Architecture — مواعيدك
+# Architecture — مواعيدك (Web/PWA Only)
 
 ## نظرة عامة
 
-تطبيق Web أحادي الصفحة (SPA) مبني على pnpm monorepo، بثلاثة أجزاء رئيسية:
+تطبيق Web/PWA أحادي الصفحة (SPA) مبني على pnpm monorepo، بثلاثة أجزاء رئيسية:
 
 ```
-Frontend (React/Vite)  →  API Server (Express 5)  →  PostgreSQL (Drizzle ORM)
+Frontend (React/Vite)  →  API Server (Express 5)  →  PostgreSQL (Supabase)
 ```
+
+**ملاحظة**: تم إزالة جميع مكونات Mobile/Flutter/Expo. التطبيق الآن Web/PWA فقط.
 
 ---
 
@@ -16,15 +18,12 @@ Frontend (React/Vite)  →  API Server (Express 5)  →  PostgreSQL (Drizzle ORM
 artifacts/
   mawaeedak/          # SPA — React 18 + Vite + Tailwind v4
   api-server/         # API — Express 5 + TypeScript
-  mockup-sandbox/     # Design canvas — dev only, excluded from prod build
 
 lib/
   api-spec/           # OpenAPI 3.1 YAML — source of truth
   api-client-react/   # Generated: React Query hooks (Orval)
   api-zod/            # Generated: Zod v4 schemas (Orval)
   db/                 # Drizzle ORM schema + client
-
-scripts/              # Utility scripts
 ```
 
 ---
@@ -70,7 +69,7 @@ src/
 
 **Contract-first**: المسارات مُعرَّفة أولاً في `lib/api-spec/openapi.yaml` → codegen
 
-**Base path**: `/api` (proxied by shared reverse proxy)
+**Base path**: `/api`
 
 **المسارات الحالية** (17+ endpoint):
 ```

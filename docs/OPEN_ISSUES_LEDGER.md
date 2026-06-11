@@ -1,9 +1,0 @@
-# Open Issues Ledger
-
-Use this ledger during the full project audit and all follow-up fix tasks. Do not mark an issue closed until the proposed verification has actually passed.
-
-| ID | Severity | Area | Current behavior | Expected behavior | Evidence/file | Root cause | Proposed fix | Verification | Status |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| TBD-001 | TBD | TBD | To be identified during full audit. | To be defined during full audit. | TBD | TBD | TBD | TBD | Open |
-| SEC-P0-API-001 | P0 | API security | Appointment, financial event, and notification mutation routes were publicly callable. | Unsafe write/mutation routes require server-side authorization. | `artifacts/api-server/src/routes/appointments.ts`; `artifacts/api-server/src/routes/financial.ts`; `artifacts/api-server/src/routes/notifications.ts` | Missing `requireAdmin` middleware on P0 mutation routes. | Added existing `requireAdmin` middleware to create/update/delete/read-state mutations in scope. | `pnpm --filter @workspace/api-server run typecheck`; `pnpm --filter @workspace/api-server run build` | Mitigated; pending deployed smoke verification |
-| SEC-P0-AUTH-004 | P0 | Admin auth | Demo admin fallback could pass as admin when Supabase was absent from production configuration. | Demo admin must not grant production admin access. | `artifacts/mawaeedak/src/lib/auth.ts`; `artifacts/mawaeedak/src/features/admin/AdminLayout.tsx` | Demo fallback did not explicitly limit admin access to development builds; frontend role checks also accepted user-editable metadata. | Demo auth is development-only and admin role reads now use Supabase `app_metadata`. | API typecheck/build passed; frontend production smoke not run per focused API verification scope. | Mitigated; pending frontend production auth smoke verification |

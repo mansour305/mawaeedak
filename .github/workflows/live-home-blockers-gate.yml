@@ -269,12 +269,12 @@ jobs:
 
           echo "### Financial resolver references" >> "$GITHUB_STEP_SUMMARY"
           echo '```text' >> "$GITHUB_STEP_SUMMARY"
-          grep -R "financial.*resolver\|resolve.*financial\|official_announcement\|admin_verified_override\|rule_based\|fallback\|financial_events\|override" -n artifacts lib scripts --exclude-dir=node_modules --exclude-dir=dist || true
+          grep -R "financial.*resolver\|resolve.*financial\|official_announcement\|admin_verified_override\|rule_based\|fallback\|financial_events\|override" -n artifacts lib --exclude-dir=node_modules --exclude-dir=dist || true
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
           echo "### Saudi timezone references" >> "$GITHUB_STEP_SUMMARY"
           echo '```text' >> "$GITHUB_STEP_SUMMARY"
-          grep -R "Asia/Riyadh\|Riyadh\|midnight\|stale" -n artifacts lib scripts --exclude-dir=node_modules --exclude-dir=dist || true
+          grep -R "Asia/Riyadh\|Riyadh\|midnight\|stale" -n artifacts lib --exclude-dir=node_modules --exclude-dir=dist || true
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
       - name: Final live gate decision

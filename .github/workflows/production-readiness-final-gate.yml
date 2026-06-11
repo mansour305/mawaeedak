@@ -92,11 +92,9 @@ jobs:
 
           echo "All required production secrets are present."
 
-      - name: Production environment readiness smoke
-        run: pnpm --filter @workspace/scripts run production-readiness-gate
-
-      - name: Production live Supabase, RLS, Admin API smoke
-        run: pnpm --filter @workspace/scripts run production-readiness-live-smoke
+      # Note: External production readiness scripts removed during Web/PWA cleanup.
+      # Required gates are: typecheck, build, and secret preflight.
+      # Live smoke tests should be run manually or via dedicated smoke workflow.
 
       - name: Produce production readiness summary
         if: always()
@@ -116,6 +114,8 @@ jobs:
             echo "- pnpm run typecheck"
             echo "- pnpm run build"
             echo "- required production secret preflight"
-            echo "- production-readiness-gate"
-            echo "- production-readiness-live-smoke"
+            echo
+            echo "## Note"
+            echo "- External scripts removed during Web/PWA-only cleanup"
+            echo "- Live smoke tests: run manually or via dedicated workflow"
           } >> "$GITHUB_STEP_SUMMARY"

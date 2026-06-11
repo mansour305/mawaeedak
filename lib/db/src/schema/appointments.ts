@@ -17,8 +17,9 @@ export const appointmentsTable = pgTable("appointments", {
   /**
    * The unique identifier of the user who owns this appointment.
    * In Supabase this should be a UUID referencing `auth.users.id`.
+   * Set to null for global/public events.
    */
-  user_id: uuid("user_id").notNull(),
+  user_id: uuid("user_id"),
   title: text("title").notNull(),
   description: text("description"),
   /**

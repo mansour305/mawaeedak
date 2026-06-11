@@ -69,9 +69,9 @@ router.get("/financial-events/countdown", async (req, res) => {
 router.post("/financial-events", requireAdmin, async (req, res) => {
   const parsed = CreateFinancialEventBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error });
-  // Admin creates with system user_id as default
-  const dataWithUser = { ...parsed.data, user_id: "system", amount: parsed.data.amount != null ? String(parsed.data.amount) : undefined };
-  const [row] = await db.insert(financialEventsTable).values(dataWithUser).returning();
+  // Admin creates global financial events - user_id is optional (null for global events)
+  const dataWithAmount = { ...parsed.data, amount: parsed.data.amount != null ? String(parsed.data.amount) : undefined };
+  const [row] = await db.insert(financialEventsTable).values(dataWithAmount).returning();
   await logAudit("create", "financial_event", row.id, row.name, `إضافة حدث مالي: ${row.name}`);
   return res.status(201).json(row);
 });

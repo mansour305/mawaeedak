@@ -163,9 +163,6 @@ export async function authSignIn(
   usernameOrEmail: string,
   password: string
 ): Promise<{ success: boolean; error?: string }> {
-  // Debug log
-  console.log("[auth] authSignIn called:", { usernameOrEmail, isProduction, isSupabaseEnabled, isDemoAuthAllowed });
-  
   // Production requires Supabase
   if (isProduction && !isSupabaseEnabled) {
     return { success: false, error: "التطبيق يتطلب إعداد Supabase للاتصال" };
@@ -177,7 +174,6 @@ export async function authSignIn(
   
   // Demo mode only in development
   if (isDemoAuthAllowed) {
-    console.log("[auth] Trying demo auth...");
     return signInDemo(usernameOrEmail, password);
   }
   
