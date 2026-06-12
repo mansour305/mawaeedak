@@ -122,10 +122,15 @@ export function getCSRFToken(): string | null {
 export function verifyCSRFToken(token: string): boolean {
   const stored = getCSRFToken();
   if (!stored) return false;
-  return crypto.subtle.timingSafeEqual(
-    new TextEncoder().encode(token),
-    new TextEncoder().encode(stored)
-  ).catch(() => false);
+  // Use constant-time comparison manually to avoid type issues
+  const a = new TextEncoder().encode(token);
+  const b = new TextEncoder().encode(stored);
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a[i] ^ b[i];
+  }
+  return result === 0;
 }
 
 // ============================================================================

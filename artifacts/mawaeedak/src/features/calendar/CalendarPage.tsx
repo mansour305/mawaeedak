@@ -465,8 +465,11 @@ export default function CalendarPage() {
                         <SelectItem value="شخصي">شخصي</SelectItem>
                         <SelectItem value="عائلي">عائلي</SelectItem>
                         <SelectItem value="عمل">عمل</SelectItem>
+                        <SelectItem value="سفر">سفر</SelectItem>
                         <SelectItem value="صحة">صحة</SelectItem>
+                        <SelectItem value="وثائق">وثائق</SelectItem>
                         <SelectItem value="مال">مال</SelectItem>
+                        <SelectItem value="مخصص">مخصص</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -611,8 +614,11 @@ export default function CalendarPage() {
                       <SelectItem value="شخصي">شخصي</SelectItem>
                       <SelectItem value="عائلي">عائلي</SelectItem>
                       <SelectItem value="عمل">عمل</SelectItem>
+                      <SelectItem value="سفر">سفر</SelectItem>
                       <SelectItem value="صحة">صحة</SelectItem>
+                      <SelectItem value="وثائق">وثائق</SelectItem>
                       <SelectItem value="مال">مال</SelectItem>
+                      <SelectItem value="مخصص">مخصص</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

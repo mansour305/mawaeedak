@@ -16,7 +16,7 @@ import {
   getListSocialLogsQueryKey,
 } from "@api-client";
 import { useQueryClient } from "@tanstack/react-query";
-import { Twitter, Loader2, Send, Eye, Save, AlertTriangle, CheckCircle2, Clock } from "lucide-react";
+import { Loader2, Send, Eye, Save, AlertTriangle, CheckCircle2, Clock, X } from "lucide-react";
 import { format } from "date-fns";
 
 const REQUIRED_SECRETS = ["X_CLIENT_ID", "X_CLIENT_SECRET", "X_ACCESS_TOKEN", "X_ACCESS_TOKEN_SECRET"];

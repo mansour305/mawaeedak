@@ -30,6 +30,9 @@ const AccountPage = lazy(() => import("@/features/account/AccountPage"));
 const StoryPage = lazy(() => import("@/features/story/StoryPage"));
 const DailyCardPage = lazy(() => import("@/features/daily-card/DailyCardPage"));
 const NotificationsPage = lazy(() => import("@/features/notifications/NotificationsPage"));
+const GoalsPage = lazy(() => import("@/features/services/GoalsPage"));
+const CostsPage = lazy(() => import("@/features/services/CostsPage"));
+const RemindersPage = lazy(() => import("@/features/services/RemindersPage"));
 
 const CentersWorkPage = lazy(() => import("@/features/centers/CentersWorkPage"));
 const CentersTravelPage = lazy(() => import("@/features/centers/CentersTravelPage"));
@@ -116,6 +119,9 @@ function MainApp() {
       <Route path="/centers/greetings" component={CentersGreetingsPage} />
       <Route path="/centers/complaints" component={CentersComplaintsPage} />
       <Route path="/centers/story" component={StoryPage} />
+      <Route path="/services/goals" component={GoalsPage} />
+      <Route path="/services/costs" component={CostsPage} />
+      <Route path="/services/reminders" component={RemindersPage} />
 
       <Route path="/privacy" component={PrivacyPage} />
       <Route path="/terms" component={TermsPage} />

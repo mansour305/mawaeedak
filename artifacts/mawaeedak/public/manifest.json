@@ -1,14 +1,25 @@
 {
   "name": "مواعيدك",
   "short_name": "مواعيدك",
-  "description": "منصة مواعيدك - كل موعد له وقته",
+  "description": "منصة مواعيدك - كل موعد له وقته - تطبيق ويب عربي لإدارة المواعيد والصلاة",
   "lang": "ar",
   "dir": "rtl",
   "start_url": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
   "background_color": "#f5f0e8",
   "theme_color": "#9c6a1a",
   "scope": "/",
+  "categories": ["productivity", "lifestyle"],
+  "prefer_related_applications": false,
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "handle_links": "preferred",
   "icons": [
     {
       "src": "/icons/icon-192.svg",
@@ -27,6 +38,31 @@
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
+    }
+  ],
+  "screenshots": [],
+  "related_applications": [],
+  "shortcuts": [
+    {
+      "name": "الرئيسية",
+      "short_name": "الرئيسية",
+      "description": "الصفحة الرئيسية",
+      "url": "/",
+      "icons": [{"src": "/icons/icon-192.svg", "sizes": "192x192"}]
+    },
+    {
+      "name": "المواعيد",
+      "short_name": "المواعيد",
+      "description": "التقويم والمواعيد",
+      "url": "/calendar",
+      "icons": [{"src": "/icons/icon-192.svg", "sizes": "192x192"}]
+    },
+    {
+      "name": "الرواتب",
+      "short_name": "الرواتب",
+      "description": "المواعيد المالية",
+      "url": "/salaries",
+      "icons": [{"src": "/icons/icon-192.svg", "sizes": "192x192"}]
     }
   ]
 }

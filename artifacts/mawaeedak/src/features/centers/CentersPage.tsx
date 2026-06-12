@@ -1,40 +1,61 @@
 import { Link } from "wouter";
 import { AppShell } from "@/components/layout/AppShell";
 import {
-  Calculator, Bell, BookOpen, Briefcase, CalendarDays,
-  Gift, Headphones, MessageSquare, Newspaper, Plane, Target
+  Calculator, Bell, Briefcase, Gift, GraduationCap, MessageSquare, Plane, Target,
 } from "lucide-react";
 
-const services = [
-  { title: "نظم مواعيدك", subtitle: "أضف وأدر مواعيدك بسهولة", icon: CalendarDays, path: "/calendar" },
-  { title: "احسب هدفك", subtitle: "حدد هدفك وخطة التوفير", icon: Target, path: "/centers/work" },
-  { title: "تكاليف هدفك", subtitle: "قائمة البنود والمصروفات", icon: Calculator, path: "/centers/work" },
-  { title: "صوتك مسموع", subtitle: "شكاوى واقتراحات", icon: MessageSquare, path: "/centers/complaints" },
-  { title: "الوظائف", subtitle: "فرص وظيفية جديدة", icon: Briefcase, path: "/centers/jobs" },
-  { title: "ذكرني", subtitle: "تذكيرات ومواعيد", icon: Bell, path: "/centers/work" },
-  { title: "الأذكار", subtitle: "أذكار الصباح والمساء", icon: BookOpen, path: "/centers/work" },
-  { title: "بطاقة يومية", subtitle: "شارك يومك مع الآخرين", icon: Gift, path: "/daily-card" },
-  { title: "رحلاتي القادمة", subtitle: "استعرض رحلاتك القادمة", icon: Plane, path: "/centers/travel" },
-  { title: "قدم تهنئة", subtitle: "أرسل تهانيك بسهولة", icon: Gift, path: "/centers/greetings" },
-  { title: "اتصل بنا", subtitle: "تواصل معنا", icon: Headphones, path: "/support" },
-  { title: "الأخبار", subtitle: "آخر الأخبار والتحديثات", icon: Newspaper, path: "/centers/news" },
+// Services in required order - only 8 visible services
+const visibleServices = [
+  { title: "احسب هدفك", subtitle: "حدد هدفك وخطة التوفير", icon: Target, path: "/services/goals", status: "ready" },
+  { title: "حساب التكاليف", subtitle: "قائمة البنود والمصروفات", icon: Calculator, path: "/services/costs", status: "ready" },
+  { title: "ذكرني", subtitle: "تذكيرات ومواعيد", icon: Bell, path: "/services/reminders", status: "ready" },
+  { title: "السفر", subtitle: "رحلاتي القادمة", icon: Plane, path: "/centers/travel", status: "ready" },
+  { title: "الدراسة والإجازات", subtitle: "جدولي الدراسي والإجازات", icon: GraduationCap, path: "/centers/study", status: "ready" },
+  { title: "الوظائف والأخبار", subtitle: "فرص وظيفية ومستجدات", icon: Briefcase, path: "/centers/jobs", status: "ready" },
+  { title: "بطاقة اليوم", subtitle: "شارك يومك مع الآخرين", icon: Gift, path: "/daily-card", status: "ready" },
+  { title: "صوتك مسموع", subtitle: "شكاوى واقتراحات", icon: MessageSquare, path: "/centers/complaints", status: "ready" },
 ];
+
+// Additional services (hidden from main grid - accessible via direct navigation only)
+// These are commented out from the main services grid per spec requirements
+// - نظم مواعيدك → /calendar
+// - الأذكار → /centers/work (coming_soon)
+// - قدم تهنئة → /centers/greetings (coming_soon)
+// - اتصل بنا → /support
+
+// Coming Soon badge
+function ComingSoonBadge() {
+  return (
+    <span 
+      className="absolute -top-1 -left-1 text-[8px] font-bold px-1.5 py-0.5 rounded-full"
+      style={{ 
+        background: "linear-gradient(135deg, hsl(38 72% 52%), hsl(28 68% 38%))",
+        color: "white",
+      }}
+    >
+      قريباً
+    </span>
+  );
+}
 
 export default function CentersPage() {
   return (
     <AppShell title="خدمات مواعيدك">
       <div className="grid grid-cols-2 gap-4">
-        {services.map((service) => {
+        {visibleServices.map((service) => {
           const Icon = service.icon;
+          const isReady = service.status === "ready";
+          
           return (
-            <Link key={service.title} href={service.path}>
+            <Link key={service.title} href={isReady ? service.path : "#"}>
               <article
-                className="flex min-h-[174px] flex-col items-center justify-center rounded-[24px] border bg-white/82 p-5 text-center transition active:scale-[0.98]"
+                className={`relative flex min-h-[174px] flex-col items-center justify-center rounded-[24px] border bg-white/82 p-5 text-center transition ${isReady ? "active:scale-[0.98] cursor-pointer" : "opacity-60 cursor-not-allowed"}`}
                 style={{
                   borderColor: "rgba(201,160,99,0.22)",
                   boxShadow: "0 14px 34px rgba(138,107,61,0.10)",
                 }}
               >
+                {!isReady && <ComingSoonBadge />}
                 <div className="grid h-16 w-16 place-items-center rounded-[20px]" style={{ color: "#C9A063" }}>
                   <Icon className="h-12 w-12" strokeWidth={1.5} />
                 </div>

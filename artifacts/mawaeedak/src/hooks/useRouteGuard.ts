@@ -45,8 +45,7 @@ export function getRouteProtectionLevel(pathname: string): RouteProtectionLevel 
  */
 export function canAccessRoute(
   pathname: string,
-  user: ReturnType<typeof useStore>["user"],
-  session: ReturnType<typeof useStore>["session"]
+  user: ReturnType<typeof useStore>["user"]
 ): boolean {
   const protectionLevel = getRouteProtectionLevel(pathname);
 
@@ -61,7 +60,7 @@ export function canAccessRoute(
     case "admin":
     case "owner":
       // Require admin role
-      const role = user?.role || session?.user?.role;
+      const role = user?.role;
       return ["admin", "super_admin", "owner"].includes(role as string);
 
     default:
@@ -94,12 +93,12 @@ export function getRedirectPath(pathname: string, isAuthenticated: boolean): str
  * Route Guard Component
  */
 export function useRouteGuard(pathname: string) {
-  const { user, session } = useStore();
+  const { user } = useStore();
   const isAuthenticated = Boolean(user?.email);
   const isAdmin = ["admin", "super_admin", "owner"].includes(user?.role || "");
 
   const protectionLevel = getRouteProtectionLevel(pathname);
-  const canAccess = canAccessRoute(pathname, user, session);
+  const canAccess = canAccessRoute(pathname, user);
   const redirectTo = getRedirectPath(pathname, isAuthenticated);
 
   return {
@@ -115,8 +114,8 @@ export function useRouteGuard(pathname: string) {
  * Admin Route Guard - للتحقق من صلاحية المالك
  */
 export function useAdminGuard() {
-  const { user, session } = useStore();
-  const role = user?.role || session?.user?.role;
+  const { user } = useStore();
+  const role = user?.role;
 
   const isAdmin =
     user?.email &&

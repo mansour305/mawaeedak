@@ -1,15 +1,14 @@
-import { CalendarDays, Clock3, Home, Landmark, Moon, Sun, Sunrise, Users, Wallet } from "lucide-react";
+import { CalendarDays, Clock3, Landmark, Moon, Sun, Sunrise, Users, Wallet } from "lucide-react";
 import { Link } from "wouter";
 import desertHeroImg from "@assets/desert-hero.png";
 import { AppShell } from "@/components/layout/AppShell";
-import { useGetPrayerTimes } from "@api-client";
+import { usePrayerEngine, PRAYER_STATUS_MESSAGES } from "@/hooks/usePrayerEngine";
 import { useGatewayDailyMessages, useGatewayFinancialCountdown } from "@/hooks/useGatewayData";
 import { useStore } from "@/hooks/useStore";
 import { formatGregorianDate, formatHijriDate, getDayName } from "@/lib/utils";
-import { useOfficialPrayerTimes, useOfficialFinancialDates } from "@/hooks/useOfficialData";
-import { useMemo, useState, useEffect } from "react";
+import { useOfficialFinancialDates } from "@/hooks/useOfficialData";
+import { useMemo } from "react";
 import { useTimeFormat } from "@/hooks/useTimeFormat";
-import { createDateForToday, formatCountdown } from "@/lib/timeFormat";
 
 const GOLD = "#C9A063";
 const BROWN = "#8A6B3D";
@@ -29,23 +28,31 @@ function PrayerIcon({ keyName }: { keyName: string }) {
 }
 
 /**
- * HomePage shows today's prayer times, a greeting hero section, today's admin
- * message, and a list of upcoming financial events. The daily message is now
- * read from the same Data Gateway used by /admin/messages so owner edits have
- * a visible user-facing effect instead of leaving a hardcoded placeholder.
+ * HomePage — uses usePrayerEngine for prayer times
+ * 
+ * Prayer times flow:
+ * 1. Official prayer times from Supabase (preferred)
+ * 2. AlAdhan API fallback with method=4 for Saudi Arabia
+ * 3. 6-hour cache
+ * 4. Loading/error/empty/ready states
  */
 export default function HomePage() {
   const { user } = useStore();
   const { formatTime } = useTimeFormat();
-  // Determine city: if user.city is not set or contains placeholder, default to Riyadh
-  const cityName = user.city && !user.city.includes("ط") ? user.city : "الرياض";
-  const { data: fallbackPrayerData } = useGetPrayerTimes({ city: cityName });
-  // Determine city key for official data. Use Arabic city name simplified by replacing spaces
-  const cityKey = cityName.trim().toLowerCase().replace(/\s+/g, "_");
+  
+  // Use prayer engine hook - handles official, AlAdhan, cache, location
+  const { 
+    status: prayerStatus, 
+    error: prayerError,
+    timings, 
+    cityName, 
+    nextPrayer, 
+    countdown 
+  } = usePrayerEngine();
+  
   const todayIso = new Date().toISOString().split("T")[0];
-  // Fetch official prayer times
-  const { data: officialPrayer } = useOfficialPrayerTimes(cityKey, todayIso);
-  // Fetch admin-managed daily messages and financial events
+  
+  // Fetch daily messages and financial events
   const { data: dailyMessages } = useGatewayDailyMessages();
   const { data: officialFinancial } = useOfficialFinancialDates();
   const { data: gatewayFinancial, isLoading: isFinancialLoading } = useGatewayFinancialCountdown();
@@ -63,34 +70,18 @@ export default function HomePage() {
     return selectedMessage?.message?.trim() || DEFAULT_DAILY_MESSAGE;
   }, [dailyMessages, todayIso]);
 
-  // Map prayer times: prefer official if available
+  // Map prayer timings to display array
   const prayers = useMemo(() => {
-    const times: Record<string, string> = {};
-    if (officialPrayer) {
-      times.fajr = officialPrayer.fajr_time;
-      times.sunrise = officialPrayer.sunrise_time;
-      times.dhuhr = officialPrayer.dhuhr_time;
-      times.asr = officialPrayer.asr_time;
-      times.maghrib = officialPrayer.maghrib_time;
-      times.isha = officialPrayer.isha_time;
-    } else {
-      // fallback values from gateway
-      times.fajr = fallbackPrayerData?.fajr ?? "04:03";
-      times.sunrise = fallbackPrayerData?.sunrise ?? "05:29";
-      times.dhuhr = fallbackPrayerData?.dhuhr ?? "12:18";
-      times.asr = fallbackPrayerData?.asr ?? "15:48";
-      times.maghrib = fallbackPrayerData?.maghrib ?? "18:49";
-      times.isha = fallbackPrayerData?.isha ?? "20:19";
-    }
+    if (!timings) return null;
     return [
-      { key: "fajr", label: "الفجر", time: times.fajr },
-      { key: "sunrise", label: "الشروق", time: times.sunrise },
-      { key: "dhuhr", label: "الظهر", time: times.dhuhr },
-      { key: "asr", label: "العصر", time: times.asr },
-      { key: "maghrib", label: "المغرب", time: times.maghrib },
-      { key: "isha", label: "العشاء", time: times.isha },
+      { key: "fajr", label: "الفجر", time: timings.fajr },
+      { key: "sunrise", label: "الشروق", time: timings.sunrise },
+      { key: "dhuhr", label: "الظهر", time: timings.dhuhr },
+      { key: "asr", label: "العصر", time: timings.asr },
+      { key: "maghrib", label: "المغرب", time: timings.maghrib },
+      { key: "isha", label: "العشاء", time: timings.isha },
     ];
-  }, [officialPrayer, fallbackPrayerData]);
+  }, [timings]);
 
   // Compute financial items: prefer official records
   const finance = useMemo(() => {
@@ -116,50 +107,6 @@ export default function HomePage() {
     }
     return Array.isArray(gatewayFinancial) ? gatewayFinancial.slice(0, 4) : [];
   }, [officialFinancial, gatewayFinancial]);
-
-  // State to keep track of the next prayer and the countdown to it.  We update
-  // these values every second in a side effect below.  The next prayer is
-  // determined by scanning today's prayer times for the first one that is
-  // still upcoming; if all prayers today have passed, the next prayer is
-  // tomorrow's fajr.
-  const [nextPrayer, setNextPrayer] = useState<{
-    key: string;
-    label: string;
-    time: string;
-  } | null>(null);
-  const [countdown, setCountdown] = useState<string>("");
-
-  useEffect(() => {
-    function computeNext() {
-      const now = new Date();
-      const upcoming = prayers
-        .map((p) => {
-          const date = createDateForToday(p.time, now);
-          return date ? { prayer: p, date } : null;
-        })
-        .filter(Boolean) as Array<{ prayer: { key: string; label: string; time: string }; date: Date }>;
-
-      let next = upcoming.find((item) => item.date.getTime() > now.getTime());
-      if (!next) {
-        const fajr = prayers.find((p) => p.key === "fajr") ?? prayers[0];
-        const fajrDate = createDateForToday(fajr?.time, now);
-        if (!fajr || !fajrDate) {
-          setNextPrayer(null);
-          setCountdown("--:--:--");
-          return;
-        }
-        fajrDate.setDate(fajrDate.getDate() + 1);
-        next = { prayer: fajr, date: fajrDate };
-      }
-
-      setNextPrayer(next.prayer);
-      setCountdown(formatCountdown(next.date.getTime() - now.getTime()));
-    }
-    // Compute immediately and then every second.
-    computeNext();
-    const id = setInterval(computeNext, 1000);
-    return () => clearInterval(id);
-  }, [prayers]);
 
   // Get user's display name or empty if not logged in - no hardcoded names
   const displayName = (user?.name && user.name.length > 0) ? user.name.split(" ")[0] : null;
@@ -203,38 +150,68 @@ export default function HomePage() {
             <h3 className="text-[22px] font-extrabold" style={{ color: BROWN }}>مواقيت الصلاة</h3>
             <Landmark className="h-6 w-6" style={{ color: GOLD }} />
           </div>
-          <div className="grid grid-cols-6 overflow-hidden rounded-[18px] border" style={{ borderColor: "rgba(201,160,99,0.18)" }}>
-            {prayers.map((prayer) => {
-              // Highlight the next upcoming prayer cell.
-              const active = nextPrayer && prayer.key === nextPrayer.key;
-              return (
-                <div
-                  key={prayer.key}
-                  className="flex min-h-[92px] flex-col items-center justify-center gap-2 border-l px-1 text-center last:border-l-0"
-                  style={{
-                    borderColor: "rgba(201,160,99,0.16)",
-                    background: active ? "#F3E8D6" : "rgba(255,255,255,0.62)",
-                    color: active ? BROWN : INK,
-                  }}
-                >
-                  <span style={{ color: GOLD }}><PrayerIcon keyName={prayer.key} /></span>
-                  <span className="text-[13px] font-extrabold">{prayer.label}</span>
-                  <span className="text-[14px] font-bold" dir="ltr">{formatTime(prayer.time)}</span>
-                </div>
-              );
-            })}
-          </div>
-          <div className="mt-3 flex items-center gap-3 rounded-[20px] border bg-[#FAF7F2] px-4 py-3" style={{ borderColor: "rgba(201,160,99,0.18)" }}>
-            <Landmark className="h-10 w-10 shrink-0" style={{ color: GOLD }} />
-            <p className="flex-1 text-center text-[18px] font-bold leading-8" style={{ color: BROWN }}>
-              الصلاة نور وراحة للقلب، فحافظ عليها في وقتها
-            </p>
-          </div>
-          <div className="mx-auto mt-3 flex w-fit items-center gap-2 rounded-full border bg-white px-4 py-2 text-sm font-bold" style={{ borderColor: "rgba(201,160,99,0.20)", color: INK }}>
-            <Clock3 className="h-4 w-4" style={{ color: GOLD }} />
-            {/* Display upcoming prayer label and live countdown; falls back to placeholders if unavailable. */}
-            الصلاة القادمة: {nextPrayer?.label ?? "—"} • متبقي {countdown || "--:--:--"}
-          </div>
+          
+          {/* Prayer states: loading, error, empty, ready */}
+          {prayerStatus === "loading" && (
+            <div className="rounded-[18px] border bg-[#FFFCF7] p-5 text-center" style={{ borderColor: "rgba(201,160,99,0.18)" }}>
+              <Landmark className="mx-auto h-8 w-8 animate-pulse" style={{ color: GOLD }} />
+              <p className="mt-3 text-sm font-semibold" style={{ color: BROWN }}>
+                {PRAYER_STATUS_MESSAGES.loading}
+              </p>
+            </div>
+          )}
+          
+          {prayerStatus === "error" && (
+            <div className="rounded-[18px] border bg-[#FFFCF7] p-5 text-center" style={{ borderColor: "rgba(201,160,99,0.18)" }}>
+              <p className="text-sm font-semibold" style={{ color: BROWN }}>
+                {prayerError || PRAYER_STATUS_MESSAGES.error}
+              </p>
+            </div>
+          )}
+          
+          {prayerStatus === "empty" && (
+            <div className="rounded-[18px] border bg-[#FFFCF7] p-5 text-center" style={{ borderColor: "rgba(201,160,99,0.18)" }}>
+              <Landmark className="mx-auto h-8 w-8" style={{ color: GOLD }} />
+              <p className="mt-3 text-sm font-semibold" style={{ color: BROWN }}>
+                {prayerError || PRAYER_STATUS_MESSAGES.empty}
+              </p>
+            </div>
+          )}
+          
+          {prayerStatus === "ready" && prayers && (
+            <>
+              <div className="grid grid-cols-6 overflow-hidden rounded-[18px] border" style={{ borderColor: "rgba(201,160,99,0.18)" }}>
+                {prayers.map((prayer) => {
+                  const active = nextPrayer && prayer.key === nextPrayer.key;
+                  return (
+                    <div
+                      key={prayer.key}
+                      className="flex min-h-[92px] flex-col items-center justify-center gap-2 border-l px-1 text-center last:border-l-0"
+                      style={{
+                        borderColor: "rgba(201,160,99,0.16)",
+                        background: active ? "#F3E8D6" : "rgba(255,255,255,0.62)",
+                        color: active ? BROWN : INK,
+                      }}
+                    >
+                      <span style={{ color: GOLD }}><PrayerIcon keyName={prayer.key} /></span>
+                      <span className="text-[13px] font-extrabold">{prayer.label}</span>
+                      <span className="text-[14px] font-bold" dir="ltr">{formatTime(prayer.time)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-3 flex items-center gap-3 rounded-[20px] border bg-[#FAF7F2] px-4 py-3" style={{ borderColor: "rgba(201,160,99,0.18)" }}>
+                <Landmark className="h-10 w-10 shrink-0" style={{ color: GOLD }} />
+                <p className="flex-1 text-center text-[18px] font-bold leading-8" style={{ color: BROWN }}>
+                  الصلاة نور وراحة للقلب، فحافظ عليها في وقتها
+                </p>
+              </div>
+              <div className="mx-auto mt-3 flex w-fit items-center gap-2 rounded-full border bg-white px-4 py-2 text-sm font-bold" style={{ borderColor: "rgba(201,160,99,0.20)", color: INK }}>
+                <Clock3 className="h-4 w-4" style={{ color: GOLD }} />
+                الصلاة القادمة: {nextPrayer?.label ?? "—"} • متبقي {countdown || "--:--:--"}
+              </div>
+            </>
+          )}
         </section>
 
         <section className="rounded-[26px] border bg-white/72 p-4" style={{ borderColor: "rgba(201,160,99,0.24)", boxShadow: "0 12px 30px rgba(138,107,61,0.10)" }}>
@@ -263,17 +240,16 @@ export default function HomePage() {
               {finance.map((item: any) => {
                 const itemName = String(item.name);
                 const isHousing = itemName.includes("سكن");
-                const Icon = item.type === "salary" ? Wallet : isHousing ? Home : Users;
+                const Icon = item.type === "salary" ? Wallet : isHousing ? Users : CalendarDays;
+                const bgColor = item.type === "salary" ? "rgba(201,160,99,0.10)" : isHousing ? "rgba(138,107,61,0.10)" : "rgba(201,160,99,0.08)";
                 return (
-                  <Link key={item.id} href="/salaries">
-                    <article className="min-h-[148px] rounded-[22px] border bg-[#FFFCF7] p-4 text-center" style={{ borderColor: "rgba(201,160,99,0.24)" }}>
-                      <Icon className="mx-auto h-6 w-6" style={{ color: GOLD }} />
-                      <h4 className="mt-2 text-[15px] font-extrabold" style={{ color: INK }}>{itemName}</h4>
-                      <p className="mt-1 text-xs font-semibold" style={{ color: "#6F6557" }}>{item.next_date}</p>
-                      <p className="mt-2 text-[38px] font-extrabold leading-none" style={{ color: BROWN }}>{item.days_remaining}</p>
-                      <p className="mt-1 text-sm font-bold" style={{ color: "#6F6557" }}>يوماً متبقياً</p>
-                    </article>
-                  </Link>
+                  <div key={item.id} className="flex items-center gap-3 rounded-[20px] border p-4" style={{ borderColor: "rgba(201,160,99,0.18)", background: bgColor }}>
+                    <Icon className="h-7 w-7 shrink-0" style={{ color: GOLD }} />
+                    <div className="min-w-0 flex-1 text-right">
+                      <p className="truncate text-[15px] font-extrabold leading-tight" style={{ color: INK }}>{item.name}</p>
+                      <p className="mt-1 text-[13px] font-bold" style={{ color: BROWN }}>{item.days_remaining} يوم</p>
+                    </div>
+                  </div>
                 );
               })}
             </div>

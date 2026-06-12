@@ -11,7 +11,10 @@
     "moduleResolution": "bundler",
     "types": ["node", "vite/client"],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@assets/*": ["./src/assets/*"],
+      "@api-client": ["./src/lib/api-client/index.ts"],
+      "@api-client/*": ["./src/lib/api-client/*"]
     }
   },
   "references": [

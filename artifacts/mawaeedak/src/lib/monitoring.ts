@@ -191,7 +191,7 @@ class PerformanceMonitor {
   /**
    * تسجيل مقياس
    */
-  record(name: string, value: number, unit: string = ""): void {
+  record(name: string, value: number, unit: string = "", isError?: boolean): void {
     this.metrics.push({
       name,
       value,
@@ -203,7 +203,7 @@ class PerformanceMonitor {
       this.metrics.shift();
     }
     
-    logger.debug(`[Performance] ${name}: ${value}${unit}`);
+    logger.debug(`[Performance] ${name}: ${value}${unit}${isError ? ' [ERROR]' : ''}`);
   }
   
   /**
@@ -223,7 +223,8 @@ class PerformanceMonitor {
   measureFID(): void {
     new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
-        this.record("FID", entry.processingStart - entry.startTime, "ms");
+        const typedEntry = entry as PerformanceEventTiming;
+        this.record("FID", typedEntry.processingStart - typedEntry.startTime, "ms");
       }
     }).observe({ entryTypes: ["first-input"] });
   }
@@ -234,8 +235,9 @@ class PerformanceMonitor {
   measureCLS(): void {
     new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
-        if ("hadRecentInput" in entry && !entry.hadRecentInput) {
-          this.record("CLS", entry.value, "");
+        const typedEntry = entry as PerformanceEntry & { hadRecentInput?: boolean; value: number };
+        if ("hadRecentInput" in typedEntry && !typedEntry.hadRecentInput) {
+          this.record("CLS", typedEntry.value, "");
         }
       }
     }).observe({ entryTypes: ["layout-shift"] });
@@ -314,8 +316,8 @@ class ErrorTracker {
   /**
    * تسجيل خطأ React
    */
-  trackReactError(error: Error, info: { componentStack?: string }): void {
-    this.track(error, { componentStack: info.componentStack });
+  trackReactError(error: Error, info: { componentStack?: string | null }): void {
+    this.track(error, { componentStack: info.componentStack ?? undefined });
   }
   
   /**
@@ -412,7 +414,7 @@ class APIMonitor {
     
     window.fetch = async (input, init) => {
       const start = performance.now();
-      const url = typeof input === "string" ? input : input.url;
+      const url = typeof input === "string" ? input : (input instanceof URL ? input.toString() : (input as Request).url);
       const method = init?.method || "GET";
       
       try {
@@ -478,6 +480,8 @@ type SecurityEventType =
   | "LOGIN_FAILED"
   | "LOGOUT"
   | "SESSION_EXPIRED"
+  | "SESSION_RENEWED"
+  | "SESSION_REVOKED"
   | "PERMISSION_DENIED"
   | "RATE_LIMITED"
   | "INVALID_TOKEN"
