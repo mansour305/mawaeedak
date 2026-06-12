@@ -1,3 +1,16 @@
+/**
+ * TopBar — Saudi Premium Minimal Header with Drawer
+ * Reference: docs/design-reference/final-2026/07-menu-drawer.jpeg
+ * 
+ * Features:
+ * - Right-side drawer with premium styling
+ * - Logo header
+ * - Welcome card with date chip
+ * - Menu rows: الرئيسية, بطاقة يومية, شارك التطبيق, etc.
+ * - Decorative lower motif
+ * - Close button
+ */
+
 import { ArrowRight, Bell, FileText, Headphones, Home, LogIn, LogOut, Mail, Menu, Share2, ShieldCheck, Sparkles, X } from "lucide-react";
 import type { ElementType } from "react";
 import { Link, useLocation } from "wouter";

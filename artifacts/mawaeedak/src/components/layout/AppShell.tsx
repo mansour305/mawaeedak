@@ -1,3 +1,16 @@
+/**
+ * AppShell — Saudi Premium Minimal App Layout
+ * Reference: docs/design-reference/final-2026/
+ * 
+ * Features:
+ * - RTL layout
+ * - Max width 480px (mobile-first)
+ * - Ivory/sand background with gold accents
+ * - Premium typography with Noto Sans Arabic
+ * - TopBar header with notification bell
+ * - Bottom navigation bar
+ */
+
 import React from "react";
 import { TopBar } from "./TopBar";
 import { BottomNav } from "./BottomNav";

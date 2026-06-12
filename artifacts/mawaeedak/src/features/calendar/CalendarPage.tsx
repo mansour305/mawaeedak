@@ -1,12 +1,18 @@
 /**
- * CalendarPage — Phase 13L
- *
- * Visual rebuild: Monthly grid calendar matching reference design.
- * - Month navigation
- * - 7-column day grid with today gold-highlighted
- * - Dots on days with appointments
- * - Selected day filter for list below
- * - All CRUD functionality preserved unchanged
+ * CalendarPage — Saudi Premium Minimal Calendar
+ * Reference: docs/design-reference/final-2026/04-calendar.jpeg
+ * 
+ * Features:
+ * - Title: التقويم والمواعيد
+ * - Subtitle: نظم يومك وابق على مواعيدك
+ * - Hijri/Gregorian segmented toggle
+ * - Premium monthly calendar card with 7-column grid
+ * - Selected day highlight with gold circle
+ * - Event dots on days with appointments
+ * - Appointment list cards with premium styling
+ * - Add/Edit/Delete appointment functionality
+ * - Modal for add/edit with safe date/time inputs
+ * - localStorage persistence
  */
 
 import { useState, useMemo } from "react";
@@ -25,7 +31,7 @@ import {
   getListUpcomingAppointmentsQueryKey,
 } from "@api-client";
 import { useQueryClient } from "@tanstack/react-query";
-import { Plus, Loader2, Calendar as CalIcon, Clock, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Loader2, Calendar as CalIcon, Clock, Trash2, ChevronLeft, ChevronRight, CheckCircle } from "lucide-react";
 import { useGatewayAppointments, gwQueryKeys } from "@/hooks/useGatewayData";
 import {
   useOfficialAppointments,

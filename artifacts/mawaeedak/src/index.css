@@ -1,3 +1,20 @@
+/*
+ * index.css — Saudi Premium Minimal Design System
+ * 
+ * Color Palette:
+ * - Background: #FAF7F2 (Warm ivory)
+ * - Surface: #FFFCF7
+ * - Card: #FFFFFF / #FFFDF8
+ * - Primary Text: #2F2B25
+ * - Secondary Text: #6F6557
+ * - Muted Text: #8A8175
+ * - Gold: #A78042 / #C9A063
+ * - Brown: #4A2413 / #8A6B3D
+ * - Border: rgba(201,160,99,0.22)
+ * 
+ * Typography: Noto Sans Arabic primary, IBM Plex Sans Arabic fallback
+ */
+
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Noto+Kufi+Arabic:wght@400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";

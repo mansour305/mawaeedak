@@ -1,3 +1,16 @@
+/**
+ * MorePage — Saudi Premium Minimal More/Settings
+ * Reference: docs/design-reference/final-2026/05-more-page.jpeg
+ * 
+ * Features:
+ * - Title: المزيد
+ * - Premium greeting card with desert hero
+ * - User/guest identity display
+ * - Menu rows: الملف الشخصي, الإعدادات, مشاركة التطبيق, etc.
+ * - Blessing card: بارك الله في وقتك
+ * - Logout navigates to / as guest with toast
+ */
+
 import { useState } from "react";
 import type { ElementType } from "react";
 import { useLocation } from "wouter";

@@ -1,3 +1,16 @@
+/**
+ * CentersPage — Saudi Premium Minimal Services
+ * Reference: docs/design-reference/final-2026/09-services.jpeg
+ * 
+ * Features:
+ * - Title: الخدمات
+ * - Subtitle: خدمات منظمة تساعدك في يومك
+ * - Section title: الخدمات المتاحة
+ * - 8 premium service cards with icons
+ * - Bottom blessing card with Salawat
+ * - No user-facing technical text
+ */
+
 import { Link } from "wouter";
 import { AppShell } from "@/components/layout/AppShell";
 import {
@@ -38,6 +51,15 @@ export default function CentersPage() {
         <p className="text-center text-[16px] font-semibold" style={{ color: "#6F6557" }}>
           خدمات منظمة تساعدك في يومك
         </p>
+
+        {/* Section title */}
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, transparent, rgba(201,160,99,0.4))" }} />
+          <h2 className="text-[18px] font-bold" style={{ color: "#A78042" }}>
+            الخدمات المتاحة
+          </h2>
+          <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, rgba(201,160,99,0.4), transparent)" }} />
+        </div>
 
         <div className="grid grid-cols-2 gap-4">
           {visibleServices.map((service) => {
