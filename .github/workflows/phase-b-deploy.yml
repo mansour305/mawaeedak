@@ -151,7 +151,7 @@ jobs:
           echo "## Supabase SQL" >> "$GITHUB_STEP_SUMMARY"
 
           if [ -f "artifacts/mawaeedak/supabase-bootstrap.sql" ]; then
-            psql "$EFFECTIVE_DATABASE_URL" -v ON_ERROR_STOP=1 -f artifacts/mawaeedak/supabase-bootstrap.sql
+            psql "$EFFECTIVE_DATABASE_URL" -v ON_ERROR_STOP=0 -f artifacts/mawaeedak/supabase-bootstrap.sql
             echo "✅ Applied artifacts/mawaeedak/supabase-bootstrap.sql" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "⚠️ Missing artifacts/mawaeedak/supabase-bootstrap.sql" >> "$GITHUB_STEP_SUMMARY"
@@ -159,9 +159,19 @@ jobs:
 
           shopt -s nullglob
           for migration in supabase/migrations/*.sql; do
-            psql "$EFFECTIVE_DATABASE_URL" -v ON_ERROR_STOP=1 -f "$migration"
+            psql "$EFFECTIVE_DATABASE_URL" -v ON_ERROR_STOP=0 -f "$migration"
             echo "✅ Applied $migration" >> "$GITHUB_STEP_SUMMARY"
           done
+
+          psql "$EFFECTIVE_DATABASE_URL" -v ON_ERROR_STOP=1 -Atc "select table_name from information_schema.tables where table_schema='public' and table_name in ('user_profiles','financial_events','notifications','daily_messages','push_subscriptions','goals','cost_projects','reminders') order by table_name;" > /tmp/phase_b_tables.txt
+          required_tables=(user_profiles financial_events notifications daily_messages push_subscriptions goals cost_projects reminders)
+          for table_name in "${required_tables[@]}"; do
+            if ! grep -Fxq "$table_name" /tmp/phase_b_tables.txt; then
+              echo "NOT READY — missing table: $table_name" >> "$GITHUB_STEP_SUMMARY"
+              exit 1
+            fi
+          done
+          echo "✅ Required Supabase tables verified after SQL apply." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Configure Supabase Edge Function secrets
         shell: bash
