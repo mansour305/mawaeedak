@@ -1,10 +1,10 @@
 # Mawaeedak Design Guidelines
 
-This guide summarizes the key visual principles extracted from the approved mockups for the Mawaeedak platform. Adhering to these guidelines will ensure a consistent and polished user experience across all pages.
+## VISUAL SOURCE OF TRUTH
 
-## Current Visual Source of Truth
+**IMPORTANT**: All UI implementation must follow the design references in `docs/design-reference/final-2026/`.
 
-**All UI implementation must follow the design references in `docs/design-reference/final-2026/`.**
+These guidelines summarize the key visual principles extracted from those approved mockups for the Mawaeedak platform.
 
 ## Design Language: Saudi Premium Minimal
 
@@ -19,8 +19,6 @@ This guide summarizes the key visual principles extracted from the approved mock
 - Balanced text hierarchy
 
 ## Color Palette
-
-The primary theme uses a combination of warm neutrals and rich gold accents:
 
 | Color | Hex | Usage |
 | --- | --- | --- |
@@ -43,19 +41,17 @@ Use one clean Arabic font system:
 - **Fallback**: IBM Plex Sans Arabic, Tajawal, Arial, sans-serif
 
 Weights:
-- Page title: 700–800
+- Page title: 700-800
 - Section title: 700
 - Card title: 700
-- Body: 400–500
-- Buttons: 600–700
-
-Do not use overly heavy black text. Do not let labels and values float on different baselines.
+- Body: 400-500
+- Buttons: 600-700
 
 ## Layout and Components
 
 - **Spacing**: Maintain generous padding around cards and sections (e.g., `p-4` or `p-6`) to avoid overcrowding.
 - **Cards**: Use rounded corners (`rounded-xl` to `rounded-[28px]`) with subtle shadows. On hover, increase the shadow to indicate interactivity.
-- **Buttons**: Primary actions should use the gold primary color (#C9A063) with white text; secondary actions use a ghost or muted style. Maintain a minimum touch target size of 40×40px.
+- **Buttons**: Primary actions should use the gold primary color (#C9A063) with white text; secondary actions use a ghost or muted style. Maintain a minimum touch target size of 40x40px.
 - **Forms**: Inputs should have rounded corners and light backgrounds; incorporate icons inside inputs where helpful. Provide clear error states in red with descriptive messages.
 - **Navigation**: Use a bottom tab bar on mobile with icons and labels; on larger screens, provide a sidebar or top navigation as appropriate.
 
@@ -64,7 +60,7 @@ Do not use overly heavy black text. Do not let labels and values float on differ
 - Icons should be from a consistent set (e.g., Lucide) and follow the same stroke width.
 - Use high quality photography that aligns with cultural norms; avoid cluttering pages with too many images.
 - For placeholder images, use neutral backgrounds and subtle patterns.
-- Device frames in mockups are presentation only and must NOT be rendered in the actual app UI.
+- **Device frames in mockups are presentation ONLY and must NOT be rendered in the actual app UI**.
 
 ## Responsiveness
 
@@ -80,4 +76,4 @@ Ensure that all layouts adapt to both mobile and desktop widths:
 - Provide alt text for images and meaningful labels for icons.
 - Ensure color contrasts meet WCAG AA standards.
 
-Refer to these guidelines whenever you add new pages or update existing ones to maintain consistency across the application.
+Refer to `docs/design-reference/final-2026/` for all screen-level visual references.
