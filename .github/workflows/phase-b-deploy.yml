@@ -132,16 +132,38 @@ jobs:
           project_ref = urllib.parse.urlsplit(supabase_url).hostname.split(".")[0]
           parsed = urllib.parse.urlsplit(database_url)
           host = parsed.hostname or ""
+          raw_userinfo = parsed.netloc.rsplit("@", 1)[0] if "@" in parsed.netloc else ""
+          path = parsed.path or "/postgres"
+          scheme = parsed.scheme or "postgresql"
 
           if parsed.scheme in {"postgres", "postgresql"} and parsed.username == "postgres" and host == f"db.{project_ref}.supabase.co" and parsed.port == 5432:
-              raw_userinfo = parsed.netloc.rsplit("@", 1)[0]
               raw_password = raw_userinfo.split(":", 1)[1] if ":" in raw_userinfo else ""
-              print(f"postgresql://postgres.{project_ref}:{raw_password}@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?sslmode=require")
+              netloc = f"postgres.{project_ref}:{raw_password}@aws-0-ap-southeast-1.pooler.supabase.com:6543"
           else:
-              print(database_url)
+              netloc = parsed.netloc
+
+          allowed_query_keys = {
+              "sslmode",
+              "sslcert",
+              "sslkey",
+              "sslrootcert",
+              "connect_timeout",
+              "application_name",
+              "options",
+              "target_session_attrs",
+          }
+          clean_query = [
+              (key, value)
+              for key, value in urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)
+              if key in allowed_query_keys
+          ]
+          if not any(key == "sslmode" for key, _ in clean_query):
+              clean_query.append(("sslmode", "require"))
+
+          print(urllib.parse.urlunsplit((scheme, netloc, path, urllib.parse.urlencode(clean_query), "")))
           PY
           echo "EFFECTIVE_DATABASE_URL_FILE=/tmp/effective_database_url" >> "$GITHUB_ENV"
-          echo "✅ Database URL prepared without exposing secret value." >> "$GITHUB_STEP_SUMMARY"
+          echo "✅ Database URL prepared and sanitized for psql without exposing secret value." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Apply Supabase SQL schema and migrations
         shell: bash
