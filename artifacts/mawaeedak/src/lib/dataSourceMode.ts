@@ -3,15 +3,8 @@
  *
  * Feature Flag لتحديد مصدر البيانات.
  *
- * قاعدة الإنتاج المعتمدة:
- * - Vercel الحالي ينشر الواجهة فقط ولا ينشر api-server.
- * - لذلك لا يجوز أن يرجع الإنتاج تلقائياً إلى api عند غياب VITE_DATA_SOURCE_MODE.
- * - إذا كانت مفاتيح Supabase موجودة في الإنتاج ولم يحدد المتغير، يكون Supabase هو المصدر.
- * - وضع api في الإنتاج مسموح فقط عند وجود VITE_API_BASE_URL صريح يشير إلى api-server منشور فعلاً.
- *
- * مهمة:
- * - في الإنتاج، إذا لم يكن Supabase مهيأً ولم يكن VITE_API_BASE_URL متاحاً، أظهر خطأ بدء واضح.
- * - لا تسقط بصمت إلى وضع api في الإنتاج بدون خادم API منشور.
+ * في الإنتاج لا نسمح بفشل صامت، لكن لا نرمي خطأ أثناء import حتى لا تظهر شاشة بيضاء.
+ * عند غياب إعدادات البيانات يرجع الوضع error وتتعامل الواجهة معه برسالة مرئية.
  */
 
 export type DataSourceMode = "api" | "supabase_shadow" | "supabase" | "error";
@@ -37,13 +30,11 @@ function resolveMode(): { mode: DataSourceMode; error: string | null } {
 
   if (rawMode === "api") {
     if (isProductionRuntime && !hasApiBaseUrl && hasSupabaseConfig) {
-      console.warn(
-        "[DataLayer] VITE_DATA_SOURCE_MODE=api ignored in production because VITE_API_BASE_URL is missing. Using Supabase."
-      );
+      console.warn("[DataLayer] Production api mode ignored because API URL is missing. Using Supabase.");
       return { mode: "supabase", error: null };
     }
     if (isProductionRuntime && !hasApiBaseUrl && !hasSupabaseConfig) {
-      const error = "[DataLayer] PRODUCTION ERROR: No Supabase config (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY) and no VITE_API_BASE_URL. Cannot use 'api' mode in production without a deployed API server.";
+      const error = "[DataLayer] Production error: missing Supabase config and API URL.";
       console.error(error);
       return { mode: "error", error };
     }
@@ -52,25 +43,20 @@ function resolveMode(): { mode: DataSourceMode; error: string | null } {
 
   if (isProductionRuntime) {
     if (!hasSupabaseConfig && !hasApiBaseUrl) {
-      const error = "[DataLayer] PRODUCTION ERROR: No Supabase config and no API URL. Production deployment requires either VITE_SUPABASE_URL+VITE_SUPABASE_ANON_KEY or VITE_API_BASE_URL.";
+      const error = "[DataLayer] Production error: no valid data source configured.";
       console.error(error);
       return { mode: "error", error };
     }
-    if (hasSupabaseConfig) {
-      return { mode: "supabase", error: null };
-    }
+    if (hasSupabaseConfig) return { mode: "supabase", error: null };
     if (hasApiBaseUrl) {
-      const error = "[DataLayer] PRODUCTION WARNING: Using API mode without Supabase. API server must be deployed separately.";
+      const error = "[DataLayer] Production warning: using API mode without Supabase.";
       console.warn(error);
       return { mode: "api", error };
     }
   }
 
-  // Development fallback
-  if (hasSupabaseConfig) {
-    return { mode: "supabase", error: null };
-  }
-  
+  if (hasSupabaseConfig) return { mode: "supabase", error: null };
+
   return { mode: "api", error: null };
 }
 
@@ -92,20 +78,10 @@ export const isShadowMode = DATA_SOURCE_MODE === "supabase_shadow";
 export const isSupabaseMode = DATA_SOURCE_MODE === "supabase";
 export const isErrorMode = DATA_SOURCE_MODE === "error";
 
-// Production mode error - throw in production if not properly configured
 if (isProductionRuntime && DATA_SOURCE_MODE === "error") {
-  throw new Error(
-    `Mawaeedak Production Configuration Error:\n\n` +
-    `No valid data source configured for production deployment.\n\n` +
-    `Required: Either set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY, ` +
-    `or set VITE_API_BASE_URL to a deployed API server.\n\n` +
-    `Current status:\n` +
-    `- hasSupabaseConfig: ${hasSupabaseConfig}\n` +
-    `- hasApiBaseUrl: ${hasApiBaseUrl}\n` +
-    `- VITE_DATA_SOURCE_MODE: ${rawMode ?? 'not set'}`
-  );
+  console.error("[Mawaeedak] Production configuration error", DATA_SOURCE_CONFIG_STATUS);
 }
 
 if (import.meta.env.DEV) {
-  console.info(`[DataLayer] وضع البيانات: ${DATA_SOURCE_MODE}${productionError ? ` (${productionError})` : ''}`);
+  console.info(`[DataLayer] وضع البيانات: ${DATA_SOURCE_MODE}${productionError ? ` (${productionError})` : ""}`);
 }
