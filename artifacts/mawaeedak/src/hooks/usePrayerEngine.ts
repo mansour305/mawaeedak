@@ -1,12 +1,12 @@
 /**
  * usePrayerEngine — Phase 14
- * 
+ *
  * Prayer times engine that:
  * 1. Uses official_prayer_times from Supabase first
  * 2. Falls back to AlAdhan API with method=4 for Saudi Arabia
  * 3. Caches results with 6-hour expiry
  * 4. Supports location detection and manual city selection
- * 5. Live countdown ticks every second (does not refetch data)
+ * 5. Live countdown ticks every second
  */
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
@@ -42,23 +42,14 @@ export type NextPrayer = {
 };
 
 export type UsePrayerEngineResult = {
-  // State
   status: PrayerStatus;
   error: string | null;
-  
-  // Prayer times data
   timings: PrayerTimes | null;
   cityName: string;
   cityKey: string;
-  
-  // Next prayer
   nextPrayer: NextPrayer | null;
   countdown: string;
-  
-  // Refresh function
   refresh: () => void;
-  
-  // Location functions
   requestLocation: () => Promise<void>;
   setManualCity: (city: string) => void;
 };
@@ -72,9 +63,8 @@ const PRAYER_LABELS: Record<keyof PrayerTimes, string> = {
   isha: "العشاء",
 };
 
-/**
- * Format countdown to HH:mm:ss
- */
+const LOCATION_PROMPT_KEY = "mawaeedak_location_prompted_v1";
+
 function formatCountdown(ms: number): string {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
   const hours = Math.floor(totalSeconds / 3600);
@@ -84,9 +74,6 @@ function formatCountdown(ms: number): string {
   return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
 }
 
-/**
- * Get the next prayer and countdown
- */
 function computeNextPrayer(timings: PrayerTimes): NextPrayer | null {
   const now = getRiyadhNow();
   const prayerOrder: (keyof PrayerTimes)[] = ["fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"];
@@ -103,12 +90,10 @@ function computeNextPrayer(timings: PrayerTimes): NextPrayer | null {
     }
   }
 
-  // All prayers passed, return fajr of next day
   const fajrTime = parseTimeToDateToday(timings.fajr);
   if (fajrTime) {
-    // Create a new Date object to avoid mutating the original
     const nextFajrTime = new Date(fajrTime);
-    nextFajrTime.setDate(nextFajrTime.getDate() + 1);
+    nextFajrTime.setUTCDate(nextFajrTime.getUTCDate() + 1);
     return {
       key: "fajr",
       label: PRAYER_LABELS.fajr,
@@ -120,13 +105,25 @@ function computeNextPrayer(timings: PrayerTimes): NextPrayer | null {
   return null;
 }
 
-/**
- * Main hook for prayer times engine
- */
+function shouldPromptForLocation(source: string, permissionStatus: string, coords: unknown): boolean {
+  if (source !== "default") return false;
+  if (permissionStatus === "denied" || permissionStatus === "granted") return false;
+  if (coords) return false;
+
+  try {
+    if (sessionStorage.getItem(LOCATION_PROMPT_KEY) === "1") return false;
+    sessionStorage.setItem(LOCATION_PROMPT_KEY, "1");
+  } catch {
+    // Session storage is best effort.
+  }
+
+  return true;
+}
+
 export function usePrayerEngine(): UsePrayerEngineResult {
   const { prefs, requestGPS, setManual } = useLocationPrefs();
-  const cityKey = normalizeCityKey(prefs.city) ?? "";
-  const cityName = cityKey ? getCityName(cityKey) : prefs.city;
+  const cityKey = normalizeCityKey(prefs.city) ?? "riyadh";
+  const cityName = cityKey ? getCityName(cityKey) : "الرياض";
   const todayIso = getRiyadhTodayKey();
   const coords = useMemo(() => {
     if (typeof prefs.lat === "number" && typeof prefs.lng === "number") {
@@ -135,16 +132,12 @@ export function usePrayerEngine(): UsePrayerEngineResult {
     return null;
   }, [prefs.lat, prefs.lng]);
 
-  // Local state for AlAdhan fallback
   const [aladhanTimings, setAladhanTimings] = useState<AlAdhanTimings | null>(null);
   const [aladhanLoading, setAladhanLoading] = useState(false);
   const [aladhanError, setAladhanError] = useState<string | null>(null);
-
-  // Live ticking countdown state (updates every second without refetching)
   const [liveCountdown, setLiveCountdown] = useState("--:--:--");
   const liveNextPrayerRef = useRef<NextPrayer | null>(null);
 
-  // Fetch official prayer times from Supabase
   const {
     data: officialPrayer,
     isLoading: isOfficialLoading,
@@ -152,14 +145,7 @@ export function usePrayerEngine(): UsePrayerEngineResult {
     refetch: refetchOfficial,
   } = useOfficialPrayerTimes(cityKey, todayIso);
 
-  // Fetch AlAdhan if official not available
   const fetchAlAdhan = useCallback(async () => {
-    // Check cache first
-    if (!cityKey && !coords) {
-      setAladhanError("اختر مدينة مدعومة أو فعّل الموقع لتحميل مواقيت الصلاة.");
-      return;
-    }
-
     const cached = getCachedPrayerTimes(cityKey, todayIso, coords);
     if (cached) {
       setAladhanTimings(cached.timings);
@@ -174,7 +160,6 @@ export function usePrayerEngine(): UsePrayerEngineResult {
       if (timings) {
         setAladhanTimings(timings);
 
-        // Cache the result
         const cacheEntry: PrayerCacheEntry = {
           date: todayIso,
           cityKey,
@@ -183,22 +168,32 @@ export function usePrayerEngine(): UsePrayerEngineResult {
           timings,
           fetchedAt: new Date().toISOString(),
           sourceType: "aladhan",
-          isConfirmed: false, // AlAdhan is not official
+          isConfirmed: false,
         };
         cachePrayerTimes(cacheEntry);
       } else {
         setAladhanError("تعذر جلب مواقيت الصلاة من المصدر الاحتياطي");
       }
-    } catch (err) {
+    } catch {
       setAladhanError("حدث خطأ أثناء تحميل المواقيت");
     } finally {
       setAladhanLoading(false);
     }
   }, [cityKey, todayIso, coords]);
 
-  // Determine final timings
+  useEffect(() => {
+    if (shouldPromptForLocation(prefs.source, prefs.permissionStatus, coords)) {
+      requestGPS()
+        .then(() => {
+          clearPrayerCache();
+          setAladhanTimings(null);
+          refetchOfficial();
+        })
+        .catch(() => undefined);
+    }
+  }, [prefs.source, prefs.permissionStatus, coords, requestGPS, refetchOfficial]);
+
   const timings = useMemo<PrayerTimes | null>(() => {
-    // Prefer official if available and confirmed
     if (officialPrayer?.fajr_time) {
       return {
         fajr: officialPrayer.fajr_time,
@@ -210,15 +205,9 @@ export function usePrayerEngine(): UsePrayerEngineResult {
       };
     }
 
-    // Fall back to AlAdhan
-    if (aladhanTimings) {
-      return aladhanTimings;
-    }
-
-    return null;
+    return aladhanTimings;
   }, [officialPrayer, aladhanTimings]);
 
-  // Compute next prayer and update ref (recalculates when timings change)
   const nextPrayer = useMemo<NextPrayer | null>(() => {
     if (!timings) return null;
     const next = computeNextPrayer(timings);
@@ -226,7 +215,6 @@ export function usePrayerEngine(): UsePrayerEngineResult {
     return next;
   }, [timings]);
 
-  // Determine overall status
   const status = useMemo<PrayerStatus>(() => {
     if (isOfficialLoading || aladhanLoading) return "loading";
     if (isOfficialError && !aladhanTimings) return "error";
@@ -235,64 +223,51 @@ export function usePrayerEngine(): UsePrayerEngineResult {
   }, [isOfficialLoading, aladhanLoading, isOfficialError, aladhanTimings, timings]);
 
   const error = useMemo<string | null>(() => {
-    if (status === "error") {
-      return "تعذر تحميل مواقيت الصلاة حالياً.";
-    }
-    if (status === "empty") {
-      return "مواقيت الصلاة غير متاحة حالياً. فعّل الموقع أو اختر المدينة.";
-    }
+    if (status === "error") return "تعذر تحميل مواقيت الصلاة حالياً.";
+    if (status === "empty") return aladhanError || "مواقيت الصلاة غير متاحة حالياً. فعّل الموقع أو اختر المدينة.";
     return null;
-  }, [status]);
+  }, [status, aladhanError]);
 
-  // Auto-fetch AlAdhan when official fails
   useEffect(() => {
     if (!officialPrayer && !aladhanLoading && !aladhanTimings && !isOfficialLoading) {
       fetchAlAdhan();
     }
   }, [officialPrayer, aladhanLoading, aladhanTimings, isOfficialLoading, fetchAlAdhan]);
 
-  // Live countdown ticker - updates every second without refetching data
   useEffect(() => {
     if (!nextPrayer) {
       setLiveCountdown("--:--:--");
       return;
     }
 
-    // Update immediately
     const updateCountdown = () => {
       const now = getRiyadhNow();
       const current = liveNextPrayerRef.current;
-      if (current && current.time) {
+      if (current?.time) {
         const remaining = current.time.getTime() - now.getTime();
         if (remaining > 0) {
           setLiveCountdown(formatCountdown(remaining));
-        } else {
-          // Prayer time passed, recalculate next prayer
-          if (timings) {
-            const newNext = computeNextPrayer(timings);
-            liveNextPrayerRef.current = newNext;
-            if (newNext && newNext.time) {
-              const newRemaining = newNext.time.getTime() - now.getTime();
-              setLiveCountdown(newRemaining > 0 ? formatCountdown(newRemaining) : "--:--:--");
-            } else {
-              setLiveCountdown("--:--:--");
-            }
-          } else {
-            setLiveCountdown("--:--:--");
+          return;
+        }
+
+        if (timings) {
+          const newNext = computeNextPrayer(timings);
+          liveNextPrayerRef.current = newNext;
+          if (newNext?.time) {
+            const newRemaining = newNext.time.getTime() - now.getTime();
+            setLiveCountdown(newRemaining > 0 ? formatCountdown(newRemaining) : "--:--:--");
+            return;
           }
         }
-      } else {
-        setLiveCountdown("--:--:--");
       }
+      setLiveCountdown("--:--:--");
     };
 
     updateCountdown();
     const intervalId = setInterval(updateCountdown, 1000);
-    
     return () => clearInterval(intervalId);
   }, [nextPrayer, timings]);
 
-  // Refresh function
   const refresh = useCallback(() => {
     clearPrayerCache();
     setAladhanTimings(null);
@@ -300,23 +275,18 @@ export function usePrayerEngine(): UsePrayerEngineResult {
     fetchAlAdhan();
   }, [refetchOfficial, fetchAlAdhan]);
 
-  // Location request
   const requestLocation = useCallback(async () => {
-    try {
-      await requestGPS();
-      clearPrayerCache();
-      setAladhanTimings(null);
-    } catch {
-      // Error handled in requestGPS
-    }
-  }, [requestGPS]);
-
-  // Manual city selection
-  const setManualCity = useCallback((city: string) => {
-    setManual(city, prefs.timezone || "Asia/Riyadh");
+    await requestGPS();
     clearPrayerCache();
     setAladhanTimings(null);
-  }, [setManual, prefs.timezone]);
+    refetchOfficial();
+  }, [requestGPS, refetchOfficial]);
+
+  const setManualCity = useCallback((city: string) => {
+    setManual(city, "Asia/Riyadh");
+    clearPrayerCache();
+    setAladhanTimings(null);
+  }, [setManual]);
 
   return {
     status,
@@ -332,12 +302,9 @@ export function usePrayerEngine(): UsePrayerEngineResult {
   };
 }
 
-/**
- * Status messages
- */
 export const PRAYER_STATUS_MESSAGES: Record<PrayerStatus, string> = {
   loading: "جاري تحميل مواقيت الصلاة...",
   error: "تعذر تحميل مواقيت الصلاة حالياً.",
   empty: "مواقيت الصلاة غير متاحة حالياً. فعّل الموقع أو اختر المدينة.",
-  ready: "", // Empty when ready
+  ready: "",
 };
