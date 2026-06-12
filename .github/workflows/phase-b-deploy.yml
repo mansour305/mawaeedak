@@ -5,17 +5,12 @@ on:
 
 jobs:
   phase-b-deploy:
-    name: Pull secrets, configure services, deploy, and verify
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN || secrets.VERCEL_ACCESS_TOKEN || secrets.VERCEL_DEPLOY_TOKEN }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
@@ -24,9 +19,6 @@ jobs:
       VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
       VITE_DATA_SOURCE_MODE: ${{ secrets.VITE_DATA_SOURCE_MODE }}
       VITE_VAPID_PUBLIC_KEY: ${{ secrets.VITE_VAPID_PUBLIC_KEY }}
-      VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY || secrets.VITE_VAPID_PUBLIC_KEY }}
-      VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
-      VAPID_SUBJECT: ${{ secrets.VAPID_SUBJECT || 'mailto:hrq@hotmail.com' }}
       SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       ADMIN_API_TOKEN: ${{ secrets.ADMIN_API_TOKEN }}
@@ -39,46 +31,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          required=(
-            VERCEL_TOKEN
-            VERCEL_ORG_ID
-            VERCEL_PROJECT_ID
-            SUPABASE_ACCESS_TOKEN
-            SUPABASE_PROJECT_REF
-            DATABASE_URL
-            SUPABASE_URL
-            SUPABASE_ANON_KEY
-            SUPABASE_SERVICE_ROLE_KEY
-            VITE_SUPABASE_URL
-            VITE_SUPABASE_ANON_KEY
-            VITE_DATA_SOURCE_MODE
-            VITE_VAPID_PUBLIC_KEY
-            VAPID_PUBLIC_KEY
-            VAPID_PRIVATE_KEY
-            VAPID_SUBJECT
-            SESSION_SECRET
-            JWT_SECRET
-            ADMIN_API_TOKEN
-          )
-
+          required=(VERCEL_TOKEN VERCEL_ORG_ID VERCEL_PROJECT_ID DATABASE_URL SUPABASE_URL SUPABASE_ANON_KEY SUPABASE_SERVICE_ROLE_KEY VITE_SUPABASE_URL VITE_SUPABASE_ANON_KEY VITE_DATA_SOURCE_MODE VITE_VAPID_PUBLIC_KEY SESSION_SECRET JWT_SECRET ADMIN_API_TOKEN)
           missing=0
-          echo "## Secret Presence" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Secret | Status |" >> "$GITHUB_STEP_SUMMARY"
-          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
           for name in "${required[@]}"; do
             if [ -z "${!name:-}" ]; then
-              echo "❌ $name is missing"
-              echo "| $name | MISSING |" >> "$GITHUB_STEP_SUMMARY"
+              echo "missing: $name"
               missing=1
-            else
-              echo "✅ $name is present"
-              echo "| $name | PRESENT |" >> "$GITHUB_STEP_SUMMARY"
             fi
           done
-          if [ "$missing" -ne 0 ]; then
-            echo "NOT READY — missing required secret names only." >> "$GITHUB_STEP_SUMMARY"
-            exit 1
-          fi
+          [ "$missing" -eq 0 ]
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -88,7 +49,6 @@ jobs:
       - name: Enable Corepack and pnpm
         shell: bash
         run: |
-          set -euo pipefail
           corepack enable
           corepack prepare pnpm@11.5.0 --activate
           pnpm --version
@@ -115,131 +75,64 @@ jobs:
           sudo apt-get install -y postgresql-client jq curl
           npm i -g vercel@54.12.2
 
-      - name: Setup Supabase CLI
-        uses: supabase/setup-cli@v2
-        with:
-          version: latest
-
-      - name: Normalize database URL for GitHub Actions
+      - name: Normalize database URL for psql
         shell: bash
         run: |
           set -euo pipefail
           python3 - <<'PY' > /tmp/effective_database_url
-          import os
-          import urllib.parse
-
-          database_url = os.environ["DATABASE_URL"]
-          supabase_url = os.environ["SUPABASE_URL"].rstrip("/")
-          project_ref = urllib.parse.urlsplit(supabase_url).hostname.split(".")[0]
-          parsed = urllib.parse.urlsplit(database_url)
-          host = parsed.hostname or ""
-          raw_userinfo = parsed.netloc.rsplit("@", 1)[0] if "@" in parsed.netloc else ""
-          path = parsed.path or "/postgres"
-          scheme = parsed.scheme or "postgresql"
-
-          if parsed.scheme in {"postgres", "postgresql"} and parsed.username == "postgres" and host == f"db.{project_ref}.supabase.co" and parsed.port == 5432:
-              raw_password = raw_userinfo.split(":", 1)[1] if ":" in raw_userinfo else ""
-              netloc = f"postgres.{project_ref}:{raw_password}@aws-0-ap-southeast-1.pooler.supabase.com:6543"
+          import os, urllib.parse
+          database_url=os.environ['DATABASE_URL']
+          supabase_url=os.environ['SUPABASE_URL'].rstrip('/')
+          project_ref=urllib.parse.urlsplit(supabase_url).hostname.split('.')[0]
+          parsed=urllib.parse.urlsplit(database_url)
+          host=parsed.hostname or ''
+          raw_userinfo=parsed.netloc.rsplit('@',1)[0] if '@' in parsed.netloc else ''
+          scheme=parsed.scheme or 'postgresql'
+          path=parsed.path or '/postgres'
+          if parsed.scheme in {'postgres','postgresql'} and parsed.username=='postgres' and host==f'db.{project_ref}.supabase.co' and parsed.port==5432:
+            raw_password=raw_userinfo.split(':',1)[1] if ':' in raw_userinfo else ''
+            netloc=f'postgres.{project_ref}:{raw_password}@aws-0-ap-southeast-1.pooler.supabase.com:6543'
           else:
-              netloc = parsed.netloc
-
-          allowed_query_keys = {
-              "sslmode",
-              "sslcert",
-              "sslkey",
-              "sslrootcert",
-              "connect_timeout",
-              "application_name",
-              "options",
-              "target_session_attrs",
-          }
-          clean_query = [
-              (key, value)
-              for key, value in urllib.parse.parse_qsl(parsed.query, keep_blank_values=True)
-              if key in allowed_query_keys
-          ]
-          if not any(key == "sslmode" for key, _ in clean_query):
-              clean_query.append(("sslmode", "require"))
-
-          print(urllib.parse.urlunsplit((scheme, netloc, path, urllib.parse.urlencode(clean_query), "")))
+            netloc=parsed.netloc
+          allowed={'sslmode','connect_timeout','application_name','options','target_session_attrs'}
+          query=[(k,v) for k,v in urllib.parse.parse_qsl(parsed.query, keep_blank_values=True) if k in allowed]
+          if not any(k=='sslmode' for k,_ in query): query.append(('sslmode','require'))
+          print(urllib.parse.urlunsplit((scheme,netloc,path,urllib.parse.urlencode(query),'')))
           PY
           echo "EFFECTIVE_DATABASE_URL_FILE=/tmp/effective_database_url" >> "$GITHUB_ENV"
-          echo "✅ Database URL prepared and sanitized for psql without exposing secret value." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Apply Supabase SQL schema and migrations
         shell: bash
         run: |
           set -euo pipefail
           EFFECTIVE_DATABASE_URL="$(cat "$EFFECTIVE_DATABASE_URL_FILE")"
-          echo "## Supabase SQL" >> "$GITHUB_STEP_SUMMARY"
-
           if [ -f "artifacts/mawaeedak/supabase-bootstrap.sql" ]; then
             psql "$EFFECTIVE_DATABASE_URL" -v ON_ERROR_STOP=0 -f artifacts/mawaeedak/supabase-bootstrap.sql
-            echo "✅ Applied artifacts/mawaeedak/supabase-bootstrap.sql" >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "⚠️ Missing artifacts/mawaeedak/supabase-bootstrap.sql" >> "$GITHUB_STEP_SUMMARY"
           fi
-
           shopt -s nullglob
           for migration in supabase/migrations/*.sql; do
             psql "$EFFECTIVE_DATABASE_URL" -v ON_ERROR_STOP=0 -f "$migration"
-            echo "✅ Applied $migration" >> "$GITHUB_STEP_SUMMARY"
           done
-
           psql "$EFFECTIVE_DATABASE_URL" -v ON_ERROR_STOP=1 -Atc "select table_name from information_schema.tables where table_schema='public' and table_name in ('user_profiles','financial_events','notifications','daily_messages','push_subscriptions','goals','cost_projects','reminders') order by table_name;" > /tmp/phase_b_tables.txt
           required_tables=(user_profiles financial_events notifications daily_messages push_subscriptions goals cost_projects reminders)
           for table_name in "${required_tables[@]}"; do
-            if ! grep -Fxq "$table_name" /tmp/phase_b_tables.txt; then
-              echo "NOT READY — missing table: $table_name" >> "$GITHUB_STEP_SUMMARY"
-              exit 1
-            fi
+            grep -Fxq "$table_name" /tmp/phase_b_tables.txt || { echo "missing table: $table_name"; exit 1; }
           done
-          echo "✅ Required Supabase tables verified after SQL apply." >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Configure Supabase Edge Function secrets
-        if: always()
-        shell: bash
-        run: |
-          set +euo pipefail
-          supabase secrets set \
-            VAPID_PUBLIC_KEY="$VAPID_PUBLIC_KEY" \
-            VAPID_PRIVATE_KEY="$VAPID_PRIVATE_KEY" \
-            VAPID_SUBJECT="$VAPID_SUBJECT" \
-            --project-ref "$SUPABASE_PROJECT_REF" 2>&1 || true
-          echo "⚠️ Supabase Edge Function secrets: skipped (token may be invalid)" >> "$GITHUB_STEP_SUMMARY"
-
-      - name: Deploy Supabase Edge Function
-        if: always()
-        shell: bash
-        run: |
-          set +euo pipefail
-          if [ -d "supabase/functions/send-push" ]; then
-            supabase functions deploy send-push --project-ref "$SUPABASE_PROJECT_REF" 2>&1 || true
-            echo "⚠️ Supabase Edge Function deploy: skipped (token may be invalid)" >> "$GITHUB_STEP_SUMMARY"
-          else
-            echo "⚠️ supabase/functions/send-push not found; skipped function deploy." >> "$GITHUB_STEP_SUMMARY"
-          fi
 
       - name: Link Vercel project locally
         shell: bash
         run: |
-          set -euo pipefail
           mkdir -p .vercel
           jq -n --arg orgId "$VERCEL_ORG_ID" --arg projectId "$VERCEL_PROJECT_ID" '{orgId:$orgId, projectId:$projectId}' > .vercel/project.json
-          echo "✅ Vercel project linked from GitHub Secrets." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Configure Vercel production environment variables
         shell: bash
         run: |
           set -euo pipefail
           set_vercel_env() {
-            local name="$1"
-            local value="$2"
-            vercel env rm "$name" production --yes --token "$VERCEL_TOKEN" >/dev/null 2>&1 || true
-            printf '%s' "$value" | vercel env add "$name" production --token "$VERCEL_TOKEN" >/dev/null
-            echo "✅ Vercel env configured: $name" >> "$GITHUB_STEP_SUMMARY"
+            vercel env rm "$1" production --yes --token "$VERCEL_TOKEN" >/dev/null 2>&1 || true
+            printf '%s' "$2" | vercel env add "$1" production --token "$VERCEL_TOKEN" >/dev/null
           }
-
           set_vercel_env VITE_SUPABASE_URL "$VITE_SUPABASE_URL"
           set_vercel_env VITE_SUPABASE_ANON_KEY "$VITE_SUPABASE_ANON_KEY"
           set_vercel_env VITE_DATA_SOURCE_MODE "$VITE_DATA_SOURCE_MODE"
@@ -251,43 +144,19 @@ jobs:
           set -euo pipefail
           DEPLOY_URL="$(vercel deploy --prod --yes --token "$VERCEL_TOKEN" | tail -n 1)"
           echo "DEPLOY_URL=$DEPLOY_URL" >> "$GITHUB_ENV"
-          echo "✅ Vercel production deploy completed." >> "$GITHUB_STEP_SUMMARY"
-          echo "- Deployment URL: $DEPLOY_URL" >> "$GITHUB_STEP_SUMMARY"
+          echo "Deployment URL: $DEPLOY_URL" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Verify production routes
         shell: bash
         run: |
           set -euo pipefail
           base="${DEPLOY_URL%/}"
-          routes=(
-            "/"
-            "/splash"
-            "/welcome"
-            "/calendar"
-            "/finance"
-            "/salaries"
-            "/services"
-            "/services/goals"
-            "/services/costs"
-            "/services/reminders"
-            "/notifications"
-            "/more"
-            "/admin"
-          )
-
-          echo "## Production Route Smoke" >> "$GITHUB_STEP_SUMMARY"
-          for route in "${routes[@]}"; do
+          for route in / /splash /welcome /calendar /finance /salaries /services /services/goals /services/costs /services/reminders /notifications /more /admin; do
             code="$(curl -L -sS -o /tmp/route-check.html -w '%{http_code}' "$base$route")"
-            echo "- $route → HTTP $code" >> "$GITHUB_STEP_SUMMARY"
-            if [ "$code" -lt 200 ] || [ "$code" -ge 400 ]; then
-              echo "NOT READY — route failed: $route" >> "$GITHUB_STEP_SUMMARY"
-              exit 1
-            fi
+            echo "$route -> HTTP $code"
+            if [ "$code" -lt 200 ] || [ "$code" -ge 400 ]; then exit 1; fi
           done
 
       - name: Final verdict
         shell: bash
-        run: |
-          set -euo pipefail
-          echo "## Final Verdict" >> "$GITHUB_STEP_SUMMARY"
-          echo "READY — Phase B deployment closure completed by GitHub Actions." >> "$GITHUB_STEP_SUMMARY"
+        run: echo "READY — Phase B deployment closure completed. Edge Function secrets are dashboard-managed."
