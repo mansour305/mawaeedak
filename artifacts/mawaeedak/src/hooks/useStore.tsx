@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase, isSupabaseEnabled } from "@/lib/supabase";
-import { getUserProfile, getRoleWithFallback, type UserProfile } from "@/lib/profileService";
+import { getUserProfile } from "@/lib/profileService";
 
 interface UserData {
   id: string;
@@ -29,13 +29,18 @@ const defaultUser: UserData = {
   id: '',
   name: '',
   email: '',
-  city: '',
-  cityKey: '',
+  city: 'الرياض',
+  cityKey: 'riyadh',
   timezone: 'Asia/Riyadh',
   role: 'user',
-  onboardingComplete: false,
+  onboardingComplete: true,
   interests: [],
 };
+
+function persistUser(user: UserData): void {
+  localStorage.setItem('app-user', JSON.stringify(user));
+  localStorage.setItem('mawaeedak_onboarded', 'true');
+}
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
@@ -43,7 +48,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [user, setUserState] = useState<UserData>(() => {
     try {
       const stored = localStorage.getItem('app-user');
-      return stored ? JSON.parse(stored) : defaultUser;
+      return stored ? { ...defaultUser, ...JSON.parse(stored), onboardingComplete: true } : defaultUser;
     } catch {
       return defaultUser;
     }
@@ -55,15 +60,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const setUser = (updates: Partial<UserData>) => {
     setUserState(prev => {
-      const next = { ...prev, ...updates };
-      localStorage.setItem('app-user', JSON.stringify(next));
+      const next = { ...prev, ...updates, onboardingComplete: updates.onboardingComplete ?? prev.onboardingComplete ?? true };
+      persistUser(next);
       return next;
     });
   };
 
   const refreshProfile = async () => {
     if (!isSupabaseEnabled || !supabase) return;
-    
+
     setIsLoading(true);
     try {
       const { data: { user: sbUser } } = await supabase.auth.getUser();
@@ -76,17 +81,16 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
               id: sbUser.id,
               name: profile.full_name || prev.name,
               email: sbUser.email || prev.email,
-              city: profile.city_name_ar || prev.city,
-              cityKey: profile.city_key || prev.cityKey,
-              timezone: profile.timezone || prev.timezone,
+              city: profile.city_name_ar || prev.city || 'الرياض',
+              cityKey: profile.city_key || prev.cityKey || 'riyadh',
+              timezone: profile.timezone || prev.timezone || 'Asia/Riyadh',
               role: profile.role || prev.role,
-              onboardingComplete: profile.onboarding_complete,
+              onboardingComplete: true,
             };
-            localStorage.setItem('app-user', JSON.stringify(next));
+            persistUser(next);
             return next;
           });
-          
-          // Update admin status based on role
+
           const isAdminRole = ['admin', 'super_admin', 'owner'].includes(profile.role);
           setAdmin(isAdminRole);
         }
@@ -102,16 +106,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('hide-ads', hideAds ? 'true' : 'false');
   }, [hideAds]);
 
-  // Listen for auth state changes
   useEffect(() => {
-    // Handle demo session on mount
     if (!isSupabaseEnabled) {
       try {
         const demoSession = sessionStorage.getItem('mawaeedak_demo_session');
         if (demoSession) {
           const parsed = JSON.parse(demoSession);
           if (parsed?.user) {
-            setUserState({
+            const demoUser = {
               id: parsed.user.id,
               name: parsed.user.displayName || 'مدير النظام',
               email: 'demo@mawaeedak.local',
@@ -121,7 +123,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
               role: parsed.user.role || 'admin',
               onboardingComplete: true,
               interests: [],
-            });
+            };
+            setUserState(demoUser);
+            persistUser(demoUser);
             setAdmin(parsed.user.role === 'admin' || parsed.user.role === 'super_admin' || parsed.user.role === 'owner');
           }
         }
@@ -132,7 +136,6 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {
-        // Load profile on sign in
         const profile = await getUserProfile(session.user.id);
         if (profile) {
           setUserState(prev => {
@@ -141,20 +144,19 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
               id: session.user.id,
               name: profile.full_name || session.user.email?.split('@')[0] || '',
               email: session.user.email || '',
-              city: profile.city_name_ar || prev.city,
-              cityKey: profile.city_key || prev.cityKey,
-              timezone: profile.timezone || prev.timezone,
+              city: profile.city_name_ar || prev.city || 'الرياض',
+              cityKey: profile.city_key || prev.cityKey || 'riyadh',
+              timezone: profile.timezone || prev.timezone || 'Asia/Riyadh',
               role: profile.role || 'user',
-              onboardingComplete: profile.onboarding_complete,
+              onboardingComplete: true,
             };
-            localStorage.setItem('app-user', JSON.stringify(next));
+            persistUser(next);
             return next;
           });
-          
+
           const isAdminRole = ['admin', 'super_admin', 'owner'].includes(profile.role);
           setAdmin(isAdminRole);
         } else {
-          // No profile yet, use auth data
           setUserState(prev => {
             const next = {
               ...prev,
@@ -162,19 +164,21 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
               name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || '',
               email: session.user.email || '',
               role: session.user.app_metadata?.role || 'user',
+              onboardingComplete: true,
             };
-            localStorage.setItem('app-user', JSON.stringify(next));
+            persistUser(next);
             return next;
           });
-          
+
           const role = session.user.app_metadata?.role || 'user';
           const isAdminRole = ['admin', 'super_admin', 'owner'].includes(role);
           setAdmin(isAdminRole);
         }
       } else if (event === 'SIGNED_OUT') {
-        // Clear user data on sign out
+        sessionStorage.setItem('mawaeedak_splash_shown', 'true');
+        sessionStorage.removeItem('mawaeedak_demo_session');
         setUserState(defaultUser);
-        localStorage.removeItem('app-user');
+        persistUser(defaultUser);
         setAdmin(false);
       }
     });
