@@ -7,7 +7,11 @@
     "check:launch-gate": "node scripts/launch-gate-checks.cjs && node scripts/route-smoke.cjs",
     "smoke": "pnpm run check:launch-gate",
     "typecheck:libs": "tsc --build",
-    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --if-present run typecheck"
+    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --if-present run typecheck",
+    "web:typecheck": "pnpm --filter \"./artifacts/mawaeedak\" run typecheck",
+    "web:build": "pnpm --filter \"./artifacts/mawaeedak\" run build",
+    "web:smoke": "pnpm --filter \"./artifacts/mawaeedak\" run smoke",
+    "web:check": "pnpm run web:typecheck && pnpm run web:build && pnpm run web:smoke"
   },
   "private": true,
   "devDependencies": {
