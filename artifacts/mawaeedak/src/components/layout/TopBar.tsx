@@ -12,6 +12,7 @@
 
 import { ArrowRight, Bell, FileText, Headphones, Home, LogIn, LogOut, Mail, Menu, Share2, ShieldCheck, Sparkles, X } from "lucide-react";
 import type { ElementType } from "react";
+import MawaeedakLogoSvg from "@/assets/brand/mawaeedak-logo.svg";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -30,44 +31,15 @@ const GOLD = "#C9A063";
 const BROWN = "#8A6B3D";
 const INK = "#2F2B25";
 
+
 export function MawaeedakLogo({ compact = false }: { compact?: boolean }) {
   return (
-    <div className="flex items-center justify-center gap-2" aria-label="مواعيدك">
-      <div
-        className="relative grid place-items-center rounded-full"
-        style={{
-          width: compact ? 42 : 58,
-          height: compact ? 42 : 58,
-          border: "1px solid rgba(201,160,99,0.48)",
-          background: "rgba(255,255,255,0.62)",
-          boxShadow: "0 12px 30px rgba(138,107,61,0.12)",
-        }}
-      >
-        <span
-          style={{
-            color: GOLD,
-            fontSize: compact ? 31 : 43,
-            lineHeight: 1,
-            fontWeight: 700,
-            fontFamily: "'Cairo', 'Noto Kufi Arabic', sans-serif",
-          }}
-        >
-          م
-        </span>
-        <span className="absolute right-2 top-2 text-[12px]" style={{ color: GOLD }}>
-          ✦
-        </span>
-      </div>
-      <span
-        className="font-extrabold leading-none"
-        style={{
-          color: "#A78042",
-          fontSize: compact ? 24 : 31,
-          fontFamily: "'Cairo', 'Noto Kufi Arabic', sans-serif",
-        }}
-      >
-        مواعيدك
-      </span>
+    <div className="flex items-center justify-center" aria-label="مواعيدك">
+      <img
+        src={MawaeedakLogoSvg}
+        alt="مواعيدك"
+        style={{ height: compact ? 42 : 52, width: "auto" }}
+      />
     </div>
   );
 }
