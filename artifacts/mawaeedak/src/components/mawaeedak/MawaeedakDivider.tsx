@@ -1,4 +1,4 @@
-﻿interface MawaeedakDividerProps {
+interface MawaeedakDividerProps {
   className?: string;
   label?: string;
 }

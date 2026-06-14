@@ -1,15 +1,15 @@
-﻿import { CalendarDays, Grid2X2, Home, MoreHorizontal, Wallet } from "lucide-react";
+import { CalendarDays, Grid2X2, Home, MoreHorizontal, Wallet } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
 const GOLD = "#C9A063";
 const BROWN = "#8A6B3D";
 
 const tabs = [
-  { href: "/calendar", label: "ط§ظ„طھظ‚ظˆظٹظ…", icon: CalendarDays, match: (path: string) => path.startsWith("/calendar") },
-  { href: "/salaries", label: "ط§ظ„ط±ظˆط§طھط¨", icon: Wallet, match: (path: string) => path.startsWith("/salaries") || path.startsWith("/finance") },
-  { href: "/", label: "ط§ظ„ط±ط¦ظٹط³ظٹط©", icon: Home, match: (path: string) => path === "/" },
-  { href: "/services", label: "ط§ظ„ط®ط¯ظ…ط§طھ", icon: Grid2X2, match: (path: string) => path.startsWith("/services") || path.startsWith("/centers") },
-  { href: "/more", label: "ط§ظ„ظ…ط²ظٹط¯", icon: MoreHorizontal, match: (path: string) => path.startsWith("/more") || path.startsWith("/account") },
+  { href: "/calendar", label: "التقويم", icon: CalendarDays, match: (path: string) => path.startsWith("/calendar") },
+  { href: "/salaries", label: "الرواتب", icon: Wallet, match: (path: string) => path.startsWith("/salaries") || path.startsWith("/finance") },
+  { href: "/", label: "الرئيسية", icon: Home, match: (path: string) => path === "/" },
+  { href: "/services", label: "الخدمات", icon: Grid2X2, match: (path: string) => path.startsWith("/services") || path.startsWith("/centers") },
+  { href: "/more", label: "المزيد", icon: MoreHorizontal, match: (path: string) => path.startsWith("/more") || path.startsWith("/account") },
 ];
 
 export function BottomNav() {

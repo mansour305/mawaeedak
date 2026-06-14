@@ -1,4 +1,4 @@
-﻿import { clsx, type ClassValue } from "clsx";
+import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -6,13 +6,13 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function generateInitials(name: string): string {
-  if (!name) return "ظ…";
+  if (!name) return "م";
   const parts = name.trim().split(/\s+/);
   if (parts.length === 1) return parts[0].charAt(0);
   return parts[0].charAt(0) + parts[parts.length - 1].charAt(0);
 }
 
-// ظƒظ„ ط¹ط±ظˆط¶ ط§ظ„طھط§ط±ظٹط® طھطھط¨ط¹ ط­ط¯ظˆط¯ ظٹظˆظ… ط§ظ„ط±ظٹط§ط¶ (Asia/Riyadh) ط¨طµط±ظپ ط§ظ„ظ†ط¸ط± ط¹ظ† ظ…ظ†ط·ظ‚ط© ط§ظ„ط¬ظ‡ط§ط².
+// كل عروض التاريخ تتبع حدود يوم الرياض (Asia/Riyadh) بصرف النظر عن منطقة الجهاز.
 const KSA_TZ = "Asia/Riyadh";
 
 export function formatHijriDate(date: Date = new Date()): string {
@@ -24,7 +24,7 @@ export function formatHijriDate(date: Date = new Date()): string {
       day: "numeric",
     }).format(date);
   } catch {
-    return "طھط§ط±ظٹط® ظ‡ط¬ط±ظٹ ط؛ظٹط± ظ…طھط§ط­";
+    return "تاريخ هجري غير متاح";
   }
 }
 
@@ -41,8 +41,8 @@ export function getDayName(date: Date = new Date()): string {
   return new Intl.DateTimeFormat("ar-SA", { timeZone: KSA_TZ, weekday: "long" }).format(date);
 }
 
-// ظ„ط­ط¸ط© ظ…ظ†طھطµظپ ظ„ظٹظ„ ظٹظˆظ… ظ…ط¹ظٹظ† (YYYY-MM-DD) ط¨طھظˆظ‚ظٹطھ ط§ظ„ط±ظٹط§ط¶ (UTC+3طŒ ط¨ظ„ط§ طھظˆظ‚ظٹطھ طµظٹظپظٹ).
-// طھظڈط³طھط®ط¯ظ… ظƒظ‡ط¯ظپ ط«ط§ط¨طھ ظ„ظ„ط¹ط¯ظ‘ط§ط¯ ط§ظ„ط­ظٹ ط¨ط­ظٹط« ظٹطµط­ ظ„ط£ظٹ ظ…ط³طھط®ط¯ظ… ظ…ظ‡ظ…ط§ ظƒط§ظ†طھ ظ…ظ†ط·ظ‚طھظ‡.
+// لحظة منتصف ليل يوم معين (YYYY-MM-DD) بتوقيت الرياض (UTC+3، بلا توقيت صيفي).
+// تُستخدم كهدف ثابت للعدّاد الحي بحيث يصح لأي مستخدم مهما كانت منطقته.
 export function ksaMidnight(dateStr: string): Date {
   return new Date(String(dateStr).slice(0, 10) + "T00:00:00+03:00");
 }
@@ -72,10 +72,10 @@ export function formatCurrency(amount: number | string | null | undefined): stri
 }
 
 /**
- * formatAppTime - ظ…ط±ظƒط²ظٹط© طھظ†ط³ظٹظ‚ ط§ظ„ظˆظ‚طھ (12h / 24h)
+ * formatAppTime - مركزية تنسيق الوقت (12h / 24h)
  *
- * @param value - ظˆظ‚طھ ط¨طµظٹط؛ط© "HH:mm" (ظ…ط«ظ„ "03:45")طŒ ط£ظˆ null/undefined
- * @param format - "12h" | "24h" (ط§ظ„ط§ظپطھط±ط§ط¶ظٹ "12h")
+ * @param value - وقت بصيغة "HH:mm" (مثل "03:45")، أو null/undefined
+ * @param format - "12h" | "24h" (الافتراضي "12h")
  */
 export function formatAppTime(
   value: string | null | undefined,
@@ -91,7 +91,7 @@ export function formatAppTime(
     if (format === "24h") {
       return `${String(h).padStart(2, "0")}:${mm}`;
     }
-    const period = h < 12 ? "طµ" : "ظ…";
+    const period = h < 12 ? "ص" : "م";
     const h12 = h % 12 || 12;
     return `${String(h12).padStart(2, "0")}:${mm} ${period}`;
   } catch {

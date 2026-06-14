@@ -1,4 +1,4 @@
-﻿import { Router } from "express";
+import { Router } from "express";
 import { db } from "@workspace/db";
 import { themesTable, auditLogsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
@@ -31,8 +31,8 @@ router.patch("/themes/:id", requireAdmin, async (req, res) => {
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [row] = await db.update(themesTable).set(parsed.data).where(eq(themesTable.id, id)).returning();
-  if (!row) return res.status(404).json({ error: "ط؛ظٹط± ظ…ظˆط¬ظˆط¯" });
-  await logAudit(actorId, "update", "theme", row.id, row.name, `طھط¹ط¯ظٹظ„ ط«ظٹظ…: ${row.name}`);
+  if (!row) return res.status(404).json({ error: "غير موجود" });
+  await logAudit(actorId, "update", "theme", row.id, row.name, `تعديل ثيم: ${row.name}`);
   return res.json(row);
 });
 

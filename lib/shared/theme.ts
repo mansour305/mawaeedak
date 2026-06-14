@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Mawaeedak Theme Tokens
  * Shared between Web and Mobile
  */

@@ -1,4 +1,4 @@
-﻿import { Router } from "express";
+import { Router } from "express";
 import { db } from "@workspace/db";
 import { appSettingsTable, auditLogsTable, themesTable, DEFAULT_THEME_KEY } from "@workspace/db";
 import { eq } from "drizzle-orm";
@@ -18,8 +18,8 @@ function parseSlug(body: unknown): { slug: string } | null {
 }
 
 /**
- * GET /api/settings/default-theme â€” ط§ظ„ط«ظٹظ… ط§ظ„ط§ظپطھط±ط§ط¶ظٹ ط§ظ„ط¹ط§ظ… (ط¹ط§ظ… ظ„ظ„ظ‚ط±ط§ط،ط©).
- * ظٹط¹ظ…ظ„ ظپظٹ ظƒظ„ ط£ظˆط¶ط§ط¹ ط§ظ„ط¨ظٹط§ظ†ط§طھ ظ„ط£ظ† Express ظ…طھط§ط­ ط¯ط§ط¦ظ…ط§ظ‹.
+ * GET /api/settings/default-theme — الثيم الافتراضي العام (عام للقراءة).
+ * يعمل في كل أوضاع البيانات لأن Express متاح دائماً.
  */
 router.get("/settings/default-theme", async (_req, res) => {
   const [row] = await db
@@ -30,19 +30,19 @@ router.get("/settings/default-theme", async (_req, res) => {
 });
 
 /**
- * PUT /api/settings/default-theme â€” طھط¹ظٹظٹظ† ط§ظ„ط«ظٹظ… ط§ظ„ط§ظپطھط±ط§ط¶ظٹ ط§ظ„ط¹ط§ظ… (ظ„ظ„ظ…ط§ظ„ظƒ ظپظ‚ط·).
+ * PUT /api/settings/default-theme — تعيين الثيم الافتراضي العام (للمالك فقط).
  */
 router.put("/settings/default-theme", requireAdmin, async (req, res) => {
   const parsed = parseSlug(req.body);
-  if (!parsed) return res.status(400).json({ error: "slug ط؛ظٹط± طµط§ظ„ط­" });
+  if (!parsed) return res.status(400).json({ error: "slug غير صالح" });
 
   const { slug } = parsed;
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
 
   const [theme] = await db.select().from(themesTable).where(eq(themesTable.slug, slug));
-  if (!theme) return res.status(404).json({ error: "ط«ظٹظ… ط؛ظٹط± ظ…ظˆط¬ظˆط¯" });
-  if (!theme.is_active) return res.status(400).json({ error: "ظ„ط§ ظٹظ…ظƒظ† طھط¹ظٹظٹظ† ط«ظٹظ… ظ…ط¹ط·ظ‘ظ„ ظƒط§ظپطھط±ط§ط¶ظٹ" });
+  if (!theme) return res.status(404).json({ error: "ثيم غير موجود" });
+  if (!theme.is_active) return res.status(400).json({ error: "لا يمكن تعيين ثيم معطّل كافتراضي" });
 
   await db
     .insert(appSettingsTable)
@@ -57,7 +57,7 @@ router.put("/settings/default-theme", requireAdmin, async (req, res) => {
     entity_type: "app_setting",
     entity_id: null,
     entity_name: DEFAULT_THEME_KEY,
-    description: `طھط¹ظٹظٹظ† ط§ظ„ط«ظٹظ… ط§ظ„ط§ظپطھط±ط§ط¶ظٹ ط§ظ„ط¹ط§ظ…: ${theme.name}`,
+    description: `تعيين الثيم الافتراضي العام: ${theme.name}`,
     performed_by: actorId ?? "system",
     status: "success",
   });

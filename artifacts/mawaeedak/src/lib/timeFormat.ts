@@ -1,4 +1,4 @@
-﻿export type TimeFormatPreference = "12h" | "24h";
+export type TimeFormatPreference = "12h" | "24h";
 
 const POSSIBLE_TIME_KEYS = [
   "mawaeedak-time-format",
@@ -116,8 +116,8 @@ export function toTimeParts(value?: string | null): { hours: number; minutes: nu
 
   const clean = raw
     .replace(/[\u200e\u200f]/g, "")
-    .replace(/طµط¨ط§ط­ظ‹ط§|طµط¨ط§ط­ط§|طµط¨ط§ط­|AM/gi, "AM")
-    .replace(/ظ…ط³ط§ط،ظ‹|ظ…ط³ط§ط،ط§|ظ…ط³ط§ط،|PM/gi, "PM")
+    .replace(/صباحًا|صباحا|صباح|AM/gi, "AM")
+    .replace(/مساءً|مساءا|مساء|PM/gi, "PM")
     .trim();
 
   const match = clean.match(/^(\d{1,2})[:.](\d{2})(?::\d{2})?\s*(AM|PM)?$/i);
@@ -158,7 +158,7 @@ export function formatClockTime(
     return `${String(parts.hours).padStart(2, "0")}:${String(parts.minutes).padStart(2, "0")}`;
   }
 
-  const period = parts.hours >= 12 ? "ظ…" : "طµ";
+  const period = parts.hours >= 12 ? "م" : "ص";
   const displayHour = parts.hours % 12 || 12;
   return `${displayHour}:${String(parts.minutes).padStart(2, "0")} ${period}`;
 }

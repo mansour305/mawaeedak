@@ -1,8 +1,8 @@
-﻿/**
- * dataGateway.ts â€” ظ…ظˆط§ط¹ظٹط¯ظƒ
+/**
+ * dataGateway.ts — مواعيدك
  *
- * Data Gateway ظٹظˆط¬ظ‘ظ‡ ط§ظ„ظ‚ط±ط§ط،ط© ظˆط§ظ„ظƒطھط§ط¨ط© ط¨ظٹظ† Express API ظˆSupabase ط­ط³ط¨ DATA_SOURCE_MODE.
- * ظƒظ„ ظ†ط¯ط§ط،ط§طھ API طھظ…ط± ط¹ط¨ط± authedFetch ط­طھظ‰ طھط³طھط®ط¯ظ… VITE_API_BASE_URL ظˆBearer token ظ…ظ† ظ…طµط¯ط± ظˆط§ط­ط¯.
+ * Data Gateway يوجّه القراءة والكتابة بين Express API وSupabase حسب DATA_SOURCE_MODE.
+ * كل نداءات API تمر عبر authedFetch حتى تستخدم VITE_API_BASE_URL وBearer token من مصدر واحد.
  */
 
 import { DATA_SOURCE_MODE, isApiMode, isShadowMode } from "./dataSourceMode";
@@ -101,7 +101,7 @@ async function writeApi(path: string, init: RequestInit): Promise<WriteResult> {
     if (!resp.ok) return { success: false, error: `API error: ${resp.status}` };
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "API ط®ط·ط£ ط´ط¨ظƒط©" };
+    return { success: false, error: err instanceof Error ? err.message : "API خطأ شبكة" };
   }
 }
 

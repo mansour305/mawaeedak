@@ -1,4 +1,4 @@
-﻿import { Router } from "express";
+import { Router } from "express";
 import { db } from "@workspace/db";
 import { complaintsTable, auditLogsTable } from "@workspace/db";
 import { desc, eq, sql } from "drizzle-orm";
@@ -19,13 +19,13 @@ async function logAudit(actor: string | null, action: string, entityId: number |
   });
 }
 
-// List complaints â€” admin only (contains user-submitted contact info).
+// List complaints — admin only (contains user-submitted contact info).
 router.get("/complaints", requireAdmin, async (req, res) => {
   const rows = await db.select().from(complaintsTable).orderBy(desc(complaintsTable.created_at));
   return res.json(rows);
 });
 
-// Submit complaint â€” public (guests and users can send).
+// Submit complaint — public (guests and users can send).
 router.post("/complaints", async (req, res) => {
   const parsed = CreateComplaintBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: parsed.error });
@@ -33,7 +33,7 @@ router.post("/complaints", async (req, res) => {
   return res.status(201).json(row);
 });
 
-// Update complaint (status / admin reply) â€” admin only.
+// Update complaint (status / admin reply) — admin only.
 router.patch("/complaints/:id", requireAdmin, async (req, res) => {
   const id = parseInt(String(req.params.id));
   const parsed = UpdateComplaintBody.safeParse(req.body);
@@ -45,19 +45,19 @@ router.patch("/complaints/:id", requireAdmin, async (req, res) => {
     .set({ ...parsed.data, updated_at: sql`now()` })
     .where(eq(complaintsTable.id, id))
     .returning();
-  if (!row) return res.status(404).json({ error: "ط؛ظٹط± ظ…ظˆط¬ظˆط¯" });
-  await logAudit(actorId, "update", row.id, row.title ?? row.type, `طھط­ط¯ظٹط« ط±ط³ط§ظ„ط©: ${row.title ?? row.type}`);
+  if (!row) return res.status(404).json({ error: "غير موجود" });
+  await logAudit(actorId, "update", row.id, row.title ?? row.type, `تحديث رسالة: ${row.title ?? row.type}`);
   return res.json(row);
 });
 
-// Delete complaint â€” admin only.
+// Delete complaint — admin only.
 router.delete("/complaints/:id", requireAdmin, async (req, res) => {
   const id = parseInt(String(req.params.id));
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [deleted] = await db.delete(complaintsTable).where(eq(complaintsTable.id, id)).returning();
-  if (!deleted) return res.status(404).json({ error: "ط؛ظٹط± ظ…ظˆط¬ظˆط¯" });
-  await logAudit(actorId, "delete", id, deleted.title ?? deleted.type, `ط­ط°ظپ ط±ط³ط§ظ„ط©: ${deleted.title ?? deleted.type}`);
+  if (!deleted) return res.status(404).json({ error: "غير موجود" });
+  await logAudit(actorId, "delete", id, deleted.title ?? deleted.type, `حذف رسالة: ${deleted.title ?? deleted.type}`);
   return res.status(204).send();
 });
 

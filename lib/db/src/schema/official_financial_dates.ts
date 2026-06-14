@@ -1,4 +1,4 @@
-﻿import { pgTable, serial, text, date, timestamp, boolean, uuid } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, date, timestamp, boolean, uuid } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -14,7 +14,7 @@ export const officialFinancialDatesTable = pgTable("official_financial_dates", {
    */
   event_key: text("event_key").notNull(),
   /**
-   * Humanâ€‘readable name in Arabic.
+   * Human‑readable name in Arabic.
    */
   event_name_ar: text("event_name_ar").notNull(),
   /**

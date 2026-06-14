@@ -1,5 +1,5 @@
-﻿/**
- * Social Automation Admin Routes â€” X / Twitter
+/**
+ * Social Automation Admin Routes — X / Twitter
  * GET   /api/admin/social/settings
  * PATCH /api/admin/social/settings
  * GET   /api/admin/social/logs
@@ -48,7 +48,7 @@ async function getOrCreateSettings() {
       platform: "x",
       is_enabled: false,
       post_time: "00:05",
-      template: "{date}\n\n{message}\n\nظ…ظˆط§ط¹ظٹط¯ظƒ",
+      template: "{date}\n\n{message}\n\nمواعيدك",
     })
     .returning();
   return created!;
@@ -68,7 +68,7 @@ async function buildPostContent(template: string): Promise<string> {
     month: "long",
     year: "numeric",
   }).format(new Date());
-  const tpl = template && template.trim() !== "" ? template : "{date}\n\n{message}\n\nظ…ظˆط§ط¹ظٹط¯ظƒ";
+  const tpl = template && template.trim() !== "" ? template : "{date}\n\n{message}\n\nمواعيدك";
   return tpl.replace(/\{date\}/g, hijri).replace(/\{message\}/g, message).trim();
 }
 
@@ -110,7 +110,7 @@ router.post("/admin/social/preview", requireAdmin, async (req, res) => {
     kind: "preview",
     status: "ok",
     content,
-    detail: "ظ…ط¹ط§ظٹظ†ط© ظ…ظ† ط¨ظٹط§ظ†ط§طھ ط­ظٹط©",
+    detail: "معاينة من بيانات حية",
   });
   req.log.info("[Social] preview generated");
   return res.json({ content });
@@ -122,7 +122,7 @@ router.post("/admin/social/test", requireAdmin, async (req, res) => {
   const missing = missingXSecrets();
 
   if (missing.length > 0) {
-    const message = `ط§ظ„ظ†ط´ط± ط§ظ„ظ…ط¨ط§ط´ط± ط؛ظٹط± ظ…ظڈظپط¹ظ‘ظ„: ط§ظ„ظ…ظپط§طھظٹط­ ط§ظ„ظ†ط§ظ‚طµط© ${missing.join("طŒ ")}. ط£ط¶ظپ ظ…ظپط§طھظٹط­ X ظپظٹ ط§ظ„ط¥ط¹ط¯ط§ط¯ط§طھ ظ„طھظپط¹ظٹظ„ ط§ظ„ظ†ط´ط± ط§ظ„ظپط¹ظ„ظٹ.`;
+    const message = `النشر المباشر غير مُفعّل: المفاتيح الناقصة ${missing.join("، ")}. أضف مفاتيح X في الإعدادات لتفعيل النشر الفعلي.`;
     await db.insert(socialAutomationLogsTable).values({
       platform: "x",
       kind: "test",
@@ -130,12 +130,12 @@ router.post("/admin/social/test", requireAdmin, async (req, res) => {
       content,
       detail: `missing: ${missing.join(",")}`,
     });
-    req.log.warn({ missing }, "[Social] test â€” missing credentials");
+    req.log.warn({ missing }, "[Social] test — missing credentials");
     return res.json({ ok: false, status: "missing_credentials", message, content, missing_secrets: missing });
   }
 
   // Credentials present but live posting is deferred (P2). Report honestly.
-  const message = "طھظ… ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ط§ظ„ظ…ظپط§طھظٹط­ ط¨ظ†ط¬ط§ط­. ط§ظ„ظ†ط´ط± ط§ظ„ظ…ط¨ط§ط´ط± ط¥ظ„ظ‰ X ط³ظٹظڈظپط¹ظ‘ظ„ ظ„ط§ط­ظ‚ط§ظ‹ (ظ‚ظٹط¯ ط§ظ„ط¥ط¹ط¯ط§ط¯) â€” ظ„ظ… ظٹطھظ… ظ†ط´ط± طھط؛ط±ظٹط¯ط© ظپط¹ظ„ظٹط©.";
+  const message = "تم التحقق من المفاتيح بنجاح. النشر المباشر إلى X سيُفعّل لاحقاً (قيد الإعداد) — لم يتم نشر تغريدة فعلية.";
   await db.insert(socialAutomationLogsTable).values({
     platform: "x",
     kind: "test",
@@ -143,7 +143,7 @@ router.post("/admin/social/test", requireAdmin, async (req, res) => {
     content,
     detail: "credentials present; live posting deferred",
   });
-  req.log.info("[Social] test â€” credentials validated, posting deferred");
+  req.log.info("[Social] test — credentials validated, posting deferred");
   return res.json({ ok: true, status: "validated", message, content, missing_secrets: [] });
 });
 

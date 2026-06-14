@@ -1,9 +1,9 @@
-﻿/**
- * Prayer Times Service â€” ظ…ظˆط§ط¹ظٹط¯ظƒ
+/**
+ * Prayer Times Service — مواعيدك
  * 
- * ط®ط¯ظ…ط© ظ…ظˆط§ظ‚ظٹطھ ط§ظ„طµظ„ط§ط©
- * ظٹط³طھط®ط¯ظ… Asia/Riyadh ظ„ظ„طھظˆظ‚ظٹطھ
- * ط§ظ„ظ‚ط±ط§ط،ط© ط­ط³ط¨ city_key
+ * خدمة مواقيت الصلاة
+ * يستخدم Asia/Riyadh للتوقيت
+ * القراءة حسب city_key
  */
 
 import { supabase, isSupabaseEnabled } from "./supabase";
@@ -47,40 +47,40 @@ export type NextPrayer = {
 };
 
 const PRAYER_LABELS: Record<keyof PrayerTimes, string> = {
-  fajr: "ط§ظ„ظپط¬ط±",
-  sunrise: "ط§ظ„ط´ط±ظˆظ‚",
-  dhuhr: "ط§ظ„ط¸ظ‡ط±",
-  asr: "ط§ظ„ط¹طµط±",
-  maghrib: "ط§ظ„ظ…ط؛ط±ط¨",
-  isha: "ط§ظ„ط¹ط´ط§ط،",
+  fajr: "الفجر",
+  sunrise: "الشروق",
+  dhuhr: "الظهر",
+  asr: "العصر",
+  maghrib: "المغرب",
+  isha: "العشاء",
 };
 
 // Saudi cities with their keys
 export const SAUDI_CITIES: Record<string, string> = {
-  riyadh: "ط§ظ„ط±ظٹط§ط¶",
-  jeddah: "ط¬ط¯ط©",
-  makkah: "ظ…ظƒط© ط§ظ„ظ…ظƒط±ظ…ط©",
-  madinah: "ط§ظ„ظ…ط¯ظٹظ†ط© ط§ظ„ظ…ظ†ظˆط±ط©",
-  dammam: "ط§ظ„ط¯ظ…ط§ظ…",
-  khobar: "ط§ظ„ط®ط¨ط±",
-  dhahran: "ط§ظ„ط¸ظ‡ط±ط§ظ†",
-  taif: "ط§ظ„ط·ط§ط¦ظپ",
-  qatif: "ط§ظ„ظ‚ط·ظٹظپ",
-  jubail: "ط§ظ„ط¬ط¨ظٹظ„",
-  alkobar: "ط§ظ„ط®ط¨ط±",
-  alahsa: "ط§ظ„ط£ط­ط³ط§ط،",
-  najran: "ظ†ط¬ط±ط§ظ†",
-  jazan: "ط¬ط§ط²ط§ظ†",
-  abha: "ط£ط¨ظ‡ط§",
-  hail: "ط­ط§ط¦ظ„",
-  tabuk: "طھط¨ظˆظƒ",
-  bisha: "ط¨ظٹط´ط©",
-  rafha: "ط±ظپط­ط©",
-  hofuf: "ط§ظ„ظ‡ظپظˆظپ",
-  buraydah: "ط¨ط±ظٹط¯ط©",
-  unaizah: "ط¹ظ†ظٹط²ط©",
-  arar: "ط¹ط±ط¹ط±",
-  sakaka: "ط³ظƒط§ظƒط§",
+  riyadh: "الرياض",
+  jeddah: "جدة",
+  makkah: "مكة المكرمة",
+  madinah: "المدينة المنورة",
+  dammam: "الدمام",
+  khobar: "الخبر",
+  dhahran: "الظهران",
+  taif: "الطائف",
+  qatif: "القطيف",
+  jubail: "الجبيل",
+  alkobar: "الخبر",
+  alahsa: "الأحساء",
+  najran: "نجران",
+  jazan: "جازان",
+  abha: "أبها",
+  hail: "حائل",
+  tabuk: "تبوك",
+  bisha: "بيشة",
+  rafha: "رفحة",
+  hofuf: "الهفوف",
+  buraydah: "بريدة",
+  unaizah: "عنيزة",
+  arar: "عرعر",
+  sakaka: "سكاكا",
 };
 
 const CITY_KEY_ALIASES: Record<string, string> = {
@@ -89,33 +89,33 @@ const CITY_KEY_ALIASES: Record<string, string> = {
   al_hasa: "alhasa",
   alahsa: "alhasa",
   ahsa: "alhasa",
-  "ط§ظ„ط£ط­ط³ط§ط،": "alhasa",
-  "ط§ظ„ط§ط­ط³ط§ط،": "alhasa",
-  "ط§ظ„ط®ط¨ط±": "khobar",
-  "ط§ظ„ط±ظٹط§ط¶": "riyadh",
-  "ط¬ط¯ط©": "jeddah",
-  "ظ…ظƒط© ط§ظ„ظ…ظƒط±ظ…ط©": "makkah",
-  "ظ…ظƒط©": "makkah",
-  "ط§ظ„ظ…ط¯ظٹظ†ط© ط§ظ„ظ…ظ†ظˆط±ط©": "madinah",
-  "ط§ظ„ظ…ط¯ظٹظ†ط©": "madinah",
-  "ط§ظ„ط¯ظ…ط§ظ…": "dammam",
-  "ط§ظ„ط¸ظ‡ط±ط§ظ†": "dhahran",
-  "ط§ظ„ط·ط§ط¦ظپ": "taif",
-  "ط§ظ„ظ‚ط·ظٹظپ": "qatif",
-  "ط§ظ„ط¬ط¨ظٹظ„": "jubail",
-  "ظ†ط¬ط±ط§ظ†": "najran",
-  "ط¬ط§ط²ط§ظ†": "jazan",
-  "ط£ط¨ظ‡ط§": "abha",
-  "ط§ط¨ظ‡ط§": "abha",
-  "ط­ط§ط¦ظ„": "hail",
-  "طھط¨ظˆظƒ": "tabuk",
-  "ط¨ظٹط´ط©": "bisha",
-  "ط±ظپط­ط§ط،": "rafha",
-  "ط§ظ„ظ‡ظپظˆظپ": "hofuf",
-  "ط¨ط±ظٹط¯ط©": "buraydah",
-  "ط¹ظ†ظٹط²ط©": "unaizah",
-  "ط¹ط±ط¹ط±": "arar",
-  "ط³ظƒط§ظƒط§": "sakaka",
+  "الأحساء": "alhasa",
+  "الاحساء": "alhasa",
+  "الخبر": "khobar",
+  "الرياض": "riyadh",
+  "جدة": "jeddah",
+  "مكة المكرمة": "makkah",
+  "مكة": "makkah",
+  "المدينة المنورة": "madinah",
+  "المدينة": "madinah",
+  "الدمام": "dammam",
+  "الظهران": "dhahran",
+  "الطائف": "taif",
+  "القطيف": "qatif",
+  "الجبيل": "jubail",
+  "نجران": "najran",
+  "جازان": "jazan",
+  "أبها": "abha",
+  "ابها": "abha",
+  "حائل": "hail",
+  "تبوك": "tabuk",
+  "بيشة": "bisha",
+  "رفحاء": "rafha",
+  "الهفوف": "hofuf",
+  "بريدة": "buraydah",
+  "عنيزة": "unaizah",
+  "عرعر": "arar",
+  "سكاكا": "sakaka",
 };
 
 export function normalizeCityKey(cityKey: string | null | undefined): string | null {
@@ -130,7 +130,7 @@ export function normalizeCityKey(cityKey: string | null | undefined): string | n
 }
 
 /**
- * getPrayerTimesForCity â€” ط¬ظ„ط¨ ظ…ظˆط§ظ‚ظٹطھ ط§ظ„طµظ„ط§ط© ظ„ظ„ظ…ط¯ظٹظ†ط©
+ * getPrayerTimesForCity — جلب مواقيت الصلاة للمدينة
  */
 export async function getPrayerTimesForCity(cityKey: string): Promise<PrayerTimeRecord | null> {
   if (!isSupabaseEnabled || !supabase) return null;
@@ -153,7 +153,7 @@ export async function getPrayerTimesForCity(cityKey: string): Promise<PrayerTime
 }
 
 /**
- * getNextPrayer â€” ط­ط³ط§ط¨ ط§ظ„طµظ„ط§ط© ط§ظ„ظ‚ط§ط¯ظ…ط©
+ * getNextPrayer — حساب الصلاة القادمة
  */
 export function getNextPrayer(prayers: PrayerTimes): NextPrayer | null {
   const now = getRiyadhNow();
@@ -187,7 +187,7 @@ export function getNextPrayer(prayers: PrayerTimes): NextPrayer | null {
 }
 
 /**
- * getPrayerCountdown â€” ط­ط³ط§ط¨ ط§ظ„ط¹ط¯ ط§ظ„طھظ†ط§ط²ظ„ظٹ ظ„ظ„طµظ„ط§ط© ط§ظ„ظ‚ط§ط¯ظ…ط©
+ * getPrayerCountdown — حساب العد التنازلي للصلاة القادمة
  */
 export function getPrayerCountdown(prayers: PrayerTimes): number | null {
   const next = getNextPrayer(prayers);
@@ -195,7 +195,7 @@ export function getPrayerCountdown(prayers: PrayerTimes): number | null {
 }
 
 /**
- * formatCountdown â€” طھظ†ط³ظٹظ‚ ط§ظ„ط¹ط¯ ط§ظ„طھظ†ط§ط²ظ„ظٹ
+ * formatCountdown — تنسيق العد التنازلي
  */
 export function formatCountdown(ms: number): string {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
@@ -207,14 +207,14 @@ export function formatCountdown(ms: number): string {
 }
 
 /**
- * formatPrayerTime â€” طھظ†ط³ظٹظ‚ ظˆظ‚طھ ط§ظ„طµظ„ط§ط©
+ * formatPrayerTime — تنسيق وقت الصلاة
  */
 export function formatPrayerTime(time: string, preference: "12h" | "24h" = "24h"): string {
   return formatTimeByPreference(time, preference);
 }
 
 /**
- * getPrayerStatus â€” ط­ط§ظ„ط© ط§ظ„طµظ„ط§ط© ط§ظ„ط­ط§ظ„ظٹط©
+ * getPrayerStatus — حالة الصلاة الحالية
  */
 export function getPrayerStatus(prayers: PrayerTimes): {
   current: string | null;
@@ -265,14 +265,14 @@ export function getPrayerStatus(prayers: PrayerTimes): {
 }
 
 /**
- * getAllCities â€” ط¬ظ„ط¨ ظƒظ„ ط§ظ„ظ…ط¯ظ† ط§ظ„ظ…ط¯ط¹ظˆظ…ط©
+ * getAllCities — جلب كل المدن المدعومة
  */
 export function getAllCities(): { key: string; name: string }[] {
   return Object.entries(SAUDI_CITIES).map(([key, name]) => ({ key, name }));
 }
 
 /**
- * getCityName â€” ط§ظ„ط­طµظˆظ„ ط¹ظ„ظ‰ ط§ط³ظ… ط§ظ„ظ…ط¯ظٹظ†ط© ظ…ظ† key
+ * getCityName — الحصول على اسم المدينة من key
  */
 export function getCityName(cityKey: string): string {
   const normalizedCityKey = normalizeCityKey(cityKey);
@@ -280,13 +280,13 @@ export function getCityName(cityKey: string): string {
 }
 
 /**
- * createPrayerTimeRecord â€” ط¥ظ†ط´ط§ط، ط³ط¬ظ„ ظ…ظˆط§ظ‚ظٹطھ (ظ„ظ„ط£ط¯ظ…ظ†)
+ * createPrayerTimeRecord — إنشاء سجل مواقيت (للأدمن)
  */
 export async function createPrayerTimeRecord(
   record: Omit<PrayerTimeRecord, "id" | "created_at" | "updated_at">
 ): Promise<{ success: boolean; error?: string }> {
   if (!isSupabaseEnabled || !supabase) {
-    return { success: false, error: "Supabase ط؛ظٹط± ظ…ظ‡ظٹط£" };
+    return { success: false, error: "Supabase غير مهيأ" };
   }
   
   const { error } = await supabase
@@ -302,14 +302,14 @@ export async function createPrayerTimeRecord(
 }
 
 /**
- * updatePrayerTimeRecord â€” طھط­ط¯ظٹط« ط³ط¬ظ„ ظ…ظˆط§ظ‚ظٹطھ (ظ„ظ„ط£ط¯ظ…ظ†)
+ * updatePrayerTimeRecord — تحديث سجل مواقيت (للأدمن)
  */
 export async function updatePrayerTimeRecord(
   id: string,
   updates: Partial<PrayerTimeRecord>
 ): Promise<{ success: boolean; error?: string }> {
   if (!isSupabaseEnabled || !supabase) {
-    return { success: false, error: "Supabase ط؛ظٹط± ظ…ظ‡ظٹط£" };
+    return { success: false, error: "Supabase غير مهيأ" };
   }
   
   const { error } = await supabase
@@ -322,7 +322,7 @@ export async function updatePrayerTimeRecord(
 }
 
 /**
- * confirmPrayerTime â€” ط§ط¹طھظ…ط§ط¯ ظ…ظˆط§ظ‚ظٹطھ ط§ظ„طµظ„ط§ط© (ظ„ظ„ط£ط¯ظ…ظ†)
+ * confirmPrayerTime — اعتماد مواقيت الصلاة (للأدمن)
  */
 export async function confirmPrayerTime(id: string): Promise<{ success: boolean; error?: string }> {
   return updatePrayerTimeRecord(id, {

@@ -1,4 +1,4 @@
-﻿import { Router } from "express";
+import { Router } from "express";
 import { requireAdmin } from "../middlewares/requireAdmin";
 import { db } from "@workspace/db";
 import { newsTable, auditLogsTable } from "@workspace/db";
@@ -34,7 +34,7 @@ router.post("/news", requireAdmin, async (req, res) => {
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [row] = await db.insert(newsTable).values(parsed.data).returning();
-  await logAudit(actorId, "create", "news", row.id, row.title, `ط¥ط¶ط§ظپط© ط®ط¨ط±: ${row.title}`);
+  await logAudit(actorId, "create", "news", row.id, row.title, `إضافة خبر: ${row.title}`);
   return res.status(201).json(row);
 });
 
@@ -45,8 +45,8 @@ router.patch("/news/:id", requireAdmin, async (req, res) => {
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [row] = await db.update(newsTable).set(parsed.data).where(eq(newsTable.id, id)).returning();
-  if (!row) return res.status(404).json({ error: "ط؛ظٹط± ظ…ظˆط¬ظˆط¯" });
-  await logAudit(actorId, "update", "news", row.id, row.title, `طھط¹ط¯ظٹظ„ ط®ط¨ط±: ${row.title}`);
+  if (!row) return res.status(404).json({ error: "غير موجود" });
+  await logAudit(actorId, "update", "news", row.id, row.title, `تعديل خبر: ${row.title}`);
   return res.json(row);
 });
 
@@ -55,8 +55,8 @@ router.delete("/news/:id", requireAdmin, async (req, res) => {
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [deleted] = await db.delete(newsTable).where(eq(newsTable.id, id)).returning();
-  if (!deleted) return res.status(404).json({ error: "ط؛ظٹط± ظ…ظˆط¬ظˆط¯" });
-  await logAudit(actorId, "delete", "news", id, deleted.title, `ط­ط°ظپ ط®ط¨ط±: ${deleted.title}`);
+  if (!deleted) return res.status(404).json({ error: "غير موجود" });
+  await logAudit(actorId, "delete", "news", id, deleted.title, `حذف خبر: ${deleted.title}`);
   return res.status(204).send();
 });
 

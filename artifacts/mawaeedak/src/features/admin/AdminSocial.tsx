@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -55,8 +55,8 @@ export default function AdminSocial() {
     updateSettings.mutate(
       { data: { is_enabled: enabled, post_time: postTime, template, account_handle: handle } },
       {
-        onSuccess: () => { toast({ title: "طھظ… ط­ظپط¸ ط§ظ„ط¥ط¹ط¯ط§ط¯ط§طھ" }); invalidate(); },
-        onError: () => toast({ title: "ط®ط·ط£", description: "طھط¹ط°ط± ط§ظ„ط­ظپط¸", variant: "destructive" }),
+        onSuccess: () => { toast({ title: "تم حفظ الإعدادات" }); invalidate(); },
+        onError: () => toast({ title: "خطأ", description: "تعذر الحفظ", variant: "destructive" }),
       }
     );
   };
@@ -64,7 +64,7 @@ export default function AdminSocial() {
   const handlePreview = () => {
     preview.mutate(undefined, {
       onSuccess: (r) => { setPreviewText(r.content); invalidate(); },
-      onError: () => toast({ title: "ط®ط·ط£", description: "طھط¹ط°ط± ط¥ظ†ط´ط§ط، ط§ظ„ظ…ط¹ط§ظٹظ†ط©", variant: "destructive" }),
+      onError: () => toast({ title: "خطأ", description: "تعذر إنشاء المعاينة", variant: "destructive" }),
     });
   };
 
@@ -75,7 +75,7 @@ export default function AdminSocial() {
         if (r.content) setPreviewText(r.content);
         invalidate();
       },
-      onError: () => toast({ title: "ط®ط·ط£", description: "طھط¹ط°ط± طھط´ط؛ظٹظ„ ط§ظ„ط§ط®طھط¨ط§ط±", variant: "destructive" }),
+      onError: () => toast({ title: "خطأ", description: "تعذر تشغيل الاختبار", variant: "destructive" }),
     });
   };
 
@@ -92,7 +92,7 @@ export default function AdminSocial() {
           style={{ background: "linear-gradient(180deg, hsl(38 62% 52%), hsl(32 55% 42%))" }}
         />
         <h1 className="text-2xl font-extrabold" style={{ color: "hsl(22 62% 18%)" }}>
-          ط±ط¨ط· ط§ظ„طھظˆط§طµظ„ ط§ظ„ط§ط¬طھظ…ط§ط¹ظٹ ظˆط§ظ„ط£طھظ…طھط©
+          ربط التواصل الاجتماعي والأتمتة
         </h1>
       </div>
 
@@ -100,39 +100,39 @@ export default function AdminSocial() {
         <CardContent className="p-4 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <div className="font-bold text-sm">طھظپط¹ظٹظ„ ط§ظ„ظ†ط´ط± ط§ظ„ظٹظˆظ…ظٹ ط§ظ„طھظ„ظ‚ط§ط¦ظٹ</div>
-              <div className="text-xs text-muted-foreground">ظٹظ†ط´ط± ظ…ظ†ط´ظˆط± ط§ظ„ظٹظˆظ… ظپظٹ ط§ظ„ظˆظ‚طھ ط§ظ„ظ…ط­ط¯ط¯ ط¨طھظˆظ‚ظٹطھ ط§ظ„ط±ظٹط§ط¶</div>
+              <div className="font-bold text-sm">تفعيل النشر اليومي التلقائي</div>
+              <div className="text-xs text-muted-foreground">ينشر منشور اليوم في الوقت المحدد بتوقيت الرياض</div>
             </div>
             <Switch checked={enabled} onCheckedChange={setEnabled} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label>ظˆظ‚طھ ط§ظ„ظ†ط´ط± (ط§ظ„ط±ظٹط§ط¶)</Label>
+              <Label>وقت النشر (الرياض)</Label>
               <Input type="time" value={postTime} onChange={e => setPostTime(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label>ط­ط³ط§ط¨ X (ط§ط®طھظٹط§ط±ظٹ)</Label>
+              <Label>حساب X (اختياري)</Label>
               <Input value={handle} onChange={e => setHandle(e.target.value)} placeholder="@mawaeedak" className="dir-ltr" />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label>ظ‚ط§ظ„ط¨ ط§ظ„ظ…ظ†ط´ظˆط±</Label>
+            <Label>قالب المنشور</Label>
             <Textarea value={template} onChange={e => setTemplate(e.target.value)} rows={4}
-              placeholder="ط§ط³طھط®ط¯ظ… {date} ظ„ظ„طھط§ط±ظٹط® ط§ظ„ظ‡ط¬ط±ظٹ ظˆ {message} ظ„ط±ط³ط§ظ„ط© ط§ظ„ظٹظˆظ…" />
-            <p className="text-[11px] text-muted-foreground">ط§ظ„ظ…طھط؛ظٹط±ط§طھ ط§ظ„ظ…طھط§ط­ط©: {"{date}"} (ط§ظ„طھط§ط±ظٹط® ط§ظ„ظ‡ط¬ط±ظٹ) آ· {"{message}"} (ط±ط³ط§ظ„ط© ط§ظ„ظٹظˆظ…)</p>
+              placeholder="استخدم {date} للتاريخ الهجري و {message} لرسالة اليوم" />
+            <p className="text-[11px] text-muted-foreground">المتغيرات المتاحة: {"{date}"} (التاريخ الهجري) · {"{message}"} (رسالة اليوم)</p>
           </div>
 
           <div className="flex gap-2 flex-wrap">
             <Button onClick={handleSave} disabled={updateSettings.isPending}>
-              {updateSettings.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4 ml-1" /> ط­ظپط¸</>}
+              {updateSettings.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4 ml-1" /> حفظ</>}
             </Button>
             <Button variant="outline" onClick={handlePreview} disabled={preview.isPending}>
-              {preview.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Eye className="w-4 h-4 ml-1" /> ظ…ط¹ط§ظٹظ†ط©</>}
+              {preview.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Eye className="w-4 h-4 ml-1" /> معاينة</>}
             </Button>
             <Button variant="outline" onClick={handleTest} disabled={test.isPending}>
-              {test.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4 ml-1" /> ط§ط®طھط¨ط§ط± ط§ظ„ظ†ط´ط±</>}
+              {test.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-4 h-4 ml-1" /> اختبار النشر</>}
             </Button>
           </div>
         </CardContent>
@@ -141,9 +141,9 @@ export default function AdminSocial() {
       {previewText && (
         <Card className="border-border shadow-sm">
           <CardContent className="p-4 space-y-2">
-            <div className="text-sm font-bold flex items-center gap-2"><Eye className="w-4 h-4 text-primary" /> ظ…ط¹ط§ظٹظ†ط© ط§ظ„ظ…ظ†ط´ظˆط±</div>
+            <div className="text-sm font-bold flex items-center gap-2"><Eye className="w-4 h-4 text-primary" /> معاينة المنشور</div>
             <div className="p-3 rounded-lg bg-muted/40 text-sm whitespace-pre-wrap text-foreground">{previewText}</div>
-            <div className="text-[11px] text-muted-foreground">{previewText.length} ط­ط±ظپ</div>
+            <div className="text-[11px] text-muted-foreground">{previewText.length} حرف</div>
           </CardContent>
         </Card>
       )}
@@ -166,8 +166,8 @@ export default function AdminSocial() {
 
       <Card className="border-border shadow-sm">
         <CardContent className="p-4 space-y-3">
-          <div className="text-sm font-bold">ط§ظ„ظ…ظپط§طھظٹط­ ط§ظ„ظ…ط·ظ„ظˆط¨ط© ظ„ظ„ظ†ط´ط± ط§ظ„ظ…ط¨ط§ط´ط±</div>
-          <p className="text-xs text-muted-foreground">ط§ظ„ظ†ط´ط± ط§ظ„ظپط¹ظ„ظٹ ط¥ظ„ظ‰ X ظٹطھط·ظ„ط¨ ط¥ط¶ط§ظپط© ظ‡ط°ظ‡ ط§ظ„ظ…ظپط§طھظٹط­ ظƒط£ط³ط±ط§ط± ظپظٹ ط¨ظٹط¦ط© ط§ظ„طھط´ط؛ظٹظ„. ط­طھظ‰ ط°ظ„ظƒ ط§ظ„ط­ظٹظ† ظٹط¹ظ…ظ„ ظˆط¶ط¹ ط§ظ„ظ…ط¹ط§ظٹظ†ط© ظˆط§ظ„ط§ط®طھط¨ط§ط± ظپظ‚ط· ط¯ظˆظ† ظ†ط´ط± ظپط¹ظ„ظٹ.</p>
+          <div className="text-sm font-bold">المفاتيح المطلوبة للنشر المباشر</div>
+          <p className="text-xs text-muted-foreground">النشر الفعلي إلى X يتطلب إضافة هذه المفاتيح كأسرار في بيئة التشغيل. حتى ذلك الحين يعمل وضع المعاينة والاختبار فقط دون نشر فعلي.</p>
           <div className="flex flex-wrap gap-2">
             {(Array.isArray(REQUIRED_SECRETS) ? REQUIRED_SECRETS : []).map(s => (
               <span key={s} className="text-[11px] px-2 py-1 rounded-lg bg-muted font-mono text-muted-foreground dir-ltr">{s}</span>
@@ -178,9 +178,9 @@ export default function AdminSocial() {
 
       <Card className="border-border shadow-sm">
         <CardContent className="p-4 space-y-2">
-          <div className="text-sm font-bold flex items-center gap-2"><Clock className="w-4 h-4 text-primary" /> ط³ط¬ظ„ ط§ظ„ظ†ط´ط§ط·</div>
+          <div className="text-sm font-bold flex items-center gap-2"><Clock className="w-4 h-4 text-primary" /> سجل النشاط</div>
           {(logs ?? []).length === 0 ? (
-            <div className="text-xs text-muted-foreground py-4 text-center">ظ„ط§ ظٹظˆط¬ط¯ ظ†ط´ط§ط· ط¨ط¹ط¯</div>
+            <div className="text-xs text-muted-foreground py-4 text-center">لا يوجد نشاط بعد</div>
           ) : (
             <div className="divide-y divide-border">
               {(logs ?? []).slice(0, 20).map(l => (

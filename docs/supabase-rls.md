@@ -1,4 +1,4 @@
-﻿# Supabase RLS (Row Level Security) Documentation
+# Supabase RLS (Row Level Security) Documentation
 
 **Last Updated**: 2026-06-12
 
@@ -15,11 +15,11 @@ Mawaeedak uses Supabase Row Level Security (RLS) to enforce data access policies
 ## RLS Architecture
 
 ```
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ     â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ     â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
-â”‚   Frontend      â”‚â”€â”€â”€â”€â–؛â”‚   Supabase      â”‚â”€â”€â”€â”€â–؛â”‚   PostgreSQL    â”‚
-â”‚   (React/Vite)  â”‚     â”‚   (Auth + RLS)  â”‚     â”‚   (RLS Policies)â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک     â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک     â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
-        â”‚                       â”‚                       â”‚
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   Frontend      │────►│   Supabase      │────►│   PostgreSQL    │
+│   (React/Vite)  │     │   (Auth + RLS)  │     │   (RLS Policies)│
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+        │                       │                       │
    API Request            Auth Check            Policy Check
    with Anon Key          (auth.uid())          (user_id match)
 ```
@@ -55,9 +55,9 @@ Mawaeedak uses Supabase Row Level Security (RLS) to enforce data access policies
 | Users manage own financial events | ALL | `auth.uid() = user_id` |
 
 **Indexes**:
-- `idx_financial_events_user` â€” For user queries
-- `idx_financial_events_type` â€” For type filtering
-- `idx_financial_events_next_date` â€” For date queries
+- `idx_financial_events_user` — For user queries
+- `idx_financial_events_type` — For type filtering
+- `idx_financial_events_next_date` — For date queries
 
 ---
 
@@ -118,11 +118,11 @@ Mawaeedak uses Supabase Row Level Security (RLS) to enforce data access policies
 | Users manage own subscriptions | ALL | `auth.uid() = user_id` |
 
 **Indexes**:
-- `idx_push_subscriptions_user` â€” For user queries
-- `idx_push_subscriptions_endpoint` â€” For uniqueness
+- `idx_push_subscriptions_user` — For user queries
+- `idx_push_subscriptions_endpoint` — For uniqueness
 
 **Cleanup Function**:
-- `cleanup_expired_subscriptions()` â€” Removes invalid subscriptions
+- `cleanup_expired_subscriptions()` — Removes invalid subscriptions
 
 ---
 
@@ -136,8 +136,8 @@ Mawaeedak uses Supabase Row Level Security (RLS) to enforce data access policies
 | Users manage own goals | ALL | `auth.uid() = user_id` |
 
 **Indexes**:
-- `idx_goals_user_id` â€” For user queries
-- `idx_goals_completed` â€” For active goal filtering
+- `idx_goals_user_id` — For user queries
+- `idx_goals_completed` — For active goal filtering
 
 ---
 
@@ -162,8 +162,8 @@ Mawaeedak uses Supabase Row Level Security (RLS) to enforce data access policies
 | Users manage own items | ALL | `auth.uid() = user_id` |
 
 **Indexes**:
-- `idx_cost_items_project_id` â€” For project queries
-- `idx_cost_items_user_id` â€” For user queries
+- `idx_cost_items_project_id` — For project queries
+- `idx_cost_items_user_id` — For user queries
 
 ---
 
@@ -177,9 +177,9 @@ Mawaeedak uses Supabase Row Level Security (RLS) to enforce data access policies
 | Users manage own reminders | ALL | `auth.uid() = user_id` |
 
 **Indexes**:
-- `idx_reminders_user_id` â€” For user queries
-- `idx_reminders_active` â€” For active reminder filtering
-- `idx_reminders_scheduled` â€” For scheduled notifications
+- `idx_reminders_user_id` — For user queries
+- `idx_reminders_active` — For active reminder filtering
+- `idx_reminders_scheduled` — For scheduled notifications
 
 ---
 
@@ -271,9 +271,9 @@ Mawaeedak uses Supabase Row Level Security (RLS) to enforce data access policies
 
 ```
 owner
-  â””â”€â”€ super_admin
-       â””â”€â”€ admin
-            â””â”€â”€ user
+  └── super_admin
+       └── admin
+            └── user
 ```
 
 **Permissions**:

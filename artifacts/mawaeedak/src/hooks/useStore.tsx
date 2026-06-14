@@ -1,4 +1,4 @@
-﻿import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase, isSupabaseEnabled } from "@/lib/supabase";
 import { getUserProfile } from "@/lib/profileService";
 
@@ -29,7 +29,7 @@ const defaultUser: UserData = {
   id: '',
   name: '',
   email: '',
-  city: 'ط§ظ„ط±ظٹط§ط¶',
+  city: 'الرياض',
   cityKey: 'riyadh',
   timezone: 'Asia/Riyadh',
   role: 'user',
@@ -81,7 +81,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
               id: sbUser.id,
               name: profile.full_name || prev.name,
               email: sbUser.email || prev.email,
-              city: profile.city_name_ar || prev.city || 'ط§ظ„ط±ظٹط§ط¶',
+              city: profile.city_name_ar || prev.city || 'الرياض',
               cityKey: profile.city_key || prev.cityKey || 'riyadh',
               timezone: profile.timezone || prev.timezone || 'Asia/Riyadh',
               role: profile.role || prev.role,
@@ -115,9 +115,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
           if (parsed?.user) {
             const demoUser = {
               id: parsed.user.id,
-              name: parsed.user.displayName || 'ظ…ط¯ظٹط± ط§ظ„ظ†ط¸ط§ظ…',
+              name: parsed.user.displayName || 'مدير النظام',
               email: 'demo@mawaeedak.local',
-              city: 'ط§ظ„ط±ظٹط§ط¶',
+              city: 'الرياض',
               cityKey: 'riyadh',
               timezone: 'Asia/Riyadh',
               role: parsed.user.role || 'admin',
@@ -144,7 +144,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
               id: session.user.id,
               name: profile.full_name || session.user.email?.split('@')[0] || '',
               email: session.user.email || '',
-              city: profile.city_name_ar || prev.city || 'ط§ظ„ط±ظٹط§ط¶',
+              city: profile.city_name_ar || prev.city || 'الرياض',
               cityKey: profile.city_key || prev.cityKey || 'riyadh',
               timezone: profile.timezone || prev.timezone || 'Asia/Riyadh',
               role: profile.role || 'user',

@@ -1,4 +1,4 @@
-﻿# Deployment Environment Variables
+# Deployment Environment Variables
 
 **Last Updated**: 2026-06-12
 
@@ -25,9 +25,9 @@ VITE_SUPABASE_ANON_KEY=your-anon-key-here
 **Where to find**:
 1. Go to [Supabase Dashboard](https://app.supabase.com)
 2. Select your project
-3. Go to Settings â†’ API
-4. Copy `Project URL` â†’ `VITE_SUPABASE_URL`
-5. Copy `anon public` key â†’ `VITE_SUPABASE_ANON_KEY`
+3. Go to Settings → API
+4. Copy `Project URL` → `VITE_SUPABASE_URL`
+5. Copy `anon public` key → `VITE_SUPABASE_ANON_KEY`
 
 ### Optional Variables
 
@@ -44,10 +44,10 @@ VITE_DATA_SOURCE_MODE=supabase
 ```
 
 Options:
-- `supabase` â€” Use Supabase (default if keys present)
-- `supabase_shadow` â€” Use Supabase with API logging
-- `api` â€” Use custom API server
-- (not set) â€” Auto-detect based on other config
+- `supabase` — Use Supabase (default if keys present)
+- `supabase_shadow` — Use Supabase with API logging
+- `api` — Use custom API server
+- (not set) — Auto-detect based on other config
 
 **Note**: In production, if no valid source is found, the app throws a clear error.
 
@@ -84,7 +84,7 @@ VAPID_SUBJECT=mailto:your-email@example.com
 **Where to set**:
 1. Go to Supabase Dashboard
 2. Select your project
-3. Go to Edge Functions â†’ send-push â†’ Settings
+3. Go to Edge Functions → send-push → Settings
 4. Add environment variables
 
 ---
@@ -94,9 +94,9 @@ VAPID_SUBJECT=mailto:your-email@example.com
 ### SQL Editor Migrations
 
 Apply in order:
-1. `artifacts/mawaeedak/supabase-bootstrap.sql` â€” Core tables
-2. `supabase/migrations/20250612000001_create_push_subscriptions.sql` â€” Push subscriptions
-3. `supabase/migrations/20250612000002_create_services_tables.sql` â€” Goals, costs, reminders
+1. `artifacts/mawaeedak/supabase-bootstrap.sql` — Core tables
+2. `supabase/migrations/20250612000001_create_push_subscriptions.sql` — Push subscriptions
+3. `supabase/migrations/20250612000002_create_services_tables.sql` — Goals, costs, reminders
 
 ---
 
@@ -127,10 +127,10 @@ Or add via Vercel Dashboard:
 
 | Variable | Required | Description |
 |-----------|----------|-------------|
-| VITE_SUPABASE_URL | âœ… Yes | Supabase project URL |
-| VITE_SUPABASE_ANON_KEY | âœ… Yes | Supabase anon key |
-| VITE_VAPID_PUBLIC_KEY | âڑ ï¸ڈ For push | Web Push public key |
-| VITE_API_BASE_URL | â‌Œ No | Only if using custom API |
+| VITE_SUPABASE_URL | ✅ Yes | Supabase project URL |
+| VITE_SUPABASE_ANON_KEY | ✅ Yes | Supabase anon key |
+| VITE_VAPID_PUBLIC_KEY | ⚠️ For push | Web Push public key |
+| VITE_API_BASE_URL | ❌ No | Only if using custom API |
 
 ### Optional for Development
 

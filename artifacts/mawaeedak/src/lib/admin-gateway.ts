@@ -1,7 +1,7 @@
-﻿/**
- * Admin Gateway â€” Supabase-backed Admin Operations
+/**
+ * Admin Gateway — Supabase-backed Admin Operations
  * 
- * This module replaces admin-storage.ts localStorage fallback.
+ * This module replaces the removed localStorage admin fallback.
  * All admin operations now go through Supabase with proper
  * authentication and authorization.
  * 
@@ -17,7 +17,7 @@ import { supabase, isSupabaseEnabled } from "./supabase";
 import { showTopNotification } from "@/components/layout/TopNotificationBanner";
 
 // =============================================================================
-// TYPES (mirroring admin-storage.ts for compatibility)
+// TYPES
 // =============================================================================
 
 export interface AdminUser {
@@ -212,7 +212,7 @@ export type GatewayResult<T = void> = {
  */
 function checkSupabase(): boolean {
   if (!isSupabaseEnabled || !supabase) {
-    console.error("â‌Œ Admin Gateway: Supabase is not available");
+    console.error("❌ Admin Gateway: Supabase is not available");
     return false;
   }
   return true;
@@ -252,7 +252,7 @@ async function isAdmin(): Promise<boolean> {
 }
 
 // =============================================================================
-// ADMIN GATEWAY â€” DATABASE OPERATIONS
+// ADMIN GATEWAY — DATABASE OPERATIONS
 // =============================================================================
 
 export const adminGateway = {
@@ -262,7 +262,7 @@ export const adminGateway = {
   
   async getThemes(): Promise<GatewayResult<Theme[]>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     try {
@@ -280,11 +280,11 @@ export const adminGateway = {
   
   async createTheme(theme: Omit<Theme, "id" | "created_at" | "updated_at">): Promise<GatewayResult<Theme>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -307,11 +307,11 @@ export const adminGateway = {
   
   async updateTheme(id: string, updates: Partial<Theme>): Promise<GatewayResult<Theme>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -331,11 +331,11 @@ export const adminGateway = {
   
   async deleteTheme(id: string): Promise<GatewayResult> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -353,11 +353,11 @@ export const adminGateway = {
   
   async activateTheme(id: string): Promise<GatewayResult<Theme>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -388,7 +388,7 @@ export const adminGateway = {
   
   async getNews(): Promise<GatewayResult<NewsItem[]>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     try {
@@ -406,11 +406,11 @@ export const adminGateway = {
   
   async createNews(news: Omit<NewsItem, "id" | "created_at" | "updated_at">): Promise<GatewayResult<NewsItem>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -433,11 +433,11 @@ export const adminGateway = {
   
   async updateNews(id: string, updates: Partial<NewsItem>): Promise<GatewayResult<NewsItem>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -457,11 +457,11 @@ export const adminGateway = {
   
   async deleteNews(id: string): Promise<GatewayResult> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -483,7 +483,7 @@ export const adminGateway = {
   
   async getJobs(): Promise<GatewayResult<JobItem[]>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     try {
@@ -501,11 +501,11 @@ export const adminGateway = {
   
   async createJob(job: Omit<JobItem, "id" | "created_at" | "updated_at">): Promise<GatewayResult<JobItem>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -530,11 +530,11 @@ export const adminGateway = {
   
   async updateJob(id: string, updates: Partial<JobItem>): Promise<GatewayResult<JobItem>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -554,11 +554,11 @@ export const adminGateway = {
   
   async deleteJob(id: string): Promise<GatewayResult> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -580,7 +580,7 @@ export const adminGateway = {
   
   async getDailyMessages(): Promise<GatewayResult<DailyMessage[]>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     try {
@@ -598,11 +598,11 @@ export const adminGateway = {
   
   async createDailyMessage(message: Omit<DailyMessage, "id" | "created_at" | "updated_at">): Promise<GatewayResult<DailyMessage>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -626,11 +626,11 @@ export const adminGateway = {
   
   async updateDailyMessage(id: string, updates: Partial<DailyMessage>): Promise<GatewayResult<DailyMessage>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -650,11 +650,11 @@ export const adminGateway = {
   
   async deleteDailyMessage(id: string): Promise<GatewayResult> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -672,11 +672,11 @@ export const adminGateway = {
   
   async setTodayMessage(messageId: string): Promise<GatewayResult<DailyMessage>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -707,7 +707,7 @@ export const adminGateway = {
   
   async getStoryTemplates(): Promise<GatewayResult<StoryTemplate[]>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     try {
@@ -725,11 +725,11 @@ export const adminGateway = {
   
   async createStoryTemplate(template: Omit<StoryTemplate, "id" | "created_at" | "updated_at">): Promise<GatewayResult<StoryTemplate>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -755,11 +755,11 @@ export const adminGateway = {
   
   async updateStoryTemplate(id: string, updates: Partial<StoryTemplate>): Promise<GatewayResult<StoryTemplate>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -779,11 +779,11 @@ export const adminGateway = {
   
   async deleteStoryTemplate(id: string): Promise<GatewayResult> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -805,7 +805,7 @@ export const adminGateway = {
   
   async getNotifications(): Promise<GatewayResult<AdminNotification[]>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     try {
@@ -823,11 +823,11 @@ export const adminGateway = {
   
   async sendNotification(notification: Omit<AdminNotification, "id" | "created_at">): Promise<GatewayResult<AdminNotification>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -852,11 +852,11 @@ export const adminGateway = {
   
   async scheduleNotification(notification: Omit<AdminNotification, "id" | "created_at">): Promise<GatewayResult<AdminNotification>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -881,11 +881,11 @@ export const adminGateway = {
   
   async deleteNotification(id: string): Promise<GatewayResult> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -907,7 +907,7 @@ export const adminGateway = {
   
   async getFinancialEvents(): Promise<GatewayResult<FinancialEvent[]>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     try {
@@ -925,11 +925,11 @@ export const adminGateway = {
   
   async createFinancialEvent(event: Omit<FinancialEvent, "id" | "created_at" | "updated_at">): Promise<GatewayResult<FinancialEvent>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -954,11 +954,11 @@ export const adminGateway = {
   
   async updateFinancialEvent(id: string, updates: Partial<FinancialEvent>): Promise<GatewayResult<FinancialEvent>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -978,11 +978,11 @@ export const adminGateway = {
   
   async deleteFinancialEvent(id: string): Promise<GatewayResult> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -1004,7 +1004,7 @@ export const adminGateway = {
   
   async getOfficialPrayerTimes(): Promise<GatewayResult<OfficialPrayerTime[]>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     try {
@@ -1022,11 +1022,11 @@ export const adminGateway = {
   
   async createOfficialPrayerTime(time: Omit<OfficialPrayerTime, "id" | "created_at" | "updated_at">): Promise<GatewayResult<OfficialPrayerTime>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -1059,11 +1059,11 @@ export const adminGateway = {
   
   async updateOfficialPrayerTime(id: string, updates: Partial<OfficialPrayerTime>): Promise<GatewayResult<OfficialPrayerTime>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -1083,11 +1083,11 @@ export const adminGateway = {
   
   async deleteOfficialPrayerTime(id: string): Promise<GatewayResult> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -1109,7 +1109,7 @@ export const adminGateway = {
   
   async getOfficialFinancialDates(): Promise<GatewayResult<OfficialFinancialDate[]>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     try {
@@ -1127,11 +1127,11 @@ export const adminGateway = {
   
   async createOfficialFinancialDate(date: Omit<OfficialFinancialDate, "id" | "created_at" | "updated_at">): Promise<GatewayResult<OfficialFinancialDate>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -1161,11 +1161,11 @@ export const adminGateway = {
   
   async updateOfficialFinancialDate(id: string, updates: Partial<OfficialFinancialDate>): Promise<GatewayResult<OfficialFinancialDate>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -1185,11 +1185,11 @@ export const adminGateway = {
   
   async deleteOfficialFinancialDate(id: string): Promise<GatewayResult> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -1211,11 +1211,11 @@ export const adminGateway = {
   
   async getAuditLogs(): Promise<GatewayResult<ReportLog[]>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -1234,12 +1234,12 @@ export const adminGateway = {
   
   async addAuditLog(log: Omit<ReportLog, "id" | "created_at">): Promise<GatewayResult<ReportLog>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     const user = await getCurrentUser();
     if (!user) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­" };
+      return { success: false, error: "غير مصرح" };
     }
     
     try {
@@ -1268,7 +1268,7 @@ export const adminGateway = {
   
   async getPublicEvents(): Promise<GatewayResult<any[]>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     try {
@@ -1286,11 +1286,11 @@ export const adminGateway = {
   
   async createPublicEvent(event: any): Promise<GatewayResult<any>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -1309,11 +1309,11 @@ export const adminGateway = {
   
   async updatePublicEvent(id: string, updates: any): Promise<GatewayResult<any>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -1333,11 +1333,11 @@ export const adminGateway = {
   
   async deletePublicEvent(id: string): Promise<GatewayResult> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     if (!await isAdmin()) {
-      return { success: false, error: "ط؛ظٹط± ظ…طµط±ط­ - ظٹظ„ط²ظ… ط¯ظˆط± admin" };
+      return { success: false, error: "غير مصرح - يلزم دور admin" };
     }
     
     try {
@@ -1359,7 +1359,7 @@ export const adminGateway = {
   
   async getAppointments(): Promise<GatewayResult<any[]>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     try {
@@ -1381,7 +1381,7 @@ export const adminGateway = {
   
   async getComplaints(): Promise<GatewayResult<any[]>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     try {
@@ -1399,7 +1399,7 @@ export const adminGateway = {
   
   async createComplaint(complaint: any): Promise<GatewayResult<any>> {
     if (!checkSupabase()) {
-      return { success: false, error: "Supabase ط؛ظٹط± ظ…طھظˆظپط±" };
+      return { success: false, error: "Supabase غير متوفر" };
     }
     
     try {

@@ -1,4 +1,4 @@
-﻿import { Router } from "express";
+import { Router } from "express";
 import { requireAdmin } from "../middlewares/requireAdmin";
 import { db } from "@workspace/db";
 import { appointmentsTable } from "@workspace/db";
@@ -54,7 +54,7 @@ router.get("/appointments/:id", async (req, res) => {
   const id = parseInt(req.params.id as string);
   // Only return public appointments by ID
   const [row] = await db.select().from(appointmentsTable).where(and(eq(appointmentsTable.id, id), eq(appointmentsTable.is_public, true)));
-  if (!row) return res.status(404).json({ error: "ط؛ظٹط± ظ…ظˆط¬ظˆط¯" });
+  if (!row) return res.status(404).json({ error: "غير موجود" });
   return res.json(row);
 });
 
@@ -65,7 +65,7 @@ router.post("/appointments", requireAdmin, async (req, res) => {
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [row] = await db.insert(appointmentsTable).values(parsed.data).returning();
-  await logAudit(actorId, "create", "appointment", row.id, row.title, `ط¥ط¶ط§ظپط© ظ…ظˆط¹ط¯: ${row.title}`);
+  await logAudit(actorId, "create", "appointment", row.id, row.title, `إضافة موعد: ${row.title}`);
   return res.status(201).json(row);
 });
 
@@ -76,8 +76,8 @@ router.patch("/appointments/:id", requireAdmin, async (req, res) => {
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [row] = await db.update(appointmentsTable).set(parsed.data).where(eq(appointmentsTable.id, id)).returning();
-  if (!row) return res.status(404).json({ error: "ط؛ظٹط± ظ…ظˆط¬ظˆط¯" });
-  await logAudit(actorId, "update", "appointment", row.id, row.title, `طھط¹ط¯ظٹظ„ ظ…ظˆط¹ط¯: ${row.title}`);
+  if (!row) return res.status(404).json({ error: "غير موجود" });
+  await logAudit(actorId, "update", "appointment", row.id, row.title, `تعديل موعد: ${row.title}`);
   return res.json(row);
 });
 
@@ -86,8 +86,8 @@ router.delete("/appointments/:id", requireAdmin, async (req, res) => {
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [deleted] = await db.delete(appointmentsTable).where(eq(appointmentsTable.id, id)).returning();
-  if (!deleted) return res.status(404).json({ error: "ط؛ظٹط± ظ…ظˆط¬ظˆط¯" });
-  await logAudit(actorId, "delete", "appointment", id, deleted.title, `ط­ط°ظپ ظ…ظˆط¹ط¯: ${deleted.title}`);
+  if (!deleted) return res.status(404).json({ error: "غير موجود" });
+  await logAudit(actorId, "delete", "appointment", id, deleted.title, `حذف موعد: ${deleted.title}`);
   return res.status(204).send();
 });
 

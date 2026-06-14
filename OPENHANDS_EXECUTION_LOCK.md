@@ -1,4 +1,4 @@
-﻿# OpenHands Execution Lock â€” Mawaeedak
+# OpenHands Execution Lock — Mawaeedak
 
 This repository has a strict execution rule: do not report READY unless the claimed files, routes, and verification commands are real and present in git.
 

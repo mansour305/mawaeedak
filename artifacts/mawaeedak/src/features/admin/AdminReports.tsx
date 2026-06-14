@@ -1,4 +1,4 @@
-﻿import { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,10 +7,10 @@ import { Search, Download, FileSpreadsheet, Calendar, Info } from "lucide-react"
 import { format } from "date-fns";
 
 const TIME_FILTERS = [
-  { value: "7d", label: "ط¢ط®ط± 7 ط£ظٹط§ظ…" },
-  { value: "30d", label: "ط¢ط®ط± 30 ظٹظˆظ…" },
-  { value: "90d", label: "ط¢ط®ط± 90 ظٹظˆظ…" },
-  { value: "all", label: "ظƒظ„ ط§ظ„ط³ط¬ظ„ط§طھ" },
+  { value: "7d", label: "آخر 7 أيام" },
+  { value: "30d", label: "آخر 30 يوم" },
+  { value: "90d", label: "آخر 90 يوم" },
+  { value: "all", label: "كل السجلات" },
 ];
 
 type ReportLog = {
@@ -90,7 +90,7 @@ export default function AdminReports() {
     if (filteredLogs.length === 0) return;
     setExporting(true);
     try {
-      const headers = ["ط§ظ„طھط§ط±ظٹط®", "ط§ظ„ط¹ظ…ظ„ظٹط©", "ط§ظ„ط¹ظ†طµط±", "ط§ظ„ظ†ظˆط¹", "ط§ظ„ظ…ط³طھط®ط¯ظ…"];
+      const headers = ["التاريخ", "العملية", "العنصر", "النوع", "المستخدم"];
       const rows = filteredLogs.map(log => [
         format(new Date(log.created_at), "yyyy-MM-dd HH:mm"),
         log.action,
@@ -115,15 +115,15 @@ export default function AdminReports() {
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <div className="w-1 h-6 rounded-full" style={{ background: "linear-gradient(180deg, hsl(38 62% 52%), hsl(32 55% 42%))" }} />
-        <h1 className="text-2xl font-extrabold" style={{ color: "hsl(22 62% 18%)" }}>ط§ظ„طھظ‚ط§ط±ظٹط±</h1>
+        <h1 className="text-2xl font-extrabold" style={{ color: "hsl(22 62% 18%)" }}>التقارير</h1>
       </div>
 
       <Card className="border-blue-500/30 bg-blue-50/60 shadow-sm">
         <CardContent className="p-4 flex gap-3 text-sm leading-7 text-blue-900">
           <Info className="w-5 h-5 shrink-0 mt-1" />
           <div>
-            <div className="font-bold">ط§ظ„طھظ‚ط§ط±ظٹط± طھط¹ظ…ظ„ ظپظٹ ظˆط¶ط¹ ظ…ط­ظ„ظٹ ط¨ط¯ظˆظ† api-server.</div>
-            <div>طھظ…طھ ط¥ط²ط§ظ„ط© ط§ط³طھط¯ط¹ط§ط، Audit API. ط¹ظ†ط¯ ط§ظ„ط­ط§ط¬ط© ظ„طھظ‚ط§ط±ظٹط± ظ…ط±ظƒط²ظٹط© ظƒط§ظ…ظ„ط© ظٹط¬ط¨ ط¥ط¶ط§ظپط© ط¬ط¯ظˆظ„ audit_logs ظپظٹ Supabase ظˆط±ط¨ط·ظ‡ ظ„ط§ط­ظ‚ظ‹ط§.</div>
+            <div className="font-bold">التقارير تعمل في وضع محلي بدون api-server.</div>
+            <div>تمت إزالة استدعاء Audit API. عند الحاجة لتقارير مركزية كاملة يجب إضافة جدول audit_logs في Supabase وربطه لاحقًا.</div>
           </div>
         </CardContent>
       </Card>
@@ -131,16 +131,16 @@ export default function AdminReports() {
       <div className="flex justify-end">
         <Button variant="outline" size="sm" onClick={handleExportCSV} disabled={exporting || filteredLogs.length === 0}>
           <Download className="w-4 h-4 ml-1" />
-          <FileSpreadsheet className="w-4 h-4 ml-1" /> طھطµط¯ظٹط± CSV
+          <FileSpreadsheet className="w-4 h-4 ml-1" /> تصدير CSV
         </Button>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: "ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ط¹ظ…ظ„ظٹط§طھ", value: stats.total, color: "text-primary" },
-          { label: "ط¥ط¶ط§ظپط§طھ", value: stats.creates, color: "text-emerald-600" },
-          { label: "طھط¹ط¯ظٹظ„ط§طھ", value: stats.updates, color: "text-blue-600" },
-          { label: "ط­ط°ظپ", value: stats.deletes, color: "text-red-600" },
+          { label: "إجمالي العمليات", value: stats.total, color: "text-primary" },
+          { label: "إضافات", value: stats.creates, color: "text-emerald-600" },
+          { label: "تعديلات", value: stats.updates, color: "text-blue-600" },
+          { label: "حذف", value: stats.deletes, color: "text-red-600" },
         ].map(s => (
           <Card key={s.label} className="border-border shadow-sm">
             <CardContent className="p-3 text-center">
@@ -154,7 +154,7 @@ export default function AdminReports() {
       <div className="flex flex-col sm:flex-row gap-2">
         <div className="relative flex-1">
           <Search className="absolute right-3 top-2.5 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="ط¨ط­ط« ظپظٹ ط§ظ„ط³ط¬ظ„ط§طھ..." value={search} onChange={e => setSearch(e.target.value)} className="pr-9" />
+          <Input placeholder="بحث في السجلات..." value={search} onChange={e => setSearch(e.target.value)} className="pr-9" />
         </div>
         <Select value={timeFilter} onValueChange={setTimeFilter}>
           <SelectTrigger className="sm:w-44"><SelectValue /></SelectTrigger>
@@ -170,11 +170,11 @@ export default function AdminReports() {
             <table className="w-full text-sm text-right rtl">
               <thead className="bg-muted/50 text-muted-foreground border-b border-border">
                 <tr>
-                  <th className="px-4 py-3 font-medium">ط§ظ„طھط§ط±ظٹط®</th>
-                  <th className="px-4 py-3 font-medium">ط§ظ„ط¹ظ…ظ„ظٹط©</th>
-                  <th className="px-4 py-3 font-medium">ط§ظ„ط¹ظ†طµط±</th>
-                  <th className="px-4 py-3 font-medium">ط§ظ„ظ†ظˆط¹</th>
-                  <th className="px-4 py-3 font-medium">ط§ظ„ظ…ط³طھط®ط¯ظ…</th>
+                  <th className="px-4 py-3 font-medium">التاريخ</th>
+                  <th className="px-4 py-3 font-medium">العملية</th>
+                  <th className="px-4 py-3 font-medium">العنصر</th>
+                  <th className="px-4 py-3 font-medium">النوع</th>
+                  <th className="px-4 py-3 font-medium">المستخدم</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -192,7 +192,7 @@ export default function AdminReports() {
                     </tr>
                   ))
                 ) : (
-                  <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">ظ„ط§ طھظˆط¬ط¯ ط³ط¬ظ„ط§طھ ظ…ط­ظ„ظٹط©</td></tr>
+                  <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">لا توجد سجلات محلية</td></tr>
                 )}
               </tbody>
             </table>

@@ -1,6 +1,6 @@
-﻿kind = "web"
+kind = "web"
 previewPath = "/"
-title = "ظ…ظˆط§ط¹ظٹط¯ظƒ"
+title = "مواعيدك"
 version = "1.0.0"
 id = "artifacts/mawaeedak"
 router = "path"

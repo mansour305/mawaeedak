@@ -1,4 +1,4 @@
-﻿name: Production Readiness Live Gate
+name: Production Readiness Live Gate
 
 on:
   workflow_dispatch:

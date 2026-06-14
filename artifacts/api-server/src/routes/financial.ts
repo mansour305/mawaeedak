@@ -1,4 +1,4 @@
-﻿import { Router } from "express";
+import { Router } from "express";
 import { requireAdmin } from "../middlewares/requireAdmin";
 import { db } from "@workspace/db";
 import { financialEventsTable, auditLogsTable } from "@workspace/db";
@@ -67,7 +67,7 @@ router.post("/financial-events", requireAdmin, async (req, res) => {
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const dataWithAmount = { ...parsed.data, amount: parsed.data.amount != null ? String(parsed.data.amount) : undefined };
   const [row] = await db.insert(financialEventsTable).values(dataWithAmount).returning();
-  await logAudit(actorId, "create", "financial_event", row.id, row.name, `ط¥ط¶ط§ظپط© ط­ط¯ط« ظ…ط§ظ„ظٹ: ${row.name}`);
+  await logAudit(actorId, "create", "financial_event", row.id, row.name, `إضافة حدث مالي: ${row.name}`);
   return res.status(201).json(row);
 });
 
@@ -79,8 +79,8 @@ router.patch("/financial-events/:id", requireAdmin, async (req, res) => {
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const updateData = { ...parsed.data, amount: parsed.data.amount != null ? String(parsed.data.amount) : undefined };
   const [row] = await db.update(financialEventsTable).set(updateData).where(eq(financialEventsTable.id, id)).returning();
-  if (!row) return res.status(404).json({ error: "ط؛ظٹط± ظ…ظˆط¬ظˆط¯" });
-  await logAudit(actorId, "update", "financial_event", row.id, row.name, `طھط¹ط¯ظٹظ„ ط­ط¯ط« ظ…ط§ظ„ظٹ: ${row.name}`);
+  if (!row) return res.status(404).json({ error: "غير موجود" });
+  await logAudit(actorId, "update", "financial_event", row.id, row.name, `تعديل حدث مالي: ${row.name}`);
   return res.json(row);
 });
 
@@ -89,8 +89,8 @@ router.delete("/financial-events/:id", requireAdmin, async (req, res) => {
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [deleted] = await db.delete(financialEventsTable).where(eq(financialEventsTable.id, id)).returning();
-  if (!deleted) return res.status(404).json({ error: "ط؛ظٹط± ظ…ظˆط¬ظˆط¯" });
-  await logAudit(actorId, "delete", "financial_event", id, deleted.name, `ط­ط°ظپ ط­ط¯ط« ظ…ط§ظ„ظٹ: ${deleted.name}`);
+  if (!deleted) return res.status(404).json({ error: "غير موجود" });
+  await logAudit(actorId, "delete", "financial_event", id, deleted.name, `حذف حدث مالي: ${deleted.name}`);
   return res.status(204).send();
 });
 

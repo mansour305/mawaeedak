@@ -1,5 +1,5 @@
-﻿/**
- * NotificationsPage â€” ظ…ظˆط§ط¹ظٹط¯ظƒ Phase 13N
+/**
+ * NotificationsPage — مواعيدك Phase 13N
  * Visual Polish: heritage cards + ornaments + richer empty/loading states
  * Logic preserved: Gateway read/write, mark-read, mark-all-read, delete, unread count
  */
@@ -41,19 +41,19 @@ import {
 import { useNotificationPermission } from "@/hooks/useNotificationPermission";
 
 const TYPE_CONFIG: Record<string, { icon: React.ElementType; label: string; accent: string }> = {
-  system:      { icon: Shield,        label: "ظ†ط¸ط§ظ…",          accent: "hsl(210 70% 52%)" },
-  news:        { icon: Newspaper,     label: "ط®ط¨ط±",           accent: "hsl(30 80% 52%)" },
-  financial:   { icon: Coins,         label: "ظ…ط§ظ„ظٹ",          accent: "hsl(38 72% 52%)" },
-  event:       { icon: Calendar,      label: "ظ…ظˆط¹ط¯",          accent: "hsl(270 60% 52%)" },
-  salary:      { icon: Briefcase,     label: "ط±ط§طھط¨",          accent: "hsl(140 55% 42%)" },
-  support:     { icon: Shield,        label: "ط¯ط¹ظ…",           accent: "hsl(175 55% 40%)" },
-  bill:        { icon: Coins,         label: "ظپط§طھظˆط±ط©",        accent: "hsl(10 65% 52%)" },
-  appointment: { icon: Calendar,      label: "ظ…ظˆط¹ط¯ ط´ط®طµظٹ",     accent: "hsl(250 60% 52%)" },
-  story:       { icon: BookOpen,      label: "ط³طھظˆط±ظٹ",         accent: "hsl(330 55% 52%)" },
-  job:         { icon: Briefcase,     label: "ظˆط¸ظٹظپط©",         accent: "hsl(185 60% 40%)" },
-  owner:       { icon: MessageSquare, label: "ط±ط³ط§ظ„ط© ط§ظ„ظ…ط§ظ„ظƒ",  accent: "hsl(38 80% 48%)" },
-  reminder:    { icon: Bell,          label: "طھط°ظƒظٹط±",         accent: "hsl(220 65% 52%)" },
-  general:     { icon: Bell,          label: "ط¹ط§ظ…",           accent: "hsl(38 45% 50%)" },
+  system:      { icon: Shield,        label: "نظام",          accent: "hsl(210 70% 52%)" },
+  news:        { icon: Newspaper,     label: "خبر",           accent: "hsl(30 80% 52%)" },
+  financial:   { icon: Coins,         label: "مالي",          accent: "hsl(38 72% 52%)" },
+  event:       { icon: Calendar,      label: "موعد",          accent: "hsl(270 60% 52%)" },
+  salary:      { icon: Briefcase,     label: "راتب",          accent: "hsl(140 55% 42%)" },
+  support:     { icon: Shield,        label: "دعم",           accent: "hsl(175 55% 40%)" },
+  bill:        { icon: Coins,         label: "فاتورة",        accent: "hsl(10 65% 52%)" },
+  appointment: { icon: Calendar,      label: "موعد شخصي",     accent: "hsl(250 60% 52%)" },
+  story:       { icon: BookOpen,      label: "ستوري",         accent: "hsl(330 55% 52%)" },
+  job:         { icon: Briefcase,     label: "وظيفة",         accent: "hsl(185 60% 40%)" },
+  owner:       { icon: MessageSquare, label: "رسالة المالك",  accent: "hsl(38 80% 48%)" },
+  reminder:    { icon: Bell,          label: "تذكير",         accent: "hsl(220 65% 52%)" },
+  general:     { icon: Bell,          label: "عام",           accent: "hsl(38 45% 50%)" },
 };
 
 function getTypeConfig(type: string) {
@@ -136,7 +136,7 @@ export default function NotificationsPage() {
       if (result.success) {
         invalidateAll();
       } else {
-        toast({ title: "ط®ط·ط£ ظپظٹ طھط­ط¯ظٹط« ط§ظ„ط¥ط´ط¹ط§ط±", description: result.error ?? "ظپط´ظ„ ط§ظ„طھط­ط¯ظٹط«", variant: "destructive" });
+        toast({ title: "خطأ في تحديث الإشعار", description: result.error ?? "فشل التحديث", variant: "destructive" });
       }
     } finally {
       setPendingMarkRead(null);
@@ -149,9 +149,9 @@ export default function NotificationsPage() {
       const result = await gwMarkAllNotificationsRead();
       if (result.success) {
         invalidateAll();
-        toast({ title: "طھظ… طھط­ط¯ظٹط¯ ط§ظ„ظƒظ„ ظƒظ…ظ‚ط±ظˆط،" });
+        toast({ title: "تم تحديد الكل كمقروء" });
       } else {
-        toast({ title: "ط®ط·ط£ ظپظٹ طھط­ط¯ظٹط« ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ", description: result.error ?? "ظپط´ظ„ ط§ظ„طھط­ط¯ظٹط«", variant: "destructive" });
+        toast({ title: "خطأ في تحديث الإشعارات", description: result.error ?? "فشل التحديث", variant: "destructive" });
       }
     } finally {
       setPendingMarkAll(false);
@@ -164,9 +164,9 @@ export default function NotificationsPage() {
       const result = await gwDeleteNotification(id);
       if (result.success) {
         invalidateAll();
-        toast({ title: "طھظ… ط§ظ„ط­ط°ظپ", description: `ط­ظڈط°ظپ: ${title}` });
+        toast({ title: "تم الحذف", description: `حُذف: ${title}` });
       } else {
-        toast({ title: "ط®ط·ط£ ظپظٹ ط§ظ„ط­ط°ظپ", description: result.error ?? "ظپط´ظ„ ط§ظ„ط­ط°ظپ", variant: "destructive" });
+        toast({ title: "خطأ في الحذف", description: result.error ?? "فشل الحذف", variant: "destructive" });
       }
     } finally {
       setPendingDelete(null);
@@ -184,16 +184,16 @@ export default function NotificationsPage() {
   const hasUnread = unreadCount > 0;
 
   const tabs: { key: TabFilter; label: string }[] = [
-    { key: "all", label: "ط§ظ„ظƒظ„" },
-    { key: "unread", label: "ط؛ظٹط± ظ…ظ‚ط±ظˆط،ط©" },
-    { key: "important", label: "ظ…ظ‡ظ…ط©" },
+    { key: "all", label: "الكل" },
+    { key: "unread", label: "غير مقروءة" },
+    { key: "important", label: "مهمة" },
   ];
 
   return (
-    <AppShell title="ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ" showBack>
+    <AppShell title="الإشعارات" showBack>
       <div className="space-y-4">
 
-        {/* â”€â”€â”€ Notification Permission Card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ─── Notification Permission Card ────────────────────── */}
         {isSupported !== false && status !== "granted" && (
           <div 
             className="relative overflow-hidden rounded-[22px] border p-4"
@@ -217,7 +217,7 @@ export default function NotificationsPage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
                   <h3 className="text-[18px] font-extrabold" style={{ color: "#2F2B25" }}>
-                    طھظپط¹ظٹظ„ ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ
+                    تفعيل الإشعارات
                   </h3>
                   <span 
                     className="text-[11px] font-bold px-2 py-0.5 rounded-full"
@@ -230,7 +230,7 @@ export default function NotificationsPage() {
                   </span>
                 </div>
                 <p className="text-[13px] font-medium leading-6" style={{ color: "#6F6557" }}>
-                  ظپط¹ظ‘ظ„ ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ظ„طھطµظ„ظƒ طھظ†ط¨ظٹظ‡ط§طھ ط§ظ„ط±ظˆط§طھط¨ ظˆط§ظ„ظ…ظˆط§ط¹ظٹط¯.
+                  فعّل الإشعارات لتصلك تنبيهات الرواتب والمواعيد.
                 </p>
                 {iPhoneGuidance && (
                   <div 
@@ -250,7 +250,7 @@ export default function NotificationsPage() {
                   onClick={async () => {
                     const result = await requestPermission();
                     toast({ 
-                      title: result.success ? "طھظ… طھظپط¹ظٹظ„ ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ" : result.message,
+                      title: result.success ? "تم تفعيل الإشعارات" : result.message,
                       variant: result.success ? "default" : "destructive"
                     });
                   }}
@@ -263,14 +263,14 @@ export default function NotificationsPage() {
                     boxShadow: "0 4px 14px rgba(167,128,66,0.25)",
                   }}
                 >
-                  {isRequesting ? "ط¬ط§ط±ظٹ ط§ظ„طھظپط¹ظٹظ„..." : "طھظپط¹ظٹظ„ ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ"}
+                  {isRequesting ? "جاري التفعيل..." : "تفعيل الإشعارات"}
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* â”€â”€â”€ Segmented Tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ─── Segmented Tabs ────────────────────────────────── */}
         <div 
           className="rounded-[22px] border p-1" 
           style={{ 
@@ -298,7 +298,7 @@ export default function NotificationsPage() {
           </div>
         </div>
 
-        {/* â”€â”€â”€ Heritage Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ─── Heritage Header ────────────────────────────────── */}
         <div
           className="-mx-3 px-4 pt-4 pb-3"
           style={{
@@ -319,11 +319,11 @@ export default function NotificationsPage() {
               </div>
               <div>
                 <h2 className="text-[15px] font-extrabold" style={{ color: "hsl(38 85% 82%)" }}>
-                  ط§ظ„طھظ†ط¨ظٹظ‡ط§طھ
+                  التنبيهات
                 </h2>
                 {hasUnread && (
                   <p className="text-[10px] font-semibold" style={{ color: "hsl(38 60% 58%)" }}>
-                    {unreadCount} ط؛ظٹط± ظ…ظ‚ط±ظˆط،
+                    {unreadCount} غير مقروء
                   </p>
                 )}
               </div>
@@ -343,13 +343,13 @@ export default function NotificationsPage() {
                 {pendingMarkAll
                   ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   : <CheckCheck className="w-3.5 h-3.5" />}
-                طھط­ط¯ظٹط¯ ط§ظ„ظƒظ„
+                تحديد الكل
               </button>
             )}
           </div>
         </div>
 
-        {/* â”€â”€â”€ Loading Skeleton â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ─── Loading Skeleton ────────────────────────────────── */}
         {isLoading && (
           <div className="space-y-3 pt-1">
             {[1, 2, 3].map(i => (
@@ -370,7 +370,7 @@ export default function NotificationsPage() {
           </div>
         )}
 
-        {/* â”€â”€â”€ Notification List â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ─── Notification List ──────────────────────────────── */}
         {!isLoading && filteredNotifications.length > 0 && (
           <div className="space-y-3 pt-1">
             {filteredNotifications.map((notif: any) => {
@@ -461,7 +461,7 @@ export default function NotificationsPage() {
                               border: "1px solid hsl(210 70% 52% / 0.22)",
                               color: "hsl(210 60% 42%)",
                             }}
-                            title="ظپطھط­"
+                            title="فتح"
                           >
                             <ExternalLink className="w-3.5 h-3.5" />
                           </button>
@@ -475,7 +475,7 @@ export default function NotificationsPage() {
                                 border: "1px solid hsl(38 72% 52% / 0.3)",
                                 color: "hsl(38 62% 38%)",
                               }}
-                              title="طھط­ط¯ظٹط¯ ظƒظ…ظ‚ط±ظˆط،"
+                              title="تحديد كمقروء"
                             >
                               {isMarkingRead
                                 ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -491,7 +491,7 @@ export default function NotificationsPage() {
                               border: "1px solid hsl(10 55% 52% / 0.22)",
                               color: "hsl(10 55% 48%)",
                             }}
-                            title="ط­ط°ظپ"
+                            title="حذف"
                           >
                             {isDeleting
                               ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -507,7 +507,7 @@ export default function NotificationsPage() {
           </div>
         )}
 
-        {/* â”€â”€â”€ Empty State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* ─── Empty State ─────────────────────────────────────── */}
         {!isLoading && !isError && filteredNotifications.length === 0 && (
           <div
             className="flex flex-col items-center gap-4 py-16 rounded-2xl"
@@ -530,10 +530,10 @@ export default function NotificationsPage() {
             </div>
             <div className="text-center">
               <p className="text-[16px] font-extrabold" style={{ color: "hsl(22 62% 22%)" }}>
-                ظ„ط§ طھظˆط¬ط¯ ط¥ط´ط¹ط§ط±ط§طھ
+                لا توجد إشعارات
               </p>
               <p className="text-[13px] mt-1.5" style={{ color: "hsl(38 30% 52%)" }}>
-                {filter === "unread" ? "ط¬ظ…ظٹط¹ ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ظ…ظ‚ط±ظˆط،ط©" : filter === "important" ? "ظ„ط§ طھظˆط¬ط¯ ط¥ط´ط¹ط§ط±ط§طھ ظ…ظ‡ظ…ط©" : "ط³طھط¸ظ‡ط± طھظ†ط¨ظٹظ‡ط§طھظƒ ظˆظ…ظˆط§ط¹ظٹط¯ظƒ ظ‡ظ†ط§"}
+                {filter === "unread" ? "جميع الإشعارات مقروءة" : filter === "important" ? "لا توجد إشعارات مهمة" : "ستظهر تنبيهاتك ومواعيدك هنا"}
               </p>
             </div>
           </div>

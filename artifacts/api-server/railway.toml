@@ -1,4 +1,4 @@
-﻿[build]
+[build]
 buildCommand = "cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @workspace/api-server run build"
 
 [deploy]

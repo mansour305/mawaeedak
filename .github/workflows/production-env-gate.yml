@@ -1,4 +1,4 @@
-﻿name: Production Environment Gate
+name: Production Environment Gate
 
 on:
   workflow_dispatch:
@@ -43,10 +43,10 @@ jobs:
           missing=0
           for name in "${required[@]}"; do
             if [ -z "${!name:-}" ]; then
-              echo "â‌Œ $name is missing"
+              echo "❌ $name is missing"
               missing=1
             else
-              echo "âœ… $name is present"
+              echo "✅ $name is present"
             fi
           done
 
@@ -66,11 +66,11 @@ jobs:
             --exclude-dir=dist \
             --exclude='*.md' \
             2>/dev/null; then
-            echo "â‌Œ A frontend runtime path references the Supabase service-role key. It must remain server-only."
+            echo "❌ A frontend runtime path references the Supabase service-role key. It must remain server-only."
             exit 1
           fi
 
-          echo "âœ… No frontend runtime exposure of SUPABASE_SERVICE_ROLE_KEY found."
+          echo "✅ No frontend runtime exposure of SUPABASE_SERVICE_ROLE_KEY found."
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -99,7 +99,7 @@ jobs:
       - name: Production gate summary
         shell: bash
         run: |
-          echo "âœ… Production environment gate completed."
+          echo "✅ Production environment gate completed."
           echo "Secrets were present, frontend service-role exposure check passed, typecheck passed, and build passed."
           echo "Next manual gates remain: apply Supabase SQL schema/RLS policies and run live user/admin smoke tests against the deployed environment."
 

@@ -1,4 +1,4 @@
-﻿import { useEffect } from "react";
+import { useEffect } from "react";
 import { useLocation } from "wouter";
 import { useStore } from "@/hooks/useStore";
 
@@ -7,15 +7,14 @@ interface SplashScreenProps {
 }
 
 /**
- * SplashScreen â€” Saudi Premium Minimal Brand Screen
- * Reference: docs/design-reference/final-2026/01-brand-cover.jpeg
- * 
+ * SplashScreen — Saudi Premium Minimal Brand Screen
+ *
  * Features:
  * - Warm ivory background with soft sand gradient
  * - Centered premium circular logo/icon
- * - Arabic brand title: ظ…ظˆط§ط¹ظٹط¯ظƒ
- * - Premium tagline: ط±ظپظٹظ‚ ظٹظˆظ…ظƒ ظپظٹ ظƒظ„ ظ…ظˆط¹ط¯
- * - Lower text: ط±ط§طھط¨ظƒطŒ طھظ‚ظˆظٹظ…ظƒطŒ ظˆظ…ظˆط§ط¹ظٹط¯ظƒ
+ * - Arabic brand title: مواعيدك
+ * - Premium tagline: رفيق يومك في كل موعد
+ * - Lower text: راتبك، تقويمك، ومواعيدك
  * - Gold ornamental separators
  * - Desert dune visual at bottom
  * - Palm tree decorative motif
@@ -142,14 +141,14 @@ export default function SplashScreen({ onComplete }: SplashScreenProps = {}) {
               textShadow: "0 2px 4px rgba(167,128,66,0.2)",
             }}
           >
-            ظ…
+            م
           </span>
           {/* Small ornament star */}
           <span 
             className="absolute -top-1 right-3 text-sm"
             style={{ color: "#C9A063" }}
           >
-            âœ¦
+            ✦
           </span>
         </div>
 
@@ -162,13 +161,13 @@ export default function SplashScreen({ onComplete }: SplashScreenProps = {}) {
             letterSpacing: "-0.02em",
           }}
         >
-          ظ…ظˆط§ط¹ظٹط¯ظƒ
+          مواعيدك
         </h1>
 
         {/* Gold ornamental divider */}
         <div className="flex items-center justify-center gap-4 my-6">
           <div className="h-px w-16" style={{ background: "linear-gradient(90deg, transparent, #C9A063)" }} />
-          <span style={{ color: "#C9A063", fontSize: "10px" }}>âœ¦</span>
+          <span style={{ color: "#C9A063", fontSize: "10px" }}>✦</span>
           <div className="h-px w-16" style={{ background: "linear-gradient(90deg, #C9A063, transparent)" }} />
         </div>
 
@@ -180,7 +179,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps = {}) {
             fontFamily: "'Cairo', 'Noto Kufi Arabic', sans-serif" 
           }}
         >
-          ط±ظپظٹظ‚ ظٹظˆظ…ظƒ ظپظٹ ظƒظ„ ظ…ظˆط¹ط¯
+          رفيق يومك في كل موعد
         </p>
 
         {/* Lower descriptive text */}
@@ -191,13 +190,13 @@ export default function SplashScreen({ onComplete }: SplashScreenProps = {}) {
             fontFamily: "'Cairo', 'Noto Kufi Arabic', sans-serif" 
           }}
         >
-          ط±ط§طھط¨ظƒطŒ طھظ‚ظˆظٹظ…ظƒطŒ ظˆظ…ظˆط§ط¹ظٹط¯ظƒ
+          راتبك، تقويمك، ومواعيدك
         </p>
 
         {/* Additional ornament below text */}
         <div className="flex items-center justify-center gap-3 mt-6">
           <div className="h-px w-10" style={{ background: "linear-gradient(90deg, transparent, rgba(201,160,99,0.4))" }} />
-          <span style={{ color: "#C9A063", opacity: 0.6, fontSize: "8px" }}>â—†</span>
+          <span style={{ color: "#C9A063", opacity: 0.6, fontSize: "8px" }}>◆</span>
           <div className="h-px w-10" style={{ background: "linear-gradient(90deg, rgba(201,160,99,0.4), transparent)" }} />
         </div>
       </div>
@@ -225,7 +224,7 @@ export default function SplashScreen({ onComplete }: SplashScreenProps = {}) {
           className="text-xs font-medium"
           style={{ color: "#8A8175", fontFamily: "'Cairo', 'Noto Kufi Arabic', sans-serif" }}
         >
-          Mawaeedak آ© 2026
+          Mawaeedak © 2026
         </p>
       </div>
     </div>

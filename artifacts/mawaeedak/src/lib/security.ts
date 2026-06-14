@@ -1,7 +1,7 @@
-﻿/**
- * security.ts â€” ظ†ط¸ط§ظ… ط§ظ„ط­ظ…ط§ظٹط© ط§ظ„ط´ط§ظ…ظ„
+/**
+ * security.ts — نظام الحماية الشامل
  * 
- * ظٹطھط¶ظ…ظ†:
+ * يتضمن:
  * - XSS Sanitization
  * - SQL Injection Prevention
  * - CSRF Token Management
@@ -17,7 +17,7 @@ import { logger } from "./logger";
 // ============================================================================
 
 /**
- * طھط¹ظ‚ظٹظ… ط§ظ„ظ†طµ ظ…ظ† ط£ظƒظˆط§ط¯ XSS
+ * تعقيم النص من أكواد XSS
  */
 export function sanitizeHTML(str: string): string {
   if (!str) return "";
@@ -35,14 +35,14 @@ export function sanitizeHTML(str: string): string {
 }
 
 /**
- * طھط¹ظ‚ظٹظ… ط§ط³ظ… ط§ظ„ظ…ظ„ظپ
+ * تعقيم اسم الملف
  */
 export function sanitizeFilename(filename: string): string {
   return filename.replace(/[^a-zA-Z0-9._-]/g, "_").substring(0, 255);
 }
 
 /**
- * ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† URL
+ * التحقق من URL
  */
 export function isValidUrl(url: string): boolean {
   try {
@@ -58,7 +58,7 @@ export function isValidUrl(url: string): boolean {
 // ============================================================================
 
 /**
- * ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ط§ظ„ط¨ط±ظٹط¯ ط§ظ„ط¥ظ„ظƒطھط±ظˆظ†ظٹ
+ * التحقق من البريد الإلكتروني
  */
 export function isValidEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -66,7 +66,7 @@ export function isValidEmail(email: string): boolean {
 }
 
 /**
- * ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ظ‚ظˆط© ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط±
+ * التحقق من قوة كلمة المرور
  */
 export function validatePassword(password: string): {
   valid: boolean;
@@ -74,18 +74,18 @@ export function validatePassword(password: string): {
 } {
   const errors: string[] = [];
   
-  if (password.length < 8) errors.push("ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط± ظٹط¬ط¨ ط£ظ† طھظƒظˆظ† 8 ط£ط­ط±ظپ ط¹ظ„ظ‰ ط§ظ„ط£ظ‚ظ„");
-  if (password.length > 128) errors.push("ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط± ط·ظˆظٹظ„ط© ط¬ط¯ط§ظ‹");
-  if (!/[A-Z]/.test(password)) errors.push("ظٹط¬ط¨ ط£ظ† طھط­طھظˆظٹ ط¹ظ„ظ‰ ط­ط±ظپ ظƒط¨ظٹط±");
-  if (!/[a-z]/.test(password)) errors.push("ظٹط¬ط¨ ط£ظ† طھط­طھظˆظٹ ط¹ظ„ظ‰ ط­ط±ظپ طµط؛ظٹط±");
-  if (!/[0-9]/.test(password)) errors.push("ظٹط¬ط¨ ط£ظ† طھط­طھظˆظٹ ط¹ظ„ظ‰ ط±ظ‚ظ…");
-  if (!/[^A-Za-z0-9]/.test(password)) errors.push("ظٹط¬ط¨ ط£ظ† طھط­طھظˆظٹ ط¹ظ„ظ‰ ط±ظ…ط² ط®ط§طµ");
+  if (password.length < 8) errors.push("كلمة المرور يجب أن تكون 8 أحرف على الأقل");
+  if (password.length > 128) errors.push("كلمة المرور طويلة جداً");
+  if (!/[A-Z]/.test(password)) errors.push("يجب أن تحتوي على حرف كبير");
+  if (!/[a-z]/.test(password)) errors.push("يجب أن تحتوي على حرف صغير");
+  if (!/[0-9]/.test(password)) errors.push("يجب أن تحتوي على رقم");
+  if (!/[^A-Za-z0-9]/.test(password)) errors.push("يجب أن تحتوي على رمز خاص");
   
   return { valid: errors.length === 0, errors };
 }
 
 /**
- * ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ط§ط³ظ… ط§ظ„ظ…ط³طھط®ط¯ظ…
+ * التحقق من اسم المستخدم
  */
 export function isValidUsername(username: string): boolean {
   const usernameRegex = /^[a-zA-Z0-9_-]{3,20}$/;
@@ -99,7 +99,7 @@ export function isValidUsername(username: string): boolean {
 const CSRF_TOKEN_KEY = "mawaeedak_csrf_token";
 
 /**
- * طھظˆظ„ظٹط¯ CSRF Token
+ * توليد CSRF Token
  */
 export function generateCSRFToken(): string {
   const array = new Uint8Array(32);
@@ -110,14 +110,14 @@ export function generateCSRFToken(): string {
 }
 
 /**
- * ط§ظ„ط­طµظˆظ„ ط¹ظ„ظ‰ CSRF Token
+ * الحصول على CSRF Token
  */
 export function getCSRFToken(): string | null {
   return sessionStorage.getItem(CSRF_TOKEN_KEY);
 }
 
 /**
- * ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† CSRF Token
+ * التحقق من CSRF Token
  */
 export function verifyCSRFToken(token: string): boolean {
   const stored = getCSRFToken();
@@ -138,7 +138,7 @@ export function verifyCSRFToken(token: string): boolean {
 // ============================================================================
 
 /**
- * طھط®ط²ظٹظ† ط¢ظ…ظ† ظپظٹ localStorage
+ * تخزين آمن في localStorage
  */
 export const secureStorage = {
   set(key: string, value: unknown): void {
@@ -188,7 +188,7 @@ interface RateLimitEntry {
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
 /**
- * ظپط­طµ Rate Limit
+ * فحص Rate Limit
  */
 export function checkRateLimit(
   key: string,
@@ -223,7 +223,7 @@ export function checkRateLimit(
 }
 
 /**
- * ظ…ط³ط­ Rate Limit ط§ظ„ظ‚ط¯ظٹظ…ط©
+ * مسح Rate Limit القديمة
  */
 export function cleanupRateLimitStore(): void {
   const now = Date.now();
@@ -234,7 +234,7 @@ export function cleanupRateLimitStore(): void {
   }
 }
 
-// طھظ†ط¸ظٹظپ ظƒظ„ 5 ط¯ظ‚ط§ط¦ظ‚
+// تنظيف كل 5 دقائق
 setInterval(cleanupRateLimitStore, 5 * 60 * 1000);
 
 // ============================================================================
@@ -242,7 +242,7 @@ setInterval(cleanupRateLimitStore, 5 * 60 * 1000);
 // ============================================================================
 
 /**
- * ط¥ظ†ط´ط§ط، headers ط¢ظ…ظ†ط© ظ„ظ„ظ€ API
+ * إنشاء headers آمنة للـ API
  */
 export function createSecureHeaders(token?: string | null): HeadersInit {
   const headers: HeadersInit = {

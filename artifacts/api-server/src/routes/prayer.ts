@@ -1,4 +1,4 @@
-﻿import { Router } from "express";
+import { Router } from "express";
 import { db } from "@workspace/db";
 import { prayerTimesTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
@@ -6,55 +6,55 @@ import { eq, and } from "drizzle-orm";
 const router = Router();
 
 const CITIES = [
-  { value: "riyadh",        label: "ط§ظ„ط±ظٹط§ط¶" },
-  { value: "jeddah",        label: "ط¬ط¯ط©" },
-  { value: "mecca",         label: "ظ…ظƒط© ط§ظ„ظ…ظƒط±ظ…ط©" },
-  { value: "medina",        label: "ط§ظ„ظ…ط¯ظٹظ†ط© ط§ظ„ظ…ظ†ظˆط±ط©" },
-  { value: "dammam",        label: "ط§ظ„ط¯ظ…ط§ظ…" },
-  { value: "khobar",        label: "ط§ظ„ط®ط¨ط±" },
-  { value: "abha",          label: "ط£ط¨ظ‡ط§" },
-  { value: "khamis",        label: "ط®ظ…ظٹط³ ظ…ط´ظٹط·" },
-  { value: "taif",          label: "ط§ظ„ط·ط§ط¦ظپ" },
-  { value: "tabuk",         label: "طھط¨ظˆظƒ" },
-  { value: "qassim",        label: "ط§ظ„ظ‚طµظٹظ…" },
-  { value: "hail",          label: "ط­ط§ط¦ظ„" },
-  { value: "jouf",          label: "ط§ظ„ط¬ظˆظپ" },
-  { value: "jazan",         label: "ط¬ظٹط²ط§ظ†" },
-  { value: "najran",        label: "ظ†ط¬ط±ط§ظ†" },
-  { value: "baha",          label: "ط§ظ„ط¨ط§ط­ط©" },
-  { value: "sakaka",        label: "ط³ظƒط§ظƒط§" },
-  { value: "arar",          label: "ط¹ط±ط¹ط±" },
-  { value: "yanbu",         label: "ظٹظ†ط¨ط¹" },
-  { value: "jubail",        label: "ط§ظ„ط¬ط¨ظٹظ„" },
-  { value: "ahsa",          label: "ط§ظ„ط£ط­ط³ط§ط،" },
+  { value: "riyadh",        label: "الرياض" },
+  { value: "jeddah",        label: "جدة" },
+  { value: "mecca",         label: "مكة المكرمة" },
+  { value: "medina",        label: "المدينة المنورة" },
+  { value: "dammam",        label: "الدمام" },
+  { value: "khobar",        label: "الخبر" },
+  { value: "abha",          label: "أبها" },
+  { value: "khamis",        label: "خميس مشيط" },
+  { value: "taif",          label: "الطائف" },
+  { value: "tabuk",         label: "تبوك" },
+  { value: "qassim",        label: "القصيم" },
+  { value: "hail",          label: "حائل" },
+  { value: "jouf",          label: "الجوف" },
+  { value: "jazan",         label: "جيزان" },
+  { value: "najran",        label: "نجران" },
+  { value: "baha",          label: "الباحة" },
+  { value: "sakaka",        label: "سكاكا" },
+  { value: "arar",          label: "عرعر" },
+  { value: "yanbu",         label: "ينبع" },
+  { value: "jubail",        label: "الجبيل" },
+  { value: "ahsa",          label: "الأحساء" },
 ];
 
 const ARABIC_TO_KEY: Record<string, string> = {
-  "ط§ظ„ط±ظٹط§ط¶": "riyadh",
-  "ط¬ط¯ط©": "jeddah",
-  "ظ…ظƒط© ط§ظ„ظ…ظƒط±ظ…ط©": "mecca",
-  "ظ…ظƒط©": "mecca",
-  "ط§ظ„ظ…ط¯ظٹظ†ط© ط§ظ„ظ…ظ†ظˆط±ط©": "medina",
-  "ط§ظ„ظ…ط¯ظٹظ†ط©": "medina",
-  "ط§ظ„ط¯ظ…ط§ظ…": "dammam",
-  "ط§ظ„ط®ط¨ط±": "khobar",
-  "ط£ط¨ظ‡ط§": "abha",
-  "ط®ظ…ظٹط³ ظ…ط´ظٹط·": "khamis",
-  "ط§ظ„ط·ط§ط¦ظپ": "taif",
-  "طھط¨ظˆظƒ": "tabuk",
-  "ط¨ط±ظٹط¯ط©": "qassim",
-  "ط§ظ„ظ‚طµظٹظ…": "qassim",
-  "ط­ط§ط¦ظ„": "hail",
-  "ط§ظ„ط¬ظˆظپ": "jouf",
-  "ط³ظƒط§ظƒط§": "sakaka",
-  "ط¬ظٹط²ط§ظ†": "jazan",
-  "ط¬ط§ط²ط§ظ†": "jazan",
-  "ظ†ط¬ط±ط§ظ†": "najran",
-  "ط§ظ„ط¨ط§ط­ط©": "baha",
-  "ط¹ط±ط¹ط±": "arar",
-  "ظٹظ†ط¨ط¹": "yanbu",
-  "ط§ظ„ط¬ط¨ظٹظ„": "jubail",
-  "ط§ظ„ط£ط­ط³ط§ط،": "ahsa",
+  "الرياض": "riyadh",
+  "جدة": "jeddah",
+  "مكة المكرمة": "mecca",
+  "مكة": "mecca",
+  "المدينة المنورة": "medina",
+  "المدينة": "medina",
+  "الدمام": "dammam",
+  "الخبر": "khobar",
+  "أبها": "abha",
+  "خميس مشيط": "khamis",
+  "الطائف": "taif",
+  "تبوك": "tabuk",
+  "بريدة": "qassim",
+  "القصيم": "qassim",
+  "حائل": "hail",
+  "الجوف": "jouf",
+  "سكاكا": "sakaka",
+  "جيزان": "jazan",
+  "جازان": "jazan",
+  "نجران": "najran",
+  "الباحة": "baha",
+  "عرعر": "arar",
+  "ينبع": "yanbu",
+  "الجبيل": "jubail",
+  "الأحساء": "ahsa",
 };
 
 function resolveCity(raw: string): string {
@@ -83,12 +83,12 @@ function getNextPrayer(times: { fajr: string; sunrise: string; dhuhr: string; as
   const now = riyadhDateParts();
   const currentTime = now.hour * 60 + now.minute;
   const prayers = [
-    { name: "ط§ظ„ظپط¬ط±", time: times.fajr },
-    { name: "ط§ظ„ط´ط±ظˆظ‚", time: times.sunrise },
-    { name: "ط§ظ„ط¸ظ‡ط±", time: times.dhuhr },
-    { name: "ط§ظ„ط¹طµط±", time: times.asr },
-    { name: "ط§ظ„ظ…ط؛ط±ط¨", time: times.maghrib },
-    { name: "ط§ظ„ط¹ط´ط§ط،", time: times.isha },
+    { name: "الفجر", time: times.fajr },
+    { name: "الشروق", time: times.sunrise },
+    { name: "الظهر", time: times.dhuhr },
+    { name: "العصر", time: times.asr },
+    { name: "المغرب", time: times.maghrib },
+    { name: "العشاء", time: times.isha },
   ];
 
   for (const prayer of prayers) {
@@ -98,7 +98,7 @@ function getNextPrayer(times: { fajr: string; sunrise: string; dhuhr: string; as
       const diff = prayerMinutes - currentTime;
       const hours = Math.floor(diff / 60);
       const minutes = diff % 60;
-      const timeStr = hours > 0 ? `${hours} ط³ط§ط¹ط© ${minutes} ط¯ظ‚ظٹظ‚ط©` : `${minutes} ط¯ظ‚ظٹظ‚ط©`;
+      const timeStr = hours > 0 ? `${hours} ساعة ${minutes} دقيقة` : `${minutes} دقيقة`;
       return { next_prayer: prayer.name, time_remaining: timeStr };
     }
   }
@@ -108,7 +108,7 @@ function getNextPrayer(times: { fajr: string; sunrise: string; dhuhr: string; as
   const diff = 24 * 60 - currentTime + fajrMinutes;
   const hours = Math.floor(diff / 60);
   const minutes = diff % 60;
-  return { next_prayer: "ط§ظ„ظپط¬ط±", time_remaining: `${hours} ط³ط§ط¹ط© ${minutes} ط¯ظ‚ظٹظ‚ط©` };
+  return { next_prayer: "الفجر", time_remaining: `${hours} ساعة ${minutes} دقيقة` };
 }
 
 router.get("/prayer-times/cities", (_req, res) => {
@@ -133,11 +133,11 @@ router.get("/prayer-times", async (req, res) => {
   // No built-in fallback values: return error if no official data.
   if (!dbRow) {
     return res.status(404).json({
-      error: "ظ„ط§ طھطھظˆظپط± ظ…ظˆط§ظ‚ظٹطھ ط§ظ„طµظ„ط§ط© ط§ظ„ط±ط³ظ…ظٹط© ظ„ظ‡ط°ط§ ط§ظ„ظٹظˆظ… ظˆط§ظ„ظ…ط¯ظٹظ†ط©",
+      error: "لا تتوفر مواقيت الصلاة الرسمية لهذا اليوم والمدينة",
       city,
       date: today,
       available: false,
-      message: "ظٹط±ط¬ظ‰ ط¥ط¶ط§ظپط© ظ…ظˆط§ظ‚ظٹطھ ط§ظ„طµظ„ط§ط© ط§ظ„ط±ط³ظ…ظٹط© ظ…ظ† ط®ظ„ط§ظ„ ظ„ظˆط­ط© ط§ظ„ظ…ط§ظ„ظƒ ط£ظˆ ط§ظ„ط§طھطµط§ظ„ ط¨ظ…ط³ط¤ظˆظ„ ط§ظ„ظ†ط¸ط§ظ…",
+      message: "يرجى إضافة مواقيت الصلاة الرسمية من خلال لوحة المالك أو الاتصال بمسؤول النظام",
     });
   }
   

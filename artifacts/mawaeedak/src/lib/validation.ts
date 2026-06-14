@@ -1,7 +1,7 @@
-﻿/**
- * validation.ts â€” ظ†ط¸ط§ظ… ط§ظ„ط¬ظˆط¯ط© ظˆط§ظ„طھط­ظ‚ظ‚
+/**
+ * validation.ts — نظام الجودة والتحقق
  * 
- * ظٹطھط¶ظ…ظ†:
+ * يتضمن:
  * - Build Validation
  * - Route Validation
  * - Import Validation
@@ -42,25 +42,25 @@ export function validateBuild(): ValidationResult {
   const errors: ValidationError[] = [];
   const warnings: ValidationWarning[] = [];
   
-  // 1. ظپط­طµ Supabase
+  // 1. فحص Supabase
   const supabase = configManager.getValue("supabase");
   if (!supabase.enabled && configManager.isProduction()) {
     errors.push({
       type: "MISSING_SUPABASE",
-      message: "Supabase ط؛ظٹط± ظ…ظ‡ظٹط£ ظپظٹ ط¨ظٹط¦ط© ط§ظ„ط¥ظ†طھط§ط¬",
+      message: "Supabase غير مهيأ في بيئة الإنتاج",
     });
   }
   
-  // 2. ظپط­طµ API URL
+  // 2. فحص API URL
   const api = configManager.getValue("api");
   if (!api.baseUrl && configManager.isProduction()) {
     warnings.push({
       type: "MISSING_API_URL",
-      message: "API URL ط؛ظٹط± ظ…ط­ط¯ط¯ ظپظٹ ط§ظ„ط¥ظ†طھط§ط¬",
+      message: "API URL غير محدد في الإنتاج",
     });
   }
   
-  // 3. ظپط­طµ ط§ظ„ظ…ظٹط²ط§طھ ط§ظ„ظ…ط¹ط·ظ‘ظ„ط©
+  // 3. فحص الميزات المعطّلة
   const features = configManager.getFeatures();
   const criticalFeatures = ["homePage", "login", "signup"];
   const disabledCritical = criticalFeatures.filter(
@@ -70,24 +70,24 @@ export function validateBuild(): ValidationResult {
   if (disabledCritical.length > 0) {
     errors.push({
       type: "DISABLED_FEATURES",
-      message: `ظ…ظٹط²ط§طھ ط£ط³ط§ط³ظٹط© ظ…ط¹ط·ظ‘ظ„ط©: ${disabledCritical.join(", ")}`,
+      message: `ميزات أساسية معطّلة: ${disabledCritical.join(", ")}`,
     });
   }
   
-  // 4. ظپط­طµ ظˆط¶ط¹ ط§ظ„طھطµط­ظٹط­
+  // 4. فحص وضع التصحيح
   if (features.debugMode && configManager.isProduction()) {
     errors.push({
       type: "PRODUCTION_DIAGNOSTICS_ENABLED",
-      message: "ظˆط¶ط¹ ط§ظ„طھطµط­ظٹط­ ظ…ظپط¹ظ‘ظ„ ظپظٹ ط¨ظٹط¦ط© ط§ظ„ط¥ظ†طھط§ط¬",
+      message: "وضع التصحيح مفعّل في بيئة الإنتاج",
     });
   }
   
-  // 5. ظپط­طµ SSL
+  // 5. فحص SSL
   if (typeof window !== "undefined" && !window.location.protocol.includes("https")) {
     if (configManager.isProduction()) {
       warnings.push({
         type: "NO_HTTPS",
-        message: "ط§ظ„طھط·ط¨ظٹظ‚ ظ„ط§ ظٹط³طھط®ط¯ظ… HTTPS ظپظٹ ط§ظ„ط¥ظ†طھط§ط¬",
+        message: "التطبيق لا يستخدم HTTPS في الإنتاج",
       });
     }
   }
@@ -141,22 +141,22 @@ export function validateRoutes(definedRoutes: string[]): ValidationResult {
   
   const definedSet = new Set(definedRoutes);
   
-  // ظپط­طµ ط§ظ„ظ…ط³ط§ط±ط§طھ ط§ظ„ظ…ط¹ط±ظپط©
+  // فحص المسارات المعرفة
   VALID_ROUTES.forEach((route) => {
     if (!definedSet.has(route.path)) {
       warnings.push({
         type: "MISSING_ROUTE",
-        message: `ظ…ط³ط§ط± ط؛ظٹط± ظ…ط¶ط§ظپ: ${route.path} -> ${route.component}`,
+        message: `مسار غير مضاف: ${route.path} -> ${route.component}`,
       });
     }
   });
   
-  // ظپط­طµ ط§ظ„ظ…ط³ط§ط±ط§طھ ط§ظ„ط¥ط¶ط§ظپظٹط©
+  // فحص المسارات الإضافية
   definedRoutes.forEach((route) => {
     if (!VALID_ROUTES.find((r) => r.path === route)) {
       warnings.push({
         type: "UNKNOWN_ROUTE",
-        message: `ظ…ط³ط§ط± ط؛ظٹط± ظ…ط¹ط±ظˆظپ ظپظٹ ط§ظ„ظ‚ط§ط¦ظ…ط©: ${route}`,
+        message: `مسار غير معروف في القائمة: ${route}`,
       });
     }
   });
@@ -186,7 +186,7 @@ export function validateImports(imports: ImportInfo[]): ValidationResult {
     if (!imp.isValid) {
       errors.push({
         type: "INVALID_IMPORT",
-        message: `ط§ط³طھظٹط±ط§ط¯ ط؛ظٹط± طµط§ظ„ط­: ${imp.from} -> ${imp.to}`,
+        message: `استيراد غير صالح: ${imp.from} -> ${imp.to}`,
       });
     }
   });
@@ -229,7 +229,7 @@ export function validateDependencies(
     if (!installedSet.has(dep)) {
       errors.push({
         type: "MISSING_DEPENDENCY",
-        message: `طھط¨ط¹ظٹط© ظ…ط·ظ„ظˆط¨ط© ط؛ظٹط± ظ…ظˆط¬ظˆط¯ط©: ${dep}`,
+        message: `تبعية مطلوبة غير موجودة: ${dep}`,
       });
     }
   });
@@ -249,7 +249,7 @@ export function validateAssets(): ValidationResult {
   const errors: ValidationError[] = [];
   const warnings: ValidationWarning[] = [];
   
-  // ظپط­طµ ط§ظ„ط£ظٹظ‚ظˆظ†ط§طھ
+  // فحص الأيقونات
   const requiredIcons = ["favicon.svg", "manifest.json"];
   
   requiredIcons.forEach((icon) => {
@@ -257,17 +257,17 @@ export function validateAssets(): ValidationResult {
     if (!exists) {
       warnings.push({
         type: "MISSING_ASSET",
-        message: `ط£ط¯ط§ط© ظ…ط·ظ„ظˆط¨ط© ط؛ظٹط± ظ…ظˆط¬ظˆط¯ط©: ${icon}`,
+        message: `أداة مطلوبة غير موجودة: ${icon}`,
       });
     }
   });
   
-  // ظپط­طµ ط§ظ„ط®ط·ظˆط·
+  // فحص الخطوط
   const fonts = document.querySelectorAll('link[href*="fonts.googleapis.com"]');
   if (fonts.length === 0) {
     warnings.push({
       type: "MISSING_FONTS",
-      message: "ظ„ظ… ظٹطھظ… طھط­ظ…ظٹظ„ ط£ظٹ ط®ط·ظˆط·",
+      message: "لم يتم تحميل أي خطوط",
     });
   }
   
@@ -290,41 +290,41 @@ export function validateAccessibility(): ValidationResult {
     return { passed: true, errors: [], warnings: [] };
   }
   
-  // ظپط­طµ ظ„ط؛ط© ط§ظ„طµظپط­ط©
+  // فحص لغة الصفحة
   const html = document.querySelector("html");
   if (!html?.getAttribute("lang")) {
     errors.push({
       type: "MISSING_LANG",
-      message: "ظ„ط؛ط© ط§ظ„طµظپط­ط© ط؛ظٹط± ظ…ط­ط¯ط¯ط©",
+      message: "لغة الصفحة غير محددة",
     });
   }
   
-  // ظپط­طµ ط§طھط¬ط§ظ‡ ط§ظ„ظ†طµ RTL
+  // فحص اتجاه النص RTL
   if (!html?.getAttribute("dir")) {
     warnings.push({
       type: "MISSING_DIR",
-      message: "ط§طھط¬ط§ظ‡ ط§ظ„ظ†طµ ط؛ظٹط± ظ…ط­ط¯ط¯",
+      message: "اتجاه النص غير محدد",
     });
   }
   
-  // ظپط­طµ meta tags
+  // فحص meta tags
   const requiredMeta = ["description", "viewport"];
   requiredMeta.forEach((meta) => {
     const exists = document.querySelector(`meta[name="${meta}"]`) !== null;
     if (!exists) {
       warnings.push({
         type: "MISSING_META",
-        message: `Meta tag ظ…ط·ظ„ظˆط¨: ${meta}`,
+        message: `Meta tag مطلوب: ${meta}`,
       });
     }
   });
   
-  // ظپط­طµ title
+  // فحص title
   const title = document.querySelector("title");
   if (!title?.textContent) {
     errors.push({
       type: "MISSING_TITLE",
-      message: "ط¹ظ†ظˆط§ظ† ط§ظ„طµظپط­ط© ط؛ظٹط± ظ…ظˆط¬ظˆط¯",
+      message: "عنوان الصفحة غير موجود",
     });
   }
   

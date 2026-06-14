@@ -1,4 +1,4 @@
-﻿name: Live Home Blockers Verification Gate
+name: Live Home Blockers Verification Gate
 
 on:
   workflow_dispatch:
@@ -78,17 +78,17 @@ jobs:
 
           for name in "${required[@]}"; do
             if [ -z "${!name:-}" ]; then
-              echo "â‌Œ $name is missing"
+              echo "❌ $name is missing"
               echo "| $name | MISSING |" >> "$GITHUB_STEP_SUMMARY"
               missing=1
             else
-              echo "âœ… $name is present"
+              echo "✅ $name is present"
               echo "| $name | PRESENT |" >> "$GITHUB_STEP_SUMMARY"
             fi
           done
 
           if [ "$missing" -ne 0 ]; then
-            echo "NEEDS FIXES â€” LIVE ENV SECRETS NOT AVAILABLE" >> "$GITHUB_STEP_SUMMARY"
+            echo "NEEDS FIXES — LIVE ENV SECRETS NOT AVAILABLE" >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
 
@@ -102,10 +102,10 @@ jobs:
             --exclude-dir=dist \
             --exclude='*.md' \
             2>/dev/null; then
-            echo "â‌Œ Frontend runtime references Supabase service-role key."
+            echo "❌ Frontend runtime references Supabase service-role key."
             exit 1
           fi
-          echo "âœ… No frontend runtime exposure of SUPABASE_SERVICE_ROLE_KEY found." >> "$GITHUB_STEP_SUMMARY"
+          echo "✅ No frontend runtime exposure of SUPABASE_SERVICE_ROLE_KEY found." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -168,14 +168,14 @@ jobs:
 
           EFFECTIVE_DATABASE_URL="$(cat /tmp/effective_database_url)"
           if [[ "$EFFECTIVE_DATABASE_URL" != "$DATABASE_URL" ]]; then
-            echo "â„¹ï¸ڈ DATABASE_URL normalized from direct Supabase host to Transaction Pooler for GitHub Actions connectivity." >> "$GITHUB_STEP_SUMMARY"
+            echo "ℹ️ DATABASE_URL normalized from direct Supabase host to Transaction Pooler for GitHub Actions connectivity." >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "â„¹ï¸ڈ DATABASE_URL used as provided." >> "$GITHUB_STEP_SUMMARY"
+            echo "ℹ️ DATABASE_URL used as provided." >> "$GITHUB_STEP_SUMMARY"
           fi
 
           db_name="$(psql "$EFFECTIVE_DATABASE_URL" -v ON_ERROR_STOP=1 -Atc "select current_database();")"
           db_user="$(psql "$EFFECTIVE_DATABASE_URL" -v ON_ERROR_STOP=1 -Atc "select current_user;")"
-          echo "âœ… DB reachable." >> "$GITHUB_STEP_SUMMARY"
+          echo "✅ DB reachable." >> "$GITHUB_STEP_SUMMARY"
           echo "- Database: ${db_name}" >> "$GITHUB_STEP_SUMMARY"
           echo "- User: ${db_user}" >> "$GITHUB_STEP_SUMMARY"
 
@@ -198,32 +198,32 @@ jobs:
             if has_table "$t"; then identity_found=1; fi
           done
           if [ "$identity_found" -ne 1 ]; then
-            echo "â‌Œ Missing identity table: expected one of profiles/users/user_profiles" >> "$GITHUB_STEP_SUMMARY"
+            echo "❌ Missing identity table: expected one of profiles/users/user_profiles" >> "$GITHUB_STEP_SUMMARY"
             missing=1
           else
-            echo "âœ… Identity table exists." >> "$GITHUB_STEP_SUMMARY"
+            echo "✅ Identity table exists." >> "$GITHUB_STEP_SUMMARY"
           fi
 
           for t in "${required_core[@]}"; do
             if has_table "$t"; then
-              echo "âœ… Table exists: $t" >> "$GITHUB_STEP_SUMMARY"
+              echo "✅ Table exists: $t" >> "$GITHUB_STEP_SUMMARY"
             else
-              echo "â‌Œ Missing table: $t" >> "$GITHUB_STEP_SUMMARY"
+              echo "❌ Missing table: $t" >> "$GITHUB_STEP_SUMMARY"
               missing=1
             fi
           done
 
           override_found=0
           for t in official_financial_overrides financial_overrides admin_financial_overrides; do
-            if has_table "$t"; then override_found=1; echo "âœ… Override table exists: $t" >> "$GITHUB_STEP_SUMMARY"; fi
+            if has_table "$t"; then override_found=1; echo "✅ Override table exists: $t" >> "$GITHUB_STEP_SUMMARY"; fi
           done
           if [ "$override_found" -ne 1 ]; then
-            echo "â‌Œ Missing official financial override table/equivalent." >> "$GITHUB_STEP_SUMMARY"
+            echo "❌ Missing official financial override table/equivalent." >> "$GITHUB_STEP_SUMMARY"
             missing=1
           fi
 
           if [ "$missing" -ne 0 ]; then
-            echo "NEEDS FIXES â€” LIVE DATABASE SCHEMA INCOMPLETE" >> "$GITHUB_STEP_SUMMARY"
+            echo "NEEDS FIXES — LIVE DATABASE SCHEMA INCOMPLETE" >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
 
@@ -241,7 +241,7 @@ jobs:
 
           echo "- financial_events anon read HTTP status: $code" >> "$GITHUB_STEP_SUMMARY"
           if [ "$code" -lt 200 ] || [ "$code" -ge 500 ]; then
-            echo "NEEDS FIXES â€” SUPABASE REST SMOKE FAILED" >> "$GITHUB_STEP_SUMMARY"
+            echo "NEEDS FIXES — SUPABASE REST SMOKE FAILED" >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
 
@@ -256,10 +256,10 @@ jobs:
 
           echo "- guest official override mutation HTTP status: $mutation_code" >> "$GITHUB_STEP_SUMMARY"
           if [ "$mutation_code" = "200" ] || [ "$mutation_code" = "201" ] || [ "$mutation_code" = "204" ]; then
-            echo "â‌Œ Guest/anon mutation unexpectedly succeeded." >> "$GITHUB_STEP_SUMMARY"
+            echo "❌ Guest/anon mutation unexpectedly succeeded." >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
-          echo "âœ… Guest/anon mutation blocked." >> "$GITHUB_STEP_SUMMARY"
+          echo "✅ Guest/anon mutation blocked." >> "$GITHUB_STEP_SUMMARY"
 
       - name: Repository consistency scans
         shell: bash
@@ -283,7 +283,7 @@ jobs:
           set -euo pipefail
           {
             echo "## Final Decision"
-            echo "PASSED â€” LIVE HOME BLOCKERS VERIFIED BY GITHUB ACTIONS BASELINE"
+            echo "PASSED — LIVE HOME BLOCKERS VERIFIED BY GITHUB ACTIONS BASELINE"
             echo
             echo "Note: This workflow proves env availability, install/typecheck/build, DB reachability, required table presence, Supabase REST availability, and guest override mutation blocking. If admin-authenticated mutation tests require real admin credentials/session, keep that as a separate manual QA proof."
           } >> "$GITHUB_STEP_SUMMARY"

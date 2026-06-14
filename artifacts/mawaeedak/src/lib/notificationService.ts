@@ -1,7 +1,7 @@
-﻿/**
- * Notification Service â€” ظ…ظˆط§ط¹ظٹط¯ظƒ
+/**
+ * Notification Service — مواعيدك
  * 
- * ط®ط¯ظ…ط© ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ط§ظ„ط¯ط§ط®ظ„ظٹط©
+ * خدمة الإشعارات الداخلية
  */
 
 import { supabase, isSupabaseEnabled } from "./supabase";
@@ -38,7 +38,7 @@ export type NotificationPreferences = {
 };
 
 /**
- * createNotification â€” ط¥ظ†ط´ط§ط، ط¥ط´ط¹ط§ط±
+ * createNotification — إنشاء إشعار
  */
 export async function createNotification(
   userId: string,
@@ -48,7 +48,7 @@ export async function createNotification(
   extraData?: Record<string, any>
 ): Promise<{ success: boolean; error?: string; data?: Notification }> {
   if (!isSupabaseEnabled || !supabase) {
-    return { success: false, error: "Supabase ط؛ظٹط± ظ…ظ‡ظٹط£" };
+    return { success: false, error: "Supabase غير مهيأ" };
   }
   
   const { data: notificationData, error } = await supabase
@@ -69,7 +69,7 @@ export async function createNotification(
 }
 
 /**
- * getUserNotifications â€” ط¬ظ„ط¨ ط¥ط´ط¹ط§ط±ط§طھ ط§ظ„ظ…ط³طھط®ط¯ظ…
+ * getUserNotifications — جلب إشعارات المستخدم
  */
 export async function getUserNotifications(userId: string): Promise<Notification[]> {
   if (!isSupabaseEnabled || !supabase) return [];
@@ -86,7 +86,7 @@ export async function getUserNotifications(userId: string): Promise<Notification
 }
 
 /**
- * getUnreadNotifications â€” ط¬ظ„ط¨ ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ط؛ظٹط± ط§ظ„ظ…ظ‚ط±ظˆط،ط©
+ * getUnreadNotifications — جلب الإشعارات غير المقروءة
  */
 export async function getUnreadNotifications(userId: string): Promise<Notification[]> {
   if (!isSupabaseEnabled || !supabase) return [];
@@ -103,11 +103,11 @@ export async function getUnreadNotifications(userId: string): Promise<Notificati
 }
 
 /**
- * markAsRead â€”و ‡è®° ط¥ط´ط¹ط§ط± ظƒظ…ظ‚ط±ظˆط،
+ * markAsRead —标记 إشعار كمقروء
  */
 export async function markAsRead(notificationId: string): Promise<{ success: boolean; error?: string }> {
   if (!isSupabaseEnabled || !supabase) {
-    return { success: false, error: "Supabase ط؛ظٹط± ظ…ظ‡ظٹط£" };
+    return { success: false, error: "Supabase غير مهيأ" };
   }
   
   const { error } = await supabase
@@ -120,11 +120,11 @@ export async function markAsRead(notificationId: string): Promise<{ success: boo
 }
 
 /**
- * markAllAsRead â€”و ‡è®° ظƒظ„ ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ظƒظ…ظ‚ط±ظˆط،ط©
+ * markAllAsRead —标记 كل الإشعارات كمقروءة
  */
 export async function markAllAsRead(userId: string): Promise<{ success: boolean; error?: string }> {
   if (!isSupabaseEnabled || !supabase) {
-    return { success: false, error: "Supabase ط؛ظٹط± ظ…ظ‡ظٹط£" };
+    return { success: false, error: "Supabase غير مهيأ" };
   }
   
   const { error } = await supabase
@@ -138,11 +138,11 @@ export async function markAllAsRead(userId: string): Promise<{ success: boolean;
 }
 
 /**
- * deleteNotification â€” ط­ط°ظپ ط¥ط´ط¹ط§ط±
+ * deleteNotification — حذف إشعار
  */
 export async function deleteNotification(notificationId: string): Promise<{ success: boolean; error?: string }> {
   if (!isSupabaseEnabled || !supabase) {
-    return { success: false, error: "Supabase ط؛ظٹط± ظ…ظ‡ظٹط£" };
+    return { success: false, error: "Supabase غير مهيأ" };
   }
   
   const { error } = await supabase
@@ -155,7 +155,7 @@ export async function deleteNotification(notificationId: string): Promise<{ succ
 }
 
 /**
- * getNotificationPreferences â€” ط¬ظ„ط¨ طھظپط¶ظٹظ„ط§طھ ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ
+ * getNotificationPreferences — جلب تفضيلات الإشعارات
  */
 export async function getNotificationPreferences(userId: string): Promise<NotificationPreferences | null> {
   if (!isSupabaseEnabled || !supabase) return null;
@@ -171,14 +171,14 @@ export async function getNotificationPreferences(userId: string): Promise<Notifi
 }
 
 /**
- * updateNotificationPreferences â€” طھط­ط¯ظٹط« طھظپط¶ظٹظ„ط§طھ ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ
+ * updateNotificationPreferences — تحديث تفضيلات الإشعارات
  */
 export async function updateNotificationPreferences(
   userId: string,
   preferences: Partial<Omit<NotificationPreferences, "id" | "user_id" | "created_at">>
 ): Promise<{ success: boolean; error?: string }> {
   if (!isSupabaseEnabled || !supabase) {
-    return { success: false, error: "Supabase ط؛ظٹط± ظ…ظ‡ظٹط£" };
+    return { success: false, error: "Supabase غير مهيأ" };
   }
   
   const { error } = await supabase
@@ -194,7 +194,7 @@ export async function updateNotificationPreferences(
 }
 
 /**
- * createDefaultPreferences â€” ط¥ظ†ط´ط§ط، طھظپط¶ظٹظ„ط§طھ ط§ظپطھط±ط§ط¶ظٹط©
+ * createDefaultPreferences — إنشاء تفضيلات افتراضية
  */
 export async function createDefaultPreferences(userId: string): Promise<{ success: boolean; error?: string }> {
   return updateNotificationPreferences(userId, {
@@ -207,7 +207,7 @@ export async function createDefaultPreferences(userId: string): Promise<{ succes
 }
 
 /**
- * getUnreadCount â€” ط¹ط¯ط¯ ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ط؛ظٹط± ط§ظ„ظ…ظ‚ط±ظˆط،ط©
+ * getUnreadCount — عدد الإشعارات غير المقروءة
  */
 export async function getUnreadCount(userId: string): Promise<number> {
   const unread = await getUnreadNotifications(userId);

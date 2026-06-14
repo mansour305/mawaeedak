@@ -1,4 +1,4 @@
-﻿import { Router } from "express";
+import { Router } from "express";
 import { requireAdmin } from "../middlewares/requireAdmin";
 import { db } from "@workspace/db";
 import { dailyMessagesTable, auditLogsTable } from "@workspace/db";
@@ -49,7 +49,7 @@ router.get("/daily-messages/today", async (req, res) => {
     const dayOfYear = Math.floor((todayDate.getTime() - startOfYear) / 86400000);
     return res.json(rows[dayOfYear % rows.length]);
   }
-  return res.status(404).json({ error: "ظ„ط§ طھظˆط¬ط¯ ط±ط³ط§ظ„ط© ط§ظ„ظٹظˆظ…" });
+  return res.status(404).json({ error: "لا توجد رسالة اليوم" });
 });
 
 router.post("/daily-messages", requireAdmin, async (req, res) => {
@@ -58,7 +58,7 @@ router.post("/daily-messages", requireAdmin, async (req, res) => {
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [row] = await db.insert(dailyMessagesTable).values(parsed.data).returning();
-  await logAudit(actorId, "create", "daily_message", row.id, row.message.substring(0, 50), `ط¥ط¶ط§ظپط© ط±ط³ط§ظ„ط© ظٹظˆظ…ظٹط©`);
+  await logAudit(actorId, "create", "daily_message", row.id, row.message.substring(0, 50), `إضافة رسالة يومية`);
   return res.status(201).json(row);
 });
 
@@ -69,8 +69,8 @@ router.patch("/daily-messages/:id", requireAdmin, async (req, res) => {
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [row] = await db.update(dailyMessagesTable).set(parsed.data).where(eq(dailyMessagesTable.id, id)).returning();
-  if (!row) return res.status(404).json({ error: "ط؛ظٹط± ظ…ظˆط¬ظˆط¯" });
-  await logAudit(actorId, "update", "daily_message", row.id, row.message.substring(0, 50), `طھط¹ط¯ظٹظ„ ط±ط³ط§ظ„ط© ظٹظˆظ…ظٹط©`);
+  if (!row) return res.status(404).json({ error: "غير موجود" });
+  await logAudit(actorId, "update", "daily_message", row.id, row.message.substring(0, 50), `تعديل رسالة يومية`);
   return res.json(row);
 });
 
@@ -79,8 +79,8 @@ router.delete("/daily-messages/:id", requireAdmin, async (req, res) => {
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [deleted] = await db.delete(dailyMessagesTable).where(eq(dailyMessagesTable.id, id)).returning();
-  if (!deleted) return res.status(404).json({ error: "ط؛ظٹط± ظ…ظˆط¬ظˆط¯" });
-  await logAudit(actorId, "delete", "daily_message", id, deleted.message.substring(0, 50), `ط­ط°ظپ ط±ط³ط§ظ„ط© ظٹظˆظ…ظٹط©`);
+  if (!deleted) return res.status(404).json({ error: "غير موجود" });
+  await logAudit(actorId, "delete", "daily_message", id, deleted.message.substring(0, 50), `حذف رسالة يومية`);
   return res.status(204).send();
 });
 

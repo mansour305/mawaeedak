@@ -1,4 +1,4 @@
-﻿export const RIYADH_TIMEZONE = "Asia/Riyadh";
+export const RIYADH_TIMEZONE = "Asia/Riyadh";
 
 export type RiyadhDateParts = {
   year: number;
@@ -114,7 +114,7 @@ export function formatTimeByPreference(
     return `${String(hours).padStart(2, "0")}:${minutes}`;
   }
 
-  const period = hours >= 12 ? "ظ…" : "طµ";
+  const period = hours >= 12 ? "م" : "ص";
   const displayHour = hours % 12 || 12;
   return `${displayHour}:${minutes} ${period}`;
 }
@@ -161,12 +161,12 @@ export function getNextPrayerTime(prayers: {
 }): { key: string; label: string; time: Date } | null {
   const now = getRiyadhNow();
   const prayerKeys = [
-    { key: "fajr", label: "ط§ظ„ظپط¬ط±", timeKey: "fajr" },
-    { key: "sunrise", label: "ط§ظ„ط´ط±ظˆظ‚", timeKey: "sunrise" },
-    { key: "dhuhr", label: "ط§ظ„ط¸ظ‡ط±", timeKey: "dhuhr" },
-    { key: "asr", label: "ط§ظ„ط¹طµط±", timeKey: "asr" },
-    { key: "maghrib", label: "ط§ظ„ظ…ط؛ط±ط¨", timeKey: "maghrib" },
-    { key: "isha", label: "ط§ظ„ط¹ط´ط§ط،", timeKey: "isha" },
+    { key: "fajr", label: "الفجر", timeKey: "fajr" },
+    { key: "sunrise", label: "الشروق", timeKey: "sunrise" },
+    { key: "dhuhr", label: "الظهر", timeKey: "dhuhr" },
+    { key: "asr", label: "العصر", timeKey: "asr" },
+    { key: "maghrib", label: "المغرب", timeKey: "maghrib" },
+    { key: "isha", label: "العشاء", timeKey: "isha" },
   ];
 
   for (const prayer of prayerKeys) {
@@ -179,7 +179,7 @@ export function getNextPrayerTime(prayers: {
   const fajrTime = parseTimeToDateToday(prayers.fajr);
   if (fajrTime) {
     fajrTime.setUTCDate(fajrTime.getUTCDate() + 1);
-    return { key: "fajr", label: "ط§ظ„ظپط¬ط±", time: fajrTime };
+    return { key: "fajr", label: "الفجر", time: fajrTime };
   }
 
   return null;

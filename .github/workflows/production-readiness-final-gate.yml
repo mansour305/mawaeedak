@@ -1,4 +1,4 @@
-﻿name: Production Readiness Final Gate
+name: Production Readiness Final Gate
 
 on:
   workflow_dispatch:

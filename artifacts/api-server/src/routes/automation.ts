@@ -1,5 +1,5 @@
-﻿/**
- * Automation Admin Routes â€” Phase 13B/13C
+/**
+ * Automation Admin Routes — Phase 13B/13C
  * GET  /api/admin/automation/status
  * GET  /api/admin/automation/logs
  * POST /api/admin/automation/run
@@ -23,10 +23,10 @@ import {
 const router = Router();
 
 const JOB_LABELS: Record<string, string> = {
-  daily_content: "ط±ط³ط§ظ„ط© ط§ظ„ظٹظˆظ…",
-  appointment_reminders: "طھط°ظƒظٹط±ط§طھ ط§ظ„ظ…ظˆط§ط¹ظٹط¯",
-  financial_reminders: "طھط°ظƒظٹط±ط§طھ ظ…ط§ظ„ظٹط©",
-  daily_content_notification: "ط¥ط´ط¹ط§ط± ظ…ط­طھظˆظ‰ ط§ظ„ظٹظˆظ…",
+  daily_content: "رسالة اليوم",
+  appointment_reminders: "تذكيرات المواعيد",
+  financial_reminders: "تذكيرات مالية",
+  daily_content_notification: "إشعار محتوى اليوم",
 };
 
 router.get("/admin/automation/status", requireAdmin, async (req, res) => {
@@ -57,7 +57,7 @@ router.get("/admin/automation/status", requireAdmin, async (req, res) => {
     res.json({ status: results });
   } catch (err) {
     req.log.error({ err }, "automation status error");
-    res.status(500).json({ error: "ط®ط·ط£ ظپظٹ ط§ظ„ط®ط§ط¯ظ…" });
+    res.status(500).json({ error: "خطأ في الخادم" });
   }
 });
 
@@ -72,7 +72,7 @@ router.get("/admin/automation/logs", requireAdmin, async (req, res) => {
     res.json({ logs });
   } catch (err) {
     req.log.error({ err }, "automation logs error");
-    res.status(500).json({ error: "ط®ط·ط£ ظپظٹ ط§ظ„ط®ط§ط¯ظ…" });
+    res.status(500).json({ error: "خطأ في الخادم" });
   }
 });
 
@@ -87,7 +87,7 @@ router.post("/admin/automation/run", requireAdmin, async (req, res) => {
     });
   } catch (err) {
     req.log.error({ err }, "automation run error");
-    res.status(500).json({ error: "ط®ط·ط£ ط£ط«ظ†ط§ط، طھط´ط؛ظٹظ„ ط§ظ„ظ…ظ‡ط§ظ…" });
+    res.status(500).json({ error: "خطأ أثناء تشغيل المهام" });
   }
 });
 
@@ -97,7 +97,7 @@ router.post("/admin/automation/run/daily-content", requireAdmin, async (req, res
     res.json({ success: true, result });
   } catch (err) {
     req.log.error({ err }, "automation run daily-content error");
-    res.status(500).json({ error: "ط®ط·ط£ ط£ط«ظ†ط§ط، ط¥ظ†ط´ط§ط، ط§ظ„ظ…ط­طھظˆظ‰" });
+    res.status(500).json({ error: "خطأ أثناء إنشاء المحتوى" });
   }
 });
 
@@ -116,7 +116,7 @@ router.post("/admin/automation/run/notifications", requireAdmin, async (req, res
     });
   } catch (err) {
     req.log.error({ err }, "automation run notifications error");
-    res.status(500).json({ error: "ط®ط·ط£ ط£ط«ظ†ط§ط، ط¬ط¯ظˆظ„ط© ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ" });
+    res.status(500).json({ error: "خطأ أثناء جدولة الإشعارات" });
   }
 });
 

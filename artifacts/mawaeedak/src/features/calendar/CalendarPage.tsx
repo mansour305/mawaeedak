@@ -1,10 +1,9 @@
-﻿/**
- * CalendarPage â€” Saudi Premium Minimal Calendar
- * Reference: docs/design-reference/final-2026/04-calendar.jpeg
- * 
+/**
+ * CalendarPage — Saudi Premium Minimal Calendar
+ *
  * Features:
- * - Title: ط§ظ„طھظ‚ظˆظٹظ… ظˆط§ظ„ظ…ظˆط§ط¹ظٹط¯
- * - Subtitle: ظ†ط¸ظ… ظٹظˆظ…ظƒ ظˆط§ط¨ظ‚ ط¹ظ„ظ‰ ظ…ظˆط§ط¹ظٹط¯ظƒ
+ * - Title: التقويم والمواعيد
+ * - Subtitle: نظم يومك وابق على مواعيدك
  * - Hijri/Gregorian segmented toggle
  * - Premium monthly calendar card with 7-column grid
  * - Selected day highlight with gold circle
@@ -47,8 +46,8 @@ import {
 import { getRiyadhTodayKey, parseRiyadhDateKey } from "@/lib/riyadhTime";
 import type { Appointment } from "@api-client";
 
-/* â”€â”€â”€ helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-const WEEKDAYS = ["ط£ط­ط¯", "ط§ط«ظ†ظٹظ†", "ط«ظ„ط§ط«ط§ط،", "ط£ط±ط¨ط¹", "ط®ظ…ظٹط³", "ط¬ظ…ط¹ط©", "ط³ط¨طھ"];
+/* ─── helpers ─────────────────────────────────────────────── */
+const WEEKDAYS = ["أحد", "اثنين", "ثلاثاء", "أربع", "خميس", "جمعة", "سبت"];
 
 function buildCalendarGrid(year: number, month: number) {
   const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
@@ -67,7 +66,7 @@ function arMonthYear(d: Date) {
   return d.toLocaleDateString("ar-SA-u-ca-gregory", { year: "numeric", month: "long" });
 }
 
-/* â”€â”€â”€ GoldDiamond ornament â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── GoldDiamond ornament ─────────────────────────────────── */
 const Dia = () => (
   <svg viewBox="0 0 10 10" style={{ width: 7, height: 7 }} fill="hsl(var(--gold-muted))">
     <polygon points="5,0 10,5 5,10 0,5" />
@@ -79,7 +78,7 @@ export default function CalendarPage() {
   const { formatTime } = useTimeFormat();
   const queryClient = useQueryClient();
 
-  /* â”€â”€ Month navigation â”€â”€ */
+  /* ── Month navigation ── */
   const today = getRiyadhTodayKey();
   const now = parseRiyadhDateKey(today);
   const [viewYear, setViewYear] = useState(now.getFullYear());
@@ -100,7 +99,7 @@ export default function CalendarPage() {
     setSelectedDate(today);
   };
 
-  /* â”€â”€ Data â”€â”€ */
+  /* ── Data ── */
   // Fetch appointments from both gateway and Supabase.  If the user has
   // official (Supabase) appointments, those take precedence; otherwise
   // gateway appointments (demo mode) are used.
@@ -109,7 +108,7 @@ export default function CalendarPage() {
 
   const grid = useMemo(() => buildCalendarGrid(viewYear, viewMonth), [viewYear, viewMonth]);
 
-  /* days that have appointments â€” for dots */
+  /* days that have appointments — for dots */
   // Determine which appointments to display: official appointments if any,
   // otherwise fallback to gateway appointments.
   const appointments = useMemo(() => {
@@ -129,13 +128,13 @@ export default function CalendarPage() {
     return appointments.filter((a: any) => a.date === selectedDate);
   }, [appointments, selectedDate]);
 
-  /* â”€â”€ Form state â”€â”€ */
+  /* ── Form state ── */
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [date, setDate] = useState(today);
   const [time, setTime] = useState("");
-  const [cat, setCat] = useState("ط´ط®طµظٹ");
-  const [priority, setPriority] = useState("ظ…طھظˆط³ط·ط©");
+  const [cat, setCat] = useState("شخصي");
+  const [priority, setPriority] = useState("متوسطة");
   const [notes, setNotes] = useState("");
   const [editApp, setEditApp] = useState<Appointment | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -155,7 +154,7 @@ export default function CalendarPage() {
   const resetForm = () => {
     setTitle(""); setTime(""); setNotes("");
     setDate(selectedDate || today);
-    setCat("ط´ط®طµظٹ"); setPriority("ظ…طھظˆط³ط·ط©");
+    setCat("شخصي"); setPriority("متوسطة");
   };
 
   // Supabase mutations: create, update and delete appointments.  These
@@ -166,7 +165,7 @@ export default function CalendarPage() {
 
   const handleAdd = async () => {
     if (!title || !date) {
-      toast({ title: "ط®ط·ط£", description: "ط§ظ„ط±ط¬ط§ط، ط¥ط¯ط®ط§ظ„ ط§ظ„ط¹ظ†ظˆط§ظ† ظˆط§ظ„طھط§ط±ظٹط®", variant: "destructive" });
+      toast({ title: "خطأ", description: "الرجاء إدخال العنوان والتاريخ", variant: "destructive" });
       return;
     }
     setSavePending(true);
@@ -182,7 +181,7 @@ export default function CalendarPage() {
           description: notes || undefined,
           color: "#9c6a1a",
         });
-        toast({ title: "طھظ… ط§ظ„ط¥ط¶ط§ظپط©" });
+        toast({ title: "تم الإضافة" });
       } else {
         const result = await gwCreateAppointment({
           title,
@@ -194,9 +193,9 @@ export default function CalendarPage() {
           color: "#9c6a1a",
         });
         if (result.success) {
-          toast({ title: "طھظ… ط§ظ„ط¥ط¶ط§ظپط©" });
+          toast({ title: "تم الإضافة" });
         } else {
-          toast({ title: "ظپط´ظ„ ط§ظ„ط¥ط¶ط§ظپط©", description: result.error ?? "ط®ط·ط£ ط؛ظٹط± ظ…ط¹ط±ظˆظپ", variant: "destructive" });
+          toast({ title: "فشل الإضافة", description: result.error ?? "خطأ غير معروف", variant: "destructive" });
         }
       }
       setIsAddOpen(false);
@@ -204,7 +203,7 @@ export default function CalendarPage() {
       invalidateAppointments();
       queryClient.invalidateQueries({ queryKey: ["official-appointments"] });
     } catch (error: any) {
-      toast({ title: "ظپط´ظ„ ط§ظ„ط¥ط¶ط§ظپط©", description: error.message ?? "ط®ط·ط£ ط؛ظٹط± ظ…ط¹ط±ظˆظپ", variant: "destructive" });
+      toast({ title: "فشل الإضافة", description: error.message ?? "خطأ غير معروف", variant: "destructive" });
     } finally {
       setSavePending(false);
     }
@@ -216,7 +215,7 @@ export default function CalendarPage() {
     setDate(app.date);
     setTime(app.time ?? "");
     setCat(app.category);
-    setPriority(app.priority ?? "ظ…طھظˆط³ط·ط©");
+    setPriority(app.priority ?? "متوسطة");
     setNotes(app.description ?? "");
     setIsEditOpen(true);
   };
@@ -237,7 +236,7 @@ export default function CalendarPage() {
             description: notes || undefined,
           },
         });
-        toast({ title: "طھظ… ط§ظ„طھط¹ط¯ظٹظ„" });
+        toast({ title: "تم التعديل" });
       } else {
         const result = await gwUpdateAppointment(editApp.id, {
           title,
@@ -248,16 +247,16 @@ export default function CalendarPage() {
           description: notes || undefined,
         });
         if (result.success) {
-          toast({ title: "طھظ… ط§ظ„طھط¹ط¯ظٹظ„" });
+          toast({ title: "تم التعديل" });
         } else {
-          toast({ title: "ظپط´ظ„ ط§ظ„طھط¹ط¯ظٹظ„", description: result.error ?? "ط®ط·ط£ ط؛ظٹط± ظ…ط¹ط±ظˆظپ", variant: "destructive" });
+          toast({ title: "فشل التعديل", description: result.error ?? "خطأ غير معروف", variant: "destructive" });
         }
       }
       setIsEditOpen(false);
       invalidateAppointments();
       queryClient.invalidateQueries({ queryKey: ["official-appointments"] });
     } catch (error: any) {
-      toast({ title: "ظپط´ظ„ ط§ظ„طھط¹ط¯ظٹظ„", description: error.message ?? "ط®ط·ط£ ط؛ظٹط± ظ…ط¹ط±ظˆظپ", variant: "destructive" });
+      toast({ title: "فشل التعديل", description: error.message ?? "خطأ غير معروف", variant: "destructive" });
     } finally {
       setSavePending(false);
     }
@@ -269,13 +268,13 @@ export default function CalendarPage() {
     try {
       if (Array.isArray(officialAppointments)) {
         await deleteOfficialMutation.mutateAsync(deleteId);
-        toast({ title: "طھظ… ط§ظ„ط­ط°ظپ" });
+        toast({ title: "تم الحذف" });
       } else {
         const result = await gwDeleteAppointment(deleteId);
         if (result.success) {
-          toast({ title: "طھظ… ط§ظ„ط­ط°ظپ" });
+          toast({ title: "تم الحذف" });
         } else {
-          toast({ title: "ظپط´ظ„ ط§ظ„ط­ط°ظپ", description: result.error ?? "ط®ط·ط£ ط؛ظٹط± ظ…ط¹ط±ظˆظپ", variant: "destructive" });
+          toast({ title: "فشل الحذف", description: result.error ?? "خطأ غير معروف", variant: "destructive" });
         }
       }
       setDeleteId(null);
@@ -284,7 +283,7 @@ export default function CalendarPage() {
       invalidateAppointments();
       queryClient.invalidateQueries({ queryKey: ["official-appointments"] });
     } catch (error: any) {
-      toast({ title: "ظپط´ظ„ ط§ظ„ط­ط°ظپ", description: error.message ?? "ط®ط·ط£ ط؛ظٹط± ظ…ط¹ط±ظˆظپ", variant: "destructive" });
+      toast({ title: "فشل الحذف", description: error.message ?? "خطأ غير معروف", variant: "destructive" });
       setIsDeleteOpen(false);
     } finally {
       setDeletePending(false);
@@ -298,10 +297,10 @@ export default function CalendarPage() {
     : "";
 
   return (
-    <AppShell title="ط§ظ„طھظ‚ظˆظٹظ…">
+    <AppShell title="التقويم">
       <div className="space-y-3 pb-2">
 
-        {/* â•گâ•گâ•گ Monthly Calendar Card â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */}
+        {/* ═══ Monthly Calendar Card ═══════════════════════════════ */}
         <div
           className="-mx-3 rounded-b-3xl overflow-hidden"
           style={{
@@ -352,7 +351,7 @@ export default function CalendarPage() {
                     border: "1px solid rgba(210,160,50,0.30)",
                   }}
                 >
-                  ط§ظ„ط¹ظˆط¯ط© ظ„ظ‡ط°ط§ ط§ظ„ط´ظ‡ط±
+                  العودة لهذا الشهر
                 </button>
               )}
             </div>
@@ -423,12 +422,12 @@ export default function CalendarPage() {
           </div>
         </div>
 
-        {/* â•گâ•گâ•گ Add Button + Selected Day Header â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */}
+        {/* ═══ Add Button + Selected Day Header ═══════════════════ */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <Dia />
             <span className="text-[13px] font-bold" style={{ color: "hsl(22 48% 32%)" }}>
-              {selectedDateLabel || "ط§ط®طھط± ظٹظˆظ…ط§ظ‹"}
+              {selectedDateLabel || "اختر يوماً"}
             </span>
           </div>
 
@@ -440,70 +439,70 @@ export default function CalendarPage() {
                 onClick={() => setDate(selectedDate || today)}
               >
                 <Plus className="w-3.5 h-3.5" />
-                ط¥ط¶ط§ظپط©
+                إضافة
               </Button>
             </DialogTrigger>
             <DialogContent className="rtl max-w-[400px] rounded-xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>ظ…ظˆط¹ط¯ ط¬ط¯ظٹط¯</DialogTitle>
+                <DialogTitle>موعد جديد</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label>ط§ظ„ط¹ظ†ظˆط§ظ†</Label>
+                  <Label>العنوان</Label>
                   <Input value={title} onChange={e => setTitle(e.target.value)} />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>ط§ظ„طھط§ط±ظٹط®</Label>
+                    <Label>التاريخ</Label>
                     <Input type="date" value={date} onChange={e => setDate(e.target.value)} />
                   </div>
                   <div className="space-y-2">
-                    <Label>ط§ظ„ظˆظ‚طھ</Label>
+                    <Label>الوقت</Label>
                     <Input type="time" value={time} onChange={e => setTime(e.target.value)} />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>ط§ظ„طھطµظ†ظٹظپ</Label>
+                    <Label>التصنيف</Label>
                     <Select value={cat} onValueChange={setCat}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent className="rtl">
-                        <SelectItem value="ط´ط®طµظٹ">ط´ط®طµظٹ</SelectItem>
-                        <SelectItem value="ط¹ط§ط¦ظ„ظٹ">ط¹ط§ط¦ظ„ظٹ</SelectItem>
-                        <SelectItem value="ط¹ظ…ظ„">ط¹ظ…ظ„</SelectItem>
-                        <SelectItem value="ط³ظپط±">ط³ظپط±</SelectItem>
-                        <SelectItem value="طµط­ط©">طµط­ط©</SelectItem>
-                        <SelectItem value="ظˆط«ط§ط¦ظ‚">ظˆط«ط§ط¦ظ‚</SelectItem>
-                        <SelectItem value="ظ…ط§ظ„">ظ…ط§ظ„</SelectItem>
-                        <SelectItem value="ظ…ط®طµطµ">ظ…ط®طµطµ</SelectItem>
+                        <SelectItem value="شخصي">شخصي</SelectItem>
+                        <SelectItem value="عائلي">عائلي</SelectItem>
+                        <SelectItem value="عمل">عمل</SelectItem>
+                        <SelectItem value="سفر">سفر</SelectItem>
+                        <SelectItem value="صحة">صحة</SelectItem>
+                        <SelectItem value="وثائق">وثائق</SelectItem>
+                        <SelectItem value="مال">مال</SelectItem>
+                        <SelectItem value="مخصص">مخصص</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>ط§ظ„ط£ظ‡ظ…ظٹط©</Label>
+                    <Label>الأهمية</Label>
                     <Select value={priority} onValueChange={setPriority}>
                       <SelectTrigger><SelectValue /></SelectTrigger>
                       <SelectContent className="rtl">
-                        <SelectItem value="ط¹ط§ظ„ظٹط©">ط¹ط§ظ„ظٹط©</SelectItem>
-                        <SelectItem value="ظ…طھظˆط³ط·ط©">ظ…طھظˆط³ط·ط©</SelectItem>
-                        <SelectItem value="ظ…ظ†ط®ظپط¶ط©">ظ…ظ†ط®ظپط¶ط©</SelectItem>
+                        <SelectItem value="عالية">عالية</SelectItem>
+                        <SelectItem value="متوسطة">متوسطة</SelectItem>
+                        <SelectItem value="منخفضة">منخفضة</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>ظ…ظ„ط§ط­ط¸ط§طھ</Label>
+                  <Label>ملاحظات</Label>
                   <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} />
                 </div>
                 <Button className="w-full" onClick={handleAdd} disabled={savePending}>
-                  {savePending ? <Loader2 className="w-4 h-4 animate-spin" /> : "ط­ظپط¸ ط§ظ„ظ…ظˆط¹ط¯"}
+                  {savePending ? <Loader2 className="w-4 h-4 animate-spin" /> : "حفظ الموعد"}
                 </Button>
               </div>
             </DialogContent>
           </Dialog>
         </div>
 
-        {/* â•گâ•گâ•گ Appointments List for Selected Day â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */}
+        {/* ═══ Appointments List for Selected Day ═════════════════ */}
         <div className="space-y-2.5">
           {isLoading ? (
             <div className="flex justify-center p-8">
@@ -547,10 +546,10 @@ export default function CalendarPage() {
                       <span
                         className="px-1.5 py-0.5 rounded-md text-[10px] font-semibold"
                         style={{
-                          background: app.priority === "ط¹ط§ظ„ظٹط©"
+                          background: app.priority === "عالية"
                             ? "hsl(0 70% 50% / 0.12)"
                             : "hsl(var(--secondary)/0.5)",
-                          color: app.priority === "ط¹ط§ظ„ظٹط©"
+                          color: app.priority === "عالية"
                             ? "hsl(0 60% 40%)"
                             : "hsl(var(--muted-foreground))",
                         }}
@@ -582,9 +581,9 @@ export default function CalendarPage() {
                 className="w-10 h-10 mx-auto mb-3 opacity-35"
                 style={{ color: "hsl(var(--primary))" }}
               />
-              <p className="text-base font-bold text-foreground">ظ„ط§ طھظˆط¬ط¯ ظ…ظˆط§ط¹ظٹط¯</p>
+              <p className="text-base font-bold text-foreground">لا توجد مواعيد</p>
               <p className="text-sm text-muted-foreground mt-1">
-                {selectedDate === today ? "ظ„ط§ طھظˆط¬ط¯ ظ…ظˆط§ط¹ظٹط¯ ط§ظ„ظٹظˆظ…" : "ظ„ط§ طھظˆط¬ط¯ ظ…ظˆط§ط¹ظٹط¯ ظپظٹ ظ‡ط°ط§ ط§ظ„ظٹظˆظ…"}
+                {selectedDate === today ? "لا توجد مواعيد اليوم" : "لا توجد مواعيد في هذا اليوم"}
               </p>
             </div>
           )}
@@ -594,59 +593,59 @@ export default function CalendarPage() {
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
           <DialogContent className="rtl max-w-[400px] rounded-xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>طھط¹ط¯ظٹظ„ ط§ظ„ظ…ظˆط¹ط¯</DialogTitle>
+              <DialogTitle>تعديل الموعد</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label>ط§ظ„ط¹ظ†ظˆط§ظ†</Label>
+                <Label>العنوان</Label>
                 <Input value={title} onChange={e => setTitle(e.target.value)} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>ط§ظ„طھط§ط±ظٹط®</Label>
+                  <Label>التاريخ</Label>
                   <Input type="date" value={date} onChange={e => setDate(e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label>ط§ظ„ظˆظ‚طھ</Label>
+                  <Label>الوقت</Label>
                   <Input type="time" value={time} onChange={e => setTime(e.target.value)} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>ط§ظ„طھطµظ†ظٹظپ</Label>
+                  <Label>التصنيف</Label>
                   <Select value={cat} onValueChange={setCat}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent className="rtl">
-                      <SelectItem value="ط´ط®طµظٹ">ط´ط®طµظٹ</SelectItem>
-                      <SelectItem value="ط¹ط§ط¦ظ„ظٹ">ط¹ط§ط¦ظ„ظٹ</SelectItem>
-                      <SelectItem value="ط¹ظ…ظ„">ط¹ظ…ظ„</SelectItem>
-                      <SelectItem value="ط³ظپط±">ط³ظپط±</SelectItem>
-                      <SelectItem value="طµط­ط©">طµط­ط©</SelectItem>
-                      <SelectItem value="ظˆط«ط§ط¦ظ‚">ظˆط«ط§ط¦ظ‚</SelectItem>
-                      <SelectItem value="ظ…ط§ظ„">ظ…ط§ظ„</SelectItem>
-                      <SelectItem value="ظ…ط®طµطµ">ظ…ط®طµطµ</SelectItem>
+                      <SelectItem value="شخصي">شخصي</SelectItem>
+                      <SelectItem value="عائلي">عائلي</SelectItem>
+                      <SelectItem value="عمل">عمل</SelectItem>
+                      <SelectItem value="سفر">سفر</SelectItem>
+                      <SelectItem value="صحة">صحة</SelectItem>
+                      <SelectItem value="وثائق">وثائق</SelectItem>
+                      <SelectItem value="مال">مال</SelectItem>
+                      <SelectItem value="مخصص">مخصص</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>ط§ظ„ط£ظ‡ظ…ظٹط©</Label>
+                  <Label>الأهمية</Label>
                   <Select value={priority} onValueChange={setPriority}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent className="rtl">
-                      <SelectItem value="ط¹ط§ظ„ظٹط©">ط¹ط§ظ„ظٹط©</SelectItem>
-                      <SelectItem value="ظ…طھظˆط³ط·ط©">ظ…طھظˆط³ط·ط©</SelectItem>
-                      <SelectItem value="ظ…ظ†ط®ظپط¶ط©">ظ…ظ†ط®ظپط¶ط©</SelectItem>
+                      <SelectItem value="عالية">عالية</SelectItem>
+                      <SelectItem value="متوسطة">متوسطة</SelectItem>
+                      <SelectItem value="منخفضة">منخفضة</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>ظ…ظ„ط§ط­ط¸ط§طھ</Label>
+                <Label>ملاحظات</Label>
                 <Textarea value={notes} onChange={e => setNotes(e.target.value)} rows={3} />
               </div>
               <div className="flex gap-2 pt-2">
                 <Button className="flex-1" onClick={handleEdit} disabled={savePending}>
-                  {savePending ? <Loader2 className="w-4 h-4 animate-spin" /> : "ط­ظپط¸ ط§ظ„طھط¹ط¯ظٹظ„ط§طھ"}
+                  {savePending ? <Loader2 className="w-4 h-4 animate-spin" /> : "حفظ التعديلات"}
                 </Button>
                 <Button
                   variant="destructive"
@@ -664,8 +663,8 @@ export default function CalendarPage() {
         <ConfirmDialog
           open={isDeleteOpen}
           onOpenChange={setIsDeleteOpen}
-          title="ط­ط°ظپ ط§ظ„ظ…ظˆط¹ط¯"
-          description="ظ‡ظ„ ط£ظ†طھ ظ…طھط£ظƒط¯ ظ…ظ† ط­ط°ظپ ظ‡ط°ط§ ط§ظ„ظ…ظˆط¹ط¯طں ظ„ط§ ظٹظ…ظƒظ† ط§ظ„طھط±ط§ط¬ط¹ ط¹ظ† ظ‡ط°ط§ ط§ظ„ط¥ط¬ط±ط§ط،."
+          title="حذف الموعد"
+          description="هل أنت متأكد من حذف هذا الموعد؟ لا يمكن التراجع عن هذا الإجراء."
           onConfirm={handleDelete}
         />
       </div>

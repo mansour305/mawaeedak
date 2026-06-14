@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 
 type AdminRuntimeBoundaryState = {
   hasError: boolean;
@@ -42,13 +42,13 @@ export class AdminRuntimeBoundary extends React.Component<React.PropsWithChildre
       <main dir="rtl" className="min-h-screen flex items-center justify-center bg-[#f8efe0] px-4">
         <section className="w-full max-w-lg rounded-[28px] border border-[#d9bd8b] bg-[#fff7e8] p-8 text-center shadow-2xl">
           <div className="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full border border-red-200 bg-red-50 text-4xl text-red-600">
-            âڑ ï¸ڈ
+            ⚠️
           </div>
 
-          <h1 className="mb-3 text-2xl font-black text-[#3a2112]">طھط¹ط°ط± ظپطھط­ ظ„ظˆط­ط© ط§ظ„ظ…ط§ظ„ظƒ</h1>
+          <h1 className="mb-3 text-2xl font-black text-[#3a2112]">تعذر فتح لوحة المالك</h1>
 
           <p className="mb-6 text-sm leading-7 text-[#7b5b3c]">
-            طھظ… ظ…ظ†ط¹ طھط¹ط·ظ„ ط§ظ„طھط·ط¨ظٹظ‚ ظˆط¹ط²ظ„ ط§ظ„ط®ط·ط£ ط¯ط§ط®ظ„ ظ„ظˆط­ط© ط§ظ„ظ…ط§ظ„ظƒ. ط£ط¹ط¯ ط¶ط¨ط· ط¬ظ„ط³ط© ط§ظ„ظ…ط§ظ„ظƒ ط«ظ… ط³ط¬ظ‘ظ„ ط§ظ„ط¯ط®ظˆظ„ ظ…ط¬ط¯ط¯ط§ظ‹.
+            تم منع تعطل التطبيق وعزل الخطأ داخل لوحة المالك. أعد ضبط جلسة المالك ثم سجّل الدخول مجدداً.
           </p>
 
           <div className="space-y-3">
@@ -57,14 +57,14 @@ export class AdminRuntimeBoundary extends React.Component<React.PropsWithChildre
               onClick={this.resetAdmin}
               className="w-full rounded-2xl bg-[#9c6a1a] px-5 py-3 text-sm font-black text-white shadow-lg"
             >
-              ط¥ط¹ط§ط¯ط© ط¶ط¨ط· ط¬ظ„ط³ط© ط§ظ„ظ…ط§ظ„ظƒ
+              إعادة ضبط جلسة المالك
             </button>
 
             <a
               href="/"
               className="block w-full rounded-2xl border border-[#9c6a1a]/40 px-5 py-3 text-sm font-black text-[#3a2112]"
             >
-              ط§ظ„ط¹ظˆط¯ط© ظ„ظ„ط±ط¦ظٹط³ظٹط©
+              العودة للرئيسية
             </a>
           </div>
 

@@ -1,4 +1,4 @@
-﻿import { type FormEvent, type ReactNode, useState } from "react";
+import { type FormEvent, type ReactNode, useState } from "react";
 import { useLocation } from "wouter";
 import { CheckCircle2, Eye, EyeOff, Loader2, Lock, Mail, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -22,20 +22,20 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
 
 function translateLoginError(err: unknown): string {
   const msg = err instanceof Error ? err.message : String(err);
-  if (msg.startsWith("TIMEOUT:")) return "ط§ظ†طھظ‡طھ ظ…ظ‡ظ„ط© طھط³ط¬ظٹظ„ ط§ظ„ط¯ط®ظˆظ„طŒ طھط­ظ‚ظ‚ ظ…ظ† ط§ظ„ط§طھطµط§ظ„ ظˆط­ط§ظˆظ„ ظ…ط±ط© ط£ط®ط±ظ‰";
-  if (/invalid.*credentials|wrong.*password|Invalid login/i.test(msg)) return "ط¨ظٹط§ظ†ط§طھ ط§ظ„ط¯ط®ظˆظ„ ط؛ظٹط± طµط­ظٹط­ط©";
-  if (/email.*confirm|not confirmed/i.test(msg)) return "ظٹط±ط¬ظ‰ طھط£ظƒظٹط¯ ط¨ط±ظٹط¯ظƒ ط§ظ„ط¥ظ„ظƒطھط±ظˆظ†ظٹ ط£ظˆظ„ط§ظ‹";
-  if (/fetch|network|Failed to fetch|ERR_/i.test(msg)) return "طھط¹ط°ط± ط§ظ„ط§طھطµط§ظ„ ط­ط§ظ„ظٹط§ظ‹طŒ ط­ط§ظˆظ„ ظ…ط±ط© ط£ط®ط±ظ‰";
-  return "ط­ط¯ط« ط®ط·ط£ ظپظٹ طھط³ط¬ظٹظ„ ط§ظ„ط¯ط®ظˆظ„طŒ ط­ط§ظˆظ„ ظ…ط±ط© ط£ط®ط±ظ‰";
+  if (msg.startsWith("TIMEOUT:")) return "انتهت مهلة تسجيل الدخول، تحقق من الاتصال وحاول مرة أخرى";
+  if (/invalid.*credentials|wrong.*password|Invalid login/i.test(msg)) return "بيانات الدخول غير صحيحة";
+  if (/email.*confirm|not confirmed/i.test(msg)) return "يرجى تأكيد بريدك الإلكتروني أولاً";
+  if (/fetch|network|Failed to fetch|ERR_/i.test(msg)) return "تعذر الاتصال حالياً، حاول مرة أخرى";
+  return "حدث خطأ في تسجيل الدخول، حاول مرة أخرى";
 }
 
 function translateSignupError(err: unknown): string {
   const msg = err instanceof Error ? err.message : String(err);
-  if (/already registered|already exists|already in use/i.test(msg)) return "ط§ظ„ط¨ط±ظٹط¯ ط§ظ„ط¥ظ„ظƒطھط±ظˆظ†ظٹ ظ…ط³ط¬ظ„ ظ…ط³ط¨ظ‚ط§ظ‹";
-  if (/weak.*password|Password.*short|at least/i.test(msg)) return "ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط± ط¶ط¹ظٹظپط©طŒ ط§ط³طھط®ط¯ظ… 8 ط£ط­ط±ظپ ط¹ظ„ظ‰ ط§ظ„ط£ظ‚ظ„";
-  if (/invalid.*email/i.test(msg)) return "طµظٹط؛ط© ط§ظ„ط¨ط±ظٹط¯ ط§ظ„ط¥ظ„ظƒطھط±ظˆظ†ظٹ ط؛ظٹط± طµط­ظٹط­ط©";
-  if (/fetch|network|ERR_/i.test(msg)) return "طھط¹ط°ط± ط§ظ„ط§طھطµط§ظ„ ط­ط§ظ„ظٹط§ظ‹طŒ ط­ط§ظˆظ„ ظ…ط±ط© ط£ط®ط±ظ‰";
-  return "طھط¹ط°ط± ط¥ظ†ط´ط§ط، ط§ظ„ط­ط³ط§ط¨طŒ ط­ط§ظˆظ„ ظ…ط±ط© ط£ط®ط±ظ‰";
+  if (/already registered|already exists|already in use/i.test(msg)) return "البريد الإلكتروني مسجل مسبقاً";
+  if (/weak.*password|Password.*short|at least/i.test(msg)) return "كلمة المرور ضعيفة، استخدم 8 أحرف على الأقل";
+  if (/invalid.*email/i.test(msg)) return "صيغة البريد الإلكتروني غير صحيحة";
+  if (/fetch|network|ERR_/i.test(msg)) return "تعذر الاتصال حالياً، حاول مرة أخرى";
+  return "تعذر إنشاء الحساب، حاول مرة أخرى";
 }
 
 function AuthFrame({ children }: { children: ReactNode }) {
@@ -146,17 +146,17 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
       const result = await authSignIn(identifier.trim(), password);
       
       if (!result.success) {
-        setLoginError(result.error || "ط®ط·ط£ ظپظٹ طھط³ط¬ظٹظ„ ط§ظ„ط¯ط®ظˆظ„");
+        setLoginError(result.error || "خطأ في تسجيل الدخول");
         setSubmitting(false);
         return;
       }
 
-      // Auth succeeded â€” update useStore immediately
+      // Auth succeeded — update useStore immediately
       setUser({
         id: "demo-admin",
-        name: "ظ…ط¯ظٹط± ط§ظ„ظ†ط¸ط§ظ…",
+        name: "مدير النظام",
         email: "demo@mawaeedak.local",
-        city: "ط§ظ„ط±ظٹط§ط¶",
+        city: "الرياض",
         cityKey: "riyadh",
         timezone: "Asia/Riyadh",
         role: "admin",
@@ -179,24 +179,24 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
     setSignupError(null);
 
     if (!signupName.trim()) {
-      setSignupError("ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ط§ظ„ط§ط³ظ…");
+      setSignupError("يرجى إدخال الاسم");
       return;
     }
     if (signupPwd !== signupConfirm) {
-      setSignupError("ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط± ظˆطھط£ظƒظٹط¯ظ‡ط§ ط؛ظٹط± ظ…طھط·ط§ط¨ظ‚طھظٹظ†");
+      setSignupError("كلمة المرور وتأكيدها غير متطابقتين");
       return;
     }
     if (signupPwd.length < 8) {
-      setSignupError("ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط± ظٹط¬ط¨ ط£ظ† طھظƒظˆظ† 8 ط£ط­ط±ظپ ط¹ظ„ظ‰ ط§ظ„ط£ظ‚ظ„");
+      setSignupError("كلمة المرور يجب أن تكون 8 أحرف على الأقل");
       return;
     }
     if (!signupTerms) {
-      setSignupError("ظٹط¬ط¨ ط§ظ„ظ…ظˆط§ظپظ‚ط© ط¹ظ„ظ‰ ط§ظ„ط´ط±ظˆط· ظˆط³ظٹط§ط³ط© ط§ظ„ط®طµظˆطµظٹط©");
+      setSignupError("يجب الموافقة على الشروط وسياسة الخصوصية");
       return;
     }
 
     if (!isSupabaseEnabled) {
-      setSignupError("ط¥ظ†ط´ط§ط، ط§ظ„ط­ط³ط§ط¨ ظٹطھط·ظ„ط¨ ط¥ط¹ط¯ط§ط¯ Supabase ظپظٹ ط¨ظٹط¦ط© ط§ظ„ط¥ظ†طھط§ط¬.\nظٹظڈط±ط¬ظ‰ ط§ظ„طھظˆط§طµظ„ ظ…ط¹ ظ…ط¯ظٹط± ط§ظ„ظ†ط¸ط§ظ….");
+      setSignupError("إنشاء الحساب يتطلب إعداد Supabase في بيئة الإنتاج.\nيُرجى التواصل مع مدير النظام.");
       setSignupLoading(false);
       return;
     }
@@ -243,7 +243,7 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
   if (mode === "signup") {
     return (
       <AuthFrame>
-        <BrandHeader title="ط¥ظ†ط´ط§ط، ط­ط³ط§ط¨ ط¬ط¯ظٹط¯" subtitle="ط§ط¨ط¯ط£ طھظ†ط¸ظٹظ… ظ…ظˆط§ط¹ظٹط¯ظƒ ط¨ظ‡ظˆظٹط© ظˆط§ط­ط¯ط©" />
+        <BrandHeader title="إنشاء حساب جديد" subtitle="ابدأ تنظيم مواعيدك بهوية واحدة" />
         <div className="rounded-[28px] border border-[#E4D4BB] bg-white/70 p-5 shadow-[0_24px_60px_rgba(138,107,61,0.14)] backdrop-blur">
           {signupSuccess ? (
             <div className="space-y-5 text-center">
@@ -251,31 +251,31 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
                 <CheckCircle2 className="h-8 w-8" />
               </div>
               <p className="text-sm font-semibold leading-7 text-[#5F574E]">
-                طھظ… ط¥ظ†ط´ط§ط، ط­ط³ط§ط¨ظƒ. ظپط¹ظ‘ظ„ ط¨ط±ظٹط¯ظƒ ط§ظ„ط¥ظ„ظƒطھط±ظˆظ†ظٹ ط«ظ… ط³ط¬ظ„ ط§ظ„ط¯ط®ظˆظ„ ظ„ظ„ظ…طھط§ط¨ط¹ط©.
+                تم إنشاء حسابك. فعّل بريدك الإلكتروني ثم سجل الدخول للمتابعة.
               </p>
-              <SecondaryButton onClick={() => setLocation("/login")}>ط§ظ„ط¹ظˆط¯ط© ظ„طھط³ط¬ظٹظ„ ط§ظ„ط¯ط®ظˆظ„</SecondaryButton>
+              <SecondaryButton onClick={() => setLocation("/login")}>العودة لتسجيل الدخول</SecondaryButton>
             </div>
           ) : (
             <form onSubmit={handleSignupSubmit} className="space-y-4">
               <FieldShell icon={<User className="h-5 w-5" />}>
-                <Input className={inputClass} value={signupName} onChange={(e) => setSignupName(e.target.value)} placeholder="ط§ظ„ط§ط³ظ… ط§ظ„ظƒط§ظ…ظ„" required />
+                <Input className={inputClass} value={signupName} onChange={(e) => setSignupName(e.target.value)} placeholder="الاسم الكامل" required />
               </FieldShell>
               <FieldShell icon={<Mail className="h-5 w-5" />}>
                 <Input className={inputClass} dir="ltr" type="email" value={signupEmail} onChange={(e) => setSignupEmail(e.target.value)} placeholder="name@example.com" required />
               </FieldShell>
               <FieldShell icon={<Lock className="h-5 w-5" />}>
-                <Input className={inputClass} dir="ltr" type="password" value={signupPwd} onChange={(e) => setSignupPwd(e.target.value)} placeholder="ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط±" required />
+                <Input className={inputClass} dir="ltr" type="password" value={signupPwd} onChange={(e) => setSignupPwd(e.target.value)} placeholder="كلمة المرور" required />
               </FieldShell>
               <FieldShell icon={<Lock className="h-5 w-5" />}>
-                <Input className={inputClass} dir="ltr" type="password" value={signupConfirm} onChange={(e) => setSignupConfirm(e.target.value)} placeholder="طھط£ظƒظٹط¯ ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط±" required />
+                <Input className={inputClass} dir="ltr" type="password" value={signupConfirm} onChange={(e) => setSignupConfirm(e.target.value)} placeholder="تأكيد كلمة المرور" required />
               </FieldShell>
               <label className="flex cursor-pointer items-start gap-3 rounded-2xl bg-[#FAF7F2] p-3 text-xs font-semibold leading-6 text-[#6B6258]">
                 <input type="checkbox" checked={signupTerms} onChange={(e) => setSignupTerms(e.target.checked)} className="mt-1" />
-                <span>ط£ظˆط§ظپظ‚ ط¹ظ„ظ‰ ط§ظ„ط´ط±ظˆط· ظˆط§ظ„ط£ط­ظƒط§ظ… ظˆط³ظٹط§ط³ط© ط§ظ„ط®طµظˆطµظٹط©</span>
+                <span>أوافق على الشروط والأحكام وسياسة الخصوصية</span>
               </label>
               {signupError ? <p className="text-center text-xs font-bold text-red-600">{signupError}</p> : null}
-              <PrimaryButton loading={signupLoading}>ط¥ظ†ط´ط§ط، ط§ظ„ط­ط³ط§ط¨</PrimaryButton>
-              <SecondaryButton onClick={() => setLocation("/login")}>ظ„ط¯ظٹ ط­ط³ط§ط¨ ط¨ط§ظ„ظپط¹ظ„</SecondaryButton>
+              <PrimaryButton loading={signupLoading}>إنشاء الحساب</PrimaryButton>
+              <SecondaryButton onClick={() => setLocation("/login")}>لدي حساب بالفعل</SecondaryButton>
             </form>
           )}
         </div>
@@ -286,7 +286,7 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
   if (mode === "forgot") {
     return (
       <AuthFrame>
-        <BrandHeader title="ط§ط³طھط¹ط§ط¯ط© ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط±" subtitle="ط³ظ†ط±ط³ظ„ ظ„ظƒ ط±ط§ط¨ط·ط§ظ‹ ط¢ظ…ظ†ط§ظ‹ ظ„ط¥ط¹ط§ط¯ط© ط§ظ„طھط¹ظٹظٹظ†" />
+        <BrandHeader title="استعادة كلمة المرور" subtitle="سنرسل لك رابطاً آمناً لإعادة التعيين" />
         <div className="rounded-[28px] border border-[#E4D4BB] bg-white/70 p-5 shadow-[0_24px_60px_rgba(138,107,61,0.14)] backdrop-blur">
           {forgotSent ? (
             <div className="space-y-5 text-center">
@@ -294,17 +294,17 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
                 <CheckCircle2 className="h-8 w-8" />
               </div>
               <p className="text-sm font-semibold leading-7 text-[#5F574E]">
-                ط¥ط°ط§ ظƒط§ظ† ط§ظ„ط¨ط±ظٹط¯ ظ…ط³ط¬ظ„ط§ظ‹ ظ„ط¯ظٹظ†ط§ ظپط³طھطµظ„ظƒ ط±ط³ط§ظ„ط© ط¨ط®ط·ظˆط§طھ ط¥ط¹ط§ط¯ط© طھط¹ظٹظٹظ† ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط±.
+                إذا كان البريد مسجلاً لدينا فستصلك رسالة بخطوات إعادة تعيين كلمة المرور.
               </p>
-              <SecondaryButton onClick={() => setLocation("/login")}>ط§ظ„ط¹ظˆط¯ط© ظ„طھط³ط¬ظٹظ„ ط§ظ„ط¯ط®ظˆظ„</SecondaryButton>
+              <SecondaryButton onClick={() => setLocation("/login")}>العودة لتسجيل الدخول</SecondaryButton>
             </div>
           ) : (
             <form onSubmit={handleForgotSubmit} className="space-y-4">
               <FieldShell icon={<Mail className="h-5 w-5" />}>
                 <Input className={inputClass} dir="ltr" type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} placeholder="name@example.com" required />
               </FieldShell>
-              <PrimaryButton loading={forgotLoading}>ط¥ط±ط³ط§ظ„ ط±ط§ط¨ط· ط§ظ„ط§ط³طھط¹ط§ط¯ط©</PrimaryButton>
-              <SecondaryButton onClick={() => setLocation("/login")}>ط§ظ„ط¹ظˆط¯ط© ظ„طھط³ط¬ظٹظ„ ط§ظ„ط¯ط®ظˆظ„</SecondaryButton>
+              <PrimaryButton loading={forgotLoading}>إرسال رابط الاستعادة</PrimaryButton>
+              <SecondaryButton onClick={() => setLocation("/login")}>العودة لتسجيل الدخول</SecondaryButton>
             </form>
           )}
         </div>
@@ -314,7 +314,7 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
 
   return (
     <AuthFrame>
-      <BrandHeader title="ظ…ط±ط­ط¨ط§ظ‹ ط¨ظƒ ظپظٹ ظ…ظˆط§ط¹ظٹط¯ظƒ" subtitle="ط³ط¬ظ„ ط¯ط®ظˆظ„ظƒ ظ„ظ„ظ…طھط§ط¨ط¹ط©" />
+      <BrandHeader title="مرحباً بك في مواعيدك" subtitle="سجل دخولك للمتابعة" />
       <form onSubmit={handleLoginSubmit} className="rounded-[28px] border border-[#E4D4BB] bg-white/70 p-5 shadow-[0_24px_60px_rgba(138,107,61,0.14)] backdrop-blur">
         <div className="space-y-4">
           <FieldShell icon={<User className="h-5 w-5" />}>
@@ -323,7 +323,7 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
               autoComplete="username"
               value={identifier}
               onChange={(event) => setIdentifier(event.target.value)}
-              placeholder="ط§ط³ظ… ط§ظ„ظ…ط³طھط®ط¯ظ… ط£ظˆ ط§ظ„ط¨ط±ظٹط¯ ط§ظ„ط¥ظ„ظƒطھط±ظˆظ†ظٹ / ط±ظ‚ظ… ط§ظ„ط¬ظˆط§ظ„ ط£ظˆ ط§ظ„ط¨ط±ظٹط¯ ط§ظ„ط¥ظ„ظƒطھط±ظˆظ†ظٹ"
+              placeholder="اسم المستخدم أو البريد الإلكتروني / رقم الجوال أو البريد الإلكتروني"
               required
             />
           </FieldShell>
@@ -337,14 +337,14 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
                 autoComplete="current-password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                placeholder="ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط±"
+                placeholder="كلمة المرور"
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((value) => !value)}
                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#8A8177]"
-                aria-label={showPassword ? "ط¥ط®ظپط§ط، ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط±" : "ط¥ط¸ظ‡ط§ط± ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط±"}
+                aria-label={showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"}
               >
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
@@ -353,18 +353,18 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
 
           <div className="flex items-center justify-between text-xs font-bold">
             <button type="button" onClick={() => setLocation("/forgot-password")} style={{ color: BROWN }}>
-              ظ†ط³ظٹطھ ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط±طں
+              نسيت كلمة المرور؟
             </button>
             <label className="flex cursor-pointer items-center gap-2 text-[#5F574E]">
-              <span>طھط°ظƒط±ظ†ظٹ</span>
+              <span>تذكرني</span>
               <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} />
             </label>
           </div>
 
           {loginError ? <p className="text-center text-xs font-bold text-red-600">{loginError}</p> : null}
 
-          <PrimaryButton loading={submitting}>طھط³ط¬ظٹظ„ ط§ظ„ط¯ط®ظˆظ„</PrimaryButton>
-          <SecondaryButton onClick={() => setLocation("/register")}>ط¥ظ†ط´ط§ط، ط­ط³ط§ط¨ ط¬ط¯ظٹط¯</SecondaryButton>
+          <PrimaryButton loading={submitting}>تسجيل الدخول</PrimaryButton>
+          <SecondaryButton onClick={() => setLocation("/register")}>إنشاء حساب جديد</SecondaryButton>
         </div>
       </form>
 
@@ -373,7 +373,7 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
           <CheckCircle2 className="h-5 w-5" />
         </div>
         <p className="text-[11px] font-semibold leading-6 text-[#6B6258]">
-          ط¨ظٹط§ظ†ط§طھظƒ ظ…ط­ظ…ظٹط© ط¨ط§ظ„ظƒط§ظ…ظ„ ظˆظپظ‚ ط£ط¹ظ„ظ‰ ظ…ط¹ط§ظٹظٹط± ط§ظ„ط£ظ…ط§ظ†
+          بياناتك محمية بالكامل وفق أعلى معايير الأمان
         </p>
       </footer>
     </AuthFrame>

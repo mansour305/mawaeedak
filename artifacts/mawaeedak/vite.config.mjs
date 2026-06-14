@@ -1,7 +1,10 @@
-﻿import { defineConfig } from "vite";
+import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import path from "path";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { VitePWA } from "vite-plugin-pwa";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [
@@ -9,9 +12,9 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       manifest: {
-        name: "ظ…ظˆط§ط¹ظٹط¯ظƒ",
-        short_name: "ظ…ظˆط§ط¹ظٹط¯ظƒ",
-        description: "طھط·ط¨ظٹظ‚ ظˆظٹط¨ ط¹ط±ط¨ظٹ ظ„ط¥ط¯ط§ط±ط© ط§ظ„ظ…ظˆط§ط¹ظٹط¯ ظˆط§ظ„ظ…ظˆط§ط¹ظٹط¯ ط§ظ„ظ…ط§ظ„ظٹط© ظˆظ…ظˆط§ظ‚ظٹطھ ط§ظ„طµظ„ط§ط©",
+        name: "مواعيدك",
+        short_name: "مواعيدك",
+        description: "تطبيق ويب عربي لإدارة المواعيد والمواعيد المالية ومواقيت الصلاة",
         lang: "ar",
         dir: "rtl",
         start_url: "/",
@@ -45,4 +48,3 @@ export default defineConfig({
     },
   },
 });
-

@@ -1,39 +1,39 @@
-﻿/**
- * useGatewayData.ts â€” ظ…ظˆط§ط¹ظٹط¯ظƒ Phase 12H
+/**
+ * useGatewayData.ts — مواعيدك Phase 12H
  *
- * React Query hooks طھظڈط؛ظ„ظ‘ظپ Data Gateway ظ„ظ„ظ‚ط±ط§ط،ط© ظپظ‚ط·.
+ * React Query hooks تُغلّف Data Gateway للقراءة فقط.
  *
- * ظ‡ط°ظ‡ ط§ظ„ظ€ hooks:
- * - طھط¹ظ…ظ„ ظ„ط£ظˆط¶ط§ط¹ api / supabase_shadow / supabase ط­ط³ط¨ DATA_SOURCE_MODE.
- * - طھظڈط¹ظٹط¯ ظ†ظپط³ shape ط§ظ„ظ€ useQuery ط§ظ„ظ‚ظٹط§ط³ظٹط© (data, isLoading, isError).
- * - طھط³طھط®ط¯ظ… query keys ظ…ط³طھظ‚ظ„ط© ط¨ظ€ prefix "gw:" ظ„طھط¬ظ†ط¨ طھط¹ط§ط±ط¶ ظ…ط¹ Orval cache.
- * - طھظڈط³طھط®ط¯ظ… ظپظ‚ط· ظپظٹ طµظپط­ط§طھ ط§ظ„ظ‚ط±ط§ط،ط© ط§ظ„ط®ط§ظ„طµط© (ط¨ط¯ظˆظ† mutations).
+ * هذه الـ hooks:
+ * - تعمل لأوضاع api / supabase_shadow / supabase حسب DATA_SOURCE_MODE.
+ * - تُعيد نفس shape الـ useQuery القياسية (data, isLoading, isError).
+ * - تستخدم query keys مستقلة بـ prefix "gw:" لتجنب تعارض مع Orval cache.
+ * - تُستخدم فقط في صفحات القراءة الخالصة (بدون mutations).
  *
- * ط§ظ„طµظپط­ط§طھ ط§ظ„ظ…ظڈط±طھط¨ط·ط© (ط¨ط¹ط¯ Phase 12O):
+ * الصفحات المُرتبطة (بعد Phase 12O):
  *
- * Gateway Complete (ظ‚ط±ط§ط،ط© + ظƒطھط§ط¨ط©):
- *   - CalendarPage        (appointments â€” 12N)
- *   - HomePage            (upcoming appointments + financial countdown â€” 12N/12O)
- *   - FinancePage         (financial_events â€” 12O)
- *   - NotificationsPage   (notifications read/mark/delete â€” 12J/12K)
- *   - AdminNotifications  (notifications read/delete â€” 12Kط› send ظٹط¨ظ‚ظ‰ API)
- *   - AdminNewsJobs       (news + jobs â€” 12L)
- *   - AdminThemes         (themes â€” 12M)
- *   - AdminStory          (story_templates â€” 12M)
- *   - AdminMessages       (daily_messages â€” 12M)
+ * Gateway Complete (قراءة + كتابة):
+ *   - CalendarPage        (appointments — 12N)
+ *   - HomePage            (upcoming appointments + financial countdown — 12N/12O)
+ *   - FinancePage         (financial_events — 12O)
+ *   - NotificationsPage   (notifications read/mark/delete — 12J/12K)
+ *   - AdminNotifications  (notifications read/delete — 12K؛ send يبقى API)
+ *   - AdminNewsJobs       (news + jobs — 12L)
+ *   - AdminThemes         (themes — 12M)
+ *   - AdminStory          (story_templates — 12M)
+ *   - AdminMessages       (daily_messages — 12M)
  *
  * Gateway Read Only:
  *   - CentersNewsPage, CentersJobsPage, AccountPage, StoryPage (12H)
  *   - TopBar unread count (12K)
  *
- * API Intentionally (ظ„ط§ طھط­ظˆظٹظ„ ظ…ط®ط·ط·):
- *   - prayer times, today message â€” server-computed endpoints
- *   - AdminDashboard stats + audit logs â€” server-computed
- *   - AdminEvents (public_events) â€” ظ„ظٹط³ ظپظٹ Supabase schema
- *   - AdminFinancial â€” admin view ظƒظ„ ط§ظ„ظ…ط³طھط®ط¯ظ…ظٹظ† (ظ„ط§ RLS)
- *   - AdminReports (audit_logs) â€” server-only
- *   - CentersComplaintsPage write â€” Orval form submission
- *   - AdminNotifications send â€” fan-out server-side
+ * API Intentionally (لا تحويل مخطط):
+ *   - prayer times, today message — server-computed endpoints
+ *   - AdminDashboard stats + audit logs — server-computed
+ *   - AdminEvents (public_events) — ليس في Supabase schema
+ *   - AdminFinancial — admin view كل المستخدمين (لا RLS)
+ *   - AdminReports (audit_logs) — server-only
+ *   - CentersComplaintsPage write — Orval form submission
+ *   - AdminNotifications send — fan-out server-side
  */
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
@@ -63,9 +63,9 @@ import type {
   Complaint,
 } from "@api-client";
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
 // Query Keys
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
 
 export const gwQueryKeys = {
   news: ["gw", "news"] as const,
@@ -82,10 +82,10 @@ export const gwQueryKeys = {
   complaints: ["gw", "complaints"] as const,
 };
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Admin-managed: ط§ظ„ط£ط®ط¨ط§ط±
+// ─────────────────────────────────────────────────────────
+// Admin-managed: الأخبار
 // CentersNewsPage
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
 
 export function useGatewayNews(): UseQueryResult<NewsItem[] | null> {
   return useQuery({
@@ -96,10 +96,10 @@ export function useGatewayNews(): UseQueryResult<NewsItem[] | null> {
   });
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Admin-managed: ط§ظ„ظˆط¸ط§ط¦ظپ
+// ─────────────────────────────────────────────────────────
+// Admin-managed: الوظائف
 // CentersJobsPage
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
 
 export function useGatewayJobs(): UseQueryResult<Job[] | null> {
   return useQuery({
@@ -110,10 +110,10 @@ export function useGatewayJobs(): UseQueryResult<Job[] | null> {
   });
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Admin-managed: ط§ظ„ط«ظٹظ…ط§طھ
-// AccountPage â€” theme picker
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
+// Admin-managed: الثيمات
+// AccountPage — theme picker
+// ─────────────────────────────────────────────────────────
 
 export function useGatewayThemes(): UseQueryResult<Theme[] | null> {
   return useQuery({
@@ -124,10 +124,10 @@ export function useGatewayThemes(): UseQueryResult<Theme[] | null> {
   });
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Admin-managed: ظ‚ظˆط§ظ„ط¨ ط§ظ„ط³طھظˆط±ظٹ
-// StoryPage â€” read-only display
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
+// Admin-managed: قوالب الستوري
+// StoryPage — read-only display
+// ─────────────────────────────────────────────────────────
 
 export function useGatewayStoryTemplates(): UseQueryResult<StoryTemplate[] | null> {
   return useQuery({
@@ -138,11 +138,11 @@ export function useGatewayStoryTemplates(): UseQueryResult<StoryTemplate[] | nul
   });
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Admin-managed: ط±ط³ط§ط¦ظ„ ط§ظ„ظٹظˆظ… (ظ‚ط§ط¦ظ…ط© ظƒط§ظ…ظ„ط©)
-// ظ…ظ„ط§ط­ط¸ط©: StoryPage / HomePage ظٹط³طھط®ط¯ظ…ط§ظ† useGetTodayMessage ظ…ظ† Orval
-//   ظ„ط£ظ†ظ‡ endpoint ط®ط§طµ (/api/daily-messages/today) â€” ظٹط¨ظ‚ظ‰ ط¹ظ„ظ‰ Orval
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
+// Admin-managed: رسائل اليوم (قائمة كاملة)
+// ملاحظة: StoryPage / HomePage يستخدمان useGetTodayMessage من Orval
+//   لأنه endpoint خاص (/api/daily-messages/today) — يبقى على Orval
+// ─────────────────────────────────────────────────────────
 
 export function useGatewayDailyMessages(): UseQueryResult<DailyMessage[] | null> {
   return useQuery({
@@ -153,10 +153,10 @@ export function useGatewayDailyMessages(): UseQueryResult<DailyMessage[] | null>
   });
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Phase 12N: ط§ظ„ظ…ظˆط§ط¹ظٹط¯ â€” ظ‚ط±ط§ط،ط© + upcoming
-// CalendarPage + HomePage ظٹط³طھط®ط¯ظ…ط§ظ† ظ‡ط°ظ‡ ط§ظ„ظ€ hooks
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
+// Phase 12N: المواعيد — قراءة + upcoming
+// CalendarPage + HomePage يستخدمان هذه الـ hooks
+// ─────────────────────────────────────────────────────────
 
 export function useGatewayAppointments(): UseQueryResult<Appointment[] | null> {
   return useQuery({
@@ -176,9 +176,9 @@ export function useGatewayUpcomingAppointments(limit = 5): UseQueryResult<Appoin
   });
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// User-owned: ط§ظ„ط£ط­ط¯ط§ط« ط§ظ„ظ…ط§ظ„ظٹط© â€” Phase 12O (ظ‚ط±ط§ط،ط© + ظƒطھط§ط¨ط© Gateway)
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
+// User-owned: الأحداث المالية — Phase 12O (قراءة + كتابة Gateway)
+// ─────────────────────────────────────────────────────────
 
 export function useGatewayFinancialEvents(): UseQueryResult<FinancialEvent[] | null> {
   return useQuery({
@@ -200,11 +200,11 @@ export function useGatewayFinancialCountdown(): UseQueryResult<Array<{
   });
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// User-owned: ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ (ظ‚ط±ط§ط،ط© ظپظ‚ط·)
-// ظ…ظ„ط§ط­ط¸ط©: NotificationsPage ظٹط¨ظ‚ظ‰ ط¹ظ„ظ‰ Orval â€” mark-read + delete ظ…ط®طھظ„ط·ط©
-//   ظ‡ط°ط§ hook ظ…طھط§ط­ ظ„ظ„ط§ط³طھط®ط¯ط§ظ… ط§ظ„ظ…ط³طھظ‚ط¨ظ„ظٹ ظپظٹ Phase 12I
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
+// User-owned: الإشعارات (قراءة فقط)
+// ملاحظة: NotificationsPage يبقى على Orval — mark-read + delete مختلطة
+//   هذا hook متاح للاستخدام المستقبلي في Phase 12I
+// ─────────────────────────────────────────────────────────
 
 export function useGatewayNotifications(): UseQueryResult<Notification[] | null> {
   return useQuery({
@@ -215,15 +215,15 @@ export function useGatewayNotifications(): UseQueryResult<Notification[] | null>
   });
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// User-owned: ط¹ط¯ط¯ ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ط؛ظٹط± ط§ظ„ظ…ظ‚ط±ظˆط،ط©
-// TopBar â€” ظٹطھط­ط¯ط« ط¨ط¹ط¯ ظƒظ„ mark-read / mark-all-read / delete / send
+// ─────────────────────────────────────────────────────────
+// User-owned: عدد الإشعارات غير المقروءة
+// TopBar — يتحدث بعد كل mark-read / mark-all-read / delete / send
 //
-// mode=api/shadow: GET /api/notifications/unread-count â†’ { count }
+// mode=api/shadow: GET /api/notifications/unread-count → { count }
 // mode=supabase: Supabase COUNT WHERE is_read=false AND user_id=current
-//               fallback ط¥ظ„ظ‰ API ط¹ظ†ط¯ ظپط´ظ„ Supabase
-// staleTime ظ…ظ†ط®ظپط¶ (10s) ظ„ط¶ظ…ط§ظ† طھط­ط¯ظٹط« ظپظˆط±ظٹ ط¨ط¹ط¯ ط§ظ„ط¹ظ…ظ„ظٹط§طھ
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//               fallback إلى API عند فشل Supabase
+// staleTime منخفض (10s) لضمان تحديث فوري بعد العمليات
+// ─────────────────────────────────────────────────────────
 
 export function useGatewayUnreadCount(): UseQueryResult<number | null> {
   return useQuery({
@@ -234,9 +234,9 @@ export function useGatewayUnreadCount(): UseQueryResult<number | null> {
   });
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Support: ط§ظ„ط´ظƒط§ظˆظ‰ (admin read ظپظ‚ط·)
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
+// Support: الشكاوى (admin read فقط)
+// ─────────────────────────────────────────────────────────
 
 export function useGatewayComplaints(): UseQueryResult<Complaint[] | null> {
   return useQuery({

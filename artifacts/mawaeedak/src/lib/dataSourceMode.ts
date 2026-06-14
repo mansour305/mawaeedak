@@ -1,10 +1,10 @@
-﻿/**
- * dataSourceMode.ts â€” ظ…ظˆط§ط¹ظٹط¯ظƒ
+/**
+ * dataSourceMode.ts — مواعيدك
  *
- * Feature Flag ظ„طھط­ط¯ظٹط¯ ظ…طµط¯ط± ط§ظ„ط¨ظٹط§ظ†ط§طھ.
+ * Feature Flag لتحديد مصدر البيانات.
  *
- * ظپظٹ ط§ظ„ط¥ظ†طھط§ط¬ ظ„ط§ ظ†ط³ظ…ط­ ط¨ظپط´ظ„ طµط§ظ…طھطŒ ظ„ظƒظ† ظ„ط§ ظ†ط±ظ…ظٹ ط®ط·ط£ ط£ط«ظ†ط§ط، import ط­طھظ‰ ظ„ط§ طھط¸ظ‡ط± ط´ط§ط´ط© ط¨ظٹط¶ط§ط،.
- * ط¹ظ†ط¯ ط؛ظٹط§ط¨ ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„ط¨ظٹط§ظ†ط§طھ ظٹط±ط¬ط¹ ط§ظ„ظˆط¶ط¹ error ظˆطھطھط¹ط§ظ…ظ„ ط§ظ„ظˆط§ط¬ظ‡ط© ظ…ط¹ظ‡ ط¨ط±ط³ط§ظ„ط© ظ…ط±ط¦ظٹط©.
+ * في الإنتاج لا نسمح بفشل صامت، لكن لا نرمي خطأ أثناء import حتى لا تظهر شاشة بيضاء.
+ * عند غياب إعدادات البيانات يرجع الوضع error وتتعامل الواجهة معه برسالة مرئية.
  */
 
 export type DataSourceMode = "api" | "supabase_shadow" | "supabase" | "error";
@@ -83,6 +83,6 @@ if (isProductionRuntime && DATA_SOURCE_MODE === "error") {
 }
 
 if (import.meta.env.DEV) {
-  console.info(`[DataLayer] ظˆط¶ط¹ ط§ظ„ط¨ظٹط§ظ†ط§طھ: ${DATA_SOURCE_MODE}${productionError ? ` (${productionError})` : ""}`);
+  console.info(`[DataLayer] وضع البيانات: ${DATA_SOURCE_MODE}${productionError ? ` (${productionError})` : ""}`);
 }
 

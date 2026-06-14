@@ -1,5 +1,5 @@
-﻿/**
- * usePrayerEngine â€” Phase 14
+/**
+ * usePrayerEngine — Phase 14
  *
  * Prayer times engine that:
  * 1. Uses official_prayer_times from Supabase first
@@ -55,12 +55,12 @@ export type UsePrayerEngineResult = {
 };
 
 const PRAYER_LABELS: Record<keyof PrayerTimes, string> = {
-  fajr: "ط§ظ„ظپط¬ط±",
-  sunrise: "ط§ظ„ط´ط±ظˆظ‚",
-  dhuhr: "ط§ظ„ط¸ظ‡ط±",
-  asr: "ط§ظ„ط¹طµط±",
-  maghrib: "ط§ظ„ظ…ط؛ط±ط¨",
-  isha: "ط§ظ„ط¹ط´ط§ط،",
+  fajr: "الفجر",
+  sunrise: "الشروق",
+  dhuhr: "الظهر",
+  asr: "العصر",
+  maghrib: "المغرب",
+  isha: "العشاء",
 };
 
 const LOCATION_PROMPT_KEY = "mawaeedak_location_prompted_v1";
@@ -123,7 +123,7 @@ function shouldPromptForLocation(source: string, permissionStatus: string, coord
 export function usePrayerEngine(): UsePrayerEngineResult {
   const { prefs, requestGPS, setManual } = useLocationPrefs();
   const cityKey = normalizeCityKey(prefs.city) ?? "riyadh";
-  const cityName = cityKey ? getCityName(cityKey) : "ط§ظ„ط±ظٹط§ط¶";
+  const cityName = cityKey ? getCityName(cityKey) : "الرياض";
   const todayIso = getRiyadhTodayKey();
   const coords = useMemo(() => {
     if (typeof prefs.lat === "number" && typeof prefs.lng === "number") {
@@ -172,10 +172,10 @@ export function usePrayerEngine(): UsePrayerEngineResult {
         };
         cachePrayerTimes(cacheEntry);
       } else {
-        setAladhanError("طھط¹ط°ط± ط¬ظ„ط¨ ظ…ظˆط§ظ‚ظٹطھ ط§ظ„طµظ„ط§ط© ظ…ظ† ط§ظ„ظ…طµط¯ط± ط§ظ„ط§ط­طھظٹط§ط·ظٹ");
+        setAladhanError("تعذر جلب مواقيت الصلاة من المصدر الاحتياطي");
       }
     } catch {
-      setAladhanError("ط­ط¯ط« ط®ط·ط£ ط£ط«ظ†ط§ط، طھط­ظ…ظٹظ„ ط§ظ„ظ…ظˆط§ظ‚ظٹطھ");
+      setAladhanError("حدث خطأ أثناء تحميل المواقيت");
     } finally {
       setAladhanLoading(false);
     }
@@ -223,8 +223,8 @@ export function usePrayerEngine(): UsePrayerEngineResult {
   }, [isOfficialLoading, aladhanLoading, isOfficialError, aladhanTimings, timings]);
 
   const error = useMemo<string | null>(() => {
-    if (status === "error") return "طھط¹ط°ط± طھط­ظ…ظٹظ„ ظ…ظˆط§ظ‚ظٹطھ ط§ظ„طµظ„ط§ط© ط­ط§ظ„ظٹط§ظ‹.";
-    if (status === "empty") return aladhanError || "ظ…ظˆط§ظ‚ظٹطھ ط§ظ„طµظ„ط§ط© ط؛ظٹط± ظ…طھط§ط­ط© ط­ط§ظ„ظٹط§ظ‹. ظپط¹ظ‘ظ„ ط§ظ„ظ…ظˆظ‚ط¹ ط£ظˆ ط§ط®طھط± ط§ظ„ظ…ط¯ظٹظ†ط©.";
+    if (status === "error") return "تعذر تحميل مواقيت الصلاة حالياً.";
+    if (status === "empty") return aladhanError || "مواقيت الصلاة غير متاحة حالياً. فعّل الموقع أو اختر المدينة.";
     return null;
   }, [status, aladhanError]);
 
@@ -303,9 +303,9 @@ export function usePrayerEngine(): UsePrayerEngineResult {
 }
 
 export const PRAYER_STATUS_MESSAGES: Record<PrayerStatus, string> = {
-  loading: "ط¬ط§ط±ظٹ طھط­ظ…ظٹظ„ ظ…ظˆط§ظ‚ظٹطھ ط§ظ„طµظ„ط§ط©...",
-  error: "طھط¹ط°ط± طھط­ظ…ظٹظ„ ظ…ظˆط§ظ‚ظٹطھ ط§ظ„طµظ„ط§ط© ط­ط§ظ„ظٹط§ظ‹.",
-  empty: "ظ…ظˆط§ظ‚ظٹطھ ط§ظ„طµظ„ط§ط© ط؛ظٹط± ظ…طھط§ط­ط© ط­ط§ظ„ظٹط§ظ‹. ظپط¹ظ‘ظ„ ط§ظ„ظ…ظˆظ‚ط¹ ط£ظˆ ط§ط®طھط± ط§ظ„ظ…ط¯ظٹظ†ط©.",
+  loading: "جاري تحميل مواقيت الصلاة...",
+  error: "تعذر تحميل مواقيت الصلاة حالياً.",
+  empty: "مواقيت الصلاة غير متاحة حالياً. فعّل الموقع أو اختر المدينة.",
   ready: "",
 };
 

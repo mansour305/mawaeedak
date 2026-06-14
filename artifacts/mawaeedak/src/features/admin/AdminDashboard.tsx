@@ -1,6 +1,6 @@
-﻿/**
- * AdminDashboard - ظ„ظˆط­ط© ط§ظ„ظ…ط§ظ„ظƒ ط§ظ„ط±ط¦ظٹط³ظٹط©
- * ظ†ط¸ط±ط© ط´ط§ظ…ظ„ط© ط¹ظ„ظ‰ ط§ظ„ظ†ط¸ط§ظ… ظ…ط¹ ط¥ط­طµط§ط¦ظٹط§طھ ظˆط¥ط¬ط±ط§ط،ط§طھ ط³ط±ظٹط¹ط©
+/**
+ * AdminDashboard - لوحة المالك الرئيسية
+ * نظرة شاملة على النظام مع إحصائيات وإجراءات سريعة
  */
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
@@ -17,7 +17,6 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { supabase, isSupabaseEnabled } from "@/lib/supabase";
-import { adminStorage } from "@/lib/admin-storage";
 import { sendNotification, addFinancialEvent, addTheme } from "@/lib/admin-actions";
 
 // Heritage Design System Colors
@@ -165,29 +164,29 @@ export default function AdminDashboard() {
 
   // Demo recent activity
   const recentActivity = [
-    { id: 1, action: "ط¥ط¶ط§ظپط©", entity: "ظ…ظˆط¹ط¯ ظ…ط§ظ„ظٹ ط¬ط¯ظٹط¯", user: "ظ…ط¯ظٹط± ط§ظ„ظ†ط¸ط§ظ…", time: "ظ…ظ†ط° 5 ط¯ظ‚ط§ط¦ظ‚" },
-    { id: 2, action: "ط¥ط±ط³ط§ظ„", entity: "ط¥ط´ط¹ط§ط± ط¹ط§ظ…", user: "ظ…ط¯ظٹط± ط§ظ„ظ†ط¸ط§ظ…", time: "ظ…ظ†ط° ط³ط§ط¹ط©" },
-    { id: 3, action: "طھط¹ط¯ظٹظ„", entity: "ط«ظٹظ… ط§ظ„ط¹ظٹط¯", user: "ظ…ط¯ظٹط± ط§ظ„ظ†ط¸ط§ظ…", time: "ظ…ظ†ط° 3 ط³ط§ط¹ط§طھ" },
-    { id: 4, action: "ط¥ظ†ط´ط§ط،", entity: "ط®ط¨ط± ط¬ط¯ظٹط¯", user: "ظ…ط¯ظٹط± ط§ظ„ظ†ط¸ط§ظ…", time: "ظ…ظ†ط° ظٹظˆظ…" },
+    { id: 1, action: "إضافة", entity: "موعد مالي جديد", user: "مدير النظام", time: "منذ 5 دقائق" },
+    { id: 2, action: "إرسال", entity: "إشعار عام", user: "مدير النظام", time: "منذ ساعة" },
+    { id: 3, action: "تعديل", entity: "ثيم العيد", user: "مدير النظام", time: "منذ 3 ساعات" },
+    { id: 4, action: "إنشاء", entity: "خبر جديد", user: "مدير النظام", time: "منذ يوم" },
   ];
 
   // Demo complaints
   const recentComplaints = [
-    { id: 1, user: "ط£ط­ظ…ط¯ ظ…ط­ظ…ط¯", type: "ط´ظƒظˆظ‰", message: "ظ„ظ… ظٹطµظ„ظ†ظٹ ط¥ط´ط¹ط§ط± ط§ظ„ظ…ظˆط¹ط¯", status: "ظ‚ظٹط¯ ط§ظ„ط§ظ†طھط¸ط§ط±" },
-    { id: 2, user: "ظپط§ط·ظ…ط© ط¹ظ„ظٹ", type: "ط§ظ‚طھط±ط§ط­", message: "ط¥ط¶ط§ظپط© ظ…ط¯ظٹظ†ط© ط¬ط¯ظٹط¯ط©", status: "طھظ… ط§ظ„ط­ظ„" },
-    { id: 3, user: "ط®ط§ظ„ط¯ ط³ط¹ظˆط¯", type: "ط´ظƒظˆظ‰", message: "ط®ط·ط£ ظپظٹ ط§ظ„ظ…ظˆط¹ط¯", status: "ظ‚ظٹط¯ ط§ظ„ط§ظ†طھط¸ط§ط±" },
+    { id: 1, user: "أحمد محمد", type: "شكوى", message: "لم يصلني إشعار الموعد", status: "قيد الانتظار" },
+    { id: 2, user: "فاطمة علي", type: "اقتراح", message: "إضافة مدينة جديدة", status: "تم الحل" },
+    { id: 3, user: "خالد سعود", type: "شكوى", message: "خطأ في الموعد", status: "قيد الانتظار" },
   ];
 
   // Demo schedules
   const upcomingSchedules = [
-    { id: 1, title: "ط±ظˆط§طھط¨ ط´ظ‡ط± ظ…ط­ط±ظ…", date: "2025-07-15", amount: "5,000" },
-    { id: 2, title: "ط¯ط¹ظ… ط§ظ„ط¥ظٹط¬ط§ط±", date: "2025-07-20", amount: "2,000" },
-    { id: 3, title: "ظ…ظƒط§ظپط£ط© ط§ظ„ط£ط¯ط§ط،", date: "2025-07-25", amount: "1,500" },
+    { id: 1, title: "رواتب شهر محرم", date: "2025-07-15", amount: "5,000" },
+    { id: 2, title: "دعم الإيجار", date: "2025-07-20", amount: "2,000" },
+    { id: 3, title: "مكافأة الأداء", date: "2025-07-25", amount: "1,500" },
   ];
 
   const handleSendNotification = async () => {
     if (!notificationTitle.trim() || !notificationBody.trim()) {
-      toast({ title: "ظٹط±ط¬ظ‰ ظ…ظ„ط، ط¬ظ…ظٹط¹ ط§ظ„ط­ظ‚ظˆظ„", variant: "destructive" });
+      toast({ title: "يرجى ملء جميع الحقول", variant: "destructive" });
       return;
     }
     setSending(true);
@@ -201,12 +200,12 @@ export default function AdminDashboard() {
       if (result.success) {
         setNotificationTitle("");
         setNotificationBody("");
-        toast({ title: "طھظ… ط¥ط±ط³ط§ظ„ ط§ظ„ط¥ط´ط¹ط§ط± ط¨ظ†ط¬ط§ط­" });
+        toast({ title: "تم إرسال الإشعار بنجاح" });
       } else {
-        toast({ title: result.error || "ظپط´ظ„ ط¥ط±ط³ط§ظ„ ط§ظ„ط¥ط´ط¹ط§ط±", variant: "destructive" });
+        toast({ title: result.error || "فشل إرسال الإشعار", variant: "destructive" });
       }
     } catch {
-      toast({ title: "ط­ط¯ط« ط®ط·ط£ ط؛ظٹط± ظ…طھظˆظ‚ط¹", variant: "destructive" });
+      toast({ title: "حدث خطأ غير متوقع", variant: "destructive" });
     } finally {
       setSending(false);
     }
@@ -214,13 +213,13 @@ export default function AdminDashboard() {
 
   const handleAddSchedule = async () => {
     if (!scheduleAmount.trim() || !scheduleDate.trim()) {
-      toast({ title: "ظٹط±ط¬ظ‰ ظ…ظ„ط، ط¬ظ…ظٹط¹ ط§ظ„ط­ظ‚ظˆظ„", variant: "destructive" });
+      toast({ title: "يرجى ملء جميع الحقول", variant: "destructive" });
       return;
     }
     setAddingSchedule(false);
     try {
       const result = await addFinancialEvent({
-        title: "ظ…ظˆط¹ط¯ ظ…ط§ظ„ظٹ ط¬ط¯ظٹط¯",
+        title: "موعد مالي جديد",
         amount: scheduleAmount,
         date: scheduleDate,
         type: "salary",
@@ -228,18 +227,18 @@ export default function AdminDashboard() {
       if (result.success) {
         setScheduleAmount("");
         setScheduleDate("");
-        toast({ title: "طھظ… ط¥ط¶ط§ظپط© ط§ظ„ظ…ظˆط¹ط¯ ط§ظ„ظ…ط§ظ„ظٹ ط¨ظ†ط¬ط§ط­" });
+        toast({ title: "تم إضافة الموعد المالي بنجاح" });
       } else {
-        toast({ title: result.error || "ظپط´ظ„ ط¥ط¶ط§ظپط© ط§ظ„ظ…ظˆط¹ط¯", variant: "destructive" });
+        toast({ title: result.error || "فشل إضافة الموعد", variant: "destructive" });
       }
     } catch {
-      toast({ title: "ط­ط¯ط« ط®ط·ط£ ط؛ظٹط± ظ…طھظˆظ‚ط¹", variant: "destructive" });
+      toast({ title: "حدث خطأ غير متوقع", variant: "destructive" });
     }
   };
 
   const handleAddTheme = async () => {
     if (!themeName.trim()) {
-      toast({ title: "ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ط§ط³ظ… ط§ظ„ط«ظٹظ…", variant: "destructive" });
+      toast({ title: "يرجى إدخال اسم الثيم", variant: "destructive" });
       return;
     }
     setAddingTheme(false);
@@ -251,12 +250,12 @@ export default function AdminDashboard() {
       });
       if (result.success) {
         setThemeName("");
-        toast({ title: "طھظ… ط¥ط¶ط§ظپط© ط§ظ„ط«ظٹظ… ط¨ظ†ط¬ط§ط­" });
+        toast({ title: "تم إضافة الثيم بنجاح" });
       } else {
-        toast({ title: result.error || "ظپط´ظ„ ط¥ط¶ط§ظپط© ط§ظ„ط«ظٹظ…", variant: "destructive" });
+        toast({ title: result.error || "فشل إضافة الثيم", variant: "destructive" });
       }
     } catch {
-      toast({ title: "ط­ط¯ط« ط®ط·ط£ ط؛ظٹط± ظ…طھظˆظ‚ط¹", variant: "destructive" });
+      toast({ title: "حدث خطأ غير متوقع", variant: "destructive" });
     }
   };
 
@@ -269,23 +268,23 @@ export default function AdminDashboard() {
           style={{ background: "linear-gradient(180deg, hsl(38 62% 52%), hsl(32 55% 42%))" }}
         />
         <h1 className="text-2xl font-extrabold" style={{ color: "hsl(22 62% 18%)" }}>
-          ظ„ظˆط­ط© ط§ظ„ظ…ط§ظ„ظƒ
+          لوحة المالك
         </h1>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        <StatCard label="ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظ…ط³طھط®ط¯ظ…ظٹظ†" value={stats.totalUsers} icon={Users} trend="+12%" color={GOLD} />
-        <StatCard label="ط§ظ„ظ†ط´ط·ظˆظ† ط§ظ„ظٹظˆظ…" value={stats.activeUsers} icon={TrendingUp} color="hsl(210 60% 52%)" />
-        <StatCard label="ط§ظ„ط´ظƒط§ظˆظ‰ ط§ظ„ظ…ط¹ظ„ظ‚ط©" value={stats.pendingComplaints} icon={AlertTriangle} color="hsl(10 65% 52%)" />
-        <StatCard label="ط§ظ„ظ…ظˆط§ط¹ظٹط¯ ط§ظ„ظ‚ط§ط¯ظ…ط©" value={stats.upcomingSchedules} icon={Calendar} color="hsl(140 50% 42%)" />
-        <StatCard label="ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ط§ظ„ظ…ط±ط³ظ„ط©" value={stats.sentNotifications} icon={Bell} color="hsl(32 60% 48%)" />
-        <StatCard label="ط§ظ„ط«ظٹظ…ط§طھ ط§ظ„ظ†ط´ط·ط©" value={stats.activeThemes} icon={Paintbrush} color="hsl(280 50% 52%)" />
+        <StatCard label="إجمالي المستخدمين" value={stats.totalUsers} icon={Users} trend="+12%" color={GOLD} />
+        <StatCard label="النشطون اليوم" value={stats.activeUsers} icon={TrendingUp} color="hsl(210 60% 52%)" />
+        <StatCard label="الشكاوى المعلقة" value={stats.pendingComplaints} icon={AlertTriangle} color="hsl(10 65% 52%)" />
+        <StatCard label="المواعيد القادمة" value={stats.upcomingSchedules} icon={Calendar} color="hsl(140 50% 42%)" />
+        <StatCard label="الإشعارات المرسلة" value={stats.sentNotifications} icon={Bell} color="hsl(32 60% 48%)" />
+        <StatCard label="الثيمات النشطة" value={stats.activeThemes} icon={Paintbrush} color="hsl(280 50% 52%)" />
       </div>
 
       {/* Quick Actions */}
       <HeritageCard>
-        <SectionHeader title="ط¥ط¬ط±ط§ط،ط§طھ ط³ط±ظٹط¹ط©" icon={Zap} />
+        <SectionHeader title="إجراءات سريعة" icon={Zap} />
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2">
           <Button 
             onClick={() => setLocation("/admin/notifications")}
@@ -293,7 +292,7 @@ export default function AdminDashboard() {
             style={{ background: "linear-gradient(145deg, hsl(38 62% 52%), hsl(32 55% 42%))", color: "#fff" }}
           >
             <Bell className="w-5 h-5" />
-            <span className="text-[10px] font-bold">ط¥ط±ط³ط§ظ„ ط¥ط´ط¹ط§ط±</span>
+            <span className="text-[10px] font-bold">إرسال إشعار</span>
           </Button>
           <Button 
             onClick={() => setLocation("/admin/financial")}
@@ -301,7 +300,7 @@ export default function AdminDashboard() {
             style={{ background: "linear-gradient(145deg, hsl(140 50% 42%), hsl(140 45% 35%))", color: "#fff" }}
           >
             <Plus className="w-5 h-5" />
-            <span className="text-[10px] font-bold">ط¥ط¶ط§ظپط© ظ…ظˆط¹ط¯</span>
+            <span className="text-[10px] font-bold">إضافة موعد</span>
           </Button>
           <Button 
             onClick={() => setLocation("/admin/themes")}
@@ -309,7 +308,7 @@ export default function AdminDashboard() {
             style={{ background: "linear-gradient(145deg, hsl(280 50% 52%), hsl(280 45% 45%))", color: "#fff" }}
           >
             <Paintbrush className="w-5 h-5" />
-            <span className="text-[10px] font-bold">ط¥ط¶ط§ظپط© ط«ظٹظ…</span>
+            <span className="text-[10px] font-bold">إضافة ثيم</span>
           </Button>
           <Button 
             onClick={() => setLocation("/admin/members")}
@@ -317,7 +316,7 @@ export default function AdminDashboard() {
             style={{ background: "linear-gradient(145deg, hsl(210 60% 52%), hsl(210 55% 45%))", color: "#fff" }}
           >
             <Users className="w-5 h-5" />
-            <span className="text-[10px] font-bold">ظ…ط³طھط®ط¯ظ… ط¬ط¯ظٹط¯</span>
+            <span className="text-[10px] font-bold">مستخدم جديد</span>
           </Button>
           <Button 
             onClick={() => setLocation("/admin/reports")}
@@ -325,7 +324,7 @@ export default function AdminDashboard() {
             style={{ background: "linear-gradient(145deg, hsl(32 60% 48%), hsl(32 55% 40%))", color: "#fff" }}
           >
             <BarChart3 className="w-5 h-5" />
-            <span className="text-[10px] font-bold">ط§ظ„طھظ‚ط§ط±ظٹط±</span>
+            <span className="text-[10px] font-bold">التقارير</span>
           </Button>
           <Button 
             onClick={() => setLocation("/admin/settings")}
@@ -333,7 +332,7 @@ export default function AdminDashboard() {
             style={{ background: "linear-gradient(145deg, hsl(22 62% 48%), hsl(22 55% 40%))", color: "#fff" }}
           >
             <Settings className="w-5 h-5" />
-            <span className="text-[10px] font-bold">ط§ظ„ط¥ط¹ط¯ط§ط¯ط§طھ</span>
+            <span className="text-[10px] font-bold">الإعدادات</span>
           </Button>
           <Button 
             onClick={() => setLocation("/admin/permissions")}
@@ -341,7 +340,7 @@ export default function AdminDashboard() {
             style={{ background: "linear-gradient(145deg, hsl(10 65% 52%), hsl(10 60% 45%))", color: "#fff" }}
           >
             <Shield className="w-5 h-5" />
-            <span className="text-[10px] font-bold">ط§ظ„طµظ„ط§ط­ظٹط§طھ</span>
+            <span className="text-[10px] font-bold">الصلاحيات</span>
           </Button>
           <Button 
             onClick={() => setLocation("/admin/social")}
@@ -349,7 +348,7 @@ export default function AdminDashboard() {
             style={{ background: "linear-gradient(145deg, hsl(180 50% 42%), hsl(180 45% 35%))", color: "#fff" }}
           >
             <Zap className="w-5 h-5" />
-            <span className="text-[10px] font-bold">ط§ظ„ط£طھظ…طھط©</span>
+            <span className="text-[10px] font-bold">الأتمتة</span>
           </Button>
         </div>
       </HeritageCard>
@@ -360,7 +359,7 @@ export default function AdminDashboard() {
         <div className="lg:col-span-2 space-y-6">
           {/* Recent Activity */}
           <HeritageCard>
-            <SectionHeader title="ط§ظ„ظ†ط´ط§ط·ط§طھ ط§ظ„ط£ط®ظٹط±ط©" icon={Clock} />
+            <SectionHeader title="النشاطات الأخيرة" icon={Clock} />
             <div className="space-y-3">
               {recentActivity.map((item) => (
                 <div key={item.id} className="flex items-center justify-between py-2 border-b border-dashed" style={{ borderColor: "rgba(201,160,99,0.2)" }}>
@@ -373,7 +372,7 @@ export default function AdminDashboard() {
                         {item.action} {item.entity}
                       </div>
                       <div className="text-[11px]" style={{ color: "hsl(32 18% 48%)" }}>
-                        ط¨ظˆط§ط³ط·ط©: {item.user}
+                        بواسطة: {item.user}
                       </div>
                     </div>
                   </div>
@@ -385,7 +384,7 @@ export default function AdminDashboard() {
 
           {/* Upcoming Schedules */}
           <HeritageCard>
-            <SectionHeader title="ط§ظ„ظ…ظˆط§ط¹ظٹط¯ ط§ظ„ظ…ط§ظ„ظٹط© ط§ظ„ظ‚ط§ط¯ظ…ط©" icon={Wallet} />
+            <SectionHeader title="المواعيد المالية القادمة" icon={Wallet} />
             <div className="space-y-3">
               {upcomingSchedules.map((schedule) => (
                 <div key={schedule.id} className="flex items-center justify-between py-2 border-b border-dashed" style={{ borderColor: "rgba(201,160,99,0.2)" }}>
@@ -399,7 +398,7 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                   <span className="text-sm font-extrabold" style={{ color: "hsl(140 50% 42%)" }}>
-                    {schedule.amount} ط±.ط³
+                    {schedule.amount} ر.س
                   </span>
                 </div>
               ))}
@@ -411,12 +410,12 @@ export default function AdminDashboard() {
               style={{ borderColor: "rgba(201,160,99,0.3)" }}
             >
               <Plus className="w-4 h-4 ml-2" />
-              ط¥ط¶ط§ظپط© ظ…ظˆط¹ط¯ ظ…ط§ظ„ظٹ
+              إضافة موعد مالي
             </Button>
             {addingSchedule && (
               <div className="mt-3 p-3 rounded-xl space-y-3" style={{ background: "rgba(201,160,99,0.08)" }}>
                 <Input 
-                  placeholder="ط§ظ„ظ…ط¨ظ„ط؛ (ط±.ط³)"
+                  placeholder="المبلغ (ر.س)"
                   value={scheduleAmount}
                   onChange={(e) => setScheduleAmount(e.target.value)}
                   className="rounded-xl"
@@ -428,8 +427,8 @@ export default function AdminDashboard() {
                   className="rounded-xl"
                 />
                 <div className="flex gap-2">
-                  <Button onClick={handleAddSchedule} className="flex-1 rounded-xl" style={{ background: GOLD }}>ط­ظپط¸</Button>
-                  <Button onClick={() => setAddingSchedule(false)} variant="outline" className="flex-1 rounded-xl">ط¥ظ„ط؛ط§ط،</Button>
+                  <Button onClick={handleAddSchedule} className="flex-1 rounded-xl" style={{ background: GOLD }}>حفظ</Button>
+                  <Button onClick={() => setAddingSchedule(false)} variant="outline" className="flex-1 rounded-xl">إلغاء</Button>
                 </div>
               </div>
             )}
@@ -437,15 +436,15 @@ export default function AdminDashboard() {
 
           {/* Recent Complaints */}
           <HeritageCard>
-            <SectionHeader title="ط§ظ„ط´ظƒط§ظˆظ‰ ظˆط§ظ„ط§ظ‚طھط±ط§ط­ط§طھ ط§ظ„ط£ط®ظٹط±ط©" icon={MessageSquare} />
+            <SectionHeader title="الشكاوى والاقتراحات الأخيرة" icon={MessageSquare} />
             <div className="space-y-3">
               {recentComplaints.map((complaint) => (
                 <div key={complaint.id} className="flex items-center justify-between py-2 border-b border-dashed" style={{ borderColor: "rgba(201,160,99,0.2)" }}>
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ 
-                      background: complaint.status === "طھظ… ط§ظ„ط­ظ„" ? "hsl(140 50% 42% / 0.15)" : "hsl(10 65% 52% / 0.15)"
+                      background: complaint.status === "تم الحل" ? "hsl(140 50% 42% / 0.15)" : "hsl(10 65% 52% / 0.15)"
                     }}>
-                      {complaint.status === "طھظ… ط§ظ„ط­ظ„" ? (
+                      {complaint.status === "تم الحل" ? (
                         <CheckCircle className="w-4 h-4" style={{ color: "hsl(140 50% 42%)" }} />
                       ) : (
                         <AlertTriangle className="w-4 h-4" style={{ color: "hsl(10 65% 52%)" }} />
@@ -459,8 +458,8 @@ export default function AdminDashboard() {
                   <span 
                     className="text-[10px] font-bold px-2 py-1 rounded-full"
                     style={{ 
-                      background: complaint.status === "طھظ… ط§ظ„ط­ظ„" ? "hsl(140 50% 42% / 0.15)" : "hsl(10 65% 52% / 0.15)",
-                      color: complaint.status === "طھظ… ط§ظ„ط­ظ„" ? "hsl(140 50% 42%)" : "hsl(10 65% 52%)",
+                      background: complaint.status === "تم الحل" ? "hsl(140 50% 42% / 0.15)" : "hsl(10 65% 52% / 0.15)",
+                      color: complaint.status === "تم الحل" ? "hsl(140 50% 42%)" : "hsl(10 65% 52%)",
                     }}
                   >
                     {complaint.status}
@@ -474,7 +473,7 @@ export default function AdminDashboard() {
               className="w-full mt-3 rounded-xl"
               style={{ borderColor: "rgba(201,160,99,0.3)" }}
             >
-              ط¹ط±ط¶ ط§ظ„ظƒظ„
+              عرض الكل
               <ChevronLeft className="w-4 h-4 mr-2" />
             </Button>
           </HeritageCard>
@@ -484,16 +483,16 @@ export default function AdminDashboard() {
         <div className="space-y-6">
           {/* Send Notification */}
           <HeritageCard>
-            <SectionHeader title="ط¥ط±ط³ط§ظ„ ط¥ط´ط¹ط§ط± ط³ط±ظٹط¹" icon={Send} />
+            <SectionHeader title="إرسال إشعار سريع" icon={Send} />
             <div className="space-y-3">
               <Input 
-                placeholder="ط¹ظ†ظˆط§ظ† ط§ظ„ط¥ط´ط¹ط§ط±"
+                placeholder="عنوان الإشعار"
                 value={notificationTitle}
                 onChange={(e) => setNotificationTitle(e.target.value)}
                 className="rounded-xl"
               />
               <Input 
-                placeholder="ظ…ط­طھظˆظ‰ ط§ظ„ط¥ط´ط¹ط§ط±"
+                placeholder="محتوى الإشعار"
                 value={notificationBody}
                 onChange={(e) => setNotificationBody(e.target.value)}
                 className="rounded-xl"
@@ -505,17 +504,17 @@ export default function AdminDashboard() {
                 style={{ background: "linear-gradient(145deg, hsl(38 62% 52%), hsl(32 55% 42%))", color: "#fff" }}
               >
                 {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 ml-2" />}
-                {sending ? "ط¬ط§ط±ظٹ ط§ظ„ط¥ط±ط³ط§ظ„..." : "ط¥ط±ط³ط§ظ„ ط§ظ„ط¢ظ†"}
+                {sending ? "جاري الإرسال..." : "إرسال الآن"}
               </Button>
             </div>
           </HeritageCard>
 
           {/* Add Theme */}
           <HeritageCard>
-            <SectionHeader title="ط¥ط¶ط§ظپط© ط«ظٹظ… ط¬ط¯ظٹط¯" icon={Paintbrush} />
+            <SectionHeader title="إضافة ثيم جديد" icon={Paintbrush} />
             <div className="space-y-3">
               <Input 
-                placeholder="ط§ط³ظ… ط§ظ„ط«ظٹظ…"
+                placeholder="اسم الثيم"
                 value={themeName}
                 onChange={(e) => setThemeName(e.target.value)}
                 className="rounded-xl"
@@ -526,14 +525,14 @@ export default function AdminDashboard() {
                 style={{ background: "linear-gradient(145deg, hsl(280 50% 52%), hsl(280 45% 45%))", color: "#fff" }}
               >
                 <Plus className="w-4 h-4 ml-2" />
-                ط¥ط¶ط§ظپط© ط«ظٹظ…
+                إضافة ثيم
               </Button>
             </div>
           </HeritageCard>
 
           {/* Social & Automation */}
           <HeritageCard>
-            <SectionHeader title="ط§ظ„طھظˆط§طµظ„ ظˆط§ظ„ط£طھظ…طھط©" icon={Zap} />
+            <SectionHeader title="التواصل والأتمتة" icon={Zap} />
             <div className="space-y-2">
               {[
                 { name: "X (Twitter)", icon: "X", connected: true, color: "#000" },
@@ -558,7 +557,7 @@ export default function AdminDashboard() {
                       color: platform.connected ? "hsl(140 50% 42%)" : "hsl(0 0% 50%)",
                     }}
                   >
-                    {platform.connected ? "ظ…طھطµظ„" : "ط؛ظٹط± ظ…طھطµظ„"}
+                    {platform.connected ? "متصل" : "غير متصل"}
                   </span>
                 </div>
               ))}
@@ -569,14 +568,14 @@ export default function AdminDashboard() {
               className="w-full mt-3 rounded-xl"
               style={{ borderColor: "rgba(201,160,99,0.3)" }}
             >
-              ط¥ط¯ط§ط±ط© ط§ظ„ط±ط¨ط· ظˆط§ظ„ط£طھظ…طھط©
+              إدارة الربط والأتمتة
               <ChevronLeft className="w-4 h-4 mr-2" />
             </Button>
           </HeritageCard>
 
           {/* Quick Links */}
           <HeritageCard>
-            <SectionHeader title="ط±ظˆط§ط¨ط· ط³ط±ظٹط¹ط©" icon={ChevronLeft} />
+            <SectionHeader title="روابط سريعة" icon={ChevronLeft} />
             <div className="space-y-2">
               <Button 
                 onClick={() => setLocation("/admin/story")}
@@ -584,7 +583,7 @@ export default function AdminDashboard() {
                 className="w-full justify-start rounded-xl"
               >
                 <ImageIcon className="w-4 h-4 ml-2" style={{ color: GOLD }} />
-                ط¨ط·ط§ظ‚ط© ط§ظ„ظٹظˆظ…
+                بطاقة اليوم
               </Button>
               <Button 
                 onClick={() => setLocation("/admin/news-jobs")}
@@ -592,7 +591,7 @@ export default function AdminDashboard() {
                 className="w-full justify-start rounded-xl"
               >
                 <Newspaper className="w-4 h-4 ml-2" style={{ color: GOLD }} />
-                ط§ظ„ط£ط®ط¨ط§ط± ظˆط§ظ„ظˆط¸ط§ط¦ظپ
+                الأخبار والوظائف
               </Button>
               <Button 
                 onClick={() => setLocation("/admin/support")}
@@ -600,7 +599,7 @@ export default function AdminDashboard() {
                 className="w-full justify-start rounded-xl"
               >
                 <FileText className="w-4 h-4 ml-2" style={{ color: GOLD }} />
-                ط§ظ„ط¯ط¹ظ… ظˆط§ظ„ظ…ط³ط§ط¹ط¯ط©
+                الدعم والمساعدة
               </Button>
             </div>
           </HeritageCard>
@@ -616,10 +615,10 @@ export default function AdminDashboard() {
         }}
       >
         <p className="text-sm font-medium" style={{ color: "hsl(88 45% 38%)" }}>
-          ظˆط¶ط¹ ط§ظ„طھط·ظˆظٹط±: ظ„ظˆط­ط© ط§ظ„ظ…ط§ظ„ظƒ طھط¹ظ…ظ„ ط¨ظ†ظ…ط· طھط¬ط±ظٹط¨ظٹ
+          وضع التطوير: لوحة المالك تعمل بنمط تجريبي
         </p>
         <p className="text-xs mt-1" style={{ color: "hsl(38 30% 55%)" }}>
-          ط§ظ„ط¨ظٹط§ظ†ط§طھ ط§ظ„ط¥ط­طµط§ط¦ظٹط© ط³طھط¸ظ‡ط± ط¹ظ†ط¯ طھظپط¹ظٹظ„ Supabase ظپظٹ ط§ظ„ط¥ظ†طھط§ط¬
+          البيانات الإحصائية ستظهر عند تفعيل Supabase في الإنتاج
         </p>
       </div>
     </div>

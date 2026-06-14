@@ -1,4 +1,4 @@
-﻿# ============================================================================
+# ============================================================================
 # SECURITY: Minimum release age for npm packages (supply-chain attack defense)
 # ============================================================================
 #
@@ -29,7 +29,7 @@ minimumReleaseAge: 1440
 
 minimumReleaseAgeExclude:
   # Exclude @replit scoped packages from the minimum release age check.
-  # These are published by Replit and trusted â€” the supply-chain attack vector
+  # These are published by Replit and trusted — the supply-chain attack vector
   # this setting guards against does not apply to our own packages.
   - '@replit/*'
   - stripe-replit-sync
@@ -70,6 +70,7 @@ allowBuilds:
   unrs-resolver: true
 
 overrides:
+  esbuild: "0.28.1"
   # Keep the current Windows x64 runtime packages installable for local proof gates.
   # Other non-current platform packages remain excluded to control install size.
   "esbuild>@esbuild/darwin-arm64": "-"

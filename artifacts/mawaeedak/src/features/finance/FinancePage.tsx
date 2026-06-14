@@ -1,4 +1,4 @@
-﻿import { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { ChevronLeft, Home, ShieldCheck, Users, Wallet, Zap } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { useGatewayFinancialCountdown } from "@/hooks/useGatewayData";
@@ -12,9 +12,9 @@ const INK = "#2F2B25";
 
 function iconFor(type: string, name: string) {
   if (type === "salary") return Wallet;
-  if (type === "housing" || name.includes("ط³ظƒظ†")) return Home;
-  if (type === "bill" || name.includes("ظƒظ‡ط±ط¨ط§ط،")) return Zap;
-  if (type === "eligibility" || name.includes("ط£ظ‡ظ„ظٹط©")) return ShieldCheck;
+  if (type === "housing" || name.includes("سكن")) return Home;
+  if (type === "bill" || name.includes("كهرباء")) return Zap;
+  if (type === "eligibility" || name.includes("أهلية")) return ShieldCheck;
   return Users;
 }
 
@@ -63,7 +63,7 @@ export default function FinancePage() {
   ).slice(0, 6);
 
   return (
-    <AppShell title="ط§ظ„ط±ظˆط§طھط¨ ظˆط§ظ„ط¯ط¹ظ…" showBack>
+    <AppShell title="الرواتب والدعم" showBack>
       <div className="space-y-5">
         <div className="rounded-[22px] bg-[#F3E8D6]/70 p-1">
           <div className="grid grid-cols-2 gap-1">
@@ -76,7 +76,7 @@ export default function FinancePage() {
                 color: tab === "upcoming" ? "#FFFFFF" : INK,
               }}
             >
-              ط§ظ„ظ‚ط§ط¯ظ…ط©
+              القادمة
             </button>
             <button
               type="button"
@@ -87,13 +87,13 @@ export default function FinancePage() {
                 color: tab === "previous" ? "#FFFFFF" : INK,
               }}
             >
-              ط§ظ„ط³ط§ط¨ظ‚ط©
+              السابقة
             </button>
           </div>
         </div>
 
         <p className="text-center text-[16px] font-bold" style={{ color: "#6F6557" }}>
-          {tab === "upcoming" ? "ط¬ظ…ظٹط¹ ط§ظ„ط±ظˆط§طھط¨ ظˆط§ظ„ظ…ط³ط§ط¹ط¯ط§طھ ط§ظ„ظ‚ط§ط¯ظ…ط©" : "ط§ظ„ظ…ظˆط§ط¹ظٹط¯ ط§ظ„ظ…ط§ظ„ظٹط© ط§ظ„ط³ط§ط¨ظ‚ط© ظ…ط­ظپظˆط¸ط© ظ„ظ„ط±ط¬ظˆط¹ ط¥ظ„ظٹظ‡ط§"}
+          {tab === "upcoming" ? "جميع الرواتب والمساعدات القادمة" : "المواعيد المالية السابقة محفوظة للرجوع إليها"}
         </p>
 
         {isLoading ? (
@@ -104,7 +104,7 @@ export default function FinancePage() {
               boxShadow: "0 14px 34px rgba(138,107,61,0.12)",
             }}
           >
-            <h3 className="text-xl font-extrabold" style={{ color: INK }}>ط¬ط§ط±ظٹ طھط­ظ…ظٹظ„ ط§ظ„ظ…ظˆط§ط¹ظٹط¯ ط§ظ„ظ…ط§ظ„ظٹط©...</h3>
+            <h3 className="text-xl font-extrabold" style={{ color: INK }}>جاري تحميل المواعيد المالية...</h3>
           </div>
         ) : items.length === 0 ? (
           <div
@@ -115,9 +115,9 @@ export default function FinancePage() {
             }}
           >
             <Wallet className="mx-auto h-9 w-9" style={{ color: GOLD }} />
-            <h3 className="mt-3 text-xl font-extrabold" style={{ color: INK }}>ظ„ط§ طھظˆط¬ط¯ ظ…ظˆط§ط¹ظٹط¯ ظ…ط§ظ„ظٹط© ظ…طھط§ط­ط©</h3>
+            <h3 className="mt-3 text-xl font-extrabold" style={{ color: INK }}>لا توجد مواعيد مالية متاحة</h3>
             <p className="mt-2 text-sm font-semibold leading-7" style={{ color: "#6F6557" }}>
-              ط£ط¶ظپ ط§ظ„ظ…ظˆط§ط¹ظٹط¯ ظ…ظ† ظ„ظˆط­ط© ط§ظ„ظ…ط§ظ„ظƒ.
+              أضف المواعيد من لوحة المالك.
             </p>
           </div>
         ) : (
@@ -144,7 +144,7 @@ export default function FinancePage() {
                       <span className="absolute inset-0 rounded-full border-4 border-transparent border-t-[#C9A063] border-r-[#C9A063]" />
                       <span className="text-[34px] font-extrabold leading-none" style={{ color: INK }}>{days}</span>
                     </div>
-                    <span className="mt-1 text-sm font-bold" style={{ color: INK }}>ظٹظˆظ…ط§ظ‹ ظ…طھط¨ظ‚ظٹط§ظ‹</span>
+                    <span className="mt-1 text-sm font-bold" style={{ color: INK }}>يوماً متبقياً</span>
                   </div>
 
                   <div className="min-w-0 text-right">

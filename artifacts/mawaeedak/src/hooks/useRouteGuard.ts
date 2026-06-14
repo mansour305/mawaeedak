@@ -1,8 +1,8 @@
-﻿/**
- * Route Guards â€” ظ…ظˆط§ط¹ظٹط¯ظƒ Phase FINAL
+/**
+ * Route Guards — مواعيدك Phase FINAL
  * 
- * ظ†ط¸ط§ظ… ط­ظ…ط§ظٹط© ظ…ظˆط­ط¯ ظ„ظ„ظ…ط³ط§ط±ط§طھ ط§ظ„ظ…ط­ظ…ظٹط©.
- * ظٹط³طھط®ط¯ظ… ظ„ظ„طھط­ظ‚ظ‚ ظ…ظ† طµظ„ط§ط­ظٹط§طھ ط§ظ„ظ…ط³طھط®ط¯ظ… ظ‚ط¨ظ„ ط§ظ„ظˆطµظˆظ„ ظ„ظ„طµظپط­ط§طھ ط§ظ„ظ…ط­ظ…ظٹط©.
+ * نظام حماية موحد للمسارات المحمية.
+ * يستخدم للتحقق من صلاحيات المستخدم قبل الوصول للصفحات المحمية.
  */
 
 import { useStore } from "@/hooks/useStore";
@@ -16,7 +16,7 @@ interface RouteGuardConfig {
 }
 
 /**
- * ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ظ…ط³طھظˆظ‰ ط§ظ„ط­ظ…ط§ظٹط© ط§ظ„ظ…ط·ظ„ظˆط¨
+ * التحقق من مستوى الحماية المطلوب
  */
 export function getRouteProtectionLevel(pathname: string): RouteProtectionLevel {
   // Admin routes - require admin role
@@ -41,7 +41,7 @@ export function getRouteProtectionLevel(pathname: string): RouteProtectionLevel 
 }
 
 /**
- * ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† طµظ„ط§ط­ظٹط© ط§ظ„ظ…ط³طھط®ط¯ظ… ظ„ظ„ظˆطµظˆظ„ ظ„ظ„ظ…ط³ط§ط±
+ * التحقق من صلاحية المستخدم للوصول للمسار
  */
 export function canAccessRoute(
   pathname: string,
@@ -69,7 +69,7 @@ export function canAccessRoute(
 }
 
 /**
- * ط§ظ„ط­طµظˆظ„ ط¹ظ„ظ‰ طµظپط­ط© ط§ظ„طھظˆط¬ظٹظ‡ ط¹ظ†ط¯ ط¹ط¯ظ… ط§ظ„طµظ„ط§ط­ظٹط©
+ * الحصول على صفحة التوجيه عند عدم الصلاحية
  */
 export function getRedirectPath(pathname: string, isAuthenticated: boolean): string {
   const protectionLevel = getRouteProtectionLevel(pathname);
@@ -111,7 +111,7 @@ export function useRouteGuard(pathname: string) {
 }
 
 /**
- * Admin Route Guard - ظ„ظ„طھط­ظ‚ظ‚ ظ…ظ† طµظ„ط§ط­ظٹط© ط§ظ„ظ…ط§ظ„ظƒ
+ * Admin Route Guard - للتحقق من صلاحية المالك
  */
 export function useAdminGuard() {
   const { user } = useStore();
@@ -133,7 +133,7 @@ export function useAdminGuard() {
 }
 
 /**
- * Auth Route Guard - ظ„ظ„طھط­ظ‚ظ‚ ظ…ظ† طھط³ط¬ظٹظ„ ط§ظ„ط¯ط®ظˆظ„
+ * Auth Route Guard - للتحقق من تسجيل الدخول
  */
 export function useAuthGuard() {
   const { user } = useStore();

@@ -1,11 +1,11 @@
-﻿import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, CheckCircle2, AlertTriangle } from "lucide-react";
 import { supabase, isSupabaseEnabled } from "@/lib/supabase";
 
-// â”€â”€ Shared UI helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Shared UI helpers ────────────────────────────────────────────────────────
 function AuthPageWrapper({ children }: { children: React.ReactNode }) {
   return (
     <div
@@ -43,7 +43,7 @@ function AuthHeader({ subtitle }: { subtitle: string }) {
         <div className="flex-1 h-px" style={{ background: "linear-gradient(90deg, hsl(38 55% 42% / 0.5), transparent)" }} />
       </div>
       <h1 className="text-2xl font-extrabold tracking-wider mb-1" style={{ color: "hsl(38 85% 82%)" }}>
-        ظ…ظˆط§ط¹ظٹط¯ظƒ
+        مواعيدك
       </h1>
       <p className="text-[12px] font-semibold" style={{ color: "hsl(38 55% 58%)" }}>
         {subtitle}
@@ -52,7 +52,7 @@ function AuthHeader({ subtitle }: { subtitle: string }) {
   );
 }
 
-// â”€â”€ Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Component ────────────────────────────────────────────────────────────────
 export default function ResetPasswordPage() {
   const [, setLocation] = useLocation();
 
@@ -87,7 +87,7 @@ export default function ResetPasswordPage() {
       }
     });
 
-    // Safety timeout â€” if no PASSWORD_RECOVERY event fires in 5s, assume invalid link
+    // Safety timeout — if no PASSWORD_RECOVERY event fires in 5s, assume invalid link
     safetyTimerRef.current = window.setTimeout(() => {
       if (mountedRef.current) setPhase("invalid");
     }, 5000);
@@ -106,18 +106,18 @@ export default function ResetPasswordPage() {
     setSubmitError(null);
 
     if (newPassword !== confirmPassword) {
-      setSubmitError("ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط± ظˆطھط£ظƒظٹط¯ظ‡ط§ ط؛ظٹط± ظ…طھط·ط§ط¨ظ‚طھط§ظ†");
+      setSubmitError("كلمة المرور وتأكيدها غير متطابقتان");
       return;
     }
     if (newPassword.length < 8) {
-      setSubmitError("ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط± ظٹط¬ط¨ ط£ظ† طھظƒظˆظ† 8 ط£ط­ط±ظپ ط¹ظ„ظ‰ ط§ظ„ط£ظ‚ظ„");
+      setSubmitError("كلمة المرور يجب أن تكون 8 أحرف على الأقل");
       return;
     }
 
     setSubmitting(true);
     try {
       if (!supabase) {
-        setSubmitError("ط§ظ„ط®ط¯ظ…ط© ط؛ظٹط± ظ…طھط§ط­ط© ط­ط§ظ„ظٹط§ظ‹");
+        setSubmitError("الخدمة غير متاحة حالياً");
         return;
       }
       const { error } = await supabase.auth.updateUser({ password: newPassword });
@@ -133,7 +133,7 @@ export default function ResetPasswordPage() {
         }, 2000);
       }
     } catch {
-      if (mountedRef.current) setSubmitError("طھط¹ط°ط± طھط­ط¯ظٹط« ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط±طŒ ط­ط§ظˆظ„ ظ…ط±ط© ط£ط®ط±ظ‰");
+      if (mountedRef.current) setSubmitError("تعذر تحديث كلمة المرور، حاول مرة أخرى");
     } finally {
       if (mountedRef.current) setSubmitting(false);
     }
@@ -141,7 +141,7 @@ export default function ResetPasswordPage() {
 
   return (
     <AuthPageWrapper>
-      <AuthHeader subtitle="طھط­ط¯ظٹط« ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط±" />
+      <AuthHeader subtitle="تحديث كلمة المرور" />
       <div
         className="rounded-b-3xl px-6 py-8 shadow-xl"
         style={{
@@ -155,7 +155,7 @@ export default function ResetPasswordPage() {
           <div className="flex flex-col items-center gap-3 py-4">
             <Loader2 className="w-8 h-8 animate-spin" style={{ color: "hsl(38 60% 48%)" }} />
             <p className="text-[12px] text-center" style={{ color: "hsl(22 30% 45%)" }}>
-              ط¬ط§ط±ظچ ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† ط§ظ„ط±ط§ط¨ط·â€¦
+              جارٍ التحقق من الرابط…
             </p>
           </div>
         )}
@@ -173,12 +173,12 @@ export default function ResetPasswordPage() {
             </div>
             <div>
               <h3 className="font-bold text-sm mb-1" style={{ color: "hsl(22 45% 28%)" }}>
-                ط§ظ„ط±ط§ط¨ط· ط؛ظٹط± طµط§ظ„ط­
+                الرابط غير صالح
               </h3>
               <p className="text-[12px] leading-relaxed" style={{ color: "hsl(22 30% 45%)" }}>
-                ط±ط§ط¨ط· ط§ظ„ط§ط³طھط¹ط§ط¯ط© ط؛ظٹط± طµط§ظ„ط­ ط£ظˆ ط§ظ†طھظ‡طھ طµظ„ط§ط­ظٹطھظ‡.
+                رابط الاستعادة غير صالح أو انتهت صلاحيته.
                 <br />
-                ظٹط±ط¬ظ‰ ط·ظ„ط¨ ط±ط§ط¨ط· ط¬ط¯ظٹط¯ ظ…ظ† طµظپط­ط© طھط³ط¬ظٹظ„ ط§ظ„ط¯ط®ظˆظ„.
+                يرجى طلب رابط جديد من صفحة تسجيل الدخول.
               </p>
             </div>
             <button
@@ -191,7 +191,7 @@ export default function ResetPasswordPage() {
                 boxShadow: "0 4px 14px hsl(38 72% 52% / 0.30)",
               }}
             >
-              ط§ظ„ط¹ظˆط¯ط© ظ„طھط³ط¬ظٹظ„ ط§ظ„ط¯ط®ظˆظ„
+              العودة لتسجيل الدخول
             </button>
           </div>
         )}
@@ -199,12 +199,12 @@ export default function ResetPasswordPage() {
         {phase === "form" && (
           <form onSubmit={handleSubmit} className="space-y-4">
             <p className="text-[12px] text-center" style={{ color: "hsl(22 30% 45%)" }}>
-              ط£ط¯ط®ظ„ ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط± ط§ظ„ط¬ط¯ظٹط¯ط© ظ„ط­ط³ط§ط¨ظƒ
+              أدخل كلمة المرور الجديدة لحسابك
             </p>
 
             <div className="space-y-2">
               <Label className="text-sm font-bold" style={{ color: "hsl(22 45% 30%)" }}>
-                ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط± ط§ظ„ط¬ط¯ظٹط¯ط©
+                كلمة المرور الجديدة
               </Label>
               <input
                 type="password"
@@ -214,14 +214,14 @@ export default function ResetPasswordPage() {
                 className="w-full h-12 rounded-xl text-sm px-3 outline-none transition-all"
                 style={{ background: "#fff", border: "1.5px solid hsl(38 45% 72% / 0.7)" }}
                 autoComplete="new-password"
-                placeholder="8 ط£ط­ط±ظپ ط¹ظ„ظ‰ ط§ظ„ط£ظ‚ظ„"
+                placeholder="8 أحرف على الأقل"
                 required
               />
             </div>
 
             <div className="space-y-2">
               <Label className="text-sm font-bold" style={{ color: "hsl(22 45% 30%)" }}>
-                طھط£ظƒظٹط¯ ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط±
+                تأكيد كلمة المرور
               </Label>
               <input
                 type="password"
@@ -231,7 +231,7 @@ export default function ResetPasswordPage() {
                 className="w-full h-12 rounded-xl text-sm px-3 outline-none transition-all"
                 style={{ background: "#fff", border: "1.5px solid hsl(38 45% 72% / 0.7)" }}
                 autoComplete="new-password"
-                placeholder="ط£ط¹ط¯ ظƒطھط§ط¨ط© ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط±"
+                placeholder="أعد كتابة كلمة المرور"
                 required
               />
             </div>
@@ -263,7 +263,7 @@ export default function ResetPasswordPage() {
               }}
             >
               {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-              طھط­ط¯ظٹط« ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط±
+              تحديث كلمة المرور
             </button>
           </form>
         )}
@@ -281,10 +281,10 @@ export default function ResetPasswordPage() {
             </div>
             <div>
               <h3 className="font-bold text-sm mb-1" style={{ color: "hsl(22 45% 28%)" }}>
-                طھظ… طھط­ط¯ظٹط« ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط±
+                تم تحديث كلمة المرور
               </h3>
               <p className="text-[12px] leading-relaxed" style={{ color: "hsl(22 30% 45%)" }}>
-                طھظ… طھط؛ظٹظٹط± ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط± ط¨ظ†ط¬ط§ط­. ظٹظ…ظƒظ†ظƒ ط§ظ„ط¢ظ† طھط³ط¬ظٹظ„ ط§ظ„ط¯ط®ظˆظ„ ط¨ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط± ط§ظ„ط¬ط¯ظٹط¯ط©.
+                تم تغيير كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة.
               </p>
             </div>
             <button
@@ -297,7 +297,7 @@ export default function ResetPasswordPage() {
                 boxShadow: "0 4px 14px hsl(38 72% 52% / 0.30)",
               }}
             >
-              طھط³ط¬ظٹظ„ ط§ظ„ط¯ط®ظˆظ„
+              تسجيل الدخول
             </button>
           </div>
         )}
@@ -308,9 +308,9 @@ export default function ResetPasswordPage() {
 
 function translateUpdateError(err: unknown): string {
   const msg = err instanceof Error ? err.message : String(err);
-  if (/weak.*password|at least/i.test(msg)) return "ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط± ط¶ط¹ظٹظپط©طŒ ط§ط³طھط®ط¯ظ… 8 ط£ط­ط±ظپ ط¹ظ„ظ‰ ط§ظ„ط£ظ‚ظ„";
-  if (/same.*password/i.test(msg)) return "ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط± ط§ظ„ط¬ط¯ظٹط¯ط© ظٹط¬ط¨ ط£ظ† طھط®طھظ„ظپ ط¹ظ† ط§ظ„ظ‚ط¯ظٹظ…ط©";
-  if (/fetch|network|ERR_/i.test(msg)) return "طھط¹ط°ط± ط§ظ„ط§طھطµط§ظ„ ط­ط§ظ„ظٹط§ظ‹طŒ ط­ط§ظˆظ„ ظ…ط±ط© ط£ط®ط±ظ‰";
-  return "طھط¹ط°ط± طھط­ط¯ظٹط« ظƒظ„ظ…ط© ط§ظ„ظ…ط±ظˆط±طŒ ط­ط§ظˆظ„ ظ…ط±ط© ط£ط®ط±ظ‰";
+  if (/weak.*password|at least/i.test(msg)) return "كلمة المرور ضعيفة، استخدم 8 أحرف على الأقل";
+  if (/same.*password/i.test(msg)) return "كلمة المرور الجديدة يجب أن تختلف عن القديمة";
+  if (/fetch|network|ERR_/i.test(msg)) return "تعذر الاتصال حالياً، حاول مرة أخرى";
+  return "تعذر تحديث كلمة المرور، حاول مرة أخرى";
 }
 

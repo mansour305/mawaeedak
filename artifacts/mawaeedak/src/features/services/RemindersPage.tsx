@@ -1,9 +1,9 @@
-﻿/**
- * RemindersPage â€” Phase 14 P0-5
+/**
+ * RemindersPage — Phase 14 P0-5
  * 
  * Reminders service: Create, edit, delete reminders with:
  * - Reminder title
- * - Fixed type: ظ…ط®طµطµ
+ * - Fixed type: مخصص
  * - Date type: Gregorian only
  * - Date
  * - Time
@@ -14,7 +14,7 @@
  * 
  * Storage: Local-first with optional Supabase cloud sync when logged in.
  * Schema exists at: supabase/migrations/20250612000002_create_services_tables.sql
- * UI shows "ظ…ط­ظپظˆط¸ ط¹ظ„ظ‰ ظ‡ط°ط§ ط§ظ„ط¬ظ‡ط§ط² ظپظ‚ط·" when not synced.
+ * UI shows "محفوظ على هذا الجهاز فقط" when not synced.
  * Push notifications: Code ready, deployment setup required (VAPID keys + Edge Function).
  */
 
@@ -78,9 +78,9 @@ function generateId(): string {
 
 function getRemindBeforeLabel(value: number, unit: RemindBeforeUnit): string {
   const unitLabel = {
-    minutes: "ط¯ظ‚ظٹظ‚ط©",
-    hours: "ط³ط§ط¹ط©",
-    days: "ظٹظˆظ…",
+    minutes: "دقيقة",
+    hours: "ساعة",
+    days: "يوم",
   }[unit];
   
   if (value === 1) {
@@ -168,17 +168,17 @@ export default function RemindersPage() {
   // Handle add
   const handleAdd = () => {
     if (!formTitle.trim()) {
-      toast({ title: "ط®ط·ط£", description: "ط§ظ„ط±ط¬ط§ط، ط¥ط¯ط®ط§ظ„ ط¹ظ†ظˆط§ظ† ط§ظ„طھط°ظƒظٹط±", variant: "destructive" });
+      toast({ title: "خطأ", description: "الرجاء إدخال عنوان التذكير", variant: "destructive" });
       return;
     }
     
     if (!formDate) {
-      toast({ title: "ط®ط·ط£", description: "ط§ظ„ط±ط¬ط§ط، ط¥ط¯ط®ط§ظ„ ط§ظ„طھط§ط±ظٹط®", variant: "destructive" });
+      toast({ title: "خطأ", description: "الرجاء إدخال التاريخ", variant: "destructive" });
       return;
     }
     
     if (!formTime) {
-      toast({ title: "ط®ط·ط£", description: "ط§ظ„ط±ط¬ط§ط، ط¥ط¯ط®ط§ظ„ ط§ظ„ظˆظ‚طھ", variant: "destructive" });
+      toast({ title: "خطأ", description: "الرجاء إدخال الوقت", variant: "destructive" });
       return;
     }
     
@@ -199,11 +199,11 @@ export default function RemindersPage() {
       };
       
       setReminders(prev => [newReminder, ...prev]);
-      toast({ title: "طھظ… ط¥ط¶ط§ظپط© ط§ظ„طھط°ظƒظٹط±" });
+      toast({ title: "تم إضافة التذكير" });
       setIsAddOpen(false);
       resetForm();
     } catch {
-      toast({ title: "ط®ط·ط£", description: "ط­ط¯ط« ط®ط·ط£ ط£ط«ظ†ط§ط، ط§ظ„ط¥ط¶ط§ظپط©", variant: "destructive" });
+      toast({ title: "خطأ", description: "حدث خطأ أثناء الإضافة", variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
@@ -214,12 +214,12 @@ export default function RemindersPage() {
     if (!editingReminder) return;
     
     if (!formTitle.trim()) {
-      toast({ title: "ط®ط·ط£", description: "ط§ظ„ط±ط¬ط§ط، ط¥ط¯ط®ط§ظ„ ط¹ظ†ظˆط§ظ† ط§ظ„طھط°ظƒظٹط±", variant: "destructive" });
+      toast({ title: "خطأ", description: "الرجاء إدخال عنوان التذكير", variant: "destructive" });
       return;
     }
     
     if (!formDate || !formTime) {
-      toast({ title: "ط®ط·ط£", description: "ط§ظ„ط±ط¬ط§ط، ط¥ط¯ط®ط§ظ„ ط§ظ„طھط§ط±ظٹط® ظˆط§ظ„ظˆظ‚طھ", variant: "destructive" });
+      toast({ title: "خطأ", description: "الرجاء إدخال التاريخ والوقت", variant: "destructive" });
       return;
     }
     
@@ -238,12 +238,12 @@ export default function RemindersPage() {
       };
       
       setReminders(prev => prev.map(r => r.id === updatedReminder.id ? updatedReminder : r));
-      toast({ title: "طھظ… طھط­ط¯ظٹط« ط§ظ„طھط°ظƒظٹط±" });
+      toast({ title: "تم تحديث التذكير" });
       setIsEditOpen(false);
       setEditingReminder(null);
       resetForm();
     } catch {
-      toast({ title: "ط®ط·ط£", description: "ط­ط¯ط« ط®ط·ط£ ط£ط«ظ†ط§ط، ط§ظ„طھط­ط¯ظٹط«", variant: "destructive" });
+      toast({ title: "خطأ", description: "حدث خطأ أثناء التحديث", variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
@@ -254,7 +254,7 @@ export default function RemindersPage() {
     if (!deletingReminderId) return;
     
     setReminders(prev => prev.filter(r => r.id !== deletingReminderId));
-    toast({ title: "طھظ… ط­ط°ظپ ط§ظ„طھط°ظƒظٹط±" });
+    toast({ title: "تم حذف التذكير" });
     setIsDeleteOpen(false);
     setDeletingReminderId(null);
   };
@@ -273,11 +273,11 @@ export default function RemindersPage() {
   // Format date based on type
   const formatDate = (reminder: Reminder) => {
     const dateStr = new Date(reminder.date).toLocaleDateString("ar-SA");
-    return `${dateStr} (ظ…ظٹظ„ط§ط¯ظٹ)`;
+    return `${dateStr} (ميلادي)`;
   };
   
   return (
-    <AppShell title="ط°ظƒط±ظ†ظٹ" showBack>
+    <AppShell title="ذكرني" showBack>
       <div className="space-y-5 pb-6">
         
         {/* Info Banner */}
@@ -287,7 +287,7 @@ export default function RemindersPage() {
         }}>
           <Info className="w-5 h-5 shrink-0 mt-0.5" style={{ color: "#C9A063" }} />
           <p className="text-sm" style={{ color: "#6F6557" }}>
-            ظ…ط­ظپظˆط¸ ط¹ظ„ظ‰ ظ‡ط°ط§ ط§ظ„ط¬ظ‡ط§ط² ظپظ‚ط·. ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ط§ظ„ط¯ط§ط®ظ„ظٹط© ظپظ‚ط· ط­ط§ظ„ظٹط§ظ‹. ط¥ط¹ط¯ط§ط¯ ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ط§ظ„ظپظˆط±ظٹط© ظ‚ظٹط¯ ط§ظ„طھط·ظˆظٹط±.
+            محفوظ على هذا الجهاز فقط. الإشعارات الداخلية فقط حالياً. إعداد الإشعارات الفورية قيد التطوير.
           </p>
         </div>
         
@@ -299,26 +299,26 @@ export default function RemindersPage() {
                 background: "linear-gradient(135deg, hsl(36 72% 52%), hsl(28 68% 38%))",
               }}>
                 <Plus className="w-5 h-5 ml-2" />
-                ط¥ط¶ط§ظپط© طھط°ظƒظٹط±
+                إضافة تذكير
               </Button>
             </DialogTrigger>
             <DialogContent className="rtl max-w-[400px] rounded-xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>ط¥ط¶ط§ظپط© طھط°ظƒظٹط± ط¬ط¯ظٹط¯</DialogTitle>
+                <DialogTitle>إضافة تذكير جديد</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label>ط¹ظ†ظˆط§ظ† ط§ظ„طھط°ظƒظٹط± *</Label>
+                  <Label>عنوان التذكير *</Label>
                   <Input 
                     value={formTitle} 
                     onChange={e => setFormTitle(e.target.value)} 
-                    placeholder="ظ…ط«ط§ظ„: ظ…ظˆط¹ط¯ ط§ظ„ط·ط¨ظٹط¨"
+                    placeholder="مثال: موعد الطبيب"
                   />
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>ط§ظ„طھط§ط±ظٹط® *</Label>
+                    <Label>التاريخ *</Label>
                     <Input 
                       type="date"
                       value={formDate} 
@@ -326,7 +326,7 @@ export default function RemindersPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>ط§ظ„ظˆظ‚طھ *</Label>
+                    <Label>الوقت *</Label>
                     <Input 
                       type="time"
                       value={formTime} 
@@ -336,7 +336,7 @@ export default function RemindersPage() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>طھط°ظƒظٹط±ظٹ ظ‚ط¨ظ„</Label>
+                  <Label>تذكيري قبل</Label>
                   <div className="flex gap-2">
                     <Input 
                       type="number"
@@ -350,20 +350,20 @@ export default function RemindersPage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent className="rtl">
-                        <SelectItem value="minutes">ط¯ظ‚ط§ط¦ظ‚</SelectItem>
-                        <SelectItem value="hours">ط³ط§ط¹ط§طھ</SelectItem>
-                        <SelectItem value="days">ط£ظٹط§ظ…</SelectItem>
+                        <SelectItem value="minutes">دقائق</SelectItem>
+                        <SelectItem value="hours">ساعات</SelectItem>
+                        <SelectItem value="days">أيام</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>ظ…ظ„ط§ط­ط¸ط© (ط§ط®طھظٹط§ط±ظٹ)</Label>
+                  <Label>ملاحظة (اختياري)</Label>
                   <Textarea 
                     value={formNote} 
                     onChange={e => setFormNote(e.target.value)} 
-                    placeholder="طھظپط§طµظٹظ„ ط¥ط¶ط§ظپظٹط©..."
+                    placeholder="تفاصيل إضافية..."
                     rows={2}
                   />
                 </div>
@@ -373,7 +373,7 @@ export default function RemindersPage() {
                   onClick={handleAdd}
                   disabled={isSaving}
                 >
-                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "ط­ظپط¸ ط§ظ„طھط°ظƒظٹط±"}
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "حفظ التذكير"}
                 </Button>
               </div>
             </DialogContent>
@@ -388,16 +388,16 @@ export default function RemindersPage() {
         ) : isError ? (
           <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
             <AlertCircle className="w-10 h-10 mx-auto mb-3 text-red-500" />
-            <p className="font-bold text-red-600">طھط¹ط°ظ‘ط± طھط­ظ…ظٹظ„ ط§ظ„طھط°ظƒظٹط±ط§طھ</p>
+            <p className="font-bold text-red-600">تعذّر تحميل التذكيرات</p>
           </div>
         ) : activeReminders.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-[#C9A063]/40 bg-[#FAF7F2] p-8 text-center">
             <Bell className="w-12 h-12 mx-auto mb-4 opacity-40" style={{ color: "#C9A063" }} />
             <h3 className="text-lg font-extrabold mb-2" style={{ color: "#2F2B25" }}>
-              ظ„ط§ طھظˆط¬ط¯ طھط°ظƒظٹط±ط§طھ ظ†ط´ط·ط©
+              لا توجد تذكيرات نشطة
             </h3>
             <p className="text-sm font-medium" style={{ color: "#6F6557" }}>
-              ط£ط¶ظپ طھط°ظƒظٹط±ط§ظ‹ ط¬ط¯ظٹط¯ط§ظ‹ ظ„طھطھط°ظƒط± ظ…ظˆط§ط¹ظٹط¯ظƒ ط§ظ„ظ…ظ‡ظ…ط©
+              أضف تذكيراً جديداً لتتذكر مواعيدك المهمة
             </p>
           </div>
         ) : (
@@ -436,7 +436,7 @@ export default function RemindersPage() {
                     </div>
                     
                     <p className="text-xs mt-1" style={{ color: "#C9A063" }}>
-                      طھط°ظƒظٹط± ظ‚ط¨ظ„: {getRemindBeforeLabel(reminder.remindBeforeValue, reminder.remindBeforeUnit)}
+                      تذكير قبل: {getRemindBeforeLabel(reminder.remindBeforeValue, reminder.remindBeforeUnit)}
                     </p>
                     
                     {reminder.note && (
@@ -477,7 +477,7 @@ export default function RemindersPage() {
         {pastReminders.length > 0 && (
           <div className="space-y-3">
             <h3 className="font-extrabold text-[16px]" style={{ color: "#8A6B3D" }}>
-              ط§ظ„طھط°ظƒظٹط±ط§طھ ط§ظ„ط³ط§ط¨ظ‚ط©
+              التذكيرات السابقة
             </h3>
             {pastReminders.map(reminder => (
               <div
@@ -512,9 +512,9 @@ export default function RemindersPage() {
         <ConfirmDialog
           open={isDeleteOpen}
           onOpenChange={setIsDeleteOpen}
-          title="ط­ط°ظپ ط§ظ„طھط°ظƒظٹط±"
-          description="ظ‡ظ„ ط£ظ†طھ ظ…طھط£ظƒط¯ ظ…ظ† ط­ط°ظپ ظ‡ط°ط§ ط§ظ„طھط°ظƒظٹط±طں"
-          confirmText="ط­ط°ظپ"
+          title="حذف التذكير"
+          description="هل أنت متأكد من حذف هذا التذكير؟"
+          confirmText="حذف"
           onConfirm={handleDelete}
           destructive
         />
@@ -523,27 +523,27 @@ export default function RemindersPage() {
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
           <DialogContent className="rtl max-w-[400px] rounded-xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>طھط¹ط¯ظٹظ„ ط§ظ„طھط°ظƒظٹط±</DialogTitle>
+              <DialogTitle>تعديل التذكير</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label>ط¹ظ†ظˆط§ظ† ط§ظ„طھط°ظƒظٹط± *</Label>
+                <Label>عنوان التذكير *</Label>
                 <Input value={formTitle} onChange={e => setFormTitle(e.target.value)} />
               </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>ط§ظ„طھط§ط±ظٹط® *</Label>
+                  <Label>التاريخ *</Label>
                   <Input type="date" value={formDate} onChange={e => setFormDate(e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label>ط§ظ„ظˆظ‚طھ *</Label>
+                  <Label>الوقت *</Label>
                   <Input type="time" value={formTime} onChange={e => setFormTime(e.target.value)} />
                 </div>
               </div>
               
               <div className="space-y-2">
-                <Label>طھط°ظƒظٹط±ظٹ ظ‚ط¨ظ„</Label>
+                <Label>تذكيري قبل</Label>
                 <div className="flex gap-2">
                   <Input 
                     type="number"
@@ -557,21 +557,21 @@ export default function RemindersPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="rtl">
-                      <SelectItem value="minutes">ط¯ظ‚ط§ط¦ظ‚</SelectItem>
-                      <SelectItem value="hours">ط³ط§ط¹ط§طھ</SelectItem>
-                      <SelectItem value="days">ط£ظٹط§ظ…</SelectItem>
+                      <SelectItem value="minutes">دقائق</SelectItem>
+                      <SelectItem value="hours">ساعات</SelectItem>
+                      <SelectItem value="days">أيام</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               
               <div className="space-y-2">
-                <Label>ظ…ظ„ط§ط­ط¸ط©</Label>
+                <Label>ملاحظة</Label>
                 <Textarea value={formNote} onChange={e => setFormNote(e.target.value)} rows={2} />
               </div>
               
               <Button className="w-full h-11 font-bold" onClick={handleEdit} disabled={isSaving}>
-                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "ط­ظپط¸ ط§ظ„طھط¹ط¯ظٹظ„ط§طھ"}
+                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "حفظ التعديلات"}
               </Button>
             </div>
           </DialogContent>

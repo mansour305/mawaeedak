@@ -147,10 +147,10 @@ export async function scheduleFinancialReminders(): Promise<number> {
       const sourceKey = `financial_reminder_${event.id}_${event.next_date}`;
 
       const typeMap: Record<string, string> = {
-        راتب: "salary",
-        دعم: "support",
-        فاتورة: "bill",
-        قرض: "bill",
+        "راتب": "salary",
+        "دعم": "support",
+        "فاتورة": "bill",
+        "قرض": "bill",
       };
       const notifType = typeMap[event.type] ?? "financial";
 

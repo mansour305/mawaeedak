@@ -1,8 +1,8 @@
-﻿/**
- * Logger Service â€” ظ…ظˆط§ط¹ظٹط¯ظƒ
+/**
+ * Logger Service — مواعيدك
  *
- * ط®ط¯ظ…ط© طھط³ط¬ظٹظ„ ظ…ط±ظƒط²ظٹط© ظٹظ…ظƒظ† طھط¹ط·ظٹظ„ظ‡ط§ ظپظٹ ط§ظ„ط¥ظ†طھط§ط¬
- * ظٹظ…ظ†ط¹ ظƒط´ظپ ط§ظ„ظ…ط¹ظ„ظˆظ…ط§طھ ط§ظ„ط­ط³ط§ط³ط© ظپظٹ Console
+ * خدمة تسجيل مركزية يمكن تعطيلها في الإنتاج
+ * يمنع كشف المعلومات الحساسة في Console
  */
 
 const isProduction = import.meta.env.PROD || import.meta.env.NODE_ENV === "production";
@@ -10,26 +10,26 @@ const isProduction = import.meta.env.PROD || import.meta.env.NODE_ENV === "produ
 export const logger = {
   error: (message: string, ...data: unknown[]) => {
     if (!isProduction) {
-      console.error(`[ظ…ظˆط§ط¹ظٹط¯ظƒ] ${message}`, ...data);
+      console.error(`[مواعيدك] ${message}`, ...data);
     }
     // In production: log to error tracking service if available
   },
   
   warn: (message: string, ...data: unknown[]) => {
     if (!isProduction) {
-      console.warn(`[ظ…ظˆط§ط¹ظٹط¯ظƒ] ${message}`, ...data);
+      console.warn(`[مواعيدك] ${message}`, ...data);
     }
   },
   
   info: (message: string, ...data: unknown[]) => {
     if (!isProduction) {
-      console.info(`[ظ…ظˆط§ط¹ظٹط¯ظƒ] ${message}`, ...data);
+      console.info(`[مواعيدك] ${message}`, ...data);
     }
   },
   
   debug: (message: string, ...data: unknown[]) => {
     if (!isProduction) {
-      console.debug(`[ظ…ظˆط§ط¹ظٹط¯ظƒ] ${message}`, ...data);
+      console.debug(`[مواعيدك] ${message}`, ...data);
     }
   },
 };

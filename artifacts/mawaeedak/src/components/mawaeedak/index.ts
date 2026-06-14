@@ -1,4 +1,4 @@
-﻿export { MawaeedakCard } from "./MawaeedakCard";
+export { MawaeedakCard } from "./MawaeedakCard";
 export { MawaeedakSection } from "./MawaeedakSection";
 export { MawaeedakButton } from "./MawaeedakButton";
 export { MawaeedakBadge } from "./MawaeedakBadge";

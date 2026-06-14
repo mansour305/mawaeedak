@@ -1,5 +1,5 @@
-﻿/**
- * GoalsPage â€” Phase 16 Production Hardening
+/**
+ * GoalsPage — Phase 16 Production Hardening
  * 
  * Goals service with real Supabase sync for logged-in users.
  * Local fallback for guests with clear indicator.
@@ -94,12 +94,12 @@ export default function GoalsPage() {
   
   const handleAdd = async () => {
     if (!formName.trim()) {
-      toast({ title: "ط®ط·ط£", description: "ط§ظ„ط±ط¬ط§ط، ط¥ط¯ط®ط§ظ„ ط§ط³ظ… ط§ظ„ظ‡ط¯ظپ", variant: "destructive" });
+      toast({ title: "خطأ", description: "الرجاء إدخال اسم الهدف", variant: "destructive" });
       return;
     }
     
     if (formType === "financial" && !formTargetAmount) {
-      toast({ title: "ط®ط·ط£", description: "ط§ظ„ط±ط¬ط§ط، ط¥ط¯ط®ط§ظ„ ط§ظ„ظ…ط¨ظ„ط؛ ط§ظ„ظ…ط³طھظ‡ط¯ظپ", variant: "destructive" });
+      toast({ title: "خطأ", description: "الرجاء إدخال المبلغ المستهدف", variant: "destructive" });
       return;
     }
     
@@ -115,11 +115,11 @@ export default function GoalsPage() {
         deadline: formDeadline || null,
       });
       
-      toast({ title: "طھظ… ط¥ط¶ط§ظپط© ط§ظ„ظ‡ط¯ظپ" });
+      toast({ title: "تم إضافة الهدف" });
       setIsAddOpen(false);
       resetForm();
     } catch {
-      toast({ title: "ط®ط·ط£", description: "ط­ط¯ط« ط®ط·ط£ ط£ط«ظ†ط§ط، ط§ظ„ط¥ط¶ط§ظپط©", variant: "destructive" });
+      toast({ title: "خطأ", description: "حدث خطأ أثناء الإضافة", variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
@@ -129,7 +129,7 @@ export default function GoalsPage() {
     if (!editingGoal) return;
     
     if (!formName.trim()) {
-      toast({ title: "ط®ط·ط£", description: "ط§ظ„ط±ط¬ط§ط، ط¥ط¯ط®ط§ظ„ ط§ط³ظ… ط§ظ„ظ‡ط¯ظپ", variant: "destructive" });
+      toast({ title: "خطأ", description: "الرجاء إدخال اسم الهدف", variant: "destructive" });
       return;
     }
     
@@ -146,12 +146,12 @@ export default function GoalsPage() {
         deadline: formDeadline || null,
       });
       
-      toast({ title: "طھظ… طھط­ط¯ظٹط« ط§ظ„ظ‡ط¯ظپ" });
+      toast({ title: "تم تحديث الهدف" });
       setIsEditOpen(false);
       setEditingGoal(null);
       resetForm();
     } catch {
-      toast({ title: "ط®ط·ط£", description: "ط­ط¯ط« ط®ط·ط£ ط£ط«ظ†ط§ط، ط§ظ„طھط­ط¯ظٹط«", variant: "destructive" });
+      toast({ title: "خطأ", description: "حدث خطأ أثناء التحديث", variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
@@ -162,11 +162,11 @@ export default function GoalsPage() {
     
     try {
       await deleteGoal(deletingGoalId);
-      toast({ title: "طھظ… ط­ط°ظپ ط§ظ„ظ‡ط¯ظپ" });
+      toast({ title: "تم حذف الهدف" });
       setIsDeleteOpen(false);
       setDeletingGoalId(null);
     } catch {
-      toast({ title: "ط®ط·ط£", description: "ط­ط¯ط« ط®ط·ط£ ط£ط«ظ†ط§ط، ط§ظ„ط­ط°ظپ", variant: "destructive" });
+      toast({ title: "خطأ", description: "حدث خطأ أثناء الحذف", variant: "destructive" });
     }
   };
   
@@ -175,11 +175,11 @@ export default function GoalsPage() {
     
     try {
       await complete(completingGoalId);
-      toast({ title: "طھظ… ط¥ظƒظ…ط§ظ„ ط§ظ„ظ‡ط¯ظپ! ًںژ‰" });
+      toast({ title: "تم إكمال الهدف! 🎉" });
       setIsCompleteOpen(false);
       setCompletingGoalId(null);
     } catch {
-      toast({ title: "ط®ط·ط£", description: "ط­ط¯ط« ط®ط·ط£", variant: "destructive" });
+      toast({ title: "خطأ", description: "حدث خطأ", variant: "destructive" });
     }
   };
   
@@ -187,18 +187,18 @@ export default function GoalsPage() {
   const completedGoals = goals.filter(g => g.completedAt);
   
   return (
-    <AppShell title="ط§ط­ط³ط¨ ظ‡ط¯ظپظƒ" showBack>
+    <AppShell title="احسب هدفك" showBack>
       <div className="space-y-5 pb-6">
         
         {/* Sync status indicator */}
         {isSynced ? (
           <div className="flex items-center gap-2 text-xs text-green-600">
             <Cloud className="w-4 h-4" />
-            <span>ظ…طھط²ط§ظ…ظ† ظ…ط¹ ط§ظ„ط³ط­ط§ط¨ط©</span>
+            <span>متزامن مع السحابة</span>
           </div>
         ) : (
           <div className="rounded-xl border border-amber-200 bg-amber-50/50 px-4 py-2 text-xs" style={{ color: "#92400e" }}>
-            <span className="font-semibold">ًں’¾ ظ…ظ„ط§ط­ط¸ط©:</span> ظ…ط­ظپظˆط¸ ط¹ظ„ظ‰ ظ‡ط°ط§ ط§ظ„ط¬ظ‡ط§ط² ظپظ‚ط·. ط³ط¬ظ‘ظ„ ط§ظ„ط¯ط®ظˆظ„ ظ„ظ…ط²ط§ظ…ظ†ط© ط¨ظٹط§ظ†ط§طھظƒ.
+            <span className="font-semibold">💾 ملاحظة:</span> محفوظ على هذا الجهاز فقط. سجّل الدخول لمزامنة بياناتك.
           </div>
         )}
         
@@ -210,32 +210,32 @@ export default function GoalsPage() {
                 background: "linear-gradient(135deg, hsl(36 72% 52%), hsl(28 68% 38%))",
               }}>
                 <Plus className="w-5 h-5 ml-2" />
-                ط¥ط¶ط§ظپط© ظ‡ط¯ظپ ط¬ط¯ظٹط¯
+                إضافة هدف جديد
               </Button>
             </DialogTrigger>
             <DialogContent className="rtl max-w-[400px] rounded-xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>ط¥ط¶ط§ظپط© ظ‡ط¯ظپ ط¬ط¯ظٹط¯</DialogTitle>
+                <DialogTitle>إضافة هدف جديد</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label>ط§ط³ظ… ط§ظ„ظ‡ط¯ظپ *</Label>
+                  <Label>اسم الهدف *</Label>
                   <Input 
                     value={formName} 
                     onChange={e => setFormName(e.target.value)} 
-                    placeholder="ظ…ط«ط§ظ„: ط´ط±ط§ط، ط³ظٹط§ط±ط©"
+                    placeholder="مثال: شراء سيارة"
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>ظ†ظˆط¹ ط§ظ„ظ‡ط¯ظپ</Label>
+                  <Label>نوع الهدف</Label>
                   <Select value={formType} onValueChange={(v) => setFormType(v as GoalType)}>
                     <SelectTrigger className="h-11">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="rtl">
-                      <SelectItem value="financial">ظ…ط§ظ„ظٹ</SelectItem>
-                      <SelectItem value="non-financial">ط؛ظٹط± ظ…ط§ظ„ظٹ</SelectItem>
+                      <SelectItem value="financial">مالي</SelectItem>
+                      <SelectItem value="non-financial">غير مالي</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -243,7 +243,7 @@ export default function GoalsPage() {
                 {formType === "financial" && (
                   <>
                     <div className="space-y-2">
-                      <Label>ط§ظ„ظ…ط¨ظ„ط؛ ط§ظ„ظ…ط³طھظ‡ط¯ظپ *</Label>
+                      <Label>المبلغ المستهدف *</Label>
                       <Input 
                         type="number"
                         value={formTargetAmount} 
@@ -253,7 +253,7 @@ export default function GoalsPage() {
                     </div>
                     
                     <div className="space-y-2">
-                      <Label>ط§ظ„طھظ‚ط¯ظ… ط§ظ„ط­ط§ظ„ظٹ</Label>
+                      <Label>التقدم الحالي</Label>
                       <Input 
                         type="number"
                         value={formCurrentProgress} 
@@ -266,18 +266,18 @@ export default function GoalsPage() {
                 
                 {formType === "non-financial" && (
                   <div className="space-y-2">
-                    <Label>ط§ظ„ظ…طھط·ظ„ط¨ط§طھ</Label>
+                    <Label>المتطلبات</Label>
                     <Textarea 
                       value={formRequirements} 
                       onChange={e => setFormRequirements(e.target.value)} 
-                      placeholder="ط§ظƒطھط¨ ظ…طھط·ظ„ط¨ط§طھظƒ ظ‡ظ†ط§..."
+                      placeholder="اكتب متطلباتك هنا..."
                       rows={3}
                     />
                   </div>
                 )}
                 
                 <div className="space-y-2">
-                  <Label>ط§ظ„ظ…ظˆط¹ط¯ ط§ظ„ظ†ظ‡ط§ط¦ظٹ</Label>
+                  <Label>الموعد النهائي</Label>
                   <Input 
                     type="date"
                     value={formDeadline} 
@@ -290,7 +290,7 @@ export default function GoalsPage() {
                   onClick={handleAdd}
                   disabled={isSaving}
                 >
-                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "ط­ظپط¸ ط§ظ„ظ‡ط¯ظپ"}
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "حفظ الهدف"}
                 </Button>
               </div>
             </DialogContent>
@@ -305,23 +305,23 @@ export default function GoalsPage() {
         ) : isError ? (
           <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
             <AlertCircle className="w-10 h-10 mx-auto mb-3 text-red-500" />
-            <p className="font-bold text-red-600">طھط¹ط°ظ‘ط± طھط­ظ…ظٹظ„ ط§ظ„ط£ظ‡ط¯ط§ظپ</p>
+            <p className="font-bold text-red-600">تعذّر تحميل الأهداف</p>
             <Button 
               variant="outline" 
               className="mt-3"
               onClick={() => window.location.reload()}
             >
-              ط¥ط¹ط§ط¯ط© ط§ظ„ظ…ط­ط§ظˆظ„ط©
+              إعادة المحاولة
             </Button>
           </div>
         ) : activeGoals.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-[#C9A063]/40 bg-[#FAF7F2] p-8 text-center">
             <Target className="w-12 h-12 mx-auto mb-4 opacity-40" style={{ color: "#C9A063" }} />
             <h3 className="text-lg font-extrabold mb-2" style={{ color: "#2F2B25" }}>
-              ظ„ط§ طھظˆط¬ط¯ ط£ظ‡ط¯ط§ظپ ظ†ط´ط·ط©
+              لا توجد أهداف نشطة
             </h3>
             <p className="text-sm font-medium" style={{ color: "#6F6557" }}>
-              ط§ط¨ط¯ط£ ط¨ط¥ط¶ط§ظپط© ظ‡ط¯ظپ ط¬ط¯ظٹط¯ ظ„طھطھط¨ط¹ طھظ‚ط¯ظ…ظƒ
+              ابدأ بإضافة هدف جديد لتتبع تقدمك
             </p>
           </div>
         ) : (
@@ -352,7 +352,7 @@ export default function GoalsPage() {
                           {goal.name}
                         </h3>
                         <span className="text-xs font-medium" style={{ color: "#6F6557" }}>
-                          {isFinancial ? "ظ‡ط¯ظپ ظ…ط§ظ„ظٹ" : "ظ‡ط¯ظپ ط؛ظٹط± ظ…ط§ظ„ظٹ"}
+                          {isFinancial ? "هدف مالي" : "هدف غير مالي"}
                         </span>
                       </div>
                     </div>
@@ -382,7 +382,7 @@ export default function GoalsPage() {
                       <div className="mb-3">
                         <div className="flex justify-between text-sm mb-1">
                           <span className="font-medium" style={{ color: "#6F6557" }}>
-                            {goal.currentProgress.toLocaleString()} / {goal.targetAmount.toLocaleString()} ط±ظٹط§ظ„
+                            {goal.currentProgress.toLocaleString()} / {goal.targetAmount.toLocaleString()} ريال
                           </span>
                           <span className="font-bold" style={{ color: "#8A6B3D" }}>
                             {stats.progressPercent}%
@@ -401,8 +401,8 @@ export default function GoalsPage() {
                         <div className="flex items-center gap-2 text-xs p-2 rounded-lg" style={{ background: "#F3E8D6/50" }}>
                           <TrendingUp className="w-4 h-4" style={{ color: "#8A6B3D" }} />
                           <span style={{ color: "#6F6557" }}>
-                            ظ…طھط¨ظ‚ظٹ: {stats.remaining.toLocaleString()} ط±ظٹط§ظ„
-                            {stats.dailyNeeded && ` â€¢ طھط­طھط§ط¬ ${Math.round(stats.dailyNeeded).toLocaleString()} ط±ظٹط§ظ„/ظٹظˆظ…`}
+                            متبقي: {stats.remaining.toLocaleString()} ريال
+                            {stats.dailyNeeded && ` • تحتاج ${Math.round(stats.dailyNeeded).toLocaleString()} ريال/يوم`}
                           </span>
                         </div>
                       )}
@@ -416,7 +416,7 @@ export default function GoalsPage() {
                   <div className="flex items-center justify-between mt-3 pt-3" style={{ borderTop: "1px solid rgba(201,160,99,0.15)" }}>
                     <div className="flex items-center gap-1 text-xs" style={{ color: "#6F6557" }}>
                       <Calendar className="w-3 h-3" />
-                      {goal.deadline ? new Date(goal.deadline).toLocaleDateString("ar-SA") : "ط¨ط¯ظˆظ† ظ…ظˆط¹ط¯"}
+                      {goal.deadline ? new Date(goal.deadline).toLocaleDateString("ar-SA") : "بدون موعد"}
                     </div>
                     
                     <Button
@@ -428,7 +428,7 @@ export default function GoalsPage() {
                       }}
                     >
                       <Check className="w-3 h-3 ml-1" />
-                      ط£ظƒظ…ظ„ ط§ظ„ظ‡ط¯ظپ
+                      أكمل الهدف
                     </Button>
                   </div>
                 </div>
@@ -441,7 +441,7 @@ export default function GoalsPage() {
         {completedGoals.length > 0 && (
           <div className="space-y-3">
             <h3 className="font-extrabold text-[16px]" style={{ color: "#8A6B3D" }}>
-              ط§ظ„ط£ظ‡ط¯ط§ظپ ط§ظ„ظ…ظƒطھظ…ظ„ط©
+              الأهداف المكتملة
             </h3>
             {completedGoals.map(goal => (
               <div
@@ -458,7 +458,7 @@ export default function GoalsPage() {
                       {goal.name}
                     </h4>
                     <p className="text-xs" style={{ color: "#6F6557" }}>
-                      ط£ظƒظ…ظ„ ظپظٹ: {new Date(goal.completedAt!).toLocaleDateString("ar-SA")}
+                      أكمل في: {new Date(goal.completedAt!).toLocaleDateString("ar-SA")}
                     </p>
                   </div>
                   <Button
@@ -479,9 +479,9 @@ export default function GoalsPage() {
         <ConfirmDialog
           open={isDeleteOpen}
           onOpenChange={setIsDeleteOpen}
-          title="ط­ط°ظپ ط§ظ„ظ‡ط¯ظپ"
-          description="ظ‡ظ„ ط£ظ†طھ ظ…طھط£ظƒط¯ ظ…ظ† ط­ط°ظپ ظ‡ط°ط§ ط§ظ„ظ‡ط¯ظپطں ظ„ط§ ظٹظ…ظƒظ† ط§ظ„طھط±ط§ط¬ط¹."
-          confirmText="ط­ط°ظپ"
+          title="حذف الهدف"
+          description="هل أنت متأكد من حذف هذا الهدف؟ لا يمكن التراجع."
+          confirmText="حذف"
           onConfirm={handleDelete}
           destructive
         />
@@ -490,9 +490,9 @@ export default function GoalsPage() {
         <ConfirmDialog
           open={isCompleteOpen}
           onOpenChange={setIsCompleteOpen}
-          title="ط¥ظƒظ…ط§ظ„ ط§ظ„ظ‡ط¯ظپ"
-          description="ظ‡ظ„ ط£ظ†طھ ظ…طھط£ظƒط¯ ظ…ظ† ط¥ظƒظ…ط§ظ„ ظ‡ط°ط§ ط§ظ„ظ‡ط¯ظپطں"
-          confirmText="ظ†ط¹ظ…طŒ ط£ظƒظ…ظ„"
+          title="إكمال الهدف"
+          description="هل أنت متأكد من إكمال هذا الهدف؟"
+          confirmText="نعم، أكمل"
           onConfirm={handleComplete}
         />
         
@@ -500,21 +500,21 @@ export default function GoalsPage() {
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
           <DialogContent className="rtl max-w-[400px] rounded-xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>طھط¹ط¯ظٹظ„ ط§ظ„ظ‡ط¯ظپ</DialogTitle>
+              <DialogTitle>تعديل الهدف</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label>ط§ط³ظ… ط§ظ„ظ‡ط¯ظپ *</Label>
+                <Label>اسم الهدف *</Label>
                 <Input value={formName} onChange={e => setFormName(e.target.value)} />
               </div>
               
               <div className="space-y-2">
-                <Label>ظ†ظˆط¹ ط§ظ„ظ‡ط¯ظپ</Label>
+                <Label>نوع الهدف</Label>
                 <Select value={formType} onValueChange={(v) => setFormType(v as GoalType)}>
                   <SelectTrigger className="h-11"><SelectValue /></SelectTrigger>
                   <SelectContent className="rtl">
-                    <SelectItem value="financial">ظ…ط§ظ„ظٹ</SelectItem>
-                    <SelectItem value="non-financial">ط؛ظٹط± ظ…ط§ظ„ظٹ</SelectItem>
+                    <SelectItem value="financial">مالي</SelectItem>
+                    <SelectItem value="non-financial">غير مالي</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -522,11 +522,11 @@ export default function GoalsPage() {
               {formType === "financial" && (
                 <>
                   <div className="space-y-2">
-                    <Label>ط§ظ„ظ…ط¨ظ„ط؛ ط§ظ„ظ…ط³طھظ‡ط¯ظپ *</Label>
+                    <Label>المبلغ المستهدف *</Label>
                     <Input type="number" value={formTargetAmount} onChange={e => setFormTargetAmount(e.target.value)} />
                   </div>
                   <div className="space-y-2">
-                    <Label>ط§ظ„طھظ‚ط¯ظ… ط§ظ„ط­ط§ظ„ظٹ</Label>
+                    <Label>التقدم الحالي</Label>
                     <Input type="number" value={formCurrentProgress} onChange={e => setFormCurrentProgress(e.target.value)} />
                   </div>
                 </>
@@ -534,18 +534,18 @@ export default function GoalsPage() {
               
               {formType === "non-financial" && (
                 <div className="space-y-2">
-                  <Label>ط§ظ„ظ…طھط·ظ„ط¨ط§طھ</Label>
+                  <Label>المتطلبات</Label>
                   <Textarea value={formRequirements} onChange={e => setFormRequirements(e.target.value)} rows={3} />
                 </div>
               )}
               
               <div className="space-y-2">
-                <Label>ط§ظ„ظ…ظˆط¹ط¯ ط§ظ„ظ†ظ‡ط§ط¦ظٹ</Label>
+                <Label>الموعد النهائي</Label>
                 <Input type="date" value={formDeadline} onChange={e => setFormDeadline(e.target.value)} />
               </div>
               
               <Button className="w-full h-11 font-bold" onClick={handleEdit} disabled={isSaving}>
-                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "ط­ظپط¸ ط§ظ„طھط¹ط¯ظٹظ„ط§طھ"}
+                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "حفظ التعديلات"}
               </Button>
             </div>
           </DialogContent>

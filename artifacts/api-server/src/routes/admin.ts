@@ -1,4 +1,4 @@
-﻿import { Router } from "express";
+import { Router } from "express";
 import { db } from "@workspace/db";
 import { auditLogsTable, notificationsTable, newsTable, jobsTable, complaintsTable, appointmentsTable } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
@@ -24,7 +24,7 @@ router.get("/admin/stats", requireAdmin, async (req, res) => {
 
   const unread = notifications.filter(n => !n.is_read).length;
   const pending = complaints.filter(c => c.status === "pending").length;
-  const suggestions = complaints.filter(c => c.type === "ط§ظ‚طھط±ط§ط­" || c.category === "ط§ظ‚طھط±ط§ط­").length;
+  const suggestions = complaints.filter(c => c.type === "اقتراح" || c.category === "اقتراح").length;
   const awaitingReply = complaints.filter(c => !c.admin_reply && c.status !== "closed").length;
   const resolved = complaints.filter(c => c.status === "resolved").length;
 

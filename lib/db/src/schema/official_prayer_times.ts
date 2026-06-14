@@ -1,10 +1,10 @@
-﻿import { pgTable, serial, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
 /**
  * Table storing verified prayer times from official sources. Unlike the
- * `prayer_times` table used for userâ€‘computed or fallback times, this
+ * `prayer_times` table used for user‑computed or fallback times, this
  * structure is used to store authoritative timings which can be shown
  * directly to users.
  */
@@ -21,7 +21,7 @@ export const officialPrayerTimesTable = pgTable("official_prayer_times", {
   maghrib: text("maghrib").notNull(),
   isha: text("isha").notNull(),
   /**
-   * Name of the official authority providing this timing (e.g. "ظˆط²ط§ط±ط© ط§ظ„ط´ط¤ظˆظ† ط§ظ„ط¥ط³ظ„ط§ظ…ظٹط©").
+   * Name of the official authority providing this timing (e.g. "وزارة الشؤون الإسلامية").
    */
   source_authority: text("source_authority").notNull(),
   /**

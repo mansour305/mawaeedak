@@ -1,4 +1,4 @@
-﻿import { calculateDaysRemaining, getRiyadhDateParts, getRiyadhStartOfDay, getRiyadhTodayKey, parseRiyadhDateKey } from "./riyadhTime";
+import { calculateDaysRemaining, getRiyadhDateParts, getRiyadhStartOfDay, getRiyadhTodayKey, parseRiyadhDateKey } from "./riyadhTime";
 
 export type FinancialEventStatus = "confirmed" | "expected" | "changed" | "delayed" | "advanced" | "unavailable";
 
@@ -25,21 +25,21 @@ type NormalizeFinancialOptions = {
 };
 
 const STATUS_LABELS: Record<FinancialEventStatus, string> = {
-  confirmed: "ظ…ط¤ظƒط¯",
-  expected: "ظ…طھظˆظ‚ط¹",
-  changed: "ظ…ط¹ط¯ظ‘ظ„",
-  delayed: "ظ…ط¤ط¬ظ„",
-  advanced: "ظ…ظ‚ط¯ظ…",
-  unavailable: "ط؛ظٹط± ظ…طھط§ط­",
+  confirmed: "مؤكد",
+  expected: "متوقع",
+  changed: "معدّل",
+  delayed: "مؤجل",
+  advanced: "مقدم",
+  unavailable: "غير متاح",
 };
 
 const FALLBACK_MONTHLY_EVENTS = [
-  { type: "salary", name: "ط§ظ„ط±ط§طھط¨", day: 27, authority: "ظˆط²ط§ط±ط© ط§ظ„ظ…ط§ظ„ظٹط©" },
-  { type: "citizen_account", name: "ط­ط³ط§ط¨ ط§ظ„ظ…ظˆط§ط·ظ†", day: 10, authority: "ط­ط³ط§ط¨ ط§ظ„ظ…ظˆط§ط·ظ†" },
-  { type: "housing_support", name: "ط§ظ„ط¯ط¹ظ… ط§ظ„ط³ظƒظ†ظٹ", day: 24, authority: "ط³ظƒظ†ظٹ" },
-  { type: "social_security", name: "ط§ظ„ط¶ظ…ط§ظ† ط§ظ„ط§ط¬طھظ…ط§ط¹ظٹ", day: 1, authority: "ظˆط²ط§ط±ط© ط§ظ„ظ…ظˆط§ط±ط¯ ط§ظ„ط¨ط´ط±ظٹط© ظˆط§ظ„طھظ†ظ…ظٹط© ط§ظ„ط§ط¬طھظ…ط§ط¹ظٹط©" },
-  { type: "retirement", name: "ط§ظ„طھظ‚ط§ط¹ط¯", day: 25, authority: "ط§ظ„ظ…ط¤ط³ط³ط© ط§ظ„ط¹ط§ظ…ط© ظ„ظ„طھط£ظ…ظٹظ†ط§طھ ط§ظ„ط§ط¬طھظ…ط§ط¹ظٹط©" },
-  { type: "rehabilitation", name: "ط§ظ„طھط£ظ‡ظٹظ„ ط§ظ„ط´ط§ظ…ظ„", day: 26, authority: "ظˆط²ط§ط±ط© ط§ظ„ظ…ظˆط§ط±ط¯ ط§ظ„ط¨ط´ط±ظٹط© ظˆط§ظ„طھظ†ظ…ظٹط© ط§ظ„ط§ط¬طھظ…ط§ط¹ظٹط©" },
+  { type: "salary", name: "الراتب", day: 27, authority: "وزارة المالية" },
+  { type: "citizen_account", name: "حساب المواطن", day: 10, authority: "حساب المواطن" },
+  { type: "housing_support", name: "الدعم السكني", day: 24, authority: "سكني" },
+  { type: "social_security", name: "الضمان الاجتماعي", day: 1, authority: "وزارة الموارد البشرية والتنمية الاجتماعية" },
+  { type: "retirement", name: "التقاعد", day: 25, authority: "المؤسسة العامة للتأمينات الاجتماعية" },
+  { type: "rehabilitation", name: "التأهيل الشامل", day: 26, authority: "وزارة الموارد البشرية والتنمية الاجتماعية" },
 ] as const;
 
 function asRecord(value: unknown): Record<string, unknown> {
@@ -115,7 +115,7 @@ function fromOfficial(records: unknown[], includePast: boolean): FinancialDispla
 
     return {
       id: (row.id as string | number | undefined) ?? String(row.event_key ?? dateKey),
-      name: String(row.event_name_ar ?? row.name_ar ?? row.name ?? row.event_key ?? "ظ…ظˆط¹ط¯ ظ…ط§ظ„ظٹ"),
+      name: String(row.event_name_ar ?? row.name_ar ?? row.name ?? row.event_key ?? "موعد مالي"),
       type: String(row.event_key ?? row.type ?? "financial"),
       next_date: dateKey,
       days_remaining: calculateDaysRemaining(dateKey),
@@ -144,7 +144,7 @@ function fromGateway(records: unknown[], includePast: boolean): FinancialDisplay
     const amount = Number(row.amount);
     return {
       id: (row.id as string | number | undefined) ?? `${String(row.type ?? "financial")}-${dateKey}`,
-      name: String(row.name ?? "ظ…ظˆط¹ط¯ ظ…ط§ظ„ظٹ"),
+      name: String(row.name ?? "موعد مالي"),
       type: String(row.type ?? "financial"),
       next_date: dateKey,
       days_remaining: calculateDaysRemaining(dateKey),
@@ -176,7 +176,7 @@ function fromFallback(includePast: boolean): FinancialDisplayEvent[] {
       days_remaining: calculateDaysRemaining(dateKey),
       amount: null,
       status: "expected" as const,
-      statusLabel: "ظ…طھظˆظ‚ط¹ â€” ط¨ط§ظ†طھط¸ط§ط± ط§ط¹طھظ…ط§ط¯ ط±ط³ظ…ظٹ",
+      statusLabel: "متوقع — بانتظار اعتماد رسمي",
       source: "fallback" as const,
       sourceAuthority: event.authority,
       sourceUrl: null,

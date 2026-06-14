@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,14 +14,14 @@ const CHECKLIST_KEY = "mawaeedak_travel_checklist_v1";
 const CUSTOM_CHECKLIST_KEY = "mawaeedak_travel_custom_checklist_v1";
 
 const DEFAULT_CHECKLIST = [
-  "ط¬ظˆط§ط² ط§ظ„ط³ظپط± / ط§ظ„ظ‡ظˆظٹط© ط§ظ„ظˆط·ظ†ظٹط©",
-  "طھط°ط§ظƒط± ط§ظ„ط·ظٹط±ط§ظ†",
-  "ط­ط¬ط² ط§ظ„ظپظ†ط¯ظ‚",
-  "ط¨ط·ط§ظ‚ط§طھ ط§ط¦طھظ…ط§ظ†ظٹط© ظˆظ…طµط±ظˆظپ ظ†ظ‚ط¯ظٹ",
-  "ط´ط§ط­ظ† ط§ظ„ظ‡ط§طھظپ ظˆظ…ط­ظˆظ„ ط·ط§ظ‚ط©",
-  "ط£ط¯ظˆظٹط© ط´ط®طµظٹط©",
-  "ظ…ظ„ط§ط¨ط³ ظƒط§ظپظٹط©",
-  "طھط£ظ…ظٹظ† ط§ظ„ط³ظپط±",
+  "جواز السفر / الهوية الوطنية",
+  "تذاكر الطيران",
+  "حجز الفندق",
+  "بطاقات ائتمانية ومصروف نقدي",
+  "شاحن الهاتف ومحول طاقة",
+  "أدوية شخصية",
+  "ملابس كافية",
+  "تأمين السفر",
 ];
 
 interface Trip {
@@ -31,7 +31,7 @@ interface Trip {
   date: string;
   flightNo: string;
   hotel: string;
-  status: "ظ…ط¤ظƒط¯" | "ظپظٹ ط§ظ„ط§ظ†طھط¸ط§ط±" | "ظ…ظ„ط؛ظٹ";
+  status: "مؤكد" | "في الانتظار" | "ملغي";
 }
 
 function loadTrips(): Trip[] {
@@ -68,12 +68,12 @@ export default function CentersTravelPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
 
-  const [from, setFrom] = useState("ط§ظ„ط±ظٹط§ط¶");
+  const [from, setFrom] = useState("الرياض");
   const [to, setTo] = useState("");
   const [date, setDate] = useState("");
   const [flightNo, setFlightNo] = useState("");
   const [hotel, setHotel] = useState("");
-  const [status, setStatus] = useState<Trip["status"]>("ظ…ط¤ظƒط¯");
+  const [status, setStatus] = useState<Trip["status"]>("مؤكد");
 
   const checklistItems = useMemo(() => {
     return [...DEFAULT_CHECKLIST, ...customChecklist];
@@ -92,28 +92,28 @@ export default function CentersTravelPage() {
   }, [customChecklist]);
 
   const resetForm = () => {
-    setFrom("ط§ظ„ط±ظٹط§ط¶");
+    setFrom("الرياض");
     setTo("");
     setDate("");
     setFlightNo("");
     setHotel("");
-    setStatus("ظ…ط¤ظƒط¯");
+    setStatus("مؤكد");
     setEditId(null);
   };
 
   const handleSave = () => {
     if (!to.trim() || !date) {
-      toast({ title: "ظٹط±ط¬ظ‰ طھط¹ط¨ط¦ط© ط§ظ„ظˆط¬ظ‡ط© ظˆط§ظ„طھط§ط±ظٹط®", variant: "destructive" });
+      toast({ title: "يرجى تعبئة الوجهة والتاريخ", variant: "destructive" });
       return;
     }
 
     if (editId) {
       setTrips(prev => prev.map(t => t.id === editId ? { ...t, from, to, date, flightNo, hotel, status } : t));
-      toast({ title: "طھظ… طھط­ط¯ظٹط« ط§ظ„ط±ط­ظ„ط©" });
+      toast({ title: "تم تحديث الرحلة" });
     } else {
       const trip: Trip = { id: Date.now().toString(), from, to, date, flightNo, hotel, status };
       setTrips(prev => [...prev, trip]);
-      toast({ title: "طھظ…طھ ط¥ط¶ط§ظپط© ط§ظ„ط±ط­ظ„ط©" });
+      toast({ title: "تمت إضافة الرحلة" });
     }
 
     resetForm();
@@ -135,7 +135,7 @@ export default function CentersTravelPage() {
     if (!deleteId) return;
     setTrips(prev => prev.filter(t => t.id !== deleteId));
     setDeleteId(null);
-    toast({ title: "طھظ… ط­ط°ظپ ط§ظ„ط±ط­ظ„ط©" });
+    toast({ title: "تم حذف الرحلة" });
   };
 
   const toggleCheck = (item: string) => {
@@ -145,18 +145,18 @@ export default function CentersTravelPage() {
   const addCustomChecklistItem = () => {
     const value = customItem.trim();
     if (!value) {
-      toast({ title: "ط§ظƒطھط¨ ط§ظ„ط¨ظ†ط¯ ط§ظ„ظ…ط®طµطµ ط£ظˆظ„ط§ظ‹", variant: "destructive" });
+      toast({ title: "اكتب البند المخصص أولاً", variant: "destructive" });
       return;
     }
 
     if (checklistItems.includes(value)) {
-      toast({ title: "ظ‡ط°ط§ ط§ظ„ط¨ظ†ط¯ ظ…ظˆط¬ظˆط¯ ظ…ط³ط¨ظ‚ظ‹ط§", variant: "destructive" });
+      toast({ title: "هذا البند موجود مسبقًا", variant: "destructive" });
       return;
     }
 
     setCustomChecklist(prev => [...prev, value]);
     setCustomItem("");
-    toast({ title: "طھظ…طھ ط¥ط¶ط§ظپط© ط¨ظ†ط¯ ظ…ط®طµطµ" });
+    toast({ title: "تمت إضافة بند مخصص" });
   };
 
   const deleteCustomChecklistItem = (item: string) => {
@@ -166,26 +166,26 @@ export default function CentersTravelPage() {
       delete next[item];
       return next;
     });
-    toast({ title: "طھظ… ط­ط°ظپ ط§ظ„ط¨ظ†ط¯ ط§ظ„ظ…ط®طµطµ" });
+    toast({ title: "تم حذف البند المخصص" });
   };
 
   const statusColor: Record<string, string> = {
-    "ظ…ط¤ظƒط¯": "bg-emerald-500/10 text-emerald-600",
-    "ظپظٹ ط§ظ„ط§ظ†طھط¸ط§ط±": "bg-yellow-500/10 text-yellow-600",
-    "ظ…ظ„ط؛ظٹ": "bg-red-500/10 text-red-600",
+    "مؤكد": "bg-emerald-500/10 text-emerald-600",
+    "في الانتظار": "bg-yellow-500/10 text-yellow-600",
+    "ملغي": "bg-red-500/10 text-red-600",
   };
 
   const daysUntil = (dateStr: string) => {
     const diff = Math.ceil((new Date(dateStr).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-    if (diff > 0) return `${diff} ظٹظˆظ…`;
-    if (diff === 0) return "ط§ظ„ظٹظˆظ…";
-    return `ظ…ظ†ط° ${Math.abs(diff)} ظٹظˆظ…`;
+    if (diff > 0) return `${diff} يوم`;
+    if (diff === 0) return "اليوم";
+    return `منذ ${Math.abs(diff)} يوم`;
   };
 
   const checkedCount = checklistItems.filter(i => checked[i]).length;
 
   return (
-    <AppShell title="ط§ظ„ط³ظپط±" showBack>
+    <AppShell title="السفر" showBack>
       <div className="space-y-6 pb-6">
         {/* Header with icon */}
         <div className="flex items-center justify-between mb-2">
@@ -197,8 +197,8 @@ export default function CentersTravelPage() {
               <Plane className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-extrabold" style={{ color: "#2F2B25" }}>ط±ط­ظ„ط§طھظٹ ط§ظ„ظ‚ط§ط¯ظ…ط©</h2>
-              <p className="text-sm font-medium" style={{ color: "#6F6557" }}>{trips.length} ط±ط­ظ„ط© ظ…ط³ط¬ظ„ط©</p>
+              <h2 className="text-xl font-extrabold" style={{ color: "#2F2B25" }}>رحلاتي القادمة</h2>
+              <p className="text-sm font-medium" style={{ color: "#6F6557" }}>{trips.length} رحلة مسجلة</p>
             </div>
           </div>
           <Dialog open={isOpen} onOpenChange={v => { setIsOpen(v); if (!v) resetForm(); }}>
@@ -211,52 +211,52 @@ export default function CentersTravelPage() {
                   boxShadow: "0 4px 14px rgba(167,128,66,0.25)",
                 }}
               >
-                <Plus className="w-4 h-4" /> ط±ط­ظ„ط© ط¬ط¯ظٹط¯ط©
+                <Plus className="w-4 h-4" /> رحلة جديدة
               </button>
             </DialogTrigger>
             <DialogContent className="rtl max-w-[400px] rounded-xl">
               <DialogHeader>
-                <DialogTitle>{editId ? "طھط¹ط¯ظٹظ„ ط§ظ„ط±ط­ظ„ط©" : "ط¥ط¶ط§ظپط© ط±ط­ظ„ط© ط¬ط¯ظٹط¯ط©"}</DialogTitle>
+                <DialogTitle>{editId ? "تعديل الرحلة" : "إضافة رحلة جديدة"}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-2">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <Label className="text-sm font-semibold">ظ…ظ†</Label>
-                    <Input value={from} onChange={e => setFrom(e.target.value)} placeholder="ط§ظ„ط±ظٹط§ط¶" />
+                    <Label className="text-sm font-semibold">من</Label>
+                    <Input value={from} onChange={e => setFrom(e.target.value)} placeholder="الرياض" />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-sm font-semibold">ط¥ظ„ظ‰ *</Label>
-                    <Input value={to} onChange={e => setTo(e.target.value)} placeholder="ط¯ط¨ظٹ" />
+                    <Label className="text-sm font-semibold">إلى *</Label>
+                    <Input value={to} onChange={e => setTo(e.target.value)} placeholder="دبي" />
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-sm font-semibold">طھط§ط±ظٹط® ط§ظ„ط³ظپط± *</Label>
+                  <Label className="text-sm font-semibold">تاريخ السفر *</Label>
                   <Input type="date" value={date} onChange={e => setDate(e.target.value)} />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <Label className="text-sm font-semibold">ط±ظ‚ظ… ط§ظ„ط±ط­ظ„ط©</Label>
+                    <Label className="text-sm font-semibold">رقم الرحلة</Label>
                     <Input value={flightNo} onChange={e => setFlightNo(e.target.value)} placeholder="SV 500" />
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-sm font-semibold">ط§ظ„ط­ط§ظ„ط©</Label>
+                    <Label className="text-sm font-semibold">الحالة</Label>
                     <select
                       value={status}
                       onChange={e => setStatus(e.target.value as Trip["status"])}
                       className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
                     >
-                      <option>ظ…ط¤ظƒط¯</option>
-                      <option>ظپظٹ ط§ظ„ط§ظ†طھط¸ط§ط±</option>
-                      <option>ظ…ظ„ط؛ظٹ</option>
+                      <option>مؤكد</option>
+                      <option>في الانتظار</option>
+                      <option>ملغي</option>
                     </select>
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-sm font-semibold">ط§ظ„ظپظ†ط¯ظ‚ ط£ظˆ ط§ظ„ط¥ظ‚ط§ظ…ط©</Label>
-                  <Input value={hotel} onChange={e => setHotel(e.target.value)} placeholder="ط§ط³ظ… ط§ظ„ظپظ†ط¯ظ‚ ظˆظ…ظˆظ‚ط¹ظ‡" />
+                  <Label className="text-sm font-semibold">الفندق أو الإقامة</Label>
+                  <Input value={hotel} onChange={e => setHotel(e.target.value)} placeholder="اسم الفندق وموقعه" />
                 </div>
                 <Button className="w-full font-bold h-11" onClick={handleSave}>
-                  {editId ? "طھط­ط¯ظٹط« ط§ظ„ط±ط­ظ„ط©" : "ط¥ط¶ط§ظپط© ط§ظ„ط±ط­ظ„ط©"}
+                  {editId ? "تحديث الرحلة" : "إضافة الرحلة"}
                 </Button>
               </div>
             </DialogContent>
@@ -282,14 +282,14 @@ export default function CentersTravelPage() {
                     <div className="flex justify-between items-start mb-3">
                       <div className="flex items-center gap-2">
                         <Plane className="w-5 h-5" style={{ color: "#C9A063" }} />
-                        <h3 className="font-extrabold text-[16px]" style={{ color: "#2F2B25" }}>{trip.from} â†گ {trip.to}</h3>
+                        <h3 className="font-extrabold text-[16px]" style={{ color: "#2F2B25" }}>{trip.from} ← {trip.to}</h3>
                       </div>
                       <div className="flex items-center gap-2">
                         <span 
                           className="text-[10px] px-2 py-1 rounded-full font-bold"
                           style={{
-                            background: trip.status === "ظ…ط¤ظƒط¯" ? "rgba(16,185,129,0.12)" : trip.status === "ظپظٹ ط§ظ„ط§ظ†طھط¸ط§ط±" ? "rgba(245,158,11,0.12)" : "rgba(239,68,68,0.12)",
-                            color: trip.status === "ظ…ط¤ظƒط¯" ? "#059669" : trip.status === "ظپظٹ ط§ظ„ط§ظ†طھط¸ط§ط±" ? "#D97706" : "#DC2626",
+                            background: trip.status === "مؤكد" ? "rgba(16,185,129,0.12)" : trip.status === "في الانتظار" ? "rgba(245,158,11,0.12)" : "rgba(239,68,68,0.12)",
+                            color: trip.status === "مؤكد" ? "#059669" : trip.status === "في الانتظار" ? "#D97706" : "#DC2626",
                           }}
                         >
                           {trip.status}
@@ -344,8 +344,8 @@ export default function CentersTravelPage() {
             style={{ borderColor: "rgba(201,160,99,0.30)", background: "rgba(255,252,247,0.6)" }}
           >
             <Plane className="w-10 h-10 mx-auto mb-3 opacity-40" style={{ color: "#C9A063" }} />
-            <p className="font-extrabold" style={{ color: "#2F2B25" }}>ظ„ط§ طھظˆط¬ط¯ ط±ط­ظ„ط§طھ ظ…ط³ط¬ظ„ط©</p>
-            <p className="text-sm mt-1" style={{ color: "#6F6557" }}>ط§ط¶ط؛ط· "ط±ط­ظ„ط© ط¬ط¯ظٹط¯ط©" ظ„ط¥ط¶ط§ظپط© ط£ظˆظ„ ط±ط­ظ„ط©</p>
+            <p className="font-extrabold" style={{ color: "#2F2B25" }}>لا توجد رحلات مسجلة</p>
+            <p className="text-sm mt-1" style={{ color: "#6F6557" }}>اضغط "رحلة جديدة" لإضافة أول رحلة</p>
           </div>
         )}
 
@@ -353,7 +353,7 @@ export default function CentersTravelPage() {
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-extrabold text-lg flex items-center gap-2" style={{ color: "#2F2B25" }}>
               <CheckSquare className="w-5 h-5" style={{ color: "#C9A063" }} />
-              ظ‚ط§ط¦ظ…ط© ط§ظ„طھط¬ظ‡ظٹط²
+              قائمة التجهيز
             </h3>
             <span 
               className="text-sm font-bold px-3 py-1 rounded-full"
@@ -380,7 +380,7 @@ export default function CentersTravelPage() {
                 type="text"
                 value={customItem}
                 onChange={(event) => setCustomItem(event.target.value)}
-                placeholder="ط£ط¶ظپ ط¨ظ†ط¯ ظ…ط®طµطµ ظ…ط«ظ„: ط±ط®طµط© ط¯ظˆظ„ظٹط©"
+                placeholder="أضف بند مخصص مثل: رخصة دولية"
                 className="flex-1 h-11 rounded-[14px] border px-4 text-[14px] font-medium bg-white"
                 style={{ borderColor: "rgba(201,160,99,0.20)" }}
                 onKeyDown={(event) => {
@@ -396,7 +396,7 @@ export default function CentersTravelPage() {
                   boxShadow: "0 4px 12px rgba(167,128,66,0.25)",
                 }}
               >
-                <Plus className="w-4 h-4" /> ط¥ط¶ط§ظپط©
+                <Plus className="w-4 h-4" /> إضافة
               </button>
             </div>
           </div>
@@ -444,7 +444,7 @@ export default function CentersTravelPage() {
                         }}
                         className="w-8 h-8 rounded-lg flex items-center justify-center transition hover:scale-110"
                         style={{ background: "rgba(185,72,63,0.10)" }}
-                        aria-label="ط­ط°ظپ ط§ظ„ط¨ظ†ط¯ ط§ظ„ظ…ط®طµطµ"
+                        aria-label="حذف البند المخصص"
                       >
                         <Trash2 className="w-4 h-4" style={{ color: "#B9483F" }} />
                       </button>
@@ -456,7 +456,7 @@ export default function CentersTravelPage() {
           </div>
           {checkedCount === checklistItems.length && checklistItems.length > 0 && (
             <div className="mt-3 text-center text-sm font-bold text-emerald-600 bg-emerald-500/10 p-3 rounded-xl">
-              ط¬ظ‡ظ‘ط²طھ ظƒظ„ ط´ظٹط، â€” ط±ط­ظ„ط© ط³ط¹ظٹط¯ط©!
+              جهّزت كل شيء — رحلة سعيدة!
             </div>
           )}
         </div>
@@ -465,9 +465,9 @@ export default function CentersTravelPage() {
       <ConfirmDialog
         open={!!deleteId}
         onOpenChange={o => { if (!o) setDeleteId(null); }}
-        title="ط­ط°ظپ ط§ظ„ط±ط­ظ„ط©"
-        description="ظ‡ظ„ ط£ظ†طھ ظ…طھط£ظƒط¯ ظ…ظ† ط­ط°ظپ ظ‡ط°ظ‡ ط§ظ„ط±ط­ظ„ط©طں ظ„ط§ ظٹظ…ظƒظ† ط§ظ„طھط±ط§ط¬ط¹."
-        confirmText="ط­ط°ظپ"
+        title="حذف الرحلة"
+        description="هل أنت متأكد من حذف هذه الرحلة؟ لا يمكن التراجع."
+        confirmText="حذف"
         onConfirm={handleDelete}
       />
     </AppShell>

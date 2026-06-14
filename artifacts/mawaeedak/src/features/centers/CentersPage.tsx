@@ -1,11 +1,10 @@
-﻿/**
- * CentersPage â€” Saudi Premium Minimal Services
- * Reference: docs/design-reference/final-2026/09-services.jpeg
- * 
+/**
+ * CentersPage — Saudi Premium Minimal Services
+ *
  * Features:
- * - Title: ط§ظ„ط®ط¯ظ…ط§طھ
- * - Subtitle: ط®ط¯ظ…ط§طھ ظ…ظ†ط¸ظ…ط© طھط³ط§ط¹ط¯ظƒ ظپظٹ ظٹظˆظ…ظƒ
- * - Section title: ط§ظ„ط®ط¯ظ…ط§طھ ط§ظ„ظ…طھط§ط­ط©
+ * - Title: الخدمات
+ * - Subtitle: خدمات منظمة تساعدك في يومك
+ * - Section title: الخدمات المتاحة
  * - 8 premium service cards with icons
  * - Bottom blessing card with Salawat
  * - No user-facing technical text
@@ -19,14 +18,14 @@ import {
 
 // Services in required order - only 8 visible services
 const visibleServices = [
-  { title: "ط§ط­ط³ط¨ ظ‡ط¯ظپظƒ", subtitle: "ط­ط¯ط¯ ظ‡ط¯ظپظƒ ظˆط®ط·ط© ط§ظ„طھظˆظپظٹط±", icon: Target, path: "/services/goals", status: "ready" },
-  { title: "ط­ط³ط§ط¨ ط§ظ„طھظƒط§ظ„ظٹظپ", subtitle: "ظ‚ط§ط¦ظ…ط© ط§ظ„ط¨ظ†ظˆط¯ ظˆط§ظ„ظ…طµط±ظˆظپط§طھ", icon: Calculator, path: "/services/costs", status: "ready" },
-  { title: "ط°ظƒط±ظ†ظٹ", subtitle: "طھط°ظƒظٹط±ط§طھ ظˆظ…ظˆط§ط¹ظٹط¯", icon: Bell, path: "/services/reminders", status: "ready" },
-  { title: "ط§ظ„ط³ظپط±", subtitle: "ط±ط­ظ„ط§طھظٹ ط§ظ„ظ‚ط§ط¯ظ…ط©", icon: Plane, path: "/centers/travel", status: "ready" },
-  { title: "ط§ظ„ط¯ط±ط§ط³ط© ظˆط§ظ„ط¥ط¬ط§ط²ط§طھ", subtitle: "ط¬ط¯ظˆظ„ظٹ ط§ظ„ط¯ط±ط§ط³ظٹ ظˆط§ظ„ط¥ط¬ط§ط²ط§طھ", icon: GraduationCap, path: "/centers/study", status: "ready" },
-  { title: "ط§ظ„ظˆط¸ط§ط¦ظپ ظˆط§ظ„ط£ط®ط¨ط§ط±", subtitle: "ظپط±طµ ظˆط¸ظٹظپظٹط© ظˆظ…ط³طھط¬ط¯ط§طھ", icon: Briefcase, path: "/centers/jobs", status: "ready" },
-  { title: "ط¨ط·ط§ظ‚ط© ط§ظ„ظٹظˆظ…", subtitle: "ط´ط§ط±ظƒ ظٹظˆظ…ظƒ ظ…ط¹ ط§ظ„ط¢ط®ط±ظٹظ†", icon: Gift, path: "/daily-card", status: "ready" },
-  { title: "طµظˆطھظƒ ظ…ط³ظ…ظˆط¹", subtitle: "ط´ظƒط§ظˆظ‰ ظˆط§ظ‚طھط±ط§ط­ط§طھ", icon: MessageSquare, path: "/centers/complaints", status: "ready" },
+  { title: "احسب هدفك", subtitle: "حدد هدفك وخطة التوفير", icon: Target, path: "/services/goals", status: "ready" },
+  { title: "حساب التكاليف", subtitle: "قائمة البنود والمصروفات", icon: Calculator, path: "/services/costs", status: "ready" },
+  { title: "ذكرني", subtitle: "تذكيرات ومواعيد", icon: Bell, path: "/services/reminders", status: "ready" },
+  { title: "السفر", subtitle: "رحلاتي القادمة", icon: Plane, path: "/centers/travel", status: "ready" },
+  { title: "الدراسة والإجازات", subtitle: "جدولي الدراسي والإجازات", icon: GraduationCap, path: "/centers/study", status: "ready" },
+  { title: "الوظائف والأخبار", subtitle: "فرص وظيفية ومستجدات", icon: Briefcase, path: "/centers/jobs", status: "ready" },
+  { title: "بطاقة اليوم", subtitle: "شارك يومك مع الآخرين", icon: Gift, path: "/daily-card", status: "ready" },
+  { title: "صوتك مسموع", subtitle: "شكاوى واقتراحات", icon: MessageSquare, path: "/centers/complaints", status: "ready" },
 ];
 
 // Coming Soon badge
@@ -39,24 +38,24 @@ function ComingSoonBadge() {
         color: "white",
       }}
     >
-      ظ‚ط±ظٹط¨ط§ظ‹
+      قريباً
     </span>
   );
 }
 
 export default function CentersPage() {
   return (
-    <AppShell title="ط§ظ„ط®ط¯ظ…ط§طھ">
+    <AppShell title="الخدمات">
       <div className="space-y-6">
         <p className="text-center text-[16px] font-semibold" style={{ color: "#6F6557" }}>
-          ط®ط¯ظ…ط§طھ ظ…ظ†ط¸ظ…ط© طھط³ط§ط¹ط¯ظƒ ظپظٹ ظٹظˆظ…ظƒ
+          خدمات منظمة تساعدك في يومك
         </p>
 
         {/* Section title */}
         <div className="flex items-center gap-3">
           <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, transparent, rgba(201,160,99,0.4))" }} />
           <h2 className="text-[18px] font-bold" style={{ color: "#A78042" }}>
-            ط§ظ„ط®ط¯ظ…ط§طھ ط§ظ„ظ…طھط§ط­ط©
+            الخدمات المتاحة
           </h2>
           <div className="h-px flex-1" style={{ background: "linear-gradient(90deg, rgba(201,160,99,0.4), transparent)" }} />
         </div>
@@ -109,7 +108,7 @@ export default function CentersPage() {
           {/* Ornamental gold divider */}
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="h-px w-10 flex-1" style={{ background: "linear-gradient(90deg, transparent, #C9A063)" }} />
-            <span className="text-lg" style={{ color: "#C9A063" }}>âœ¦</span>
+            <span className="text-lg" style={{ color: "#C9A063" }}>✦</span>
             <div className="h-px w-10 flex-1" style={{ background: "linear-gradient(90deg, #C9A063, transparent)" }} />
           </div>
 
@@ -120,7 +119,7 @@ export default function CentersPage() {
               fontFamily: "'Noto Kufi Arabic', Cairo, sans-serif",
             }}
           >
-            ط§ظ„ظ„ظژظ‘ظ‡ظڈظ…ظژظ‘ طµظژظ„ظگظ‘ ظˆظژط³ظژظ„ظگظ‘ظ…ظ’ ط¹ظژظ„ظژظ‰ ظ†ظژط¨ظگظٹظگظ‘ظ†ظژط§ ظ…ظڈط­ظژظ…ظژظ‘ط¯ ï·؛
+            اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَى نَبِيِّنَا مُحَمَّد ﷺ
           </p>
         </div>
       </div>

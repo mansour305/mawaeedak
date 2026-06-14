@@ -1,5 +1,5 @@
-﻿/**
- * CostsPage â€” Phase 14 P0-4
+/**
+ * CostsPage — Phase 14 P0-4
  * 
  * Cost Projects service: Create, edit, delete cost projects with:
  * - Unlimited items depending on plan limits
@@ -10,7 +10,7 @@
  * 
  * Storage: Local-first with optional Supabase cloud sync when logged in.
  * Schema exists at: supabase/migrations/20250612000002_create_services_tables.sql
- * UI shows "ظ…ط­ظپظˆط¸ ط¹ظ„ظ‰ ظ‡ط°ط§ ط§ظ„ط¬ظ‡ط§ط² ظپظ‚ط·" when not synced.
+ * UI shows "محفوظ على هذا الجهاز فقط" when not synced.
  */
 
 import { useState, useMemo, useEffect } from "react";
@@ -156,7 +156,7 @@ export default function CostsPage() {
   // Handle add project
   const handleAddProject = () => {
     if (!formProjectName.trim()) {
-      toast({ title: "ط®ط·ط£", description: "ط§ظ„ط±ط¬ط§ط، ط¥ط¯ط®ط§ظ„ ط§ط³ظ… ط§ظ„ظ…ط´ط±ظˆط¹", variant: "destructive" });
+      toast({ title: "خطأ", description: "الرجاء إدخال اسم المشروع", variant: "destructive" });
       return;
     }
     
@@ -172,11 +172,11 @@ export default function CostsPage() {
       };
       
       setProjects(prev => [newProject, ...prev]);
-      toast({ title: "طھظ… ط¥ط¶ط§ظپط© ط§ظ„ظ…ط´ط±ظˆط¹" });
+      toast({ title: "تم إضافة المشروع" });
       setIsAddProjectOpen(false);
       resetProjectForm();
     } catch {
-      toast({ title: "ط®ط·ط£", description: "ط­ط¯ط« ط®ط·ط£ ط£ط«ظ†ط§ط، ط§ظ„ط¥ط¶ط§ظپط©", variant: "destructive" });
+      toast({ title: "خطأ", description: "حدث خطأ أثناء الإضافة", variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
@@ -194,10 +194,10 @@ export default function CostsPage() {
           ? { ...p, name: formProjectName.trim(), updatedAt: new Date().toISOString() }
           : p
       ));
-      toast({ title: "طھظ… طھط­ط¯ظٹط« ط§ظ„ظ…ط´ط±ظˆط¹" });
+      toast({ title: "تم تحديث المشروع" });
       setIsEditProjectOpen(false);
     } catch {
-      toast({ title: "ط®ط·ط£", description: "ط­ط¯ط« ط®ط·ط£ ط£ط«ظ†ط§ط، ط§ظ„طھط­ط¯ظٹط«", variant: "destructive" });
+      toast({ title: "خطأ", description: "حدث خطأ أثناء التحديث", variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
@@ -208,7 +208,7 @@ export default function CostsPage() {
     if (!selectedProjectId) return;
     
     setProjects(prev => prev.filter(p => p.id !== selectedProjectId));
-    toast({ title: "طھظ… ط­ط°ظپ ط§ظ„ظ…ط´ط±ظˆط¹" });
+    toast({ title: "تم حذف المشروع" });
     setIsDeleteProjectOpen(false);
     setSelectedProjectId(null);
     setExpandedProject(null);
@@ -223,7 +223,7 @@ export default function CostsPage() {
         ? { ...p, items: [], updatedAt: new Date().toISOString() }
         : p
     ));
-    toast({ title: "طھظ… ظ…ط³ط­ ط¬ظ…ظٹط¹ ط§ظ„ط¨ظ†ظˆط¯" });
+    toast({ title: "تم مسح جميع البنود" });
     setIsClearAllOpen(false);
   };
   
@@ -232,12 +232,12 @@ export default function CostsPage() {
     if (!selectedProjectId) return;
     
     if (!formItemName.trim()) {
-      toast({ title: "ط®ط·ط£", description: "ط§ظ„ط±ط¬ط§ط، ط¥ط¯ط®ط§ظ„ ط§ط³ظ… ط§ظ„ط¨ظ†ط¯", variant: "destructive" });
+      toast({ title: "خطأ", description: "الرجاء إدخال اسم البند", variant: "destructive" });
       return;
     }
     
     if (!formItemAmount) {
-      toast({ title: "ط®ط·ط£", description: "ط§ظ„ط±ط¬ط§ط، ط¥ط¯ط®ط§ظ„ ط§ظ„ظ…ط¨ظ„ط؛", variant: "destructive" });
+      toast({ title: "خطأ", description: "الرجاء إدخال المبلغ", variant: "destructive" });
       return;
     }
     
@@ -266,11 +266,11 @@ export default function CostsPage() {
           ? { ...p, items: [...p.items, newItem], updatedAt: new Date().toISOString() }
           : p
       ));
-      toast({ title: "طھظ… ط¥ط¶ط§ظپط© ط§ظ„ط¨ظ†ط¯" });
+      toast({ title: "تم إضافة البند" });
       setIsAddItemOpen(false);
       resetItemForm();
     } catch {
-      toast({ title: "ط®ط·ط£", description: "ط­ط¯ط« ط®ط·ط£ ط£ط«ظ†ط§ط، ط§ظ„ط¥ط¶ط§ظپط©", variant: "destructive" });
+      toast({ title: "خطأ", description: "حدث خطأ أثناء الإضافة", variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
@@ -281,7 +281,7 @@ export default function CostsPage() {
     if (!selectedProjectId || !selectedItemId) return;
     
     if (!formItemName.trim()) {
-      toast({ title: "ط®ط·ط£", description: "ط§ظ„ط±ط¬ط§ط، ط¥ط¯ط®ط§ظ„ ط§ط³ظ… ط§ظ„ط¨ظ†ط¯", variant: "destructive" });
+      toast({ title: "خطأ", description: "الرجاء إدخال اسم البند", variant: "destructive" });
       return;
     }
     
@@ -315,12 +315,12 @@ export default function CostsPage() {
             }
           : p
       ));
-      toast({ title: "طھظ… طھط­ط¯ظٹط« ط§ظ„ط¨ظ†ط¯" });
+      toast({ title: "تم تحديث البند" });
       setIsEditItemOpen(false);
       setSelectedItemId(null);
       resetItemForm();
     } catch {
-      toast({ title: "ط®ط·ط£", description: "ط­ط¯ط« ط®ط·ط£ ط£ط«ظ†ط§ط، ط§ظ„طھط­ط¯ظٹط«", variant: "destructive" });
+      toast({ title: "خطأ", description: "حدث خطأ أثناء التحديث", variant: "destructive" });
     } finally {
       setIsSaving(false);
     }
@@ -335,7 +335,7 @@ export default function CostsPage() {
         ? { ...p, items: p.items.filter(i => i.id !== selectedItemId), updatedAt: new Date().toISOString() }
         : p
     ));
-    toast({ title: "طھظ… ط­ط°ظپ ط§ظ„ط¨ظ†ط¯" });
+    toast({ title: "تم حذف البند" });
     setIsDeleteItemOpen(false);
     setSelectedItemId(null);
   };
@@ -362,7 +362,7 @@ export default function CostsPage() {
           }
         : p
     ));
-    toast({ title: "طھظ… طھط­ط¯ظٹط« ط­ط§ظ„ط© ط§ظ„ط¨ظ†ط¯" });
+    toast({ title: "تم تحديث حالة البند" });
     setIsPaidConfirmOpen(false);
     setMarkAsPaidItemId(null);
   };
@@ -401,22 +401,22 @@ export default function CostsPage() {
     const paidAmount = formItemPaidAmount.trim() ? Number(formItemPaidAmount) : 0;
 
     if (!Number.isFinite(amount) || amount <= 0) {
-      toast({ title: "ط®ط·ط£", description: "ط§ظ„ظ…ط¨ظ„ط؛ ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ ظٹط¬ط¨ ط£ظ† ظٹظƒظˆظ† ط£ظƒط¨ط± ظ…ظ† طµظپط±", variant: "destructive" });
+      toast({ title: "خطأ", description: "المبلغ الإجمالي يجب أن يكون أكبر من صفر", variant: "destructive" });
       return null;
     }
 
     if (!Number.isFinite(paidAmount) || paidAmount < 0) {
-      toast({ title: "ط®ط·ط£", description: "ط§ظ„ظ…ط¨ظ„ط؛ ط§ظ„ظ…ط¯ظپظˆط¹ ظٹط¬ط¨ ط£ظ† ظٹظƒظˆظ† ط±ظ‚ظ…ط§ظ‹ طµط­ظٹط­ط§ظ‹ ظ„ط§ ظٹظ‚ظ„ ط¹ظ† طµظپط±", variant: "destructive" });
+      toast({ title: "خطأ", description: "المبلغ المدفوع يجب أن يكون رقماً صحيحاً لا يقل عن صفر", variant: "destructive" });
       return null;
     }
 
     if (paidAmount > amount) {
-      toast({ title: "ط®ط·ط£", description: "ط§ظ„ظ…ط¨ظ„ط؛ ط§ظ„ظ…ط¯ظپظˆط¹ ظ„ط§ ظٹظ…ظƒظ† ط£ظ† ظٹطھط¬ط§ظˆط² ط§ظ„ظ…ط¨ظ„ط؛ ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ", variant: "destructive" });
+      toast({ title: "خطأ", description: "المبلغ المدفوع لا يمكن أن يتجاوز المبلغ الإجمالي", variant: "destructive" });
       return null;
     }
 
     if (formItemScheduledDate && Number.isNaN(new Date(`${formItemScheduledDate}T00:00:00`).getTime())) {
-      toast({ title: "ط®ط·ط£", description: "طھط§ط±ظٹط® ط§ظ„ط¬ط¯ظˆظ„ط© ط؛ظٹط± طµط§ظ„ط­", variant: "destructive" });
+      toast({ title: "خطأ", description: "تاريخ الجدولة غير صالح", variant: "destructive" });
       return null;
     }
 
@@ -431,7 +431,7 @@ export default function CostsPage() {
   // Share project (Web Share API)
   const shareProject = async (project: CostProject) => {
     const totals = computeProjectTotals(project);
-    const text = `ظ…ط´ط±ظˆط¹: ${project.name}\nط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ: ${totals.total.toLocaleString()} ط±ظٹط§ظ„\nط§ظ„ظ…ط¯ظپظˆط¹: ${totals.totalPaid.toLocaleString()} ط±ظٹط§ظ„\nط§ظ„ظ…طھط¨ظ‚ظٹ: ${totals.totalRemaining.toLocaleString()} ط±ظٹط§ظ„`;
+    const text = `مشروع: ${project.name}\nالإجمالي: ${totals.total.toLocaleString()} ريال\nالمدفوع: ${totals.totalPaid.toLocaleString()} ريال\nالمتبقي: ${totals.totalRemaining.toLocaleString()} ريال`;
     
     if (navigator.share) {
       try {
@@ -442,17 +442,17 @@ export default function CostsPage() {
     } else {
       // Fallback: copy to clipboard
       await navigator.clipboard.writeText(text);
-      toast({ title: "طھظ… ظ†ط³ط® ط§ظ„ظ…ظ„ط®طµ" });
+      toast({ title: "تم نسخ الملخص" });
     }
   };
   
   return (
-    <AppShell title="ط­ط³ط§ط¨ ط§ظ„طھظƒط§ظ„ظٹظپ" showBack>
+    <AppShell title="حساب التكاليف" showBack>
       <div className="space-y-5 pb-6">
         
         {/* Local-only notice */}
         <div className="rounded-xl border border-amber-200 bg-amber-50/50 px-4 py-2 text-xs" style={{ color: "#92400e" }}>
-          <span className="font-semibold">ًں’¾ ظ…ظ„ط§ط­ط¸ط©:</span> ظ…ط­ظپظˆط¸ ط¹ظ„ظ‰ ظ‡ط°ط§ ط§ظ„ط¬ظ‡ط§ط² ظپظ‚ط·. ط§ظ„ظ…ط²ط§ظ…ظ†ط© ظ…ط¹ ط§ظ„ط³ط­ط§ط¨ط© ظ‚ط§ط¯ظ…ط© ظ‚ط±ظٹط¨ط§ظ‹.
+          <span className="font-semibold">💾 ملاحظة:</span> محفوظ على هذا الجهاز فقط. المزامنة مع السحابة قادمة قريباً.
         </div>
         
         {/* Add Project Button */}
@@ -463,20 +463,20 @@ export default function CostsPage() {
                 background: "linear-gradient(135deg, hsl(36 72% 52%), hsl(28 68% 38%))",
               }}>
                 <Plus className="w-5 h-5 ml-2" />
-                ظ…ط´ط±ظˆط¹ ط¬ط¯ظٹط¯
+                مشروع جديد
               </Button>
             </DialogTrigger>
             <DialogContent className="rtl max-w-[400px] rounded-xl">
               <DialogHeader>
-                <DialogTitle>ط¥ط¶ط§ظپط© ظ…ط´ط±ظˆط¹ ط¬ط¯ظٹط¯</DialogTitle>
+                <DialogTitle>إضافة مشروع جديد</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label>ط§ط³ظ… ط§ظ„ظ…ط´ط±ظˆط¹ *</Label>
+                  <Label>اسم المشروع *</Label>
                   <Input 
                     value={formProjectName} 
                     onChange={e => setFormProjectName(e.target.value)} 
-                    placeholder="ظ…ط«ط§ظ„: طھط¬ط¯ظٹط¯ ط§ظ„ظ…ظ†ط²ظ„"
+                    placeholder="مثال: تجديد المنزل"
                   />
                 </div>
                 <Button 
@@ -484,7 +484,7 @@ export default function CostsPage() {
                   onClick={handleAddProject}
                   disabled={isSaving}
                 >
-                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "ط­ظپط¸ ط§ظ„ظ…ط´ط±ظˆط¹"}
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "حفظ المشروع"}
                 </Button>
               </div>
             </DialogContent>
@@ -499,16 +499,16 @@ export default function CostsPage() {
         ) : isError ? (
           <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center">
             <AlertCircle className="w-10 h-10 mx-auto mb-3 text-red-500" />
-            <p className="font-bold text-red-600">طھط¹ط°ظ‘ط± طھط­ظ…ظٹظ„ ط§ظ„ظ…ط´ط§ط±ظٹط¹</p>
+            <p className="font-bold text-red-600">تعذّر تحميل المشاريع</p>
           </div>
         ) : projects.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-[#C9A063]/40 bg-[#FAF7F2] p-8 text-center">
             <Calculator className="w-12 h-12 mx-auto mb-4 opacity-40" style={{ color: "#C9A063" }} />
             <h3 className="text-lg font-extrabold mb-2" style={{ color: "#2F2B25" }}>
-              ظ„ط§ طھظˆط¬ط¯ ظ…ط´ط§ط±ظٹط¹
+              لا توجد مشاريع
             </h3>
             <p className="text-sm font-medium" style={{ color: "#6F6557" }}>
-              ط§ط¨ط¯ط£ ط¨ط¥ط¶ط§ظپط© ظ…ط´ط±ظˆط¹ ط¬ط¯ظٹط¯ ظ„طھطھط¨ط¹ طھظƒط§ظ„ظٹظپظƒ
+              ابدأ بإضافة مشروع جديد لتتبع تكاليفك
             </p>
           </div>
         ) : (
@@ -544,7 +544,7 @@ export default function CostsPage() {
                             {project.name}
                           </h3>
                           <span className="text-xs font-medium" style={{ color: "#6F6557" }}>
-                            {project.items.length} ط¨ظ†ط¯
+                            {project.items.length} بند
                           </span>
                         </div>
                       </div>
@@ -554,7 +554,7 @@ export default function CostsPage() {
                           <p className="text-lg font-extrabold" style={{ color: "#8A6B3D" }}>
                             {totals.totalRemaining.toLocaleString()}
                           </p>
-                          <p className="text-xs" style={{ color: "#6F6557" }}>ط±ظٹط§ظ„ ظ…طھط¨ظ‚ظٹ</p>
+                          <p className="text-xs" style={{ color: "#6F6557" }}>ريال متبقي</p>
                         </div>
                         {isExpanded ? (
                           <ChevronUp className="w-5 h-5" style={{ color: "#6F6557" }} />
@@ -573,8 +573,8 @@ export default function CostsPage() {
                         } as React.CSSProperties}
                       />
                       <div className="flex justify-between text-xs mt-1" style={{ color: "#6F6557" }}>
-                        <span>ط§ظ„ظ…ط¯ظپظˆط¹: {totals.totalPaid.toLocaleString()} ط±ظٹط§ظ„</span>
-                        <span>ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ: {totals.total.toLocaleString()} ط±ظٹط§ظ„</span>
+                        <span>المدفوع: {totals.totalPaid.toLocaleString()} ريال</span>
+                        <span>الإجمالي: {totals.total.toLocaleString()} ريال</span>
                       </div>
                     </div>
                   </div>
@@ -590,7 +590,7 @@ export default function CostsPage() {
                           onClick={() => openAddItem(project.id)}
                         >
                           <Plus className="w-3 h-3 ml-1" />
-                          ط¥ط¶ط§ظپط© ط¨ظ†ط¯
+                          إضافة بند
                         </Button>
                         <Button
                           variant="outline"
@@ -599,7 +599,7 @@ export default function CostsPage() {
                           onClick={() => shareProject(project)}
                         >
                           <Share2 className="w-3 h-3 ml-1" />
-                          ظ…ط´ط§ط±ظƒط©
+                          مشاركة
                         </Button>
                         <Button
                           variant="outline"
@@ -623,7 +623,7 @@ export default function CostsPage() {
                       {project.items.length === 0 ? (
                         <div className="p-6 text-center">
                           <p className="text-sm" style={{ color: "#6F6557" }}>
-                            ظ„ط§ طھظˆط¬ط¯ ط¨ظ†ظˆط¯. ط£ط¶ظپ ط¨ظ†ط¯ط§ظ‹ ط¬ط¯ظٹط¯ط§ظ‹.
+                            لا توجد بنود. أضف بنداً جديداً.
                           </p>
                         </div>
                       ) : (
@@ -642,11 +642,11 @@ export default function CostsPage() {
                                       color: item.status === "fully_paid" ? "hsl(142 60% 40%)" : "hsl(36 72% 40%)",
                                     }}
                                   >
-                                    {item.status === "fully_paid" ? "ظ…ط¯ظپظˆط¹" : item.status === "partial" ? "ط¬ط²ط¦ظٹ" : "ظ…ط¬ط¯ظˆظ„"}
+                                    {item.status === "fully_paid" ? "مدفوع" : item.status === "partial" ? "جزئي" : "مجدول"}
                                   </span>
                                 </div>
                                 <p className="text-xs" style={{ color: "#6F6557" }}>
-                                  {item.amount.toLocaleString()} ط±ظٹط§ظ„ â€¢ ظ…ط¯ظپظˆط¹: {item.paidAmount.toLocaleString()}
+                                  {item.amount.toLocaleString()} ريال • مدفوع: {item.paidAmount.toLocaleString()}
                                 </p>
                                 {item.scheduledDate && (
                                   <p className="text-xs" style={{ color: "#6F6557" }}>
@@ -665,7 +665,7 @@ export default function CostsPage() {
                                     onClick={() => { setSelectedProjectId(project.id); setMarkAsPaidItemId(item.id); setIsPaidConfirmOpen(true); }}
                                   >
                                     <Check className="w-3 h-3 ml-1" />
-                                    ط¯ظپط¹
+                                    دفع
                                   </Button>
                                 )}
                                 <Button
@@ -700,7 +700,7 @@ export default function CostsPage() {
                             onClick={() => { setSelectedProjectId(project.id); setIsClearAllOpen(true); }}
                           >
                             <Trash2 className="w-3 h-3 ml-1" />
-                            ظ…ط³ط­ ط¬ظ…ظٹط¹ ط§ظ„ط¨ظ†ظˆط¯
+                            مسح جميع البنود
                           </Button>
                         </div>
                       )}
@@ -716,15 +716,15 @@ export default function CostsPage() {
         <Dialog open={isEditProjectOpen} onOpenChange={setIsEditProjectOpen}>
           <DialogContent className="rtl max-w-[400px] rounded-xl">
             <DialogHeader>
-              <DialogTitle>طھط¹ط¯ظٹظ„ ط§ظ„ظ…ط´ط±ظˆط¹</DialogTitle>
+              <DialogTitle>تعديل المشروع</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label>ط§ط³ظ… ط§ظ„ظ…ط´ط±ظˆط¹ *</Label>
+                <Label>اسم المشروع *</Label>
                 <Input value={formProjectName} onChange={e => setFormProjectName(e.target.value)} />
               </div>
               <Button className="w-full h-11 font-bold" onClick={handleEditProject} disabled={isSaving}>
-                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "ط­ظپط¸ ط§ظ„طھط¹ط¯ظٹظ„ط§طھ"}
+                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "حفظ التعديلات"}
               </Button>
             </div>
           </DialogContent>
@@ -734,31 +734,31 @@ export default function CostsPage() {
         <Dialog open={isAddItemOpen} onOpenChange={setIsAddItemOpen}>
           <DialogContent className="rtl max-w-[400px] rounded-xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>ط¥ط¶ط§ظپط© ط¨ظ†ط¯ ط¬ط¯ظٹط¯</DialogTitle>
+              <DialogTitle>إضافة بند جديد</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label>ط§ط³ظ… ط§ظ„ط¨ظ†ط¯ *</Label>
-                <Input value={formItemName} onChange={e => setFormItemName(e.target.value)} placeholder="ظ…ط«ط§ظ„: ط£ط«ط§ط«" />
+                <Label>اسم البند *</Label>
+                <Input value={formItemName} onChange={e => setFormItemName(e.target.value)} placeholder="مثال: أثاث" />
               </div>
               <div className="space-y-2">
-                <Label>ط§ظ„ظ…ط¨ظ„ط؛ ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ *</Label>
+                <Label>المبلغ الإجمالي *</Label>
                 <Input type="number" value={formItemAmount} onChange={e => setFormItemAmount(e.target.value)} placeholder="10000" />
               </div>
               <div className="space-y-2">
-                <Label>ط§ظ„ظ…ط¨ظ„ط؛ ط§ظ„ظ…ط¯ظپظˆط¹</Label>
+                <Label>المبلغ المدفوع</Label>
                 <Input type="number" value={formItemPaidAmount} onChange={e => setFormItemPaidAmount(e.target.value)} placeholder="0" />
               </div>
               <div className="space-y-2">
-                <Label>طھط§ط±ظٹط® ظ…ط¬ط¯ظˆظ„ (ط§ط®طھظٹط§ط±ظٹ)</Label>
+                <Label>تاريخ مجدول (اختياري)</Label>
                 <Input type="date" value={formItemScheduledDate} onChange={e => setFormItemScheduledDate(e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>ظ…ظ„ط§ط­ط¸ط§طھ</Label>
+                <Label>ملاحظات</Label>
                 <Textarea value={formItemNotes} onChange={e => setFormItemNotes(e.target.value)} rows={2} />
               </div>
               <Button className="w-full h-11 font-bold" onClick={handleAddItem} disabled={isSaving}>
-                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "ط¥ط¶ط§ظپط© ط§ظ„ط¨ظ†ط¯"}
+                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "إضافة البند"}
               </Button>
             </div>
           </DialogContent>
@@ -768,31 +768,31 @@ export default function CostsPage() {
         <Dialog open={isEditItemOpen} onOpenChange={setIsEditItemOpen}>
           <DialogContent className="rtl max-w-[400px] rounded-xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>طھط¹ط¯ظٹظ„ ط§ظ„ط¨ظ†ط¯</DialogTitle>
+              <DialogTitle>تعديل البند</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label>ط§ط³ظ… ط§ظ„ط¨ظ†ط¯ *</Label>
+                <Label>اسم البند *</Label>
                 <Input value={formItemName} onChange={e => setFormItemName(e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>ط§ظ„ظ…ط¨ظ„ط؛ ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ *</Label>
+                <Label>المبلغ الإجمالي *</Label>
                 <Input type="number" value={formItemAmount} onChange={e => setFormItemAmount(e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>ط§ظ„ظ…ط¨ظ„ط؛ ط§ظ„ظ…ط¯ظپظˆط¹</Label>
+                <Label>المبلغ المدفوع</Label>
                 <Input type="number" value={formItemPaidAmount} onChange={e => setFormItemPaidAmount(e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>طھط§ط±ظٹط® ظ…ط¬ط¯ظˆظ„</Label>
+                <Label>تاريخ مجدول</Label>
                 <Input type="date" value={formItemScheduledDate} onChange={e => setFormItemScheduledDate(e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>ظ…ظ„ط§ط­ط¸ط§طھ</Label>
+                <Label>ملاحظات</Label>
                 <Textarea value={formItemNotes} onChange={e => setFormItemNotes(e.target.value)} rows={2} />
               </div>
               <Button className="w-full h-11 font-bold" onClick={handleEditItem} disabled={isSaving}>
-                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "ط­ظپط¸ ط§ظ„طھط¹ط¯ظٹظ„ط§طھ"}
+                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : "حفظ التعديلات"}
               </Button>
             </div>
           </DialogContent>
@@ -802,9 +802,9 @@ export default function CostsPage() {
         <ConfirmDialog
           open={isDeleteProjectOpen}
           onOpenChange={setIsDeleteProjectOpen}
-          title="ط­ط°ظپ ط§ظ„ظ…ط´ط±ظˆط¹"
-          description="ظ‡ظ„ ط£ظ†طھ ظ…طھط£ظƒط¯ ظ…ظ† ط­ط°ظپ ظ‡ط°ط§ ط§ظ„ظ…ط´ط±ظˆط¹ ظˆط¬ظ…ظٹط¹ ط§ظ„ط¨ظ†ظˆط¯طں"
-          confirmText="ط­ط°ظپ"
+          title="حذف المشروع"
+          description="هل أنت متأكد من حذف هذا المشروع وجميع البنود؟"
+          confirmText="حذف"
           onConfirm={handleDeleteProject}
           destructive
         />
@@ -812,9 +812,9 @@ export default function CostsPage() {
         <ConfirmDialog
           open={isDeleteItemOpen}
           onOpenChange={setIsDeleteItemOpen}
-          title="ط­ط°ظپ ط§ظ„ط¨ظ†ط¯"
-          description="ظ‡ظ„ ط£ظ†طھ ظ…طھط£ظƒط¯ ظ…ظ† ط­ط°ظپ ظ‡ط°ط§ ط§ظ„ط¨ظ†ط¯طں"
-          confirmText="ط­ط°ظپ"
+          title="حذف البند"
+          description="هل أنت متأكد من حذف هذا البند؟"
+          confirmText="حذف"
           onConfirm={handleDeleteItem}
           destructive
         />
@@ -822,9 +822,9 @@ export default function CostsPage() {
         <ConfirmDialog
           open={isClearAllOpen}
           onOpenChange={setIsClearAllOpen}
-          title="ظ…ط³ط­ ط¬ظ…ظٹط¹ ط§ظ„ط¨ظ†ظˆط¯"
-          description="ظ‡ظ„ ط£ظ†طھ ظ…طھط£ظƒط¯ ظ…ظ† ظ…ط³ط­ ط¬ظ…ظٹط¹ ط§ظ„ط¨ظ†ظˆط¯ ظپظٹ ظ‡ط°ط§ ط§ظ„ظ…ط´ط±ظˆط¹طں"
-          confirmText="ظ…ط³ط­ ط§ظ„ظƒظ„"
+          title="مسح جميع البنود"
+          description="هل أنت متأكد من مسح جميع البنود في هذا المشروع؟"
+          confirmText="مسح الكل"
           onConfirm={handleClearAllItems}
           destructive
         />
@@ -832,11 +832,11 @@ export default function CostsPage() {
         <Dialog open={isPaidConfirmOpen} onOpenChange={setIsPaidConfirmOpen}>
           <DialogContent className="rtl max-w-[350px] rounded-xl">
             <DialogHeader>
-              <DialogTitle>طھط£ظƒظٹط¯ ط§ظ„ط¯ظپط¹</DialogTitle>
+              <DialogTitle>تأكيد الدفع</DialogTitle>
             </DialogHeader>
             <div className="space-y-3 py-4">
               <p className="text-sm" style={{ color: "#6F6557" }}>
-                ظƒظٹظپ طھط±ظٹط¯ طھط³ط¬ظٹظ„ ط§ظ„ط¯ظپط¹طں
+                كيف تريد تسجيل الدفع؟
               </p>
               <div className="space-y-2">
                 <Button
@@ -844,14 +844,14 @@ export default function CostsPage() {
                   onClick={() => handleMarkAsPaid(true)}
                 >
                   <Coins className="w-4 h-4 ml-2" />
-                  ط¯ظپط¹ظ„ ط§ظ„ظ…ط¨ظ„ط؛ ط§ظ„ظƒط§ظ…ظ„
+                  دفعل المبلغ الكامل
                 </Button>
                 <Button
                   variant="outline"
                   className="w-full h-11"
                   onClick={() => handleMarkAsPaid(false)}
                 >
-                  ط®طµظ… ط§ظ„ظ…طھط¨ظ‚ظٹ ظ…ظ† ط§ظ„ظ…ط¬ظ…ظˆط¹
+                  خصم المتبقي من المجموع
                 </Button>
               </div>
             </div>

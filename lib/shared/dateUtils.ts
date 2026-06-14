@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Date Utilities
  * Shared between Web and Mobile
  */
@@ -7,22 +7,22 @@
  * Format date for Arabic display
  */
 export function formatGregorianDate(date: Date = new Date()): string {
-  const days = ['ط§ظ„ط£ط­ط¯', 'ط§ظ„ط¥ط«ظ†ظٹظ†', 'ط§ظ„ط«ظ„ط§ط«ط§ط،', 'ط§ظ„ط£ط±ط¨ط¹ط§ط،', 'ط§ظ„ط®ظ…ظٹط³', 'ط§ظ„ط¬ظ…ط¹ط©', 'ط§ظ„ط³ط¨طھ'];
-  const months = ['ظٹظ†ط§ظٹط±', 'ظپط¨ط±ط§ظٹط±', 'ظ…ط§ط±ط³', 'ط£ط¨ط±ظٹظ„', 'ظ…ط§ظٹظˆ', 'ظٹظˆظ†ظٹظˆ', 'ظٹظˆظ„ظٹظˆ', 'ط£ط؛ط³ط·ط³', 'ط³ط¨طھظ…ط¨ط±', 'ط£ظƒطھظˆط¨ط±', 'ظ†ظˆظپظ…ط¨ط±', 'ط¯ظٹط³ظ…ط¨ط±'];
+  const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+  const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
   
   const dayName = days[date.getDay()];
   const day = date.getDate();
   const month = months[date.getMonth()];
   const year = date.getFullYear();
   
-  return `${dayName}طŒ ${day} ${month} ${year}`;
+  return `${dayName}، ${day} ${month} ${year}`;
 }
 
 /**
  * Get Arabic day name
  */
 export function getDayName(date: Date = new Date()): string {
-  const days = ['ط§ظ„ط£ط­ط¯', 'ط§ظ„ط¥ط«ظ†ظٹظ†', 'ط§ظ„ط«ظ„ط§ط«ط§ط،', 'ط§ظ„ط£ط±ط¨ط¹ط§ط،', 'ط§ظ„ط®ظ…ظٹط³', 'ط§ظ„ط¬ظ…ط¹ط©', 'ط§ظ„ط³ط¨طھ'];
+  const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
   return days[date.getDay()];
 }
 
@@ -31,7 +31,7 @@ export function getDayName(date: Date = new Date()): string {
  */
 export function formatHijriDate(date: Date = new Date()): string {
   // This is a simplified version - in production would use a proper Hijri library
-  const hijriMonths = ['ظ…ط­ط±ظ…', 'طµظپط±', 'ط±ط¨ظٹط¹ ط§ظ„ط£ظˆظ„', 'ط±ط¨ظٹط¹ ط§ظ„ط«ط§ظ†ظٹ', 'ط¬ظ…ط§ط¯ظ‰ ط§ظ„ط£ظˆظ„ظ‰', 'ط¬ظ…ط§ط¯ظ‰ ط§ظ„ط¢ط®ط±ط©', 'ط±ط¬ط¨', 'ط´ط¹ط¨ط§ظ†', 'ط±ظ…ط¶ط§ظ†', 'ط´ظˆط§ظ„', 'ط°ظˆ ط§ظ„ظ‚ط¹ط¯ط©', 'ط°ظˆ ط§ظ„ط­ط¬ط©'];
+  const hijriMonths = ['محرم', 'صفر', 'ربيع الأول', 'ربيع الثاني', 'جمادى الأولى', 'جمادى الآخرة', 'رجب', 'شعبان', 'رمضان', 'شوال', 'ذو القعدة', 'ذو الحجة'];
   
   // Simplified calculation - for display purposes
   const day = date.getDate();
@@ -46,9 +46,9 @@ export function formatHijriDate(date: Date = new Date()): string {
  */
 export function getGreeting(): string {
   const hour = new Date().getHours();
-  if (hour < 12) return 'طµط¨ط§ط­ ط§ظ„ط®ظٹط±';
-  if (hour < 17) return 'ظ…ط³ط§ط، ط§ظ„ط®ظٹط±';
-  return 'ظ…ط³ط§ط، ط§ظ„ط®ظٹط±';
+  if (hour < 12) return 'صباح الخير';
+  if (hour < 17) return 'مساء الخير';
+  return 'مساء الخير';
 }
 
 /**
@@ -67,11 +67,11 @@ export function getDaysRemaining(targetDate: string | Date): number {
  * Format countdown string
  */
 export function formatCountdown(days: number): string {
-  if (days === 0) return 'ط§ظ„ظٹظˆظ…';
-  if (days === 1) return 'ط؛ط¯ط§ظ‹';
-  if (days < 7) return `${days} ط£ظٹط§ظ…`;
-  if (days < 30) return `${Math.floor(days / 7)} ط£ط³ط§ط¨ظٹط¹`;
-  return `${Math.floor(days / 30)} ط´ظ‡ط±`;
+  if (days === 0) return 'اليوم';
+  if (days === 1) return 'غداً';
+  if (days < 7) return `${days} أيام`;
+  if (days < 30) return `${Math.floor(days / 7)} أسابيع`;
+  return `${Math.floor(days / 30)} شهر`;
 }
 
 /**
@@ -79,7 +79,7 @@ export function formatCountdown(days: number): string {
  */
 export function formatTime(time24: string): string {
   const [hours, minutes] = time24.split(':').map(Number);
-  const period = hours >= 12 ? 'ظ…' : 'طµ';
+  const period = hours >= 12 ? 'م' : 'ص';
   const hour12 = hours % 12 || 12;
   return `${hour12}:${minutes.toString().padStart(2, '0')} ${period}`;
 }

@@ -1,4 +1,4 @@
-﻿import { Router } from "express";
+import { Router } from "express";
 import { requireAdmin } from "../middlewares/requireAdmin";
 import { db } from "@workspace/db";
 import { notificationsTable, auditLogsTable } from "@workspace/db";
@@ -37,20 +37,20 @@ router.post("/notifications", requireAdmin, async (req, res) => {
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [row] = await db.insert(notificationsTable).values({ ...parsed.data, is_read: false }).returning();
-  await logAudit(actorId, "create", "notification", row.id, row.title, `ط¥ط±ط³ط§ظ„ ط¥ط´ط¹ط§ط±: ${row.title}`);
+  await logAudit(actorId, "create", "notification", row.id, row.title, `إرسال إشعار: ${row.title}`);
   return res.status(201).json(row);
 });
 
 router.patch("/notifications/:id/read", requireAdmin, async (req, res) => {
   const id = parseInt(req.params.id as string);
   const [row] = await db.update(notificationsTable).set({ is_read: true }).where(eq(notificationsTable.id, id)).returning();
-  if (!row) return res.status(404).json({ error: "ط؛ظٹط± ظ…ظˆط¬ظˆط¯" });
+  if (!row) return res.status(404).json({ error: "غير موجود" });
   return res.json(row);
 });
 
 router.patch("/notifications/read-all", requireAdmin, async (req, res) => {
   await db.update(notificationsTable).set({ is_read: true });
-  return res.json({ success: true, message: "طھظ… طھط­ط¯ظٹط¯ ط§ظ„ظƒظ„ ظƒظ…ظ‚ط±ظˆط،" });
+  return res.json({ success: true, message: "تم تحديد الكل كمقروء" });
 });
 
 router.delete("/notifications/:id", requireAdmin, async (req, res) => {
@@ -58,8 +58,8 @@ router.delete("/notifications/:id", requireAdmin, async (req, res) => {
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [row] = await db.delete(notificationsTable).where(eq(notificationsTable.id, id)).returning();
-  if (!row) return res.status(404).json({ error: "ط؛ظٹط± ظ…ظˆط¬ظˆط¯" });
-  await logAudit(actorId, "delete", "notification", row.id, row.title, `ط­ط°ظپ ط¥ط´ط¹ط§ط±: ${row.title}`);
+  if (!row) return res.status(404).json({ error: "غير موجود" });
+  await logAudit(actorId, "delete", "notification", row.id, row.title, `حذف إشعار: ${row.title}`);
   return res.status(204).send();
 });
 

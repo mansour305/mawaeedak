@@ -26,15 +26,15 @@ const SCHOOL_TERMS = [
 ];
 
 const typeColor: Record<string, string> = {
-  وطني: "bg-green-500/10 text-green-600 border-green-500/20",
-  ديني: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
-  دراسي: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+  "وطني": "bg-green-500/10 text-green-600 border-green-500/20",
+  "ديني": "bg-emerald-500/10 text-emerald-600 border-emerald-500/20",
+  "دراسي": "bg-blue-500/10 text-blue-600 border-blue-500/20",
 };
 
 const borderColor: Record<string, string> = {
-  وطني: "border-r-green-500",
-  ديني: "border-r-emerald-500",
-  دراسي: "border-r-blue-500",
+  "وطني": "border-r-green-500",
+  "ديني": "border-r-emerald-500",
+  "دراسي": "border-r-blue-500",
 };
 
 function daysUntil(dateStr: string): number {

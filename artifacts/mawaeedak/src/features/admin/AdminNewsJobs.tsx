@@ -1,19 +1,19 @@
-﻿/**
- * AdminNewsJobs â€” Phase 12L
+/**
+ * AdminNewsJobs — Phase 12L
  *
- * Read:   useGatewayNews / useGatewayJobs â†’ API (mode=api/shadow) | Supabase (mode=supabase)
+ * Read:   useGatewayNews / useGatewayJobs → API (mode=api/shadow) | Supabase (mode=supabase)
  * Write:  gwCreate/Update/Delete News/Job
- *           mode=api/shadow â†’ POST/PATCH/DELETE /api/news | /api/jobs
- *           mode=supabase   â†’ Supabase INSERT/UPDATE/DELETE
- *           ظ„ط§ fallback طµط§ظ…طھ â€” ظƒظ„ ظپط´ظ„ ظٹظڈط¹ط±ط¶ toast ظˆط§ط¶ط­
+ *           mode=api/shadow → POST/PATCH/DELETE /api/news | /api/jobs
+ *           mode=supabase   → Supabase INSERT/UPDATE/DELETE
+ *           لا fallback صامت — كل فشل يُعرض toast واضح
  *
- * Invalidation ط¨ط¹ط¯ ظƒظ„ write:
- *   - gwQueryKeys.news / gwQueryKeys.jobs â†’ ظٹظڈط¹ظٹط¯ ط¬ظ„ط¨ Gateway cache
- *   - getListNewsQueryKey / getListJobsQueryKey â†’ Orval compat
+ * Invalidation بعد كل write:
+ *   - gwQueryKeys.news / gwQueryKeys.jobs → يُعيد جلب Gateway cache
+ *   - getListNewsQueryKey / getListJobsQueryKey → Orval compat
  *
  * IDs:
- *   - news.id = integer ظ…ط¨ط§ط´ط± (row.id ظپظٹ Supabase = ظ†ظپط³ API id)
- *   - jobs.id = integer ظ…ط¨ط§ط´ط± (ظ†ظپط³ ط§ظ„ط£ظ…ط±)
+ *   - news.id = integer مباشر (row.id في Supabase = نفس API id)
+ *   - jobs.id = integer مباشر (نفس الأمر)
  */
 
 import { useState } from "react";
@@ -69,19 +69,19 @@ export default function AdminNewsJobs() {
   // News Form
   const [newsTitle, setNewsTitle] = useState("");
   const [newsBody, setNewsBody] = useState("");
-  const [newsCat, setNewsCat] = useState("ط¹ط§ظ…");
+  const [newsCat, setNewsCat] = useState("عام");
   const [newsSource, setNewsSource] = useState("");
   const [newsActive, setNewsActive] = useState(true);
 
   // Job Form
   const [jobTitle, setJobTitle] = useState("");
   const [jobEmployer, setJobEmployer] = useState("");
-  const [jobSector, setJobSector] = useState("ط®ط§طµ");
-  const [jobCity, setJobCity] = useState("ط§ظ„ط±ظٹط§ط¶");
+  const [jobSector, setJobSector] = useState("خاص");
+  const [jobCity, setJobCity] = useState("الرياض");
   const [jobUrl, setJobUrl] = useState("");
   const [jobActive, setJobActive] = useState(true);
 
-  // Invalidation ط¨ط¹ط¯ ظƒظ„ write
+  // Invalidation بعد كل write
   const invalidateNews = () => {
     queryClient.invalidateQueries({ queryKey: gwQueryKeys.news });
     queryClient.invalidateQueries({ queryKey: getListNewsQueryKey() });
@@ -95,7 +95,7 @@ export default function AdminNewsJobs() {
 
   const openNewsAdd = () => {
     setIsEdit(false); setEditId(null);
-    setNewsTitle(""); setNewsBody(""); setNewsCat("ط¹ط§ظ…"); setNewsSource(""); setNewsActive(true);
+    setNewsTitle(""); setNewsBody(""); setNewsCat("عام"); setNewsSource(""); setNewsActive(true);
     setIsNewsOpen(true);
   };
 
@@ -108,7 +108,7 @@ export default function AdminNewsJobs() {
 
   const openJobAdd = () => {
     setIsEdit(false); setEditId(null);
-    setJobTitle(""); setJobEmployer(""); setJobSector("ط®ط§طµ"); setJobCity("ط§ظ„ط±ظٹط§ط¶");
+    setJobTitle(""); setJobEmployer(""); setJobSector("خاص"); setJobCity("الرياض");
     setJobUrl(""); setJobActive(true);
     setIsJobOpen(true);
   };
@@ -135,11 +135,11 @@ export default function AdminNewsJobs() {
         ? await gwUpdateNews(editId, payload)
         : await gwCreateNews(payload);
       if (result.success) {
-        toast({ title: isEdit ? "طھظ… ط§ظ„طھط¹ط¯ظٹظ„" : "طھظ…طھ ط§ظ„ط¥ط¶ط§ظپط©" });
+        toast({ title: isEdit ? "تم التعديل" : "تمت الإضافة" });
         setIsNewsOpen(false);
         invalidateNews();
       } else {
-        toast({ title: "ط®ط·ط£", description: result.error ?? "ظپط´ظ„طھ ط§ظ„ط¹ظ…ظ„ظٹط©", variant: "destructive" });
+        toast({ title: "خطأ", description: result.error ?? "فشلت العملية", variant: "destructive" });
       }
     } finally {
       setNewsPending(false);
@@ -162,11 +162,11 @@ export default function AdminNewsJobs() {
         ? await gwUpdateJob(editId, payload)
         : await gwCreateJob(payload);
       if (result.success) {
-        toast({ title: isEdit ? "طھظ… ط§ظ„طھط¹ط¯ظٹظ„" : "طھظ…طھ ط§ظ„ط¥ط¶ط§ظپط©" });
+        toast({ title: isEdit ? "تم التعديل" : "تمت الإضافة" });
         setIsJobOpen(false);
         invalidateJobs();
       } else {
-        toast({ title: "ط®ط·ط£", description: result.error ?? "ظپط´ظ„طھ ط§ظ„ط¹ظ…ظ„ظٹط©", variant: "destructive" });
+        toast({ title: "خطأ", description: result.error ?? "فشلت العملية", variant: "destructive" });
       }
     } finally {
       setJobPending(false);
@@ -181,12 +181,12 @@ export default function AdminNewsJobs() {
         ? await gwDeleteNews(deleteId)
         : await gwDeleteJob(deleteId);
       if (result.success) {
-        toast({ title: "طھظ… ط§ظ„ط­ط°ظپ" });
+        toast({ title: "تم الحذف" });
         setIsDeleteOpen(false);
         if (deleteType === "news") invalidateNews();
         else invalidateJobs();
       } else {
-        toast({ title: "ط®ط·ط£ ظپظٹ ط§ظ„ط­ط°ظپ", description: result.error ?? "ظپط´ظ„ ط§ظ„ط­ط°ظپ", variant: "destructive" });
+        toast({ title: "خطأ في الحذف", description: result.error ?? "فشل الحذف", variant: "destructive" });
         setIsDeleteOpen(false);
       }
     } finally {
@@ -203,19 +203,19 @@ export default function AdminNewsJobs() {
           style={{ background: "linear-gradient(180deg, hsl(38 62% 52%), hsl(32 55% 42%))" }}
         />
         <h1 className="text-2xl font-extrabold" style={{ color: "hsl(22 62% 18%)" }}>
-          ط§ظ„ط£ط®ط¨ط§ط± ظˆط§ظ„ظˆط¸ط§ط¦ظپ
+          الأخبار والوظائف
         </h1>
       </div>
 
       <Tabs defaultValue="news" className="space-y-4">
         <TabsList className="w-full grid grid-cols-2">
-          <TabsTrigger value="news">ط§ظ„ط£ط®ط¨ط§ط±</TabsTrigger>
-          <TabsTrigger value="jobs">ط§ظ„ظˆط¸ط§ط¦ظپ</TabsTrigger>
+          <TabsTrigger value="news">الأخبار</TabsTrigger>
+          <TabsTrigger value="jobs">الوظائف</TabsTrigger>
         </TabsList>
 
         <TabsContent value="news" className="space-y-4">
           <div className="flex justify-end">
-            <Button onClick={openNewsAdd} size="sm"><Plus className="w-4 h-4 ml-1" /> ط¥ط¶ط§ظپط© ط®ط¨ط±</Button>
+            <Button onClick={openNewsAdd} size="sm"><Plus className="w-4 h-4 ml-1" /> إضافة خبر</Button>
           </div>
           {newsLoading
             ? <div className="flex justify-center p-4"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
@@ -226,7 +226,7 @@ export default function AdminNewsJobs() {
                     <h4 className="font-bold flex items-center gap-2">
                       <Newspaper className="w-4 h-4 text-primary" /> {item.title}
                     </h4>
-                    <div className="text-xs text-muted-foreground mt-1">{item.category} â€¢ {item.source}</div>
+                    <div className="text-xs text-muted-foreground mt-1">{item.category} • {item.source}</div>
                   </div>
                   <div className="flex gap-1 shrink-0">
                     <Button variant="ghost" size="icon" onClick={() => openNewsEdit(item)}><Edit2 className="w-4 h-4 text-primary" /></Button>
@@ -241,7 +241,7 @@ export default function AdminNewsJobs() {
 
         <TabsContent value="jobs" className="space-y-4">
           <div className="flex justify-end">
-            <Button onClick={openJobAdd} size="sm"><Plus className="w-4 h-4 ml-1" /> ط¥ط¶ط§ظپط© ظˆط¸ظٹظپط©</Button>
+            <Button onClick={openJobAdd} size="sm"><Plus className="w-4 h-4 ml-1" /> إضافة وظيفة</Button>
           </div>
           {jobsLoading
             ? <div className="flex justify-center p-4"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
@@ -252,7 +252,7 @@ export default function AdminNewsJobs() {
                     <h4 className="font-bold flex items-center gap-2">
                       <Briefcase className="w-4 h-4 text-primary" /> {item.title}
                     </h4>
-                    <div className="text-xs text-muted-foreground mt-1">{item.employer} â€¢ {item.city}</div>
+                    <div className="text-xs text-muted-foreground mt-1">{item.employer} • {item.city}</div>
                   </div>
                   <div className="flex gap-1 shrink-0">
                     <Button variant="ghost" size="icon" onClick={() => openJobEdit(item)}><Edit2 className="w-4 h-4 text-primary" /></Button>
@@ -269,17 +269,17 @@ export default function AdminNewsJobs() {
       {/* News Dialog */}
       <Dialog open={isNewsOpen} onOpenChange={setIsNewsOpen}>
         <DialogContent className="rtl max-w-[400px] rounded-xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{isEdit ? "طھط¹ط¯ظٹظ„ ط§ظ„ط®ط¨ط±" : "ط®ط¨ط± ط¬ط¯ظٹط¯"}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{isEdit ? "تعديل الخبر" : "خبر جديد"}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="space-y-2"><Label>ط§ظ„ط¹ظ†ظˆط§ظ†</Label><Input value={newsTitle} onChange={e => setNewsTitle(e.target.value)} /></div>
-            <div className="space-y-2"><Label>ط§ظ„طھظپط§طµظٹظ„</Label><Textarea value={newsBody} onChange={e => setNewsBody(e.target.value)} rows={3} /></div>
+            <div className="space-y-2"><Label>العنوان</Label><Input value={newsTitle} onChange={e => setNewsTitle(e.target.value)} /></div>
+            <div className="space-y-2"><Label>التفاصيل</Label><Textarea value={newsBody} onChange={e => setNewsBody(e.target.value)} rows={3} /></div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>ط§ظ„طھطµظ†ظٹظپ</Label><Input value={newsCat} onChange={e => setNewsCat(e.target.value)} /></div>
-              <div className="space-y-2"><Label>ط§ظ„ظ…طµط¯ط±</Label><Input value={newsSource} onChange={e => setNewsSource(e.target.value)} /></div>
+              <div className="space-y-2"><Label>التصنيف</Label><Input value={newsCat} onChange={e => setNewsCat(e.target.value)} /></div>
+              <div className="space-y-2"><Label>المصدر</Label><Input value={newsSource} onChange={e => setNewsSource(e.target.value)} /></div>
             </div>
-            <div className="flex items-center justify-between"><Label>ظ…ظ†ط´ظˆط±</Label><Switch checked={newsActive} onCheckedChange={setNewsActive} /></div>
+            <div className="flex items-center justify-between"><Label>منشور</Label><Switch checked={newsActive} onCheckedChange={setNewsActive} /></div>
             <Button className="w-full" onClick={handleNewsSave} disabled={newsPending}>
-              {newsPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "ط­ظپط¸"}
+              {newsPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "حفظ"}
             </Button>
           </div>
         </DialogContent>
@@ -288,18 +288,18 @@ export default function AdminNewsJobs() {
       {/* Job Dialog */}
       <Dialog open={isJobOpen} onOpenChange={setIsJobOpen}>
         <DialogContent className="rtl max-w-[400px] rounded-xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{isEdit ? "طھط¹ط¯ظٹظ„ ط§ظ„ظˆط¸ظٹظپط©" : "ظˆط¸ظٹظپط© ط¬ط¯ظٹط¯ط©"}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{isEdit ? "تعديل الوظيفة" : "وظيفة جديدة"}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="space-y-2"><Label>ط§ظ„ظ…ط³ظ…ظ‰ ط§ظ„ظˆط¸ظٹظپظٹ</Label><Input value={jobTitle} onChange={e => setJobTitle(e.target.value)} /></div>
-            <div className="space-y-2"><Label>ط¬ظ‡ط© ط§ظ„طھظˆط¸ظٹظپ</Label><Input value={jobEmployer} onChange={e => setJobEmployer(e.target.value)} /></div>
+            <div className="space-y-2"><Label>المسمى الوظيفي</Label><Input value={jobTitle} onChange={e => setJobTitle(e.target.value)} /></div>
+            <div className="space-y-2"><Label>جهة التوظيف</Label><Input value={jobEmployer} onChange={e => setJobEmployer(e.target.value)} /></div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>ط§ظ„ظ…ط¯ظٹظ†ط©</Label><Input value={jobCity} onChange={e => setJobCity(e.target.value)} /></div>
-              <div className="space-y-2"><Label>ط§ظ„ظ‚ط·ط§ط¹</Label><Input value={jobSector} onChange={e => setJobSector(e.target.value)} /></div>
+              <div className="space-y-2"><Label>المدينة</Label><Input value={jobCity} onChange={e => setJobCity(e.target.value)} /></div>
+              <div className="space-y-2"><Label>القطاع</Label><Input value={jobSector} onChange={e => setJobSector(e.target.value)} /></div>
             </div>
-            <div className="space-y-2"><Label>ط±ط§ط¨ط· ط§ظ„طھظ‚ط¯ظٹظ…</Label><Input value={jobUrl} onChange={e => setJobUrl(e.target.value)} dir="ltr" /></div>
-            <div className="flex items-center justify-between"><Label>ظ…طھط§ط­ط©</Label><Switch checked={jobActive} onCheckedChange={setJobActive} /></div>
+            <div className="space-y-2"><Label>رابط التقديم</Label><Input value={jobUrl} onChange={e => setJobUrl(e.target.value)} dir="ltr" /></div>
+            <div className="flex items-center justify-between"><Label>متاحة</Label><Switch checked={jobActive} onCheckedChange={setJobActive} /></div>
             <Button className="w-full" onClick={handleJobSave} disabled={jobPending}>
-              {jobPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "ط­ظپط¸"}
+              {jobPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "حفظ"}
             </Button>
           </div>
         </DialogContent>
@@ -308,8 +308,8 @@ export default function AdminNewsJobs() {
       <ConfirmDialog
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
-        title="طھط£ظƒظٹط¯ ط§ظ„ط­ط°ظپ"
-        description="ظ‡ظ„ ط£ظ†طھ ظ…طھط£ظƒط¯طں"
+        title="تأكيد الحذف"
+        description="هل أنت متأكد؟"
         onConfirm={handleDelete}
       />
     </div>

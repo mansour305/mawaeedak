@@ -1,7 +1,7 @@
-﻿/**
- * Complaint Service â€” ظ…ظˆط§ط¹ظٹط¯ظƒ
+/**
+ * Complaint Service — مواعيدك
  * 
- * ط®ط¯ظ…ط© ط§ظ„ط´ظƒط§ظˆظ‰ ظˆط§ظ„ط§ظ‚طھط±ط§ط­ط§طھ
+ * خدمة الشكاوى والاقتراحات
  */
 
 import { supabase, isSupabaseEnabled } from "./supabase";
@@ -28,22 +28,22 @@ export type CreateComplaintInput = {
 };
 
 /**
- * createComplaint â€” ط¥ط±ط³ط§ظ„ ط´ظƒظˆظ‰ ط£ظˆ ط§ظ‚طھط±ط§ط­
+ * createComplaint — إرسال شكوى أو اقتراح
  */
 export async function createComplaint(
   input: CreateComplaintInput,
   userId?: string
 ): Promise<{ success: boolean; error?: string; data?: Complaint }> {
   if (!isSupabaseEnabled || !supabase) {
-    return { success: false, error: "Supabase ط؛ظٹط± ظ…ظ‡ظٹط£" };
+    return { success: false, error: "Supabase غير مهيأ" };
   }
   
   if (!input.message.trim()) {
-    return { success: false, error: "ط§ظ„ط±ط³ط§ظ„ط© ظ…ط·ظ„ظˆط¨ط©" };
+    return { success: false, error: "الرسالة مطلوبة" };
   }
   
   if (input.message.length < 10) {
-    return { success: false, error: "ط§ظ„ط±ط³ط§ظ„ط© ظ‚طµظٹط±ط© ط¬ط¯ط§ظ‹ (10 ط£ط­ط±ظپ ط¹ظ„ظ‰ ط§ظ„ط£ظ‚ظ„)" };
+    return { success: false, error: "الرسالة قصيرة جداً (10 أحرف على الأقل)" };
   }
   
   const { data, error } = await supabase
@@ -63,7 +63,7 @@ export async function createComplaint(
 }
 
 /**
- * getUserComplaints â€” ط¬ظ„ط¨ ط´ظƒط§ظˆظ‰ ط§ظ„ظ…ط³طھط®ط¯ظ…
+ * getUserComplaints — جلب شكاوى المستخدم
  */
 export async function getUserComplaints(userId: string): Promise<Complaint[]> {
   if (!isSupabaseEnabled || !supabase) return [];
@@ -79,7 +79,7 @@ export async function getUserComplaints(userId: string): Promise<Complaint[]> {
 }
 
 /**
- * getAllComplaints â€” ط¬ظ„ط¨ ظƒظ„ ط§ظ„ط´ظƒط§ظˆظ‰ (ظ„ظ„ط£ط¯ظ…ظ†)
+ * getAllComplaints — جلب كل الشكاوى (للأدمن)
  */
 export async function getAllComplaints(): Promise<Complaint[]> {
   if (!isSupabaseEnabled || !supabase) return [];
@@ -94,7 +94,7 @@ export async function getAllComplaints(): Promise<Complaint[]> {
 }
 
 /**
- * getComplaintsByStatus â€” ط¬ظ„ط¨ ط§ظ„ط´ظƒط§ظˆظ‰ ط­ط³ط¨ ط§ظ„ط­ط§ظ„ط©
+ * getComplaintsByStatus — جلب الشكاوى حسب الحالة
  */
 export async function getComplaintsByStatus(status: ComplaintStatus): Promise<Complaint[]> {
   if (!isSupabaseEnabled || !supabase) return [];
@@ -110,7 +110,7 @@ export async function getComplaintsByStatus(status: ComplaintStatus): Promise<Co
 }
 
 /**
- * updateComplaintStatus â€” طھط­ط¯ظٹط« ط­ط§ظ„ط© ط§ظ„ط´ظƒظˆظ‰ (ظ„ظ„ط£ط¯ظ…ظ†)
+ * updateComplaintStatus — تحديث حالة الشكوى (للأدمن)
  */
 export async function updateComplaintStatus(
   complaintId: string,
@@ -118,7 +118,7 @@ export async function updateComplaintStatus(
   adminResponse?: string
 ): Promise<{ success: boolean; error?: string }> {
   if (!isSupabaseEnabled || !supabase) {
-    return { success: false, error: "Supabase ط؛ظٹط± ظ…ظ‡ظٹط£" };
+    return { success: false, error: "Supabase غير مهيأ" };
   }
   
   const updates: Partial<Complaint> = {
@@ -140,7 +140,7 @@ export async function updateComplaintStatus(
 }
 
 /**
- * getComplaintStats â€” ط¥ط­طµط§ط¦ظٹط§طھ ط§ظ„ط´ظƒط§ظˆظ‰ (ظ„ظ„ط£ط¯ظ…ظ†)
+ * getComplaintStats — إحصائيات الشكاوى (للأدمن)
  */
 export async function getComplaintStats(): Promise<{
   total: number;
@@ -161,11 +161,11 @@ export async function getComplaintStats(): Promise<{
 }
 
 /**
- * deleteComplaint â€” ط­ط°ظپ ط§ظ„ط´ظƒظˆظ‰
+ * deleteComplaint — حذف الشكوى
  */
 export async function deleteComplaint(complaintId: string): Promise<{ success: boolean; error?: string }> {
   if (!isSupabaseEnabled || !supabase) {
-    return { success: false, error: "Supabase ط؛ظٹط± ظ…ظ‡ظٹط£" };
+    return { success: false, error: "Supabase غير مهيأ" };
   }
   
   const { error } = await supabase

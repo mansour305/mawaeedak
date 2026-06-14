@@ -1,4 +1,4 @@
-﻿import { Router } from "express";
+import { Router } from "express";
 import { requireAdmin } from "../middlewares/requireAdmin";
 import { db } from "@workspace/db";
 import { jobsTable, auditLogsTable } from "@workspace/db";
@@ -35,7 +35,7 @@ router.post("/jobs", requireAdmin, async (req, res) => {
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [row] = await db.insert(jobsTable).values(parsed.data).returning();
-  await logAudit(actorId, "create", "job", row.id, row.title, `ط¥ط¶ط§ظپط© ظˆط¸ظٹظپط©: ${row.title}`);
+  await logAudit(actorId, "create", "job", row.id, row.title, `إضافة وظيفة: ${row.title}`);
   return res.status(201).json(row);
 });
 
@@ -46,8 +46,8 @@ router.patch("/jobs/:id", requireAdmin, async (req, res) => {
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [row] = await db.update(jobsTable).set(parsed.data).where(eq(jobsTable.id, id)).returning();
-  if (!row) return res.status(404).json({ error: "ط؛ظٹط± ظ…ظˆط¬ظˆط¯" });
-  await logAudit(actorId, "update", "job", row.id, row.title, `طھط¹ط¯ظٹظ„ ظˆط¸ظٹظپط©: ${row.title}`);
+  if (!row) return res.status(404).json({ error: "غير موجود" });
+  await logAudit(actorId, "update", "job", row.id, row.title, `تعديل وظيفة: ${row.title}`);
   return res.json(row);
 });
 
@@ -56,8 +56,8 @@ router.delete("/jobs/:id", requireAdmin, async (req, res) => {
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [deleted] = await db.delete(jobsTable).where(eq(jobsTable.id, id)).returning();
-  if (!deleted) return res.status(404).json({ error: "ط؛ظٹط± ظ…ظˆط¬ظˆط¯" });
-  await logAudit(actorId, "delete", "job", id, deleted.title, `ط­ط°ظپ ظˆط¸ظٹظپط©: ${deleted.title}`);
+  if (!deleted) return res.status(404).json({ error: "غير موجود" });
+  await logAudit(actorId, "delete", "job", id, deleted.title, `حذف وظيفة: ${deleted.title}`);
   return res.status(204).send();
 });
 

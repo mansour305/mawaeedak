@@ -1,4 +1,4 @@
-﻿import { useMemo, type ReactNode } from "react";
+import { useMemo, type ReactNode } from "react";
 import { useStore } from "@/hooks/useStore";
 import { useOfficialPrayerTimes, useOfficialFinancialDates } from "@/hooks/useOfficialData";
 import { useGetPrayerTimes } from "@api-client";
@@ -73,18 +73,18 @@ const CardIcon = () => (
 );
 
 const PRAYER_ORDER = [
-  { key: "fajr", label: "ط§ظ„ظپط¬ط±" },
-  { key: "sunrise", label: "ط§ظ„ط´ط±ظˆظ‚" },
-  { key: "dhuhr", label: "ط§ظ„ط¸ظ‡ط±" },
-  { key: "asr", label: "ط§ظ„ط¹طµط±" },
-  { key: "maghrib", label: "ط§ظ„ظ…ط؛ط±ط¨" },
-  { key: "isha", label: "ط§ظ„ط¹ط´ط§ط،" },
+  { key: "fajr", label: "الفجر" },
+  { key: "sunrise", label: "الشروق" },
+  { key: "dhuhr", label: "الظهر" },
+  { key: "asr", label: "العصر" },
+  { key: "maghrib", label: "المغرب" },
+  { key: "isha", label: "العشاء" },
 ];
 
 const EVENT_NAMES: Record<string, string> = {
-  salary: "ط§ظ„ط±ط§طھط¨",
-  citizen_account: "ط­ط³ط§ط¨ ط§ظ„ظ…ظˆط§ط·ظ†",
-  housing_support: "ط§ظ„ط¯ط¹ظ… ط§ظ„ط³ظƒظ†ظٹ",
+  salary: "الراتب",
+  citizen_account: "حساب المواطن",
+  housing_support: "الدعم السكني",
 };
 
 interface DailyCardPreviewProps {
@@ -115,7 +115,7 @@ function getNextPrayer(prayers: Record<string, string>, formatTime: (t: string) 
     }
   }
   // All passed, return first prayer (Fajr tomorrow)
-  return { key: "fajr", label: "ط§ظ„ظپط¬ط±", time: formatTime(prayers.fajr) };
+  return { key: "fajr", label: "الفجر", time: formatTime(prayers.fajr) };
 }
 
 export default function DailyCardPreview({ message }: DailyCardPreviewProps) {
@@ -133,7 +133,7 @@ export default function DailyCardPreview({ message }: DailyCardPreviewProps) {
   // Greeting based on time
   const greeting = useMemo(() => {
     const saudiHour = getRiyadhDateParts().hour;
-    return saudiHour < 12 ? "طµط¨ط§ط­ ط§ظ„ط®ظٹط±" : "ظ…ط³ط§ط، ط§ظ„ط®ظٹط±";
+    return saudiHour < 12 ? "صباح الخير" : "مساء الخير";
   }, []);
 
   const prayers = useMemo(() => {
@@ -210,8 +210,9 @@ export default function DailyCardPreview({ message }: DailyCardPreviewProps) {
       <div 
         className="absolute inset-0 opacity-[0.08] pointer-events-none"
         style={{
-          backgroundImage: `url(${dailyCardBg})`,
-          backgroundSize: "cover",
+          backgroundImage:
+            "linear-gradient(135deg, rgba(201,160,99,0.55), rgba(255,255,255,0) 62%), repeating-linear-gradient(45deg, rgba(138,107,61,0.45) 0 1px, transparent 1px 18px)",
+          backgroundSize: "auto",
           backgroundPosition: "center",
         }}
       />
@@ -244,7 +245,7 @@ export default function DailyCardPreview({ message }: DailyCardPreviewProps) {
       {/* ===== Main Content ===== */}
       <div className="relative z-10 p-5">
         
-        {/* 1. Badge: ط¨ط·ط§ظ‚ط© ظٹظˆظ…ظٹط© */}
+        {/* 1. Badge: بطاقة يومية */}
         <div className="text-center mb-4">
           <span 
             className="inline-block px-5 py-2 rounded-full text-xs font-bold tracking-wider"
@@ -255,18 +256,18 @@ export default function DailyCardPreview({ message }: DailyCardPreviewProps) {
               boxShadow: "0 2px 8px rgba(201,160,99,0.15)",
             }}
           >
-            âœ¦ ط¨ط·ط§ظ‚ط© ظٹظˆظ…ظٹط© âœ¦
+            ✦ بطاقة يومية ✦
           </span>
         </div>
 
-        {/* 2. Logo: ظ…ظˆط§ط¹ظٹط¯ظƒ */}
+        {/* 2. Logo: مواعيدك */}
         <div className="text-center mb-4">
-          <div className="text-3xl mb-1" style={{ color: GOLD }}>âœ¦</div>
+          <div className="text-3xl mb-1" style={{ color: GOLD }}>✦</div>
           <h1 className="text-[32px] font-extrabold leading-tight tracking-tight" style={{ color: INK }}>
-            ظ…ظˆط§ط¹ظٹط¯ظƒ
+            مواعيدك
           </h1>
           <p className="text-[13px] font-medium mt-1" style={{ color: BROWN }}>
-            ظƒظ„ ظ…ظˆط§ط¹ظٹط¯ظƒ.. ظپظٹ ظ…ظƒط§ظ† ظˆط§ط­ط¯
+            كل مواعيدك.. في مكان واحد
           </p>
           <div className="h-[1.5px] w-32 mx-auto mt-3" style={{ background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)` }} />
         </div>
@@ -279,12 +280,13 @@ export default function DailyCardPreview({ message }: DailyCardPreviewProps) {
             boxShadow: "0 4px 15px rgba(138,107,61,0.1)",
           }}
         >
-          {/* Background image overlay */}
+          {/* Background pattern overlay */}
           <div 
             className="absolute inset-0 opacity-[0.15] pointer-events-none"
             style={{
-              backgroundImage: `url(${dailyCardBg})`,
-              backgroundSize: "cover",
+              backgroundImage:
+                "linear-gradient(135deg, rgba(201,160,99,0.55), rgba(255,255,255,0) 62%), repeating-linear-gradient(45deg, rgba(138,107,61,0.45) 0 1px, transparent 1px 18px)",
+              backgroundSize: "auto",
               backgroundPosition: "center",
             }}
           />
@@ -302,7 +304,7 @@ export default function DailyCardPreview({ message }: DailyCardPreviewProps) {
               {message}
             </div>
             <div className="text-[11px] font-medium" style={{ color: GOLD }}>
-              ظˆط§ط°ظƒط±ظˆط§ ط§ظ„ظ„ظ‡ ط°ظƒط±ط§ظ‹ ظƒط«ظٹط±ط§ظ‹
+              واذكروا الله ذكراً كثيراً
             </div>
           </div>
         </div>
@@ -321,10 +323,10 @@ export default function DailyCardPreview({ message }: DailyCardPreviewProps) {
             {getDayName()}
           </div>
           <div className="text-[13px] font-medium mt-1" style={{ color: INK }}>
-            {formatHijriDate()} ظ‡ظ€
+            {formatHijriDate()} هـ
           </div>
           <div className="text-[13px] font-medium" style={{ color: INK }}>
-            {formatGregorianDate()} ظ…
+            {formatGregorianDate()} م
           </div>
         </div>
 
@@ -339,7 +341,7 @@ export default function DailyCardPreview({ message }: DailyCardPreviewProps) {
         >
           <div className="flex items-center justify-center gap-2 mb-3">
             <PrayerIcon />
-            <span className="text-[14px] font-bold" style={{ color: BROWN }}>ظ…ظˆط§ظ‚ظٹطھ ط§ظ„طµظ„ط§ط©</span>
+            <span className="text-[14px] font-bold" style={{ color: BROWN }}>مواقيت الصلاة</span>
           </div>
           
           <div className="grid grid-cols-6 gap-1">
@@ -361,7 +363,7 @@ export default function DailyCardPreview({ message }: DailyCardPreviewProps) {
                     className="w-5 h-5 rounded-full flex items-center justify-center mb-1"
                     style={{ background: isNext ? GOLD : LIGHT_GOLD }}
                   >
-                    <span className="text-[8px]" style={{ color: isNext ? "#FFF" : GOLD }}>âœ¦</span>
+                    <span className="text-[8px]" style={{ color: isNext ? "#FFF" : GOLD }}>✦</span>
                   </div>
                   <span className="text-[9px] font-medium" style={{ color: isNext ? BROWN : INK, opacity: isNext ? 1 : 0.7 }}>{label}</span>
                   <span className="text-[10px] font-bold mt-0.5" style={{ color: isNext ? GOLD : BROWN }}>
@@ -376,7 +378,7 @@ export default function DailyCardPreview({ message }: DailyCardPreviewProps) {
           {nextPrayer && (
             <div className="mt-3 text-center">
               <span className="text-[11px] font-bold" style={{ color: GOLD }}>
-                ط§ظ„طµظ„ط§ط© ط§ظ„ظ‚ط§ط¯ظ…ط©: {nextPrayer.label} â€” {nextPrayer.time}
+                الصلاة القادمة: {nextPrayer.label} — {nextPrayer.time}
               </span>
             </div>
           )}
@@ -393,7 +395,7 @@ export default function DailyCardPreview({ message }: DailyCardPreviewProps) {
           >
             <div className="flex items-center justify-center gap-2 mb-3">
               <ClockIcon />
-              <span className="text-[13px] font-bold" style={{ color: BROWN }}>ظƒظ… ط¨ط§ظ‚ظٹ ط¹ظ„ظ‰</span>
+              <span className="text-[13px] font-bold" style={{ color: BROWN }}>كم باقي على</span>
             </div>
             <div className="grid grid-cols-3 gap-2">
               {countdowns.map((item, i) => (
@@ -409,7 +411,7 @@ export default function DailyCardPreview({ message }: DailyCardPreviewProps) {
                   <div className="flex justify-center mb-1.5">{item.icon}</div>
                   <div className="text-[10px] font-medium truncate" style={{ color: INK }}>{item.name}</div>
                   <div className="text-[22px] font-extrabold leading-none mt-1" style={{ color: GOLD }}>{item.days}</div>
-                  <div className="text-[9px] opacity-60 mt-0.5" style={{ color: INK }}>ظٹظˆظ…</div>
+                  <div className="text-[9px] opacity-60 mt-0.5" style={{ color: INK }}>يوم</div>
                 </div>
               ))}
             </div>
@@ -420,10 +422,10 @@ export default function DailyCardPreview({ message }: DailyCardPreviewProps) {
         <div className="text-center pt-2 pb-1">
           <div className="h-[1.5px] w-full mb-4" style={{ background: `linear-gradient(90deg, transparent, rgba(201,160,99,0.4), transparent)` }} />
           <div className="text-[16px] font-extrabold tracking-wider" style={{ color: GOLD }}>
-            âœ¦ ظ…ظˆط§ط¹ظٹط¯ظƒ âœ¦
+            ✦ مواعيدك ✦
           </div>
           <div className="text-[10px] opacity-60 mt-1.5" style={{ color: INK }}>
-            ظ…ظ†طµط© طھط¬ظ…ط¹ ظˆظ‚طھظƒطŒ ط±ط§طھط¨ظƒطŒ ط¯ط¹ظ…ظƒطŒ ظˆط£ظ‡ظ… ظ…ظˆط§ط¹ظٹط¯ظƒ
+            منصة تجمع وقتك، راتبك، دعمك، وأهم مواعيدك
           </div>
         </div>
       </div>

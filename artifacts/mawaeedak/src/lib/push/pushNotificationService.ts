@@ -1,5 +1,5 @@
-﻿/**
- * pushNotificationService.ts â€” Phase 15
+/**
+ * pushNotificationService.ts — Phase 15
  * 
  * Web Push Notification Foundation for Mawaeedak
  * 
@@ -227,22 +227,22 @@ export async function enablePushNotifications(userId: string): Promise<{
   error?: string;
 }> {
   if (!isPushSupported()) {
-    return { success: false, error: "ط§ظ„ظ…طھطµظپط­ ظ„ط§ ظٹط¯ط¹ظ… ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ" };
+    return { success: false, error: "المتصفح لا يدعم الإشعارات" };
   }
 
   const permission = await requestNotificationPermission();
   if (permission !== "granted") {
-    return { success: false, error: "ظ„ظ… ظٹطھظ… ط§ظ„ط³ظ…ط§ط­ ط¨ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ" };
+    return { success: false, error: "لم يتم السماح بالإشعارات" };
   }
 
   const subscription = await subscribeToPush();
   if (!subscription) {
-    return { success: false, error: "ظپط´ظ„ ظپظٹ ط§ظ„ط§ط´طھط±ط§ظƒ" };
+    return { success: false, error: "فشل في الاشتراك" };
   }
 
   const saved = await savePushSubscription(subscription, userId);
   if (!saved) {
-    return { success: false, error: "ظپط´ظ„ ظپظٹ ط­ظپط¸ ط§ظ„ط§ط´طھط±ط§ظƒ" };
+    return { success: false, error: "فشل في حفظ الاشتراك" };
   }
 
   return { success: true };

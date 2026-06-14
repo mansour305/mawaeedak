@@ -1,12 +1,11 @@
-﻿/**
- * TopBar â€” Saudi Premium Minimal Header with Drawer
- * Reference: docs/design-reference/final-2026/07-menu-drawer.jpeg
- * 
+/**
+ * TopBar — Saudi Premium Minimal Header with Drawer
+ *
  * Features:
  * - Right-side drawer with premium styling
  * - Logo header
  * - Welcome card with date chip
- * - Menu rows: ط§ظ„ط±ط¦ظٹط³ظٹط©, ط¨ط·ط§ظ‚ط© ظٹظˆظ…ظٹط©, ط´ط§ط±ظƒ ط§ظ„طھط·ط¨ظٹظ‚, etc.
+ * - Menu rows: الرئيسية, بطاقة يومية, شارك التطبيق, etc.
  * - Decorative lower motif
  * - Close button
  */
@@ -33,7 +32,7 @@ const INK = "#2F2B25";
 
 export function MawaeedakLogo({ compact = false }: { compact?: boolean }) {
   return (
-    <div className="flex items-center justify-center gap-2" aria-label="ظ…ظˆط§ط¹ظٹط¯ظƒ">
+    <div className="flex items-center justify-center gap-2" aria-label="مواعيدك">
       <div
         className="relative grid place-items-center rounded-full"
         style={{
@@ -53,10 +52,10 @@ export function MawaeedakLogo({ compact = false }: { compact?: boolean }) {
             fontFamily: "'Cairo', 'Noto Kufi Arabic', sans-serif",
           }}
         >
-          ظ…
+          م
         </span>
         <span className="absolute right-2 top-2 text-[12px]" style={{ color: GOLD }}>
-          âœ¦
+          ✦
         </span>
       </div>
       <span
@@ -67,7 +66,7 @@ export function MawaeedakLogo({ compact = false }: { compact?: boolean }) {
           fontFamily: "'Cairo', 'Noto Kufi Arabic', sans-serif",
         }}
       >
-        ظ…ظˆط§ط¹ظٹط¯ظƒ
+        مواعيدك
       </span>
     </div>
   );
@@ -123,10 +122,10 @@ export function TopBar({ title, showBack = false }: TopBarProps) {
   const handleShare = async () => {
     const url = window.location.origin;
     if (navigator.share) {
-      await navigator.share({ title: "ظ…ظˆط§ط¹ظٹط¯ظƒ", text: "ظƒظ„ ظ…ظˆط§ط¹ظٹط¯ظƒ ظپظٹ ظ…ظƒط§ظ† ظˆط§ط­ط¯", url }).catch(() => {});
+      await navigator.share({ title: "مواعيدك", text: "كل مواعيدك في مكان واحد", url }).catch(() => {});
     } else {
       await navigator.clipboard.writeText(url).catch(() => {});
-      showTopNotification("طھظ… ظ†ط³ط® ط±ط§ط¨ط· ط§ظ„طھط·ط¨ظٹظ‚", "success");
+      showTopNotification("تم نسخ رابط التطبيق", "success");
     }
   };
 
@@ -137,7 +136,7 @@ export function TopBar({ title, showBack = false }: TopBarProps) {
     sessionStorage.removeItem("mawaeedak_demo_session");
     sessionStorage.setItem("mawaeedak_splash_shown", "true");
     
-    showTopNotification("طھظ… طھط³ط¬ظٹظ„ ط§ظ„ط®ط±ظˆط¬ ظˆط§ظ„ط¹ظˆط¯ط© ظ„ظ„ط±ط¦ظٹط³ظٹط©", "success");
+    showTopNotification("تم تسجيل الخروج والعودة للرئيسية", "success");
     setLocation("/");
     window.history.replaceState(null, "", "/");
   };
@@ -154,13 +153,13 @@ export function TopBar({ title, showBack = false }: TopBarProps) {
     >
       <div className="relative flex h-[92px] items-center justify-between px-5">
         {showBack ? (
-          <Button variant="ghost" size="icon" aria-label="ط±ط¬ظˆط¹" className="h-11 w-11 rounded-full" onClick={() => window.history.back()}>
+          <Button variant="ghost" size="icon" aria-label="رجوع" className="h-11 w-11 rounded-full" onClick={() => window.history.back()}>
             <ArrowRight className="h-7 w-7" style={{ color: BROWN }} />
           </Button>
         ) : (
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="ط§ظ„ظ‚ط§ط¦ظ…ط©" className="h-11 w-11 rounded-full">
+              <Button variant="ghost" size="icon" aria-label="القائمة" className="h-11 w-11 rounded-full">
                 <Menu className="h-7 w-7" style={{ color: BROWN }} />
               </Button>
             </SheetTrigger>
@@ -175,7 +174,7 @@ export function TopBar({ title, showBack = false }: TopBarProps) {
               <div className="min-h-full px-5 pb-6 pt-5">
                 <div className="mb-5 flex items-center justify-between">
                   <SheetClose asChild>
-                    <button type="button" className="grid h-10 w-10 place-items-center rounded-full border" style={{ background: "rgba(255,255,255,0.6)", borderColor: "rgba(201,160,99,0.3)" }} aria-label="ط¥ط؛ظ„ط§ظ‚">
+                    <button type="button" className="grid h-10 w-10 place-items-center rounded-full border" style={{ background: "rgba(255,255,255,0.6)", borderColor: "rgba(201,160,99,0.3)" }} aria-label="إغلاق">
                       <X className="h-5 w-5" style={{ color: BROWN }} />
                     </button>
                   </SheetClose>
@@ -195,32 +194,32 @@ export function TopBar({ title, showBack = false }: TopBarProps) {
                     <div aria-hidden="true" />
                     <div className="min-w-0 flex-1">
                       <p className="text-[20px] font-extrabold flex items-center gap-2" style={{ color: BROWN }}>
-                        ظ…ط±ط­ط¨ط§ظ‹ ط¨ظƒ <Sparkles className="h-4 w-4" style={{ color: GOLD }} />
+                        مرحباً بك <Sparkles className="h-4 w-4" style={{ color: GOLD }} />
                       </p>
                       <p className="text-sm font-semibold" style={{ color: INK }}>
-                        {isLoggedIn ? user.name || "ظ…ط³طھط®ط¯ظ… ظ…ظˆط§ط¹ظٹط¯ظƒ" : "ظ†ط³ط¹ط¯ ط¨ظˆط¬ظˆط¯ظƒ ظ…ط¹ظ†ط§"}
+                        {isLoggedIn ? user.name || "مستخدم مواعيدك" : "نسعد بوجودك معنا"}
                       </p>
                       <p 
                         className="mt-2 inline-flex rounded-full border px-3 py-1 text-xs font-bold" 
                         style={{ borderColor: "rgba(201,160,99,0.24)", color: BROWN }}
                       >
-                        {getDayName()}طŒ {formatGregorianDate()}
+                        {getDayName()}، {formatGregorianDate()}
                       </p>
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <SideMenuItem href="/" icon={Home} label="ط§ظ„ط±ط¦ظٹط³ظٹط©" />
-                  <SideMenuItem href="/story" icon={Mail} label="ط¨ط·ط§ظ‚ط© ظٹظˆظ…ظٹط© ط£ط±ط³ظ„ظ‡ط§" />
-                  <SideMenuItem icon={Share2} label="ط´ط§ط±ظƒ ط§ظ„طھط·ط¨ظٹظ‚" onClick={handleShare} />
-                  <SideMenuItem href="/privacy" icon={ShieldCheck} label="ط³ظٹط§ط³ط© ط§ظ„ط®طµظˆطµظٹط©" />
-                  <SideMenuItem href="/terms" icon={FileText} label="ط§ظ„ط´ط±ظˆط· ظˆط§ظ„ط£ط­ظƒط§ظ…" />
-                  <SideMenuItem href="/support" icon={Headphones} label="ط§ظ„ظ…ط³ط§ط¹ط¯ط© ظˆط§ظ„ط¯ط¹ظ…" />
+                  <SideMenuItem href="/" icon={Home} label="الرئيسية" />
+                  <SideMenuItem href="/story" icon={Mail} label="بطاقة يومية أرسلها" />
+                  <SideMenuItem icon={Share2} label="شارك التطبيق" onClick={handleShare} />
+                  <SideMenuItem href="/privacy" icon={ShieldCheck} label="سياسة الخصوصية" />
+                  <SideMenuItem href="/terms" icon={FileText} label="الشروط والأحكام" />
+                  <SideMenuItem href="/support" icon={Headphones} label="المساعدة والدعم" />
                   {isLoggedIn ? (
-                    <SideMenuItem icon={LogOut} label="طھط³ط¬ظٹظ„ ط§ظ„ط®ط±ظˆط¬" danger onClick={handleLogout} />
+                    <SideMenuItem icon={LogOut} label="تسجيل الخروج" danger onClick={handleLogout} />
                   ) : (
-                    <SideMenuItem href="/login" icon={LogIn} label="طھط³ط¬ظٹظ„ ط§ظ„ط¯ط®ظˆظ„" />
+                    <SideMenuItem href="/login" icon={LogIn} label="تسجيل الدخول" />
                   )}
                 </div>
 
@@ -232,7 +231,7 @@ export function TopBar({ title, showBack = false }: TopBarProps) {
                   <div aria-hidden="true" />
                   <div className="absolute inset-0 bg-gradient-to-l from-[#FAF7F2] via-[#FAF7F2]/60 to-transparent" />
                   <p className="absolute bottom-4 right-4 text-lg font-extrabold" style={{ color: BROWN }}>
-                    ظƒظ„ ظ…ظˆط§ط¹ظٹط¯ظƒ ظپظٹ ظ…ظƒط§ظ† ظˆط§ط­ط¯
+                    كل مواعيدك في مكان واحد
                   </p>
                 </div>
               </div>
@@ -242,7 +241,7 @@ export function TopBar({ title, showBack = false }: TopBarProps) {
 
         <div className="absolute inset-x-16 top-3 flex flex-col items-center gap-1 text-center">
           <MawaeedakLogo compact />
-          {title && title !== "ط§ظ„ط±ط¦ظٹط³ظٹط©" ? (
+          {title && title !== "الرئيسية" ? (
             <h1 className="text-[22px] font-extrabold leading-tight" style={{ color: INK }}>
               {title}
             </h1>
@@ -250,7 +249,7 @@ export function TopBar({ title, showBack = false }: TopBarProps) {
         </div>
 
         <Link href="/notifications">
-          <Button variant="ghost" size="icon" aria-label="ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ" className="relative h-11 w-11 rounded-full">
+          <Button variant="ghost" size="icon" aria-label="الإشعارات" className="relative h-11 w-11 rounded-full">
             <Bell className="h-6 w-6" style={{ color: BROWN }} />
             {count > 0 ? (
               <span className="absolute right-1 top-1 grid h-5 min-w-5 place-items-center rounded-full px-1 text-[10px] font-bold text-white" style={{ background: GOLD }}>

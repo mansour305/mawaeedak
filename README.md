@@ -1,4 +1,4 @@
-﻿# Mawaeedak
+# Mawaeedak
 
 Application workspace.
 

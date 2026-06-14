@@ -1,4 +1,4 @@
-﻿import { pgTable, serial, text, timestamp, boolean, integer, uuid } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp, boolean, integer, uuid } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -36,7 +36,7 @@ export const appointmentsTable = pgTable("appointments", {
    * The time of the appointment (HH:mm format). Optional.
    */
   time: text("time"),
-  category: text("category").notNull().default("ط´ط®طµظٹ"),
+  category: text("category").notNull().default("شخصي"),
   color: text("color"),
   priority: text("priority"),
   reminder_enabled: boolean("reminder_enabled").notNull().default(false),

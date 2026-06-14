@@ -1,15 +1,15 @@
-﻿/**
- * AdminNotifications â€” Phase 12K
+/**
+ * AdminNotifications — Phase 12K
  *
- * Read:   useGatewayNotifications â†’ API (mode=api/shadow) | Supabase (mode=supabase)
- * Send:   useCreateNotification (Orval â†’ API) â€” ظٹط¨ظ‚ظ‰ ط¹ظ„ظ‰ API
- *         ط§ظ„ط³ط¨ط¨: POST /api/notifications = fan-out ظ…طھط¹ط¯ط¯ ط§ظ„ظ…ط³طھط®ط¯ظ…ظٹظ† ط¹ظ„ظ‰ ط§ظ„ط®ط§ط¯ظ…طŒ
- *         ظ„ط§ RLS INSERT policy ظ…ظڈط¹ط±ظژظ‘ظپط©طŒ ظˆظ„ظٹط³ user-scoped INSERT.
- * Delete: gwDeleteNotification â†’ API (mode=api/shadow) | Supabase (mode=supabase)
+ * Read:   useGatewayNotifications → API (mode=api/shadow) | Supabase (mode=supabase)
+ * Send:   useCreateNotification (Orval → API) — يبقى على API
+ *         السبب: POST /api/notifications = fan-out متعدد المستخدمين على الخادم،
+ *         لا RLS INSERT policy مُعرَّفة، وليس user-scoped INSERT.
+ * Delete: gwDeleteNotification → API (mode=api/shadow) | Supabase (mode=supabase)
  *
- * Invalidation ط¨ط¹ط¯ ظƒظ„ write:
- *   - gwQueryKeys.notifications â†’ ظٹظڈط¹ظٹط¯ ط¬ظ„ط¨ ط§ظ„ظ‚ط§ط¦ظ…ط©
- *   - gwQueryKeys.unreadCount â†’ ظٹظڈط¹ظٹط¯ ط¬ظ„ط¨ ط¹ط¯ط§ط¯ TopBar
+ * Invalidation بعد كل write:
+ *   - gwQueryKeys.notifications → يُعيد جلب القائمة
+ *   - gwQueryKeys.unreadCount → يُعيد جلب عداد TopBar
  */
 
 import { useState } from "react";
@@ -31,19 +31,19 @@ import { useGatewayNotifications, gwQueryKeys } from "@/hooks/useGatewayData";
 import { gwDeleteNotification } from "@/lib/dataGateway";
 
 const TYPES = [
-  { value: "system",      label: "طھط­ط¯ظٹط« ظ†ط¸ط§ظ…" },
-  { value: "owner",       label: "ط±ط³ط§ظ„ط© ظ…ظ† ط§ظ„ظ…ط§ظ„ظƒ" },
-  { value: "news",        label: "ط®ط¨ط± ط¹ط§ط¬ظ„" },
-  { value: "financial",   label: "طھظ†ط¨ظٹظ‡ ظ…ط§ظ„ظٹ ط¹ط§ظ…" },
-  { value: "salary",      label: "طھظ†ط¨ظٹظ‡ ط±ط§طھط¨" },
-  { value: "support",     label: "طھظ†ط¨ظٹظ‡ ط¯ط¹ظ…" },
-  { value: "bill",        label: "طھظ†ط¨ظٹظ‡ ظپط§طھظˆط±ط©" },
-  { value: "event",       label: "ظ…ظˆط¹ط¯ ط¹ط§ظ…" },
-  { value: "appointment", label: "ظ…ظˆط¹ط¯ ط´ط®طµظٹ" },
-  { value: "prayer",      label: "طµظ„ط§ط©" },
-  { value: "story",       label: "ط³طھظˆط±ظٹ ط§ظ„ظٹظˆظ…" },
-  { value: "job",         label: "ظˆط¸ظٹظپط©" },
-  { value: "reminder",    label: "طھط°ظƒظٹط±" },
+  { value: "system",      label: "تحديث نظام" },
+  { value: "owner",       label: "رسالة من المالك" },
+  { value: "news",        label: "خبر عاجل" },
+  { value: "financial",   label: "تنبيه مالي عام" },
+  { value: "salary",      label: "تنبيه راتب" },
+  { value: "support",     label: "تنبيه دعم" },
+  { value: "bill",        label: "تنبيه فاتورة" },
+  { value: "event",       label: "موعد عام" },
+  { value: "appointment", label: "موعد شخصي" },
+  { value: "prayer",      label: "صلاة" },
+  { value: "story",       label: "ستوري اليوم" },
+  { value: "job",         label: "وظيفة" },
+  { value: "reminder",    label: "تذكير" },
 ];
 
 export default function AdminNotifications() {
@@ -59,44 +59,44 @@ export default function AdminNotifications() {
   const [type, setType] = useState("owner");
   const [pendingDelete, setPendingDelete] = useState<number | null>(null);
 
-  // ط¨ط¹ط¯ ظƒظ„ write: invalidate Gateway cache + Orval cache (ظ„ظ„طھظˆط§ظپظ‚ ظ…ط¹ send ط§ظ„ط°ظٹ ظٹط¨ظ‚ظ‰ API)
+  // بعد كل write: invalidate Gateway cache + Orval cache (للتوافق مع send الذي يبقى API)
   const invalidateAll = () => {
     queryClient.invalidateQueries({ queryKey: gwQueryKeys.notifications });
     queryClient.invalidateQueries({ queryKey: gwQueryKeys.unreadCount });
-    // Orval keys â€” ظ„ظ„طھظˆط§ظپظ‚ ظ…ط¹ send (ظٹظƒطھط¨ API) ط­طھظ‰ طھظڈط­ط¯ظژظ‘ط« Orval cache ط£ظٹط¶ط§ظ‹
+    // Orval keys — للتوافق مع send (يكتب API) حتى تُحدَّث Orval cache أيضاً
     queryClient.invalidateQueries({ queryKey: getListNotificationsQueryKey() });
     queryClient.invalidateQueries({ queryKey: getGetUnreadNotificationsCountQueryKey() });
   };
 
-  // Send ظٹط¨ظ‚ظ‰ ط¹ظ„ظ‰ API (Orval) â€” fan-out ظ…طھط¹ط¯ط¯ ط§ظ„ظ…ط³طھط®ط¯ظ…ظٹظ†طŒ ظ„ط§ RLS INSERT policy
+  // Send يبقى على API (Orval) — fan-out متعدد المستخدمين، لا RLS INSERT policy
   const handleSend = () => {
     if (!title.trim()) {
-      toast({ title: "ط®ط·ط£", description: "ط¹ظ†ظˆط§ظ† ط§ظ„ط¥ط´ط¹ط§ط± ظ…ط·ظ„ظˆط¨", variant: "destructive" });
+      toast({ title: "خطأ", description: "عنوان الإشعار مطلوب", variant: "destructive" });
       return;
     }
     createNotif.mutate({ data: { title: title.trim(), body: body.trim() || undefined, type } }, {
       onSuccess: () => {
-        toast({ title: "طھظ… ط¥ط±ط³ط§ظ„ ط§ظ„ط¥ط´ط¹ط§ط±", description: `"${title}" â€” ط¸ظ‡ط± ظپظٹ ظ…ط±ظƒط² ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ` });
+        toast({ title: "تم إرسال الإشعار", description: `"${title}" — ظهر في مركز الإشعارات` });
         setTitle("");
         setBody("");
         invalidateAll();
       },
-      onError: () => toast({ title: "ط®ط·ط£", description: "ظپط´ظ„ ط¥ط±ط³ط§ظ„ ط§ظ„ط¥ط´ط¹ط§ط±", variant: "destructive" }),
+      onError: () => toast({ title: "خطأ", description: "فشل إرسال الإشعار", variant: "destructive" }),
     });
   };
 
-  // Delete ط¹ط¨ط± Gateway â€” RLS notifications_delete_own ظ…ظˆط¬ظˆط¯ط©
+  // Delete عبر Gateway — RLS notifications_delete_own موجودة
   const handleDelete = async (id: number) => {
     setPendingDelete(id);
     try {
       const result = await gwDeleteNotification(id);
       if (result.success) {
         invalidateAll();
-        toast({ title: "طھظ… ط§ظ„ط­ط°ظپ" });
+        toast({ title: "تم الحذف" });
       } else {
         toast({
-          title: "ط®ط·ط£ ظپظٹ ط§ظ„ط­ط°ظپ",
-          description: result.error ?? "ظپط´ظ„ ط§ظ„ط­ط°ظپ",
+          title: "خطأ في الحذف",
+          description: result.error ?? "فشل الحذف",
           variant: "destructive",
         });
       }
@@ -114,33 +114,33 @@ export default function AdminNotifications() {
           style={{ background: "linear-gradient(180deg, hsl(38 62% 52%), hsl(32 55% 42%))" }}
         />
         <h1 className="text-2xl font-extrabold" style={{ color: "hsl(22 62% 18%)" }}>
-          ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ
+          الإشعارات
         </h1>
       </div>
 
       <Card className="border-border shadow-sm">
         <CardContent className="p-6 space-y-4">
           <div className="space-y-2">
-            <Label>ط¹ظ†ظˆط§ظ† ط§ظ„ط¥ط´ط¹ط§ط± *</Label>
+            <Label>عنوان الإشعار *</Label>
             <Input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="ظ…ط«ط§ظ„: طھط­ط¯ظٹط« ط¬ط¯ظٹط¯ ظ„ظ„ظ…ظ†طµط©"
+              placeholder="مثال: تحديث جديد للمنصة"
               dir="rtl"
             />
           </div>
           <div className="space-y-2">
-            <Label>ظ†طµ ط§ظ„ط¥ط´ط¹ط§ط± (ط§ط®طھظٹط§ط±ظٹ)</Label>
+            <Label>نص الإشعار (اختياري)</Label>
             <Textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
               rows={3}
-              placeholder="ط§ظ„طھظپط§طµظٹظ„..."
+              placeholder="التفاصيل..."
               dir="rtl"
             />
           </div>
           <div className="space-y-2">
-            <Label>ط§ظ„ظ†ظˆط¹ / ط§ظ„طھطµظ†ظٹظپ</Label>
+            <Label>النوع / التصنيف</Label>
             <Select value={type} onValueChange={setType}>
               <SelectTrigger dir="rtl"><SelectValue /></SelectTrigger>
               <SelectContent className="rtl" dir="rtl">
@@ -158,20 +158,20 @@ export default function AdminNotifications() {
             {createNotif.isPending ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              <><Send className="w-5 h-5 ml-2 rtl:rotate-180" /> ط¥ط±ط³ط§ظ„ ظ„ظ„ط¬ظ…ظٹط¹</>
+              <><Send className="w-5 h-5 ml-2 rtl:rotate-180" /> إرسال للجميع</>
             )}
           </Button>
         </CardContent>
       </Card>
 
       <p className="text-xs text-muted-foreground text-center">
-        ط§ظ„ط¥ط´ط¹ط§ط± ظٹط¸ظ‡ط± ظپظˆط±ط§ظ‹ ظپظٹ ظ…ط±ظƒط² ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ. Push Notifications ظ…ط¤ط¬ظ„ ظ„ط¥طµط¯ط§ط± ظ„ط§ط­ظ‚.
+        الإشعار يظهر فوراً في مركز الإشعارات. Push Notifications مؤجل لإصدار لاحق.
       </p>
 
       {/* Recent notifications list for quick delete */}
       {!isLoading && notifications && notifications.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-base font-bold">ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ط§ظ„ط­ط§ظ„ظٹط© ({notifications.length})</h3>
+          <h3 className="text-base font-bold">الإشعارات الحالية ({notifications.length})</h3>
           <div className="space-y-2 max-h-72 overflow-y-auto">
             {(Array.isArray(notifications) ? notifications : []).map((n) => (
               <div
@@ -181,7 +181,7 @@ export default function AdminNotifications() {
                 <div className="flex-1 min-w-0">
                   <span className="font-medium text-foreground truncate block">{n.title}</span>
                   <span className="text-[11px] text-muted-foreground">
-                    {n.type} â€” {n.is_read ? "ظ…ظ‚ط±ظˆط،" : "ط؛ظٹط± ظ…ظ‚ط±ظˆط،"}
+                    {n.type} — {n.is_read ? "مقروء" : "غير مقروء"}
                   </span>
                 </div>
                 <Button

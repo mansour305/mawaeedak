@@ -1,9 +1,9 @@
-﻿/**
- * AdminAutomation â€” Phase 13B/13C
- * ظ„ظˆط­ط© طھط­ظƒظ… ط§ظ„ط£طھظ…طھط© ط§ظ„ظٹظˆظ…ظٹط©:
- * - ط­ط§ظ„ط© ط¢ط®ط± طھط´ط؛ظٹظ„ ظ„ظƒظ„ ظ…ظ‡ظ…ط©
- * - طھط´ط؛ظٹظ„ ظٹط¯ظˆظٹ ظپظˆط±ظٹ
- * - ط³ط¬ظ„ ط§ظ„ط¹ظ…ظ„ظٹط§طھ ط§ظ„ط£ط®ظٹط±ط©
+/**
+ * AdminAutomation — Phase 13B/13C
+ * لوحة تحكم الأتمتة اليومية:
+ * - حالة آخر تشغيل لكل مهمة
+ * - تشغيل يدوي فوري
+ * - سجل العمليات الأخيرة
  */
 
 import { useState, useEffect, useCallback } from "react";
@@ -59,10 +59,10 @@ const JOB_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 const STATUS_CONFIG = {
-  success: { label: "ظ†ط§ط¬ط­", variant: "default" as const, Icon: CheckCircle2, color: "text-green-600" },
-  failure: { label: "ظپط´ظ„", variant: "destructive" as const, Icon: XCircle, color: "text-red-500" },
-  skipped: { label: "ظ…طھط®ط·ظ‰", variant: "secondary" as const, Icon: SkipForward, color: "text-muted-foreground" },
-  running: { label: "ط¬ط§ط±ظچ", variant: "outline" as const, Icon: Loader2, color: "text-primary" },
+  success: { label: "ناجح", variant: "default" as const, Icon: CheckCircle2, color: "text-green-600" },
+  failure: { label: "فشل", variant: "destructive" as const, Icon: XCircle, color: "text-red-500" },
+  skipped: { label: "متخطى", variant: "secondary" as const, Icon: SkipForward, color: "text-muted-foreground" },
+  running: { label: "جارٍ", variant: "outline" as const, Icon: Loader2, color: "text-primary" },
 };
 
 function formatDateTime(iso: string): string {
@@ -92,11 +92,11 @@ export default function AdminAutomation() {
   const fetchStatus = useCallback(async () => {
     try {
       const res = await authedFetch("/api/admin/automation/status");
-      if (!res.ok) throw new Error("ط®ط·ط£ ظپظٹ ط§ظ„ط®ط§ط¯ظ…");
+      if (!res.ok) throw new Error("خطأ في الخادم");
       const data = await res.json() as { status: JobStatus[] };
       setStatus(data.status);
     } catch {
-      toast({ title: "ط®ط·ط£", description: "طھط¹ط°ظ‘ط± طھط­ظ…ظٹظ„ ط­ط§ظ„ط© ط§ظ„ط£طھظ…طھط©", variant: "destructive" });
+      toast({ title: "خطأ", description: "تعذّر تحميل حالة الأتمتة", variant: "destructive" });
     } finally {
       setLoadingStatus(false);
     }
@@ -132,10 +132,10 @@ export default function AdminAutomation() {
     try {
       const res = await authedFetch("/api/admin/automation/run", { method: "POST" });
       if (!res.ok) throw new Error();
-      toast({ title: "طھظ…", description: "طھظ… طھط´ط؛ظٹظ„ ط¬ظ…ظٹط¹ ط§ظ„ظ…ظ‡ط§ظ… ط¨ظ†ط¬ط§ط­" });
+      toast({ title: "تم", description: "تم تشغيل جميع المهام بنجاح" });
       refresh();
     } catch {
-      toast({ title: "ط®ط·ط£", description: "ظپط´ظ„ طھط´ط؛ظٹظ„ ط§ظ„ظ…ظ‡ط§ظ…", variant: "destructive" });
+      toast({ title: "خطأ", description: "فشل تشغيل المهام", variant: "destructive" });
     } finally {
       setRunningAll(false);
     }
@@ -146,10 +146,10 @@ export default function AdminAutomation() {
     try {
       const res = await authedFetch(`/api/admin/automation/run/${endpoint}`, { method: "POST" });
       if (!res.ok) throw new Error();
-      toast({ title: "طھظ…", description: `طھظ… طھط´ط؛ظٹظ„ "${label}" ط¨ظ†ط¬ط§ط­` });
+      toast({ title: "تم", description: `تم تشغيل "${label}" بنجاح` });
       refresh();
     } catch {
-      toast({ title: "ط®ط·ط£", description: `ظپط´ظ„ طھط´ط؛ظٹظ„ "${label}"`, variant: "destructive" });
+      toast({ title: "خطأ", description: `فشل تشغيل "${label}"`, variant: "destructive" });
     } finally {
       setRunningJob(null);
     }
@@ -159,19 +159,19 @@ export default function AdminAutomation() {
     <div className="space-y-5 rtl">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-extrabold text-foreground">ط§ظ„ط£طھظ…طھط© ط§ظ„ظٹظˆظ…ظٹط©</h2>
-          <p className="text-xs text-muted-foreground mt-0.5">ظ…ط­ط±ظƒ ط§ظ„ظ…ط­طھظˆظ‰ ظˆط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ط§ظ„طھظ„ظ‚ط§ط¦ظٹط©</p>
+          <h2 className="text-xl font-extrabold text-foreground">الأتمتة اليومية</h2>
+          <p className="text-xs text-muted-foreground mt-0.5">محرك المحتوى والإشعارات التلقائية</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={refresh} disabled={loadingStatus}>
             <RefreshCw className={`w-4 h-4 ml-1.5 ${loadingStatus ? "animate-spin" : ""}`} />
-            طھط­ط¯ظٹط«
+            تحديث
           </Button>
           <Button size="sm" onClick={runAll} disabled={runningAll}>
             {runningAll
               ? <Loader2 className="w-4 h-4 animate-spin ml-1.5" />
               : <Zap className="w-4 h-4 ml-1.5" />}
-            طھط´ط؛ظٹظ„ ط§ظ„ظƒظ„
+            تشغيل الكل
           </Button>
         </div>
       </div>
@@ -216,10 +216,10 @@ export default function AdminAutomation() {
                               <Clock className="w-3 h-3 inline ml-1" />
                               {formatDateTime(job.last_run.created_at)}
                               {job.last_run.items_created > 0 &&
-                                ` آ· ${job.last_run.items_created} ط¹ظ†طµط±`}
+                                ` · ${job.last_run.items_created} عنصر`}
                             </p>
                           ) : (
-                            <p className="text-[11px] text-muted-foreground mt-0.5">ظ„ظ… ظٹظڈط´ط؛ظژظ‘ظ„ ط¨ط¹ط¯</p>
+                            <p className="text-[11px] text-muted-foreground mt-0.5">لم يُشغَّل بعد</p>
                           )}
                           {job.last_run?.details && (
                             <p className="text-[10px] text-muted-foreground/70 mt-0.5 truncate">
@@ -250,7 +250,7 @@ export default function AdminAutomation() {
         <CardHeader className="pb-2 pt-4 px-4">
           <CardTitle className="text-base font-bold flex items-center gap-2">
             <Clock className="w-4 h-4 text-primary" />
-            ط³ط¬ظ„ ط§ظ„ط¹ظ…ظ„ظٹط§طھ ط§ظ„ط£ط®ظٹط±ط©
+            سجل العمليات الأخيرة
           </CardTitle>
         </CardHeader>
         <CardContent className="px-4 pb-4">
@@ -261,7 +261,7 @@ export default function AdminAutomation() {
               ))}
             </div>
           ) : logs.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-6">ظ„ط§ طھظˆط¬ط¯ ط³ط¬ظ„ط§طھ ط¨ط¹ط¯</p>
+            <p className="text-sm text-muted-foreground text-center py-6">لا توجد سجلات بعد</p>
           ) : (
             <div className="space-y-2">
               {(Array.isArray(logs) ? logs : []).map((log) => {
@@ -280,7 +280,7 @@ export default function AdminAutomation() {
                       </span>
                       {log.items_created > 0 && (
                         <span className="text-[11px] text-muted-foreground mr-1.5">
-                          آ· {log.items_created} ط¹ظ†طµط±
+                          · {log.items_created} عنصر
                         </span>
                       )}
                       <p className="text-[10px] text-muted-foreground truncate">{log.details}</p>
@@ -304,27 +304,27 @@ export default function AdminAutomation() {
         <CardContent className="p-4">
           <h3 className="font-bold text-sm text-foreground mb-2 flex items-center gap-2">
             <Clock className="w-4 h-4 text-primary" />
-            ط¬ط¯ط§ظˆظ„ ط§ظ„طھط´ط؛ظٹظ„ ط§ظ„طھظ„ظ‚ط§ط¦ظٹ
+            جداول التشغيل التلقائي
           </h3>
           <div className="space-y-2 text-[12px] text-muted-foreground">
             <div className="flex justify-between items-center py-1.5 border-b border-border/40">
-              <span>ط±ط³ط§ظ„ط© ط§ظ„ظٹظˆظ… + ط¥ط´ط¹ط§ط± ط§ظ„ظ…ط­طھظˆظ‰</span>
-              <Badge variant="outline" className="text-[10px]">ظƒظ„ ظٹظˆظ… 01:05 طµ</Badge>
+              <span>رسالة اليوم + إشعار المحتوى</span>
+              <Badge variant="outline" className="text-[10px]">كل يوم 01:05 ص</Badge>
             </div>
             <div className="flex justify-between items-center py-1.5 border-b border-border/40">
-              <span>طھط°ظƒظٹط±ط§طھ ط§ظ„ظ…ظˆط§ط¹ظٹط¯ ظˆط§ظ„ظ…ط§ظ„ظٹط©</span>
-              <Badge variant="outline" className="text-[10px]">ظƒظ„ ظٹظˆظ… 07:00 طµ</Badge>
+              <span>تذكيرات المواعيد والمالية</span>
+              <Badge variant="outline" className="text-[10px]">كل يوم 07:00 ص</Badge>
             </div>
             <div className="flex justify-between items-center py-1.5">
               <span className="flex items-center gap-1">
-                <span>ط§ظ„ظ…ظ†ط·ظ‚ط© ط§ظ„ط²ظ…ظ†ظٹط© ظ„ظ„ط¬ط¯ظˆظ„ط©</span>
+                <span>المنطقة الزمنية للجدولة</span>
               </span>
-              <Badge variant="secondary" className="text-[10px] font-mono">Asia/Riyadh (ط®ط§ط¯ظ…)</Badge>
+              <Badge variant="secondary" className="text-[10px] font-mono">Asia/Riyadh (خادم)</Badge>
             </div>
           </div>
           <p className="text-[11px] text-muted-foreground/70 mt-3 border-t border-border/40 pt-2">
-            ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ طھظڈظˆظ„ظژظ‘ط¯ ط¨طھظˆظ‚ظٹطھ ط§ظ„ط±ظٹط§ط¶ (Asia/Riyadh) ط¹ظ„ظ‰ ط§ظ„ط®ط§ط¯ظ… â€” ظٹط±ط§ط¹ظٹ source_key ظ„ظ…ظ†ط¹ ط§ظ„طھظƒط±ط§ط±.
-            طھظپط¶ظٹظ„ط§طھ ط§ظ„ظ…ظ†ط·ظ‚ط© ط§ظ„ط²ظ…ظ†ظٹط© ط§ظ„ط®ط§طµط© ط¨ظƒظ„ ظ…ط³طھط®ط¯ظ… ظ…ط­ظپظˆط¸ط© ظپظٹ ظ…طھطµظپط­ظ‡.
+            الإشعارات تُولَّد بتوقيت الرياض (Asia/Riyadh) على الخادم — يراعي source_key لمنع التكرار.
+            تفضيلات المنطقة الزمنية الخاصة بكل مستخدم محفوظة في متصفحه.
           </p>
         </CardContent>
       </Card>
@@ -333,9 +333,9 @@ export default function AdminAutomation() {
 }
 
 const JOB_LABELS: Record<string, string> = {
-  daily_content: "ط±ط³ط§ظ„ط© ط§ظ„ظٹظˆظ…",
-  appointment_reminders: "طھط°ظƒظٹط±ط§طھ ط§ظ„ظ…ظˆط§ط¹ظٹط¯",
-  financial_reminders: "طھط°ظƒظٹط±ط§طھ ظ…ط§ظ„ظٹط©",
-  daily_content_notification: "ط¥ط´ط¹ط§ط± ظ…ط­طھظˆظ‰ ط§ظ„ظٹظˆظ…",
+  daily_content: "رسالة اليوم",
+  appointment_reminders: "تذكيرات المواعيد",
+  financial_reminders: "تذكيرات مالية",
+  daily_content_notification: "إشعار محتوى اليوم",
 };
 

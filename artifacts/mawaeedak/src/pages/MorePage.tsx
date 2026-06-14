@@ -1,13 +1,12 @@
-﻿/**
- * MorePage â€” Saudi Premium Minimal More/Settings
- * Reference: docs/design-reference/final-2026/05-more-page.jpeg
- * 
+/**
+ * MorePage — Saudi Premium Minimal More/Settings
+ *
  * Features:
- * - Title: ط§ظ„ظ…ط²ظٹط¯
+ * - Title: المزيد
  * - Premium greeting card with desert hero
  * - User/guest identity display
- * - Menu rows: ط§ظ„ظ…ظ„ظپ ط§ظ„ط´ط®طµظٹ, ط§ظ„ط¥ط¹ط¯ط§ط¯ط§طھ, ظ…ط´ط§ط±ظƒط© ط§ظ„طھط·ط¨ظٹظ‚, etc.
- * - Blessing card: ط¨ط§ط±ظƒ ط§ظ„ظ„ظ‡ ظپظٹ ظˆظ‚طھظƒ
+ * - Menu rows: الملف الشخصي, الإعدادات, مشاركة التطبيق, etc.
+ * - Blessing card: بارك الله في وقتك
  * - Logout navigates to / as guest with toast
  */
 
@@ -83,10 +82,10 @@ function DailyCardRow({ onClick }: { onClick: () => void }) {
         </div>
         <div className="text-right">
           <h3 className="text-[19px] font-extrabold" style={{ color: "#2F2B25" }}>
-            ط¨ط·ط§ظ‚ط© ظٹظˆظ…ظٹط©
+            بطاقة يومية
           </h3>
           <p className="text-[14px] font-bold mt-0.5" style={{ color: "#6F6557" }}>
-            ط´ط§ط±ظƒ ظٹظˆظ…ظƒ ظ…ط¹ ط§ظ„ط¢ط®ط±ظٹظ†
+            شارك يومك مع الآخرين
           </p>
         </div>
       </div>
@@ -107,17 +106,17 @@ export default function MorePage() {
 
     if (navigator.share) {
       try {
-        await navigator.share({ title: "ظ…ظˆط§ط¹ظٹط¯ظƒ", text: "ظƒظ„ ظ…ظˆط§ط¹ظٹط¯ظƒ ظپظٹ ظ…ظƒط§ظ† ظˆط§ط­ط¯", url });
-        showTopNotification("طھظ…طھ ط§ظ„ظ…ط´ط§ط±ظƒط© ط¨ظ†ط¬ط§ط­", "success");
+        await navigator.share({ title: "مواعيدك", text: "كل مواعيدك في مكان واحد", url });
+        showTopNotification("تمت المشاركة بنجاح", "success");
       } catch {
-        showTopNotification("ظپط´ظ„ ظ…ط´ط§ط±ظƒط© ط§ظ„طھط·ط¨ظٹظ‚", "error");
+        showTopNotification("فشل مشاركة التطبيق", "error");
       }
     } else {
       try {
         await navigator.clipboard.writeText(url);
-        showTopNotification("طھظ… ظ†ط³ط® ط±ط§ط¨ط· ط§ظ„طھط·ط¨ظٹظ‚", "info");
+        showTopNotification("تم نسخ رابط التطبيق", "info");
       } catch {
-        showTopNotification("ظپط´ظ„ ظ†ط³ط® ط§ظ„ط±ط§ط¨ط·", "error");
+        showTopNotification("فشل نسخ الرابط", "error");
       }
     }
   };
@@ -133,7 +132,7 @@ export default function MorePage() {
       id: "",
       name: "",
       email: "",
-      city: "ط§ظ„ط±ظٹط§ط¶",
+      city: "الرياض",
       cityKey: "riyadh",
       timezone: "Asia/Riyadh",
       role: "user",
@@ -142,13 +141,13 @@ export default function MorePage() {
     });
     setAdmin(false);
     
-    showTopNotification("طھظ… طھط³ط¬ظٹظ„ ط§ظ„ط®ط±ظˆط¬ ظˆط§ظ„ط¹ظˆط¯ط© ظ„ظ„ط±ط¦ظٹط³ظٹط©", "success");
+    showTopNotification("تم تسجيل الخروج والعودة للرئيسية", "success");
     setLocation("/");
     window.history.replaceState(null, "", "/");
   };
 
   return (
-    <AppShell title="ط§ظ„ظ…ط²ظٹط¯">
+    <AppShell title="المزيد">
       <div className="space-y-5">
         {/* Premium greeting card */}
         <section className="relative overflow-hidden rounded-[26px] border bg-white/72 p-5" style={{ borderColor: "rgba(201,160,99,0.22)", boxShadow: "0 16px 40px rgba(138,107,61,0.12)" }}>
@@ -157,13 +156,13 @@ export default function MorePage() {
           <div className="relative z-10 flex min-h-[160px] items-center justify-between gap-4">
             <div className="text-right">
               <p className="text-[25px] font-extrabold flex items-center gap-2" style={{ color: "#2F2B25" }}>
-                ظ…ط±ط­ط¨ط§ظ‹ ط¨ظƒ <Sparkles className="h-5 w-5" style={{ color: "#C9A063" }} />
+                مرحباً بك <Sparkles className="h-5 w-5" style={{ color: "#C9A063" }} />
               </p>
               <p className="mt-2 text-[26px] font-extrabold leading-tight" style={{ color: "#2F2B25" }}>
-                {displayName ? `ظٹط§ ${displayName}` : "ط²ط§ط¦ط± ظ…ظˆط§ط¹ظٹط¯ظƒ"}
+                {displayName ? `يا ${displayName}` : "زائر مواعيدك"}
               </p>
               <p className="mt-4 flex items-center gap-2 text-[15px] font-bold" style={{ color: "#8A6B3D" }}>
-                ظ†ط³ط¹ط¯ ط¨ط®ط¯ظ…طھظƒ ظƒظ„ ظٹظˆظ…
+                نسعد بخدمتك كل يوم
               </p>
             </div>
             <MawaeedakLogo compact />
@@ -176,19 +175,19 @@ export default function MorePage() {
 
         {/* Settings list */}
         <section className="overflow-hidden rounded-[24px] border bg-white/82" style={{ borderColor: "rgba(201,160,99,0.22)", boxShadow: "0 14px 34px rgba(138,107,61,0.10)" }}>
-          {isLoggedIn && <MoreRow icon={User} label="ط§ظ„ظ…ظ„ظپ ط§ظ„ط´ط®طµظٹ" onClick={() => setLocation("/account")} />}
-          {isLoggedIn && <MoreRow icon={Settings} label="ط§ظ„ط¥ط¹ط¯ط§ط¯ط§طھ" onClick={() => setLocation("/account#settings")} />}
-          <MoreRow icon={Share2} label="ظ…ط´ط§ط±ظƒط© ط§ظ„طھط·ط¨ظٹظ‚" onClick={shareApp} />
-          <MoreRow icon={ShieldCheck} label="ط³ظٹط§ط³ط© ط§ظ„ط®طµظˆطµظٹط©" onClick={() => setLocation("/privacy")} />
-          <MoreRow icon={FileText} label="ط§ظ„ط´ط±ظˆط· ظˆط§ظ„ط£ط­ظƒط§ظ…" onClick={() => setLocation("/terms")} />
-          <MoreRow icon={Headphones} label="ط§ظ„ظ…ط³ط§ط¹ط¯ط© ظˆط§ظ„ط¯ط¹ظ…" onClick={() => setLocation("/support")} />
+          {isLoggedIn && <MoreRow icon={User} label="الملف الشخصي" onClick={() => setLocation("/account")} />}
+          {isLoggedIn && <MoreRow icon={Settings} label="الإعدادات" onClick={() => setLocation("/account#settings")} />}
+          <MoreRow icon={Share2} label="مشاركة التطبيق" onClick={shareApp} />
+          <MoreRow icon={ShieldCheck} label="سياسة الخصوصية" onClick={() => setLocation("/privacy")} />
+          <MoreRow icon={FileText} label="الشروط والأحكام" onClick={() => setLocation("/terms")} />
+          <MoreRow icon={Headphones} label="المساعدة والدعم" onClick={() => setLocation("/support")} />
           {isAdmin && (
-            <MoreRow icon={Shield} label="ظ„ظˆط­ط© ط§ظ„ظ…ط§ظ„ظƒ" onClick={() => setLocation("/admin")} />
+            <MoreRow icon={Shield} label="لوحة المالك" onClick={() => setLocation("/admin")} />
           )}
           {isLoggedIn ? (
-            <MoreRow icon={LogOut} label="طھط³ط¬ظٹظ„ ط§ظ„ط®ط±ظˆط¬" danger onClick={() => setIsLogoutOpen(true)} />
+            <MoreRow icon={LogOut} label="تسجيل الخروج" danger onClick={() => setIsLogoutOpen(true)} />
           ) : (
-            <MoreRow icon={LogIn} label="طھط³ط¬ظٹظ„ ط§ظ„ط¯ط®ظˆظ„ / ط¥ظ†ط´ط§ط، ط­ط³ط§ط¨" onClick={() => setLocation("/login")} />
+            <MoreRow icon={LogIn} label="تسجيل الدخول / إنشاء حساب" onClick={() => setLocation("/login")} />
           )}
         </section>
 
@@ -198,20 +197,20 @@ export default function MorePage() {
           {/* Ornamental gold divider */}
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="h-px w-10 flex-1" style={{ background: "linear-gradient(90deg, transparent, #C9A063)" }} />
-            <span className="text-lg" style={{ color: "#C9A063" }}>âœ¦</span>
+            <span className="text-lg" style={{ color: "#C9A063" }}>✦</span>
             <div className="h-px w-10 flex-1" style={{ background: "linear-gradient(90deg, #C9A063, transparent)" }} />
           </div>
-          <p className="relative text-[22px] font-extrabold" style={{ color: "#8A6B3D" }}>ط¨ط§ط±ظƒ ط§ظ„ظ„ظ‡ ظپظٹ ظˆظ‚طھظƒ</p>
-          <p className="relative mt-2 text-[15px] font-bold" style={{ color: "#2F2B25" }}>ط¬ط¹ظ„ظ†ط§ ط§ظ„ظ„ظ‡ ظˆط¥ظٹط§ظƒظ… ظ…ظ† ط§ظ„ظ…ظˆظپظ‚ظٹظ† ظپظٹ ظƒظ„ ط£ظˆظ‚ط§طھظ†ط§</p>
+          <p className="relative text-[22px] font-extrabold" style={{ color: "#8A6B3D" }}>بارك الله في وقتك</p>
+          <p className="relative mt-2 text-[15px] font-bold" style={{ color: "#2F2B25" }}>جعلنا الله وإياكم من الموفقين في كل أوقاتنا</p>
         </section>
       </div>
 
       <ConfirmDialog
         open={isLogoutOpen}
         onOpenChange={setIsLogoutOpen}
-        title="طھط³ط¬ظٹظ„ ط§ظ„ط®ط±ظˆط¬"
-        description="ظ‡ظ„ طھط±ظٹط¯ طھط³ط¬ظٹظ„ ط§ظ„ط®ط±ظˆط¬ ظ…ظ† ط­ط³ط§ط¨ظƒطں ط³ظٹطھظ… ط¥ط¹ط§ط¯طھظƒ ط¥ظ„ظ‰ ط§ظ„طµظپط­ط© ط§ظ„ط±ط¦ظٹط³ظٹط©."
-        confirmText="طھط³ط¬ظٹظ„ ط§ظ„ط®ط±ظˆط¬"
+        title="تسجيل الخروج"
+        description="هل تريد تسجيل الخروج من حسابك؟ سيتم إعادتك إلى الصفحة الرئيسية."
+        confirmText="تسجيل الخروج"
         onConfirm={handleLogout}
       />
     </AppShell>

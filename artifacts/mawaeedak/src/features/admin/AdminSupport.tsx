@@ -1,4 +1,4 @@
-﻿import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,19 +24,19 @@ interface SupportTicket {
 }
 
 const CATEGORIES = [
-  { value: "technical", label: "ظ…ط´ظƒظ„ط© طھظ‚ظ†ظٹط©" },
-  { value: "account", label: "ظ…ط´ظƒظ„ط© ط­ط³ط§ط¨" },
-  { value: "suggestion", label: "ط§ظ‚طھط±ط§ط­" },
-  { value: "complaint", label: "ط´ظƒظˆظ‰" },
-  { value: "inquiry", label: "ط§ط³طھظپط³ط§ط±" },
-  { value: "other", label: "ط£ط®ط±ظ‰" },
+  { value: "technical", label: "مشكلة تقنية" },
+  { value: "account", label: "مشكلة حساب" },
+  { value: "suggestion", label: "اقتراح" },
+  { value: "complaint", label: "شكوى" },
+  { value: "inquiry", label: "استفسار" },
+  { value: "other", label: "أخرى" },
 ];
 
 const STATUS_OPTIONS = [
-  { value: "new", label: "ط¬ط¯ظٹط¯", color: "bg-amber-500/10 text-amber-600" },
-  { value: "in_progress", label: "ظ‚ظٹط¯ ط§ظ„ظ…ط¹ط§ظ„ط¬ط©", color: "bg-blue-500/10 text-blue-600" },
-  { value: "resolved", label: "طھظ… ط§ظ„ط­ظ„", color: "bg-emerald-500/10 text-emerald-600" },
-  { value: "closed", label: "ظ…ط؛ظ„ظ‚", color: "bg-muted text-muted-foreground" },
+  { value: "new", label: "جديد", color: "bg-amber-500/10 text-amber-600" },
+  { value: "in_progress", label: "قيد المعالجة", color: "bg-blue-500/10 text-blue-600" },
+  { value: "resolved", label: "تم الحل", color: "bg-emerald-500/10 text-emerald-600" },
+  { value: "closed", label: "مغلق", color: "bg-muted text-muted-foreground" },
 ];
 
 export default function AdminSupport() {
@@ -71,7 +71,7 @@ export default function AdminSupport() {
 
         const mappedTickets: SupportTicket[] = (data || []).map(c => ({
           id: c.id,
-          name: c.name || c.contact || "ظ…ط³طھط®ط¯ظ…",
+          name: c.name || c.contact || "مستخدم",
           email: c.contact,
           category: c.type || "inquiry",
           message: c.message,
@@ -124,7 +124,7 @@ export default function AdminSupport() {
 
     try {
       if (!isSupabaseEnabled) {
-        toast({ title: "ط®ط·ط£", description: "Supabase ط؛ظٹط± ظ…ظپط¹ظ‘ظ„", variant: "destructive" });
+        toast({ title: "خطأ", description: "Supabase غير مفعّل", variant: "destructive" });
         setSaving(false);
         return;
       }
@@ -148,10 +148,10 @@ export default function AdminSupport() {
       if (error) throw error;
 
       setTickets(prev => prev.map(t => t.id === detail.id ? { ...t, admin_reply: reply, status: replyStatus } : t));
-      toast({ title: "طھظ… ط­ظپط¸ ط§ظ„ط±ط¯" });
+      toast({ title: "تم حفظ الرد" });
       setDetail(null);
     } catch (err: any) {
-      toast({ title: "ط®ط·ط£", description: err.message || "ظپط´ظ„ ط§ظ„ط­ظپط¸", variant: "destructive" });
+      toast({ title: "خطأ", description: err.message || "فشل الحفظ", variant: "destructive" });
     } finally {
       setSaving(false);
     }
@@ -160,7 +160,7 @@ export default function AdminSupport() {
   const handleStatusChange = async (ticket: SupportTicket, newStatus: SupportTicket["status"]) => {
     try {
       if (!isSupabaseEnabled) {
-        toast({ title: "ط®ط·ط£", description: "Supabase ط؛ظٹط± ظ…ظپط¹ظ‘ظ„", variant: "destructive" });
+        toast({ title: "خطأ", description: "Supabase غير مفعّل", variant: "destructive" });
         return;
       }
 
@@ -179,9 +179,9 @@ export default function AdminSupport() {
       if (error) throw error;
 
       setTickets(prev => prev.map(t => t.id === ticket.id ? { ...t, status: newStatus } : t));
-      toast({ title: "طھظ… طھط­ط¯ظٹط« ط§ظ„ط­ط§ظ„ط©" });
+      toast({ title: "تم تحديث الحالة" });
     } catch (err: any) {
-      toast({ title: "ط®ط·ط£", description: err.message || "ظپط´ظ„ ط§ظ„طھط­ط¯ظٹط«", variant: "destructive" });
+      toast({ title: "خطأ", description: err.message || "فشل التحديث", variant: "destructive" });
     }
   };
 
@@ -196,17 +196,17 @@ export default function AdminSupport() {
           style={{ background: "linear-gradient(180deg, hsl(38 62% 52%), hsl(32 55% 42%))" }}
         />
         <h1 className="text-2xl font-extrabold" style={{ color: "hsl(22 62% 18%)" }}>
-          ط§ظ„ط¯ط¹ظ… ظˆط§ظ„ظ…ط³ط§ط¹ط¯ط©
+          الدعم والمساعدة
         </h1>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: "ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ", value: counts.total, icon: MessageSquare },
-          { label: "ط¬ط¯ظٹط¯", value: counts.new, icon: Clock },
-          { label: "ظ‚ظٹط¯ ط§ظ„ظ…ط¹ط§ظ„ط¬ط©", value: counts.inProgress, icon: Reply },
-          { label: "طھظ… ط§ظ„ط­ظ„", value: counts.resolved, icon: Check },
+          { label: "الإجمالي", value: counts.total, icon: MessageSquare },
+          { label: "جديد", value: counts.new, icon: Clock },
+          { label: "قيد المعالجة", value: counts.inProgress, icon: Reply },
+          { label: "تم الحل", value: counts.resolved, icon: Check },
         ].map(s => (
           <Card key={s.label} className="border-border shadow-sm">
             <CardContent className="p-4 flex items-center gap-3">
@@ -224,19 +224,19 @@ export default function AdminSupport() {
       <div className="flex flex-col md:flex-row gap-2">
         <div className="relative flex-1">
           <Search className="absolute right-3 top-2.5 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="ط¨ط­ط«..." value={search} onChange={e => setSearch(e.target.value)} className="pr-9" />
+          <Input placeholder="بحث..." value={search} onChange={e => setSearch(e.target.value)} className="pr-9" />
         </div>
         <Select value={catFilter} onValueChange={setCatFilter}>
           <SelectTrigger className="md:w-40"><SelectValue /></SelectTrigger>
           <SelectContent className="rtl">
-            <SelectItem value="all">ظƒظ„ ط§ظ„طھطµظ†ظٹظپط§طھ</SelectItem>
+            <SelectItem value="all">كل التصنيفات</SelectItem>
             {CATEGORIES.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="md:w-40"><SelectValue /></SelectTrigger>
           <SelectContent className="rtl">
-            <SelectItem value="all">ظƒظ„ ط§ظ„ط­ط§ظ„ط§طھ</SelectItem>
+            <SelectItem value="all">كل الحالات</SelectItem>
             {STATUS_OPTIONS.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
           </SelectContent>
         </Select>
@@ -250,7 +250,7 @@ export default function AdminSupport() {
           </Card>
         ) : filtered.length === 0 ? (
           <Card className="border-border shadow-sm">
-            <CardContent className="p-10 text-center text-muted-foreground">ظ„ط§ طھظˆط¬ط¯ ط·ظ„ط¨ط§طھ</CardContent>
+            <CardContent className="p-10 text-center text-muted-foreground">لا توجد طلبات</CardContent>
           </Card>
         ) : filtered.map(ticket => {
           const sm = statusMeta(ticket.status);
@@ -280,13 +280,13 @@ export default function AdminSupport() {
                       </SelectContent>
                     </Select>
                     <Button variant="outline" size="sm" className="h-8" onClick={() => openDetail(ticket)}>
-                      <Reply className="w-3.5 h-3.5 ml-1" /> ط±ط¯
+                      <Reply className="w-3.5 h-3.5 ml-1" /> رد
                     </Button>
                   </div>
                 </div>
                 {ticket.admin_reply && (
                   <div className="mt-3 p-3 rounded-lg bg-primary/5 border border-primary/15 text-sm">
-                    <span className="font-bold text-primary">ط§ظ„ط±ط¯: </span>{ticket.admin_reply}
+                    <span className="font-bold text-primary">الرد: </span>{ticket.admin_reply}
                   </div>
                 )}
               </CardContent>
@@ -298,7 +298,7 @@ export default function AdminSupport() {
       {/* Detail Dialog */}
       <Dialog open={!!detail} onOpenChange={open => { if (!open) setDetail(null); }}>
         <DialogContent className="rtl max-w-lg">
-          <DialogHeader><DialogTitle>طھظپط§طµظٹظ„ ط§ظ„ط·ظ„ط¨</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>تفاصيل الطلب</DialogTitle></DialogHeader>
           {detail && (
             <div className="space-y-4">
               <div className="flex items-center gap-2 flex-wrap">
@@ -313,7 +313,7 @@ export default function AdminSupport() {
               <div className="p-3 rounded-lg bg-muted/40 text-sm">{detail.message}</div>
               <div className="text-xs text-muted-foreground dir-ltr">{detail.email ?? detail.phone}</div>
               <div className="space-y-2">
-                <Label>ط§ظ„ط­ط§ظ„ط©</Label>
+                <Label>الحالة</Label>
                 <Select value={replyStatus} onValueChange={(v) => setReplyStatus(v as SupportTicket["status"])}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent className="rtl">
@@ -322,13 +322,13 @@ export default function AdminSupport() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>ط§ظ„ط±ط¯</Label>
-                <Textarea value={reply} onChange={e => setReply(e.target.value)} rows={4} placeholder="ط§ظƒطھط¨ ط±ط¯ظƒ ظ‡ظ†ط§..." />
+                <Label>الرد</Label>
+                <Textarea value={reply} onChange={e => setReply(e.target.value)} rows={4} placeholder="اكتب ردك هنا..." />
               </div>
               <div className="flex gap-2 justify-end">
-                <Button variant="outline" onClick={() => setDetail(null)}>ط¥ظ„ط؛ط§ط،</Button>
+                <Button variant="outline" onClick={() => setDetail(null)}>إلغاء</Button>
                 <Button onClick={handleSaveReply} disabled={saving}>
-                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "ط­ظپط¸ ط§ظ„ط±ط¯"}
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : "حفظ الرد"}
                 </Button>
               </div>
             </div>

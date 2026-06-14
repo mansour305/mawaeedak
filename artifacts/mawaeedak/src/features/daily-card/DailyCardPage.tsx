@@ -1,4 +1,4 @@
-﻿import { useMemo, useRef } from "react";
+import { useMemo, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import DailyCardPreview from "./DailyCardPreview";
 import { useStore } from "@/hooks/useStore";
@@ -9,30 +9,30 @@ import { getRiyadhTodayKey } from "@/lib/riyadhTime";
 
 // Saudi-based daily messages pool
 const DAILY_MESSAGES = [
-  "ظٹط¨ط¯ط£ ظٹظˆظ…ظƒ ط¨ظ†ظٹط© ط·ظٹط¨ط©طŒ ظˆطھظˆظƒظ‘ظ„ ط¹ظ„ظ‰ ط§ظ„ظ„ظ‡ ظپظٹ ظƒظ„ ط®ط·ظˆط©.",
-  "ط­ط§ظپط¸ ط¹ظ„ظ‰ طµظ„ط§طھظƒ ظپظٹ ظˆظ‚طھظ‡ط§طŒ ظپظ‡ظٹ ظ†ظˆط± ظ„ظƒ ظپظٹ ط§ظ„ط¯ظ†ظٹط§ ظˆط§ظ„ط¢ط®ط±ط©.",
-  "ط§ط¨ط¯ط£ ظٹظˆظ…ظƒ ط¨ط§ظ„طµظ„ط§ط© ط«ظ… ط§ظ„ط°ظ‡ط§ط¨ ط¥ظ„ظ‰ ط¹ظ…ظ„ظƒ ط¨ظ†ط´ط§ط·.",
-  "ط§ظ„ظˆط±ط¯ ظˆط§ظ„طµط¨ط§ط­ ط§ظ„ط¬ظ…ظٹظ„ ظٹط¨ط¯ط£ط§ظ† ظ…ظ† ط§ظ„ظ‚ظ„ط¨.",
-  "ظ„ط§ طھط¤ط¬ظ„ ط¹ظ…ظ„ ط§ظ„ظٹظˆظ… ط¥ظ„ظ‰ ط§ظ„ط؛ط¯طŒ ظپظƒظ„ ظٹظˆظ… ظ„ظ‡ ظپط±طµطھظ‡.",
-  "ط£ط­ط³ظ† ط§ظ„ط¸ظ† ط¨ط§ظ„ظ„ظ‡طŒ ظˆط§ظپط¹ظ„ ظ…ط§ ط¨ظˆط³ط¹ظƒطŒ ظˆطھظˆظƒظ‘ظ„ ط¹ظ„ظ‰ ط§ظ„ظ„ظ‡.",
-  "ظ…ظ‡ظ…ط§ ظƒط§ظ†طھ ط§ظ„طھط­ط¯ظٹط§طھطŒ ط«ظ‚ ط£ظ† ط§ظ„ظپط±ط¬ ظ‚ط±ظٹط¨.",
-  "ط§ط¬ط¹ظ„ ظ„ظƒ ظ‡ط¯ظپط§ظ‹ ظƒظ„ ظٹظˆظ…طŒ ظˆط­ظ‚ظ‚ظ‡ ظ‚ط¨ظ„ ظ…ظ†طھطµظپ ط§ظ„ظ†ظ‡ط§ط±.",
-  "ط§ظ„طھظپط§ط¤ظ„ ظٹط؛ظٹط± ط§ظ„ط­ظٹط§ط©طŒ ظپط§ط¨ط¯ط£ ظٹظˆظ…ظƒ ط¨ط§ط¨طھط³ط§ظ…ط©.",
-  "ط°ظƒط± ط§ظ„ظ„ظ‡ ظ†ط¹ظ…ط©طŒ ظپط§ط­ظ…ط¯ظ‡ ط¹ظ„ظ‰ ظ†ط¹ظ…ط§ط¦ظ‡.",
-  "ط§ظ„ط¹ظ…ظ„ ط¹ط¨ط§ط¯ط©طŒ ظپط£طھظ‚ظ† ظ…ط§ ط¨ظٹط¯ظƒ.",
-  "ظ„ط§ طھط³طھط¹ط¬ظ„ ط§ظ„ظ†طھط§ط¦ط¬طŒ ظپط§ظ„ط£ط¬ظˆط± طھط£طھظٹ.",
-  "ظƒظ† ط¨ط§ط±ط§ظ‹ ط¨ظˆط§ظ„ط¯ظٹظƒطŒ ظپط§ظ„ط¯ط¹ط§ط، ظ…ط³طھط¬ط§ط¨.",
-  "ط§ظ„طھظˆط§ط²ظ† ط¨ظٹظ† ط§ظ„ط¹ظ…ظ„ ظˆط§ظ„ط¹ط¨ط§ط¯ط© ظ…ظپطھط§ط­ ط§ظ„ط³ط¹ط§ط¯ط©.",
-  "ظƒظ„ ظٹظˆظ… ط¬ط¯ظٹط¯ ظ‡ظˆ ظپط±طµط© ط¬ط¯ظٹط¯ط© ظ„ظ„طھط؛ظٹظٹط±.",
-  "ط§ظ„طµظ„ط§ط© ط¹ظ„ظ‰ ط§ظ„ظ†ط¨ظٹ ط­ظٹط§ط© ظ„ظ„ظ‚ظ„ط¨.",
-  "ط§ظ„ط¹ظ…ظ„ ط§ظ„طµط§ظ„ط­ ظ„ط§ ظٹط¶ظٹط¹ ط£ط¨ط¯ط§ظ‹.",
-  "طھظˆظƒظ„ ط¹ظ„ظ‰ ط§ظ„ظ„ظ‡ ظپظٹ ظƒظ„ ط£ظ…ط±طŒ ظپظ‡ظˆ ط®ظٹط± ظ…ط¹ظٹظ†.",
-  "ط§ط²ط±ط¹ ط®ظٹط±ط§ظ‹ ط­ظٹط«ظ…ط§ ط­ظ„ظ„طھطŒ طھط­طµط¯ ط®ظٹط±ط§ظ‹ ط­ظٹط«ظ…ط§ ظƒظ†طھ.",
-  "ط§ط¨ط¯ط£ ظٹظˆظ…ظƒ ط¨ط§ظ„طµظ„ط§ط©طŒ ظˆط§ط®طھظ… ظٹظˆظ…ظƒ ط¨ط§ظ„ط§ط³طھط؛ظپط§ط±.",
-  "ط§ظ„ظپط±ط¬ ظ‚ط±ظٹط¨طŒ ظپظ„ط§ طھظٹط£ط³.",
-  "ط§ط²ط±ط¹ن¼کè‰¯ه“په¾·ï¼Œو”¶èژ·ç¾ژه¥½ن؛؛ç”ںم€‚",
-  "ط§ط¨ط¯ط£ ط¨ط§ظ„طھظˆظƒظ„ ط¹ظ„ظ‰ ط§ظ„ظ„ظ‡ طھظ†ط¬ط­.",
-  "ط£ط­ط³ظ† ط¥ظ„ظ‰ ط§ظ„ظ†ط§ط³ طھط³طھط¹ط¨ط¯ ظ‚ظ„ظˆط¨ظ‡ظ….",
+  "يبدأ يومك بنية طيبة، وتوكّل على الله في كل خطوة.",
+  "حافظ على صلاتك في وقتها، فهي نور لك في الدنيا والآخرة.",
+  "ابدأ يومك بالصلاة ثم الذهاب إلى عملك بنشاط.",
+  "الورد والصباح الجميل يبدأان من القلب.",
+  "لا تؤجل عمل اليوم إلى الغد، فكل يوم له فرصته.",
+  "أحسن الظن بالله، وافعل ما بوسعك، وتوكّل على الله.",
+  "مهما كانت التحديات، ثق أن الفرج قريب.",
+  "اجعل لك هدفاً كل يوم، وحققه قبل منتصف النهار.",
+  "التفاؤل يغير الحياة، فابدأ يومك بابتسامة.",
+  "ذكر الله نعمة، فاحمده على نعمائه.",
+  "العمل عبادة، فأتقن ما بيدك.",
+  "لا تستعجل النتائج، فالأجور تأتي.",
+  "كن باراً بوالديك، فالدعاء مستجاب.",
+  "التوازن بين العمل والعبادة مفتاح السعادة.",
+  "كل يوم جديد هو فرصة جديدة للتغيير.",
+  "الصلاة على النبي حياة للقلب.",
+  "العمل الصالح لا يضيع أبداً.",
+  "توكل على الله في كل أمر، فهو خير معين.",
+  "ازرع خيراً حيثما حللت، تحصد خيراً حيثما كنت.",
+  "ابدأ يومك بالصلاة، واختم يومك بالاستغفار.",
+  "الفرج قريب، فلا تيأس.",
+  "ازرع优良品德，收获美好人生。",
+  "ابدأ بالتوكل على الله تنجح.",
+  "أحسن إلى الناس تستعبد قلوبهم.",
 ];
 
 // Get today's message based on Saudi date
@@ -53,21 +53,21 @@ export default function DailyCardPage() {
   // Generate text for copy
   const generateText = () => {
     const saudiHour = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Riyadh" })).getHours();
-    const greeting = saudiHour < 12 ? "طµط¨ط§ط­ ط§ظ„ط®ظٹط±" : "ظ…ط³ط§ط، ط§ظ„ط®ظٹط±";
+    const greeting = saudiHour < 12 ? "صباح الخير" : "مساء الخير";
 
     const lines = [
-      "âœ¦ ظ…ظˆط§ط¹ظٹط¯ظƒ âœ¦",
+      "✦ مواعيدك ✦",
       getDayName(),
-      `${formatHijriDate()} ظ‡ظ€`,
-      `${formatGregorianDate()} ظ…`,
+      `${formatHijriDate()} هـ`,
+      `${formatGregorianDate()} م`,
       "",
       greeting,
       message,
       "",
-      "ظˆط§ط°ظƒط±ظˆط§ ط§ظ„ظ„ظ‡ ط°ظƒط±ط§ظ‹ ظƒط«ظٹط±ط§ظ‹",
+      "واذكروا الله ذكراً كثيراً",
       "",
-      "â”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پ",
-      "ظ…ظˆط§ط¹ظٹط¯ظƒ â€” ظ…ظ†طµط© طھط¬ظ…ط¹ ظˆظ‚طھظƒطŒ ط±ط§طھط¨ظƒطŒ ط¯ط¹ظ…ظƒطŒ ظˆط£ظ‡ظ… ظ…ظˆط§ط¹ظٹط¯ظƒ",
+      "━━━━━━━━━━━━━━",
+      "مواعيدك — منصة تجمع وقتك، راتبك، دعمك، وأهم مواعيدك",
     ];
 
     return lines.join("\n");
@@ -76,9 +76,9 @@ export default function DailyCardPage() {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(generateText());
-      showTopNotification("طھظ… ظ†ط³ط® ط§ظ„ط¨ط·ط§ظ‚ط© ط¨ظ†ط¬ط§ط­", "success");
+      showTopNotification("تم نسخ البطاقة بنجاح", "success");
     } catch {
-      showTopNotification("ظپط´ظ„ ظ†ط³ط® ط§ظ„ط¨ط·ط§ظ‚ط©", "error");
+      showTopNotification("فشل نسخ البطاقة", "error");
     }
   };
 
@@ -86,18 +86,18 @@ export default function DailyCardPage() {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: "ط¨ط·ط§ظ‚ط© ظٹظˆظ…ظٹط© - ظ…ظˆط§ط¹ظٹط¯ظƒ",
+          title: "بطاقة يومية - مواعيدك",
           text: generateText(),
           url: window.location.origin,
         });
-        showTopNotification("طھظ…طھ ط§ظ„ظ…ط´ط§ط±ظƒط© ط¨ظ†ط¬ط§ط­", "success");
+        showTopNotification("تمت المشاركة بنجاح", "success");
       } else {
         await navigator.clipboard.writeText(generateText());
-        showTopNotification("طھظ… ظ†ط³ط® ط§ظ„ط¨ط·ط§ظ‚ط© ظ„ظ„ظ…ط´ط§ط±ظƒط©", "info");
+        showTopNotification("تم نسخ البطاقة للمشاركة", "info");
       }
     } catch (e: any) {
       if (e?.name !== "AbortError") {
-        showTopNotification("ظپط´ظ„ ط§ظ„ظ…ط´ط§ط±ظƒط©", "error");
+        showTopNotification("فشل المشاركة", "error");
       }
     }
   };
@@ -105,7 +105,7 @@ export default function DailyCardPage() {
   const handleSaveImage = async () => {
     if (!cardRef.current) return;
     
-    showTopNotification("ط¬ط§ط±ظٹ ط­ظپط¸ ط§ظ„طµظˆط±ط©...", "info");
+    showTopNotification("جاري حفظ الصورة...", "info");
     
     try {
       const { default: html2canvas } = await import("html2canvas");
@@ -120,10 +120,10 @@ export default function DailyCardPage() {
       link.href = canvas.toDataURL("image/png");
       link.click();
       
-      showTopNotification("طھظ… ط­ظپط¸ ط§ظ„طµظˆط±ط© ط¨ظ†ط¬ط§ط­", "success");
+      showTopNotification("تم حفظ الصورة بنجاح", "success");
     } catch (err) {
       console.error("[DailyCard] Save image error:", err);
-      showTopNotification("ظپط´ظ„ ط­ظپط¸ ط§ظ„طµظˆط±ط©", "error");
+      showTopNotification("فشل حفظ الصورة", "error");
     }
   };
 
@@ -145,7 +145,7 @@ export default function DailyCardPage() {
           onClick={handleCopy}
         >
           <Copy className="w-4 h-4 ml-1" />
-          ظ†ط³ط®
+          نسخ
         </Button>
         <Button 
           variant="outline"
@@ -154,7 +154,7 @@ export default function DailyCardPage() {
           onClick={handleShare}
         >
           <Share2 className="w-4 h-4 ml-1" />
-          ظ…ط´ط§ط±ظƒط©
+          مشاركة
         </Button>
         <Button 
           variant="outline"
@@ -163,7 +163,7 @@ export default function DailyCardPage() {
           onClick={handleSaveImage}
         >
           <Download className="w-4 h-4 ml-1" />
-          طµظˆط±ط©
+          صورة
         </Button>
       </div>
     </div>

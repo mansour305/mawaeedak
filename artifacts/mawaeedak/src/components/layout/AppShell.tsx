@@ -1,7 +1,6 @@
-﻿/**
- * AppShell â€” Saudi Premium Minimal App Layout
- * Reference: docs/design-reference/final-2026/
- * 
+/**
+ * AppShell — Saudi Premium Minimal App Layout
+ *
  * Features:
  * - RTL layout
  * - Max width 480px (mobile-first)

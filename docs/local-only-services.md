@@ -1,4 +1,4 @@
-﻿# Local-Only Services Documentation
+# Local-Only Services Documentation
 
 **Last Updated**: 2026-06-12
 
@@ -8,13 +8,13 @@
 
 Some features in Mawaeedak currently store data locally (browser localStorage) rather than syncing to Supabase cloud. This document explains the current state, limitations, and sync path.
 
-**UI Indicator**: Services that store locally show the banner: "ًں’¾ ظ…ظ„ط§ط­ط¸ط©: ظ…ط­ظپظˆط¸ ط¹ظ„ظ‰ ظ‡ط°ط§ ط§ظ„ط¬ظ‡ط§ط² ظپظ‚ط·"
+**UI Indicator**: Services that store locally show the banner: "💾 ملاحظة: محفوظ على هذا الجهاز فقط"
 
 ---
 
 ## Current Local-Only Services
 
-### 1. Goals (ط§ط­ط³ط¨ ظ‡ط¯ظپظƒ)
+### 1. Goals (احسب هدفك)
 
 **Page**: `/services/goals`
 **Storage Key**: `mawaeedak_goals_v1`
@@ -36,19 +36,19 @@ interface Goal {
 ```
 
 **Limitations**:
-- â‌Œ Data not synced across devices
-- â‌Œ Data lost on browser cache clear
-- â‌Œ No cloud backup
-- â‌Œ No offline access on other devices
+- ❌ Data not synced across devices
+- ❌ Data lost on browser cache clear
+- ❌ No cloud backup
+- ❌ No offline access on other devices
 
 **Cloud Sync Status**:
-- âœ… Supabase schema created (`goals` table)
-- âœ… RLS policies defined
-- âڈ³ Sync integration pending
+- ✅ Supabase schema created (`goals` table)
+- ✅ RLS policies defined
+- ⏳ Sync integration pending
 
 ---
 
-### 2. Cost Projects (ط­ط³ط§ط¨ ط§ظ„طھظƒط§ظ„ظٹظپ)
+### 2. Cost Projects (حساب التكاليف)
 
 **Page**: `/services/costs`
 **Storage Key**: `mawaeedak_cost_projects_v1`
@@ -78,19 +78,19 @@ interface CostItem {
 ```
 
 **Limitations**:
-- â‌Œ Data not synced across devices
-- â‌Œ Data lost on browser cache clear
-- â‌Œ No cloud backup
-- â‌Œ No export/import between devices
+- ❌ Data not synced across devices
+- ❌ Data lost on browser cache clear
+- ❌ No cloud backup
+- ❌ No export/import between devices
 
 **Cloud Sync Status**:
-- âœ… Supabase schema created (`cost_projects`, `cost_items` tables)
-- âœ… RLS policies defined
-- âڈ³ Sync integration pending
+- ✅ Supabase schema created (`cost_projects`, `cost_items` tables)
+- ✅ RLS policies defined
+- ⏳ Sync integration pending
 
 ---
 
-### 3. Reminders (ط°ظƒط±ظ†ظٹ)
+### 3. Reminders (ذكرني)
 
 **Page**: `/services/reminders`
 **Storage Key**: `mawaeedak_reminders_v1`
@@ -113,15 +113,15 @@ interface Reminder {
 ```
 
 **Limitations**:
-- â‌Œ Data not synced across devices
-- â‌Œ Push notifications require deployment setup
-- â‌Œ In-app notifications only (for now)
+- ❌ Data not synced across devices
+- ❌ Push notifications require deployment setup
+- ❌ In-app notifications only (for now)
 
 **Cloud Sync Status**:
-- âœ… Supabase schema created (`reminders` table)
-- âœ… RLS policies defined
-- âڈ³ Sync integration pending
-- âڈ³ Push notification deployment required
+- ✅ Supabase schema created (`reminders` table)
+- ✅ RLS policies defined
+- ⏳ Sync integration pending
+- ⏳ Push notification deployment required
 
 ---
 
@@ -131,14 +131,14 @@ interface Reminder {
 
 | Service | Status | Notes |
 |---------|--------|-------|
-| User Profile | âœ… Synced | Auto-created on signup |
-| Financial Events | âœ… Synced | Salaries, aids, etc. |
-| Appointments | âœ… Synced | Calendar events |
-| Complaints | âœ… Synced | Supports guest submission |
-| Notifications | âœ… Synced | In-app notifications |
-| Daily Messages | âœ… Synced | Read-only for users |
-| Official Prayer Times | âœ… Synced | Admin-managed |
-| Push Subscriptions | âœ… Synced | Web Push setup |
+| User Profile | ✅ Synced | Auto-created on signup |
+| Financial Events | ✅ Synced | Salaries, aids, etc. |
+| Appointments | ✅ Synced | Calendar events |
+| Complaints | ✅ Synced | Supports guest submission |
+| Notifications | ✅ Synced | In-app notifications |
+| Daily Messages | ✅ Synced | Read-only for users |
+| Official Prayer Times | ✅ Synced | Admin-managed |
+| Push Subscriptions | ✅ Synced | Web Push setup |
 
 ---
 
@@ -201,25 +201,25 @@ async function migrateLocalToCloud(userId: string) {
 ### Current UI Banners
 
 **Goals**:
-> ًں’¾ ظ…ظ„ط§ط­ط¸ط©: ظ…ط­ظپظˆط¸ ط¹ظ„ظ‰ ظ‡ط°ط§ ط§ظ„ط¬ظ‡ط§ط² ظپظ‚ط·. ط§ظ„ظ…ط²ط§ظ…ظ†ط© ظ…ط¹ ط§ظ„ط³ط­ط§ط¨ط© ظ‚ط§ط¯ظ…ط© ظ‚ط±ظٹط¨ط§ظ‹.
+> 💾 ملاحظة: محفوظ على هذا الجهاز فقط. المزامنة مع السحابة قادمة قريباً.
 
 **Costs**:
-> ًں’¾ ظ…ظ„ط§ط­ط¸ط©: ظ…ط­ظپظˆط¸ ط¹ظ„ظ‰ ظ‡ط°ط§ ط§ظ„ط¬ظ‡ط§ط² ظپظ‚ط·. ط§ظ„ظ…ط²ط§ظ…ظ†ط© ظ…ط¹ ط§ظ„ط³ط­ط§ط¨ط© ظ‚ط§ط¯ظ…ط© ظ‚ط±ظٹط¨ط§ظ‹.
+> 💾 ملاحظة: محفوظ على هذا الجهاز فقط. المزامنة مع السحابة قادمة قريباً.
 
 **Reminders**:
-> ًں’¾ ظ…ظ„ط§ط­ط¸ط©: ظ…ط­ظپظˆط¸ ط¹ظ„ظ‰ ظ‡ط°ط§ ط§ظ„ط¬ظ‡ط§ط² ظپظ‚ط·. ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ط§ظ„ط¯ط§ط®ظ„ظٹط© ظپظ‚ط· ط­ط§ظ„ظٹط§ظ‹. ط¥ط¹ط¯ط§ط¯ ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ط§ظ„ظپظˆط±ظٹط© ظ‚ظٹط¯ ط§ظ„طھط·ظˆظٹط±.
+> 💾 ملاحظة: محفوظ على هذا الجهاز فقط. الإشعارات الداخلية فقط حالياً. إعداد الإشعارات الفورية قيد التطوير.
 
 ---
 
 ## Migration Strategy
 
 ### For New Users
-1. Create account â†’ Cloud storage from start
+1. Create account → Cloud storage from start
 2. LocalStorage not used for primary data
 
 ### For Existing Users
 1. Detect localStorage data on login
-2. Show migration prompt: "ظ‡ظ„ طھط±ظٹط¯ ظ†ظ‚ظ„ ط¨ظٹط§ظ†ط§طھظƒ ظ„ظ„ط³ط­ط§ط¨ط©طں"
+2. Show migration prompt: "هل تريد نقل بياناتك للسحابة؟"
 3. If yes: Migrate data to Supabase
 4. If no: Keep localStorage, sync new data only
 
@@ -248,7 +248,7 @@ All localStorage data is stored as JSON strings:
 [
   {
     "id": "goal_1234567890_abc123",
-    "name": "ط´ط±ط§ط، ط³ظٹط§ط±ط©",
+    "name": "شراء سيارة",
     "type": "financial",
     "targetAmount": 100000,
     "currentProgress": 25000,
@@ -292,12 +292,12 @@ When migrating to cloud:
 
 | Feature | Local Only | Cloud Sync | Migration Ready |
 |---------|-----------|------------|-----------------|
-| Goals | âœ… Yes | âڈ³ Pending | âڈ³ Pending |
-| Costs | âœ… Yes | âڈ³ Pending | âڈ³ Pending |
-| Reminders | âœ… Yes | âڈ³ Pending | âڈ³ Pending |
-| Financial Events | â‌Œ No | âœ… Done | âœ… Done |
-| Appointments | â‌Œ No | âœ… Done | âœ… Done |
-| Complaints | â‌Œ No | âœ… Done | âœ… Done |
+| Goals | ✅ Yes | ⏳ Pending | ⏳ Pending |
+| Costs | ✅ Yes | ⏳ Pending | ⏳ Pending |
+| Reminders | ✅ Yes | ⏳ Pending | ⏳ Pending |
+| Financial Events | ❌ No | ✅ Done | ✅ Done |
+| Appointments | ❌ No | ✅ Done | ✅ Done |
+| Complaints | ❌ No | ✅ Done | ✅ Done |
 
 ---
 

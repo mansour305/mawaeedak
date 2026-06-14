@@ -1,4 +1,4 @@
-﻿import { Link } from "wouter";
+import { Link } from "wouter";
 import { Home, SearchX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -15,15 +15,15 @@ export default function NotFound() {
         404
       </h1>
       <h2 className="text-xl font-bold text-foreground mb-2" style={{ fontFamily: "Tajawal, sans-serif" }}>
-        ط§ظ„طµظپط­ط© ط؛ظٹط± ظ…ظˆط¬ظˆط¯ط©
+        الصفحة غير موجودة
       </h2>
       <p className="text-sm text-muted-foreground mb-8 max-w-[280px] leading-relaxed" style={{ fontFamily: "Tajawal, sans-serif" }}>
-        ط¹ط°ط±ط§ظ‹طŒ ط§ظ„طµظپط­ط© ط§ظ„طھظٹ طھط¨ط­ط« ط¹ظ†ظ‡ط§ ط؛ظٹط± ظ…ظˆط¬ظˆط¯ط© ط£ظˆ طھظ… ظ†ظ‚ظ„ظ‡ط§.
+        عذراً، الصفحة التي تبحث عنها غير موجودة أو تم نقلها.
       </p>
       <Link href="/">
         <Button className="h-12 px-8 rounded-xl font-bold text-base gap-2" style={{ fontFamily: "Tajawal, sans-serif" }}>
           <Home className="w-5 h-5" />
-          ط§ظ„ط¹ظˆط¯ط© ظ„ظ„ط±ط¦ظٹط³ظٹط©
+          العودة للرئيسية
         </Button>
       </Link>
     </div>

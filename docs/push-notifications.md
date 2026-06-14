@@ -1,7 +1,7 @@
-﻿# Push Notifications Implementation
+# Push Notifications Implementation
 
 **Last Updated**: 2026-06-12
-**Status**: Code Ready â€” Deployment Setup Required
+**Status**: Code Ready — Deployment Setup Required
 
 ---
 
@@ -16,38 +16,38 @@ Mawaeedak implements Web Push Notifications using the Push API and Web Push prot
 ## Architecture
 
 ```
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
-â”‚                        Browser                                   â”‚
-â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ   â”‚
-â”‚  â”‚  Service    â”‚    â”‚  Push       â”‚    â”‚  Notification    â”‚   â”‚
-â”‚  â”‚  Worker     â”‚â—„â”€â”€â”€â”‚  Manager    â”‚â”€â”€â”€â–؛â”‚  API             â”‚   â”‚
-â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک   â”‚
-â”‚         â”‚                                        â”‚              â”‚
-â”‚         â”‚ Push Event                            â”‚ Display      â”‚
-â”‚         â–¼                                        â–¼              â”‚
-â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ   â”‚
-â”‚  â”‚                  Mawaeedak App                          â”‚   â”‚
-â”‚  â”‚  - pushNotificationService.ts                          â”‚   â”‚
-â”‚  â”‚  - Subscription management                              â”‚   â”‚
-â”‚  â”‚  - VAPID authentication                                 â”‚   â”‚
-â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک   â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
-          â”‚                                      â”‚
-          â”‚ Subscription Data                   â”‚ Push Payload
-          â–¼                                      â–¼
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ              â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
-â”‚    Supabase         â”‚              â”‚   Supabase Edge          â”‚
-â”‚  push_subscriptions â”‚              â”‚   Function (send-push)   â”‚
-â”‚  table              â”‚              â”‚                         â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک              â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
-                                              â”‚
-                                              â”‚ Web Push Protocol
-                                              â–¼
-                                      â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”گ
-                                      â”‚  Push Service   â”‚
-                                      â”‚  (Browser's     â”‚
-                                      â”‚   Push Service) â”‚
-                                      â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”ک
+┌─────────────────────────────────────────────────────────────────┐
+│                        Browser                                   │
+│  ┌─────────────┐    ┌─────────────┐    ┌──────────────────┐   │
+│  │  Service    │    │  Push       │    │  Notification    │   │
+│  │  Worker     │◄───│  Manager    │───►│  API             │   │
+│  └─────────────┘    └─────────────┘    └──────────────────┘   │
+│         │                                        │              │
+│         │ Push Event                            │ Display      │
+│         ▼                                        ▼              │
+│  ┌─────────────────────────────────────────────────────────┐   │
+│  │                  Mawaeedak App                          │   │
+│  │  - pushNotificationService.ts                          │   │
+│  │  - Subscription management                              │   │
+│  │  - VAPID authentication                                 │   │
+│  └─────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+          │                                      │
+          │ Subscription Data                   │ Push Payload
+          ▼                                      ▼
+┌─────────────────────┐              ┌─────────────────────────┐
+│    Supabase         │              │   Supabase Edge          │
+│  push_subscriptions │              │   Function (send-push)   │
+│  table              │              │                         │
+└─────────────────────┘              └─────────────────────────┘
+                                              │
+                                              │ Web Push Protocol
+                                              ▼
+                                      ┌─────────────────┐
+                                      │  Push Service   │
+                                      │  (Browser's     │
+                                      │   Push Service) │
+                                      └─────────────────┘
 ```
 
 ---
@@ -59,13 +59,13 @@ Mawaeedak implements Web Push Notifications using the Push API and Web Push prot
 **Location**: `artifacts/mawaeedak/src/lib/push/pushNotificationService.ts`
 
 **Functions**:
-- `isPushSupported()` â€” Check browser support
-- `requestNotificationPermission()` â€” Request browser permission
-- `subscribeToPush()` â€” Subscribe to push
-- `savePushSubscription()` â€” Store in Supabase
-- `enablePushNotifications()` â€” Full subscription flow
-- `disablePushNotifications()` â€” Unsubscribe
-- `setupNotificationClickHandler()` â€” Handle notification clicks
+- `isPushSupported()` — Check browser support
+- `requestNotificationPermission()` — Request browser permission
+- `subscribeToPush()` — Subscribe to push
+- `savePushSubscription()` — Store in Supabase
+- `enablePushNotifications()` — Full subscription flow
+- `disablePushNotifications()` — Unsubscribe
+- `setupNotificationClickHandler()` — Handle notification clicks
 
 ### 2. Backend: Supabase Edge Function
 
@@ -196,9 +196,9 @@ Example Vercel `vercel.json` cron:
 ### 1. Browser Testing
 
 1. Open app in Chrome/Edge
-2. Open DevTools â†’ Application â†’ Service Workers
+2. Open DevTools → Application → Service Workers
 3. Check "Update on reload"
-4. Go to Settings â†’ Enable notifications
+4. Go to Settings → Enable notifications
 5. Check browser notification permission
 
 ### 2. Manual Push Test
@@ -230,12 +230,12 @@ curl -X POST https://your-project.supabase.co/functions/v1/send-push \
 
 | Browser | Push Support |
 |---------|-------------|
-| Chrome 50+ | âœ… Full |
-| Edge 79+ | âœ… Full |
-| Firefox 44+ | âœ… Full |
-| Safari 16+ | âڑ ï¸ڈ Limited (no background push) |
-| Samsung Internet | âœ… Full |
-| Opera 36+ | âœ… Full |
+| Chrome 50+ | ✅ Full |
+| Edge 79+ | ✅ Full |
+| Firefox 44+ | ✅ Full |
+| Safari 16+ | ⚠️ Limited (no background push) |
+| Samsung Internet | ✅ Full |
+| Opera 36+ | ✅ Full |
 
 **Note**: iOS Safari has limited Push API support. For iOS, consider:
 - Web App Banner prompt
@@ -254,9 +254,9 @@ curl -X POST https://your-project.supabase.co/functions/v1/send-push \
 
 ## Next Steps for Full Push
 
-1. âœ… Code implemented
-2. âڈ³ Deploy Edge Function
-3. âڈ³ Configure VAPID keys
-4. âڈ³ Set up scheduler
-5. âڈ³ Test end-to-end
-6. âڈ³ Monitor delivery rates
+1. ✅ Code implemented
+2. ⏳ Deploy Edge Function
+3. ⏳ Configure VAPID keys
+4. ⏳ Set up scheduler
+5. ⏳ Test end-to-end
+6. ⏳ Monitor delivery rates

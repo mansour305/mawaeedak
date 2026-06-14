@@ -1,4 +1,4 @@
-﻿import { pgTable, serial, text, timestamp, boolean, integer, numeric, uuid } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp, boolean, integer, numeric, uuid } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -18,7 +18,7 @@ export const financialEventsTable = pgTable("financial_events", {
    */
   user_id: uuid("user_id"),
   /**
-   * Humanâ€‘readable name of the event (e.g. "ط±ط§طھط¨ ط´ظ‡ط± ط°ظˆ ط§ظ„ط­ط¬ط© 1447").
+   * Human‑readable name of the event (e.g. "راتب شهر ذو الحجة 1447").
    */
   name: text("name").notNull(),
   /**
@@ -48,7 +48,7 @@ export const financialEventsTable = pgTable("financial_events", {
   confirmed: boolean("confirmed").notNull().default(false),
   /**
    * Textual source or authority from which this event was obtained
-   * (e.g. "ظˆط²ط§ط±ط© ط§ظ„ظ…ط§ظ„ظٹط©", "ط¨ط±ظ†ط§ظ…ط¬ ط­ط³ط§ط¨ ط§ظ„ظ…ظˆط§ط·ظ†").
+   * (e.g. "وزارة المالية", "برنامج حساب المواطن").
    */
   source: text("source"),
   created_at: timestamp("created_at").defaultNow().notNull(),

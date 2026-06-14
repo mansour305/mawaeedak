@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Supabase Edge Function: send-push
  * Phase 15: Web Push Notification Foundation
  * 

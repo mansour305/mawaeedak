@@ -1,13 +1,13 @@
-﻿/**
- * apiAuth.ts â€” ظ…ظˆط§ط¹ظٹط¯ظƒ
+/**
+ * apiAuth.ts — مواعيدك
  *
- * ظٹط±ط¨ط· ط¬ظ„ط³ط© Supabase ط¨ط·ظ„ط¨ط§طھ ط§ظ„ظ€ API:
- * - getAccessToken: ظٹظ‚ط±ط£ access token ط§ظ„ط­ط§ظ„ظٹ ظ…ظ† Supabase (ط£ظˆ null)
- * - registerApiAuth: ظٹط³ط¬ظ‘ظ„ getter ظپظٹ api-client ظ„ط¥ط±ظپط§ظ‚ Bearer طھظ„ظ‚ط§ط¦ظٹط§ظ‹ ط¹ظ„ظ‰ hooks ط§ظ„ظ…ظˆظ„ظ‘ط¯ط©
- * - authedFetch: ط؛ظ„ط§ظپ fetch ظٹظڈط±ظپظ‚ Authorization طھظ„ظ‚ط§ط¦ظٹط§ظ‹ ظ„ظ„ظ†ط¯ط§ط،ط§طھ ط§ظ„ط®ط§ظ… (gateway/automation/settings)
- * - authedFetchWithTimeout: fetch ظ…ط¹ timeout ظˆ AbortController
+ * يربط جلسة Supabase بطلبات الـ API:
+ * - getAccessToken: يقرأ access token الحالي من Supabase (أو null)
+ * - registerApiAuth: يسجّل getter في api-client لإرفاق Bearer تلقائياً على hooks المولّدة
+ * - authedFetch: غلاف fetch يُرفق Authorization تلقائياً للنداءات الخام (gateway/automation/settings)
+ * - authedFetchWithTimeout: fetch مع timeout و AbortController
  *
- * SECURITY: ظ„ط§ ظٹظڈط®ط²ظژظ‘ظ† ط£ظٹ طھظˆظƒظ† â€” ظٹظڈظ‚ط±ط£ ظ…ظ† Supabase ط¹ظ†ط¯ ظƒظ„ ط·ظ„ط¨.
+ * SECURITY: لا يُخزَّن أي توكن — يُقرأ من Supabase عند كل طلب.
  */
 
 import { setAuthTokenGetter, setBaseUrl } from "./api-client";

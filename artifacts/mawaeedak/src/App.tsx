@@ -1,4 +1,4 @@
-﻿import { lazy, Suspense, useState, useEffect } from "react";
+import { lazy, Suspense, useState, useEffect } from "react";
 import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -80,7 +80,7 @@ function RouteFallback() {
   return (
     <div className="flex min-h-[100dvh] items-center justify-center bg-[#FAF7F2] px-6 text-center" dir="rtl">
       <div className="rounded-3xl border border-[#C9A063]/25 bg-white/80 px-6 py-5 text-sm font-bold text-[#8A6B3D] shadow-[0_18px_48px_rgba(138,107,61,0.12)]">
-        ط¬ط§ط±ظٹ طھط­ظ…ظٹظ„ ظ…ظˆط§ط¹ظٹط¯ظƒ...
+        جاري تحميل مواعيدك...
       </div>
     </div>
   );

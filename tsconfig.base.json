@@ -1,4 +1,4 @@
-﻿{
+{
   "compilerOptions": {
     "isolatedModules": true,
     "lib": ["es2022"],

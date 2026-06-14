@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Shared Library Index
  * Re-exports all shared utilities
  */

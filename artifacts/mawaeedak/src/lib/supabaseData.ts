@@ -1,35 +1,35 @@
-﻿/**
- * supabaseData.ts â€” ظ…ظˆط§ط¹ظٹط¯ظƒ Phase 12I
+/**
+ * supabaseData.ts — مواعيدك Phase 12I
  *
- * Supabase Data Adapter â€” ط·ط¨ظ‚ط© ظ‚ط±ط§ط،ط© + ظƒطھط§ط¨ط© ظ…ط­ط¯ظˆط¯ط©.
+ * Supabase Data Adapter — طبقة قراءة + كتابة محدودة.
  *
- * ط§ظ„ظ‚ظˆط§ط¹ط¯:
- * - ظ„ط§ طھظڈط³طھط®ط¯ظ… ظƒظ…طµط¯ط± ط§ظپطھط±ط§ط¶ظٹ â€” API/PostgreSQL ظ„ط§ ظٹط²ط§ظ„ ط§ظ„ظ…طµط¯ط±.
- * - ط¯ظˆط§ظ„ ط§ظ„ظ‚ط±ط§ط،ط© طھظڈط¹ظٹط¯ null ط¹ظ†ط¯ ط§ظ„ظپط´ظ„ ظˆظ„ط§ طھط±ظ…ظٹ exception.
- * - ط¯ظˆط§ظ„ ط§ظ„ظƒطھط§ط¨ط© طھظڈط¹ظٹط¯ { success, error } â€” ظ„ط§ fallback طµط§ظ…طھ ط¥ظ„ظ‰ API.
- * - ظ„ط§ طھط³طھط®ط¯ظ… service_role â€” anon key ظپظ‚ط·.
- * - ظ„ط§ ط£ط³ط±ط§ط± ظپظٹ ط§ظ„ظƒظˆط¯ â€” VITE_SUPABASE_ANON_KEY ظپظ‚ط·.
- * - user_id ظٹظڈط¬ظ„ط¨ ظ…ظ† session Supabase ط¹ظ†ط¯ ط§ظ„ط­ط§ط¬ط©.
- * - ط£ظٹ ط®ط·ط£ Supabase ظ„ط§ ظٹظƒط³ط± Preview.
+ * القواعد:
+ * - لا تُستخدم كمصدر افتراضي — API/PostgreSQL لا يزال المصدر.
+ * - دوال القراءة تُعيد null عند الفشل ولا ترمي exception.
+ * - دوال الكتابة تُعيد { success, error } — لا fallback صامت إلى API.
+ * - لا تستخدم service_role — anon key فقط.
+ * - لا أسرار في الكود — VITE_SUPABASE_ANON_KEY فقط.
+ * - user_id يُجلب من session Supabase عند الحاجة.
+ * - أي خطأ Supabase لا يكسر Preview.
  *
- * ط§ظ„ط¬ط¯ط§ظˆظ„ ط§ظ„ظ…ط¯ط¹ظˆظ…ط© ظ„ظ„ظ‚ط±ط§ط،ط©:
+ * الجداول المدعومة للقراءة:
  *   Admin-managed: daily_messages, story_templates, themes, news, jobs
  *   User-owned:    appointments, financial_events, notifications
  *   Support:       complaints
  *
- * ط§ظ„ط¬ط¯ط§ظˆظ„ ط§ظ„ظ…ط¯ط¹ظˆظ…ط© ظ„ظ„ظƒطھط§ط¨ط© (Phase 12I â€” ظ†ط·ط§ظ‚ ظ…ط­ط¯ظˆط¯):
- *   notifications â€” mark-read ظپظ‚ط· (UPDATE is_read = true WHERE legacy_id = X)
+ * الجداول المدعومة للكتابة (Phase 12I — نطاق محدود):
+ *   notifications — mark-read فقط (UPDATE is_read = true WHERE legacy_id = X)
  *
- * ظ‚ظٹظˆط¯ Write Cutover:
- *   - mode=api/supabase_shadow: ظ„ط§ ظƒطھط§ط¨ط© ظپظٹ Supabase (API ظپظ‚ط·)
- *   - mode=supabase: mark-read ظٹط°ظ‡ط¨ ظ„ظ€ Supabase
- *   - NotificationsPage طھط¨ظ‚ظ‰ ط¹ظ„ظ‰ Orval â€” Phase 12J (ظٹط­طھط§ط¬ read+write ظ…ط¹ط§ظ‹)
- *   - ط§ظ„ط§ط®طھط¨ط§ط±: /admin/data-layer â†’ "ط§ط®طھط¨ط§ط± ط§ظ„ظƒطھط§ط¨ط©"
+ * قيود Write Cutover:
+ *   - mode=api/supabase_shadow: لا كتابة في Supabase (API فقط)
+ *   - mode=supabase: mark-read يذهب لـ Supabase
+ *   - NotificationsPage تبقى على Orval — Phase 12J (يحتاج read+write معاً)
+ *   - الاختبار: /admin/data-layer → "اختبار الكتابة"
  *
- * RLS ظ„ظ„ظ€ notifications:
+ * RLS للـ notifications:
  *   - notifications_update_own: auth.uid() = user_id
- *   - ظٹطھط·ظ„ط¨ session Supabase Auth (hrq@hotmail.com)
- *   - ط¨ط¯ظˆظ† session: ظٹظڈط¹ظٹط¯ error ظ…ظ†ط§ط³ط¨ط§ظ‹ (ظ„ط§ crash)
+ *   - يتطلب session Supabase Auth (hrq@hotmail.com)
+ *   - بدون session: يُعيد error مناسباً (لا crash)
  */
 
 import { supabase } from "./supabase";
@@ -46,9 +46,9 @@ import type {
 } from "./api-client";
 import { calculateDaysRemaining, getRiyadhTodayKey } from "./riyadhTime";
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
 // Helpers
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
 
 function isConnected(): boolean {
   return supabase !== null;
@@ -64,9 +64,9 @@ async function getCurrentUserId(): Promise<string | null> {
   }
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Admin-managed tables (ظ„ط§ طھط­طھط§ط¬ user_id)
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
+// Admin-managed tables (لا تحتاج user_id)
+// ─────────────────────────────────────────────────────────
 
 export async function getDailyMessagesFromSupabase(): Promise<DailyMessage[] | null> {
   if (!isConnected()) return null;
@@ -184,10 +184,10 @@ export async function getJobsFromSupabase(): Promise<Job[] | null> {
   }
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// User-owned tables (طھط­طھط§ط¬ user_id ظ…ظ† session)
-// RLS طھظڈط±ط¬ط¹ 0 طµظپظˆظپ ط¥ط°ط§ ظ„ط§ ظٹظˆط¬ط¯ session â€” ط¢ظ…ظ†
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
+// User-owned tables (تحتاج user_id من session)
+// RLS تُرجع 0 صفوف إذا لا يوجد session — آمن
+// ─────────────────────────────────────────────────────────
 
 export async function getAppointmentsFromSupabase(): Promise<Appointment[] | null> {
   if (!isConnected()) return null;
@@ -219,14 +219,14 @@ export async function getAppointmentsFromSupabase(): Promise<Appointment[] | nul
   }
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Phase 12N â€” Appointments Write + Upcoming
-// ط§ط³طھط±ط§طھظٹط¬ظٹط© id: (row.legacy_id ?? row.id) as number
-//   - طµظپظˆظپ ظ…ظڈظ‡ط§ط¬ظژط±ط©: legacy_id = integer ظ‚ط¯ظٹظ…طŒ id = Supabase bigint
-//   - طµظپظˆظپ ط¬ط¯ظٹط¯ط©: legacy_id = nullطŒ id = Supabase bigint â†’ cast number
-// ط§ط³طھط±ط§طھظٹط¬ظٹط© update/delete: .or('legacy_id.eq.X,id.eq.X')
-// RLS: appointments_select/update/delete_own â†’ auth.uid() = user_id
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
+// Phase 12N — Appointments Write + Upcoming
+// استراتيجية id: (row.legacy_id ?? row.id) as number
+//   - صفوف مُهاجَرة: legacy_id = integer قديم، id = Supabase bigint
+//   - صفوف جديدة: legacy_id = null، id = Supabase bigint → cast number
+// استراتيجية update/delete: .or('legacy_id.eq.X,id.eq.X')
+// RLS: appointments_select/update/delete_own → auth.uid() = user_id
+// ─────────────────────────────────────────────────────────
 
 export interface AppointmentPayload {
   title: string;
@@ -246,7 +246,7 @@ function mapAppointmentRow(row: Record<string, unknown>): Appointment {
     description: (row.description ?? null) as string | null,
     date: row.date as string,
     time: (row.time ?? null) as string | null,
-    category: (row.category ?? "ط´ط®طµظٹ") as string,
+    category: (row.category ?? "شخصي") as string,
     color: (row.color ?? null) as string | null,
     priority: (row.priority ?? null) as string | null,
     reminder_enabled: (row.reminder_enabled ?? false) as boolean,
@@ -277,17 +277,17 @@ export async function getUpcomingAppointmentsFromSupabase(limit = 5): Promise<Ap
 }
 
 export async function createAppointmentInSupabase(payload: AppointmentPayload): Promise<WriteResult> {
-  if (!supabase) return { success: false, error: "Supabase ط؛ظٹط± ظ…طھطµظ„" };
+  if (!supabase) return { success: false, error: "Supabase غير متصل" };
   try {
     const userId = await getCurrentUserId();
-    if (!userId) return { success: false, error: "ط§ظ„ظ…ط³طھط®ط¯ظ… ط؛ظٹط± ظ…ظڈط³ط¬ظژظ‘ظ„ ظپظٹ Supabase" };
+    if (!userId) return { success: false, error: "المستخدم غير مُسجَّل في Supabase" };
     const { error } = await supabase!.from("appointments").insert({
       user_id: userId,
       title: payload.title,
       description: payload.description ?? null,
       date: payload.date,
       time: payload.time ?? null,
-      category: payload.category ?? "ط´ط®طµظٹ",
+      category: payload.category ?? "شخصي",
       color: payload.color ?? null,
       priority: payload.priority ?? null,
       reminder_enabled: payload.reminder_enabled ?? false,
@@ -295,12 +295,12 @@ export async function createAppointmentInSupabase(payload: AppointmentPayload): 
     if (error) return { success: false, error: `Supabase error: ${error.message}` };
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "ط®ط·ط£ ط؛ظٹط± ظ…طھظˆظ‚ط¹" };
+    return { success: false, error: err instanceof Error ? err.message : "خطأ غير متوقع" };
   }
 }
 
 export async function updateAppointmentInSupabase(id: number, payload: Partial<AppointmentPayload>): Promise<WriteResult> {
-  if (!supabase) return { success: false, error: "Supabase ط؛ظٹط± ظ…طھطµظ„" };
+  if (!supabase) return { success: false, error: "Supabase غير متصل" };
   try {
     const patch: Record<string, unknown> = {};
     if (payload.title !== undefined) patch.title = payload.title;
@@ -318,12 +318,12 @@ export async function updateAppointmentInSupabase(id: number, payload: Partial<A
     if (error) return { success: false, error: `Supabase error: ${error.message}` };
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "ط®ط·ط£ ط؛ظٹط± ظ…طھظˆظ‚ط¹" };
+    return { success: false, error: err instanceof Error ? err.message : "خطأ غير متوقع" };
   }
 }
 
 export async function deleteAppointmentInSupabase(id: number): Promise<WriteResult> {
-  if (!supabase) return { success: false, error: "Supabase ط؛ظٹط± ظ…طھطµظ„" };
+  if (!supabase) return { success: false, error: "Supabase غير متصل" };
   try {
     const { error } = await supabase!
       .from("appointments")
@@ -332,7 +332,7 @@ export async function deleteAppointmentInSupabase(id: number): Promise<WriteResu
     if (error) return { success: false, error: `Supabase error: ${error.message}` };
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "ط®ط·ط£ ط؛ظٹط± ظ…طھظˆظ‚ط¹" };
+    return { success: false, error: err instanceof Error ? err.message : "خطأ غير متوقع" };
   }
 }
 
@@ -365,9 +365,9 @@ export async function getFinancialEventsFromSupabase(): Promise<FinancialEvent[]
   }
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
 // Phase 12O: Financial Events Write + Countdown Gateway
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
 
 export interface FinancialEventPayload {
   name: string;
@@ -420,10 +420,10 @@ export async function getFinancialCountdownFromSupabase(): Promise<Array<{
 }
 
 export async function createFinancialEventInSupabase(payload: FinancialEventPayload): Promise<WriteResult> {
-  if (!isConnected()) return { success: false, error: "Supabase ط؛ظٹط± ظ…طھطµظ„" };
+  if (!isConnected()) return { success: false, error: "Supabase غير متصل" };
   try {
     const userId = await getCurrentUserId();
-    if (!userId) return { success: false, error: "ط§ظ„ظ…ط³طھط®ط¯ظ… ط؛ظٹط± ظ…ظڈط³ط¬ظژظ‘ظ„" };
+    if (!userId) return { success: false, error: "المستخدم غير مُسجَّل" };
     const { error } = await supabase!
       .from("financial_events")
       .insert({
@@ -444,7 +444,7 @@ export async function createFinancialEventInSupabase(payload: FinancialEventPayl
 }
 
 export async function updateFinancialEventInSupabase(id: number, payload: Partial<FinancialEventPayload>): Promise<WriteResult> {
-  if (!isConnected()) return { success: false, error: "Supabase ط؛ظٹط± ظ…طھطµظ„" };
+  if (!isConnected()) return { success: false, error: "Supabase غير متصل" };
   try {
     const updates: Record<string, unknown> = {};
     if (payload.name !== undefined) updates.name = payload.name;
@@ -466,7 +466,7 @@ export async function updateFinancialEventInSupabase(id: number, payload: Partia
 }
 
 export async function deleteFinancialEventInSupabase(id: number): Promise<WriteResult> {
-  if (!isConnected()) return { success: false, error: "Supabase ط؛ظٹط± ظ…طھطµظ„" };
+  if (!isConnected()) return { success: false, error: "Supabase غير متصل" };
   try {
     const { error } = await supabase!
       .from("financial_events")
@@ -505,9 +505,9 @@ export async function getNotificationsFromSupabase(): Promise<Notification[] | n
   }
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Support table â€” complaints (user_id = NULL)
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
+// Support table — complaints (user_id = NULL)
+// ─────────────────────────────────────────────────────────
 
 export async function getComplaintsFromSupabase(): Promise<Complaint[] | null> {
   if (!isConnected()) return null;
@@ -530,16 +530,16 @@ export async function getComplaintsFromSupabase(): Promise<Complaint[] | null> {
   }
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Write Functions â€” Phase 12I (ظ†ط·ط§ظ‚ ظ…ط­ط¯ظˆط¯: notifications mark-read ظپظ‚ط·)
+// ─────────────────────────────────────────────────────────
+// Write Functions — Phase 12I (نطاق محدود: notifications mark-read فقط)
 //
-// ط§ظ„ظ‚ظˆط§ط¹ط¯:
-// - ظ„ط§ fallback طµط§ظ…طھ ط¥ظ„ظ‰ API ط¹ظ†ط¯ ظپط´ظ„ Supabase write.
-// - ظٹظڈط¹ظٹط¯ { success: boolean; error?: string } ط¯ط§ط¦ظ…ط§ظ‹.
-// - ظٹطھط·ظ„ط¨ session Supabase Auth â€” ط¨ط¯ظˆظ†ظ‡ ظٹظڈط¹ظٹط¯ error ظ…ظ†ط§ط³ط¨.
-// - ظٹط³طھط®ط¯ظ… legacy_id (ط§ظ„ظ…ط¹ط±ظ‘ظپ ط§ظ„ظ‚ط¯ظٹظ… ظ…ظ† PostgreSQL) ظ„ظ„طھطµظپظٹط©.
-// - ظ„ط§ service_role.
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// القواعد:
+// - لا fallback صامت إلى API عند فشل Supabase write.
+// - يُعيد { success: boolean; error?: string } دائماً.
+// - يتطلب session Supabase Auth — بدونه يُعيد error مناسب.
+// - يستخدم legacy_id (المعرّف القديم من PostgreSQL) للتصفية.
+// - لا service_role.
+// ─────────────────────────────────────────────────────────
 
 export interface WriteResult {
   success: boolean;
@@ -548,22 +548,22 @@ export interface WriteResult {
 
 /**
  * markNotificationReadInSupabase
- * ظٹظڈط­ط¯ظ‘ط« is_read = true ظ„ظ„ط¥ط´ط¹ط§ط± ط°ظٹ legacy_id ط§ظ„ظ…ظڈط­ط¯ظژظ‘ط¯.
+ * يُحدّث is_read = true للإشعار ذي legacy_id المُحدَّد.
  *
- * RLS: notifications_update_own â€” ظٹطھط·ظ„ط¨ auth.uid() = user_id.
- * ط¥ط°ط§ ظƒط§ظ† ط§ظ„ظ…ط³طھط®ط¯ظ… ط؛ظٹط± ظ…ظڈظˆط«ظژظ‘ظ‚ â†’ ظٹظڈط¹ظٹط¯ error "ط¬ظ„ط³ط© Supabase ظ…ظپظ‚ظˆط¯ط©".
- * ط¥ط°ط§ ظƒط§ظ† RLS ظٹط±ظپط¶ â†’ ظٹظڈط¹ظٹط¯ error "ظ„ط§ طµظ„ط§ط­ظٹط©".
+ * RLS: notifications_update_own — يتطلب auth.uid() = user_id.
+ * إذا كان المستخدم غير مُوثَّق → يُعيد error "جلسة Supabase مفقودة".
+ * إذا كان RLS يرفض → يُعيد error "لا صلاحية".
  *
- * @param legacyId - ط§ظ„ظ…ط¹ط±ظ‘ظپ ظƒظ…ط§ ظٹطµظ„ظ‡ ظ…ظ† ظˆط§ط¬ظ‡ط© API (= legacy_id ظپظٹ Supabase)
+ * @param legacyId - المعرّف كما يصله من واجهة API (= legacy_id في Supabase)
  */
 export async function markNotificationReadInSupabase(legacyId: number): Promise<WriteResult> {
   if (!supabase) {
-    return { success: false, error: "Supabase ط؛ظٹط± ظ…طھطµظ„ â€” طھط­ظ‚ظ‚ ظ…ظ† VITE_SUPABASE_URL ظˆ VITE_SUPABASE_ANON_KEY" };
+    return { success: false, error: "Supabase غير متصل — تحقق من VITE_SUPABASE_URL و VITE_SUPABASE_ANON_KEY" };
   }
 
   const userId = await getCurrentUserId();
   if (!userId) {
-    return { success: false, error: "ط¬ظ„ط³ط© Supabase Auth ظ…ظپظ‚ظˆط¯ط© â€” ظٹطھط·ظ„ط¨ طھط³ط¬ظٹظ„ ط¯ط®ظˆظ„ ط¹ط¨ط± Supabase" };
+    return { success: false, error: "جلسة Supabase Auth مفقودة — يتطلب تسجيل دخول عبر Supabase" };
   }
 
   try {
@@ -579,24 +579,24 @@ export async function markNotificationReadInSupabase(legacyId: number): Promise<
 
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "ط®ط·ط£ ط؛ظٹط± ظ…طھظˆظ‚ط¹" };
+    return { success: false, error: err instanceof Error ? err.message : "خطأ غير متوقع" };
   }
 }
 
 /**
  * markAllNotificationsReadInSupabase
- * ظٹظڈط­ط¯ظ‘ط« is_read = true ظ„ط¬ظ…ظٹط¹ ط¥ط´ط¹ط§ط±ط§طھ ط§ظ„ظ…ط³طھط®ط¯ظ… ط§ظ„ط­ط§ظ„ظٹ.
+ * يُحدّث is_read = true لجميع إشعارات المستخدم الحالي.
  *
  * RLS: notifications_update_own
  */
 export async function markAllNotificationsReadInSupabase(): Promise<WriteResult> {
   if (!supabase) {
-    return { success: false, error: "Supabase ط؛ظٹط± ظ…طھطµظ„" };
+    return { success: false, error: "Supabase غير متصل" };
   }
 
   const userId = await getCurrentUserId();
   if (!userId) {
-    return { success: false, error: "ط¬ظ„ط³ط© Supabase Auth ظ…ظپظ‚ظˆط¯ط©" };
+    return { success: false, error: "جلسة Supabase Auth مفقودة" };
   }
 
   try {
@@ -612,28 +612,28 @@ export async function markAllNotificationsReadInSupabase(): Promise<WriteResult>
 
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "ط®ط·ط£ ط؛ظٹط± ظ…طھظˆظ‚ط¹" };
+    return { success: false, error: err instanceof Error ? err.message : "خطأ غير متوقع" };
   }
 }
 
 /**
  * deleteNotificationInSupabase
- * ظٹط­ط°ظپ ط¥ط´ط¹ط§ط±ط§ظ‹ ط¨ظ€ legacy_id ط§ظ„ظ…ظڈط­ط¯ظژظ‘ط¯.
+ * يحذف إشعاراً بـ legacy_id المُحدَّد.
  *
- * RLS: notifications_delete_own â€” auth.uid() = user_id.
- * ظٹطھط·ظ„ط¨ session Supabase Auth.
- * ط¨ط¯ظˆظ† session â†’ error "ط¬ظ„ط³ط© Supabase Auth ظ…ظپظ‚ظˆط¯ط©".
+ * RLS: notifications_delete_own — auth.uid() = user_id.
+ * يتطلب session Supabase Auth.
+ * بدون session → error "جلسة Supabase Auth مفقودة".
  *
- * @param legacyId - ظ…ط¹ط±ظ‘ظپ ط§ظ„ط¥ط´ط¹ط§ط± ظƒظ…ط§ ظٹط¸ظ‡ط± ظپظٹ ط§ظ„ظˆط§ط¬ظ‡ط© (= legacy_id ظپظٹ Supabase)
+ * @param legacyId - معرّف الإشعار كما يظهر في الواجهة (= legacy_id في Supabase)
  */
 export async function deleteNotificationInSupabase(legacyId: number): Promise<WriteResult> {
   if (!supabase) {
-    return { success: false, error: "Supabase ط؛ظٹط± ظ…طھطµظ„" };
+    return { success: false, error: "Supabase غير متصل" };
   }
 
   const userId = await getCurrentUserId();
   if (!userId) {
-    return { success: false, error: "ط¬ظ„ط³ط© Supabase Auth ظ…ظپظ‚ظˆط¯ط© â€” ظٹطھط·ظ„ط¨ طھط³ط¬ظٹظ„ ط¯ط®ظˆظ„ ط¹ط¨ط± Supabase" };
+    return { success: false, error: "جلسة Supabase Auth مفقودة — يتطلب تسجيل دخول عبر Supabase" };
   }
 
   try {
@@ -649,15 +649,15 @@ export async function deleteNotificationInSupabase(legacyId: number): Promise<Wr
 
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "ط®ط·ط£ ط؛ظٹط± ظ…طھظˆظ‚ط¹" };
+    return { success: false, error: err instanceof Error ? err.message : "خطأ غير متوقع" };
   }
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Admin CRUD: ط§ظ„ط£ط®ط¨ط§ط± (news)
-// ط¬ط¯ظˆظ„ admin-managed â€” ظ„ط§ user_id â€” id ط¹ط¯ط¯ طµط­ظٹط­ ظ…ط¨ط§ط´ط±
-// RLS: SELECT ط¹ط§ظ… / INSERT-UPDATE-DELETE ظٹطھط·ظ„ط¨ session auth
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
+// Admin CRUD: الأخبار (news)
+// جدول admin-managed — لا user_id — id عدد صحيح مباشر
+// RLS: SELECT عام / INSERT-UPDATE-DELETE يتطلب session auth
+// ─────────────────────────────────────────────────────────
 
 export interface NewsPayload {
   title: string;
@@ -668,7 +668,7 @@ export interface NewsPayload {
 }
 
 export async function createNewsInSupabase(payload: NewsPayload): Promise<WriteResult> {
-  if (!supabase) return { success: false, error: "Supabase ط؛ظٹط± ظ…طھطµظ„" };
+  if (!supabase) return { success: false, error: "Supabase غير متصل" };
   try {
     const { error } = await supabase!.from("news").insert({
       title: payload.title,
@@ -681,12 +681,12 @@ export async function createNewsInSupabase(payload: NewsPayload): Promise<WriteR
     if (error) return { success: false, error: `Supabase error: ${error.message}` };
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "ط®ط·ط£ ط؛ظٹط± ظ…طھظˆظ‚ط¹" };
+    return { success: false, error: err instanceof Error ? err.message : "خطأ غير متوقع" };
   }
 }
 
 export async function updateNewsInSupabase(id: number, payload: Partial<NewsPayload>): Promise<WriteResult> {
-  if (!supabase) return { success: false, error: "Supabase ط؛ظٹط± ظ…طھطµظ„" };
+  if (!supabase) return { success: false, error: "Supabase غير متصل" };
   try {
     const patch: Record<string, unknown> = {};
     if (payload.title !== undefined) patch.title = payload.title;
@@ -701,26 +701,26 @@ export async function updateNewsInSupabase(id: number, payload: Partial<NewsPayl
     if (error) return { success: false, error: `Supabase error: ${error.message}` };
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "ط®ط·ط£ ط؛ظٹط± ظ…طھظˆظ‚ط¹" };
+    return { success: false, error: err instanceof Error ? err.message : "خطأ غير متوقع" };
   }
 }
 
 export async function deleteNewsInSupabase(id: number): Promise<WriteResult> {
-  if (!supabase) return { success: false, error: "Supabase ط؛ظٹط± ظ…طھطµظ„" };
+  if (!supabase) return { success: false, error: "Supabase غير متصل" };
   try {
     const { error } = await supabase!.from("news").delete().eq("id", id);
     if (error) return { success: false, error: `Supabase error: ${error.message}` };
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "ط®ط·ط£ ط؛ظٹط± ظ…طھظˆظ‚ط¹" };
+    return { success: false, error: err instanceof Error ? err.message : "خطأ غير متوقع" };
   }
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Admin CRUD: ط§ظ„ظˆط¸ط§ط¦ظپ (jobs)
-// ط¬ط¯ظˆظ„ admin-managed â€” ظ„ط§ user_id â€” id ط¹ط¯ط¯ طµط­ظٹط­ ظ…ط¨ط§ط´ط±
-// RLS: SELECT ط¹ط§ظ… / INSERT-UPDATE-DELETE ظٹطھط·ظ„ط¨ session auth
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
+// Admin CRUD: الوظائف (jobs)
+// جدول admin-managed — لا user_id — id عدد صحيح مباشر
+// RLS: SELECT عام / INSERT-UPDATE-DELETE يتطلب session auth
+// ─────────────────────────────────────────────────────────
 
 export interface JobPayload {
   title: string;
@@ -734,7 +734,7 @@ export interface JobPayload {
 }
 
 export async function createJobInSupabase(payload: JobPayload): Promise<WriteResult> {
-  if (!supabase) return { success: false, error: "Supabase ط؛ظٹط± ظ…طھطµظ„" };
+  if (!supabase) return { success: false, error: "Supabase غير متصل" };
   try {
     const { error } = await supabase!.from("jobs").insert({
       title: payload.title,
@@ -749,12 +749,12 @@ export async function createJobInSupabase(payload: JobPayload): Promise<WriteRes
     if (error) return { success: false, error: `Supabase error: ${error.message}` };
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "ط®ط·ط£ ط؛ظٹط± ظ…طھظˆظ‚ط¹" };
+    return { success: false, error: err instanceof Error ? err.message : "خطأ غير متوقع" };
   }
 }
 
 export async function updateJobInSupabase(id: number, payload: Partial<JobPayload>): Promise<WriteResult> {
-  if (!supabase) return { success: false, error: "Supabase ط؛ظٹط± ظ…طھطµظ„" };
+  if (!supabase) return { success: false, error: "Supabase غير متصل" };
   try {
     const patch: Record<string, unknown> = {};
     if (payload.title !== undefined) patch.title = payload.title;
@@ -769,25 +769,25 @@ export async function updateJobInSupabase(id: number, payload: Partial<JobPayloa
     if (error) return { success: false, error: `Supabase error: ${error.message}` };
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "ط®ط·ط£ ط؛ظٹط± ظ…طھظˆظ‚ط¹" };
+    return { success: false, error: err instanceof Error ? err.message : "خطأ غير متوقع" };
   }
 }
 
 export async function deleteJobInSupabase(id: number): Promise<WriteResult> {
-  if (!supabase) return { success: false, error: "Supabase ط؛ظٹط± ظ…طھطµظ„" };
+  if (!supabase) return { success: false, error: "Supabase غير متصل" };
   try {
     const { error } = await supabase!.from("jobs").delete().eq("id", id);
     if (error) return { success: false, error: `Supabase error: ${error.message}` };
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "ط®ط·ط£ ط؛ظٹط± ظ…طھظˆظ‚ط¹" };
+    return { success: false, error: err instanceof Error ? err.message : "خطأ غير متوقع" };
   }
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Admin CRUD: ط§ظ„ط«ظٹظ…ط§طھ (themes)
-// edit-only â€” ظ„ط§ create/delete â€” id ط¹ط¯ط¯ طµط­ظٹط­ ظ…ط¨ط§ط´ط±
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
+// Admin CRUD: الثيمات (themes)
+// edit-only — لا create/delete — id عدد صحيح مباشر
+// ─────────────────────────────────────────────────────────
 
 export interface ThemeUpdatePayload {
   name?: string;
@@ -798,7 +798,7 @@ export interface ThemeUpdatePayload {
 }
 
 export async function updateThemeInSupabase(id: number, payload: ThemeUpdatePayload): Promise<WriteResult> {
-  if (!supabase) return { success: false, error: "Supabase ط؛ظٹط± ظ…طھطµظ„" };
+  if (!supabase) return { success: false, error: "Supabase غير متصل" };
   try {
     const patch: Record<string, unknown> = {};
     if (payload.name !== undefined) patch.name = payload.name;
@@ -810,14 +810,14 @@ export async function updateThemeInSupabase(id: number, payload: ThemeUpdatePayl
     if (error) return { success: false, error: `Supabase error: ${error.message}` };
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "ط®ط·ط£ ط؛ظٹط± ظ…طھظˆظ‚ط¹" };
+    return { success: false, error: err instanceof Error ? err.message : "خطأ غير متوقع" };
   }
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Admin CRUD: ظ‚ظˆط§ظ„ط¨ ط§ظ„ط³طھظˆط±ظٹ (story_templates)
-// full CRUD â€” id ط¹ط¯ط¯ طµط­ظٹط­ ظ…ط¨ط§ط´ط±
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
+// Admin CRUD: قوالب الستوري (story_templates)
+// full CRUD — id عدد صحيح مباشر
+// ─────────────────────────────────────────────────────────
 
 export interface StoryTemplatePayload {
   name: string;
@@ -829,7 +829,7 @@ export interface StoryTemplatePayload {
 }
 
 export async function createStoryTemplateInSupabase(payload: StoryTemplatePayload): Promise<WriteResult> {
-  if (!supabase) return { success: false, error: "Supabase ط؛ظٹط± ظ…طھطµظ„" };
+  if (!supabase) return { success: false, error: "Supabase غير متصل" };
   try {
     const { error } = await supabase!.from("story_templates").insert({
       name: payload.name,
@@ -842,12 +842,12 @@ export async function createStoryTemplateInSupabase(payload: StoryTemplatePayloa
     if (error) return { success: false, error: `Supabase error: ${error.message}` };
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "ط®ط·ط£ ط؛ظٹط± ظ…طھظˆظ‚ط¹" };
+    return { success: false, error: err instanceof Error ? err.message : "خطأ غير متوقع" };
   }
 }
 
 export async function updateStoryTemplateInSupabase(id: number, payload: Partial<StoryTemplatePayload>): Promise<WriteResult> {
-  if (!supabase) return { success: false, error: "Supabase ط؛ظٹط± ظ…طھطµظ„" };
+  if (!supabase) return { success: false, error: "Supabase غير متصل" };
   try {
     const patch: Record<string, unknown> = {};
     if (payload.name !== undefined) patch.name = payload.name;
@@ -860,25 +860,25 @@ export async function updateStoryTemplateInSupabase(id: number, payload: Partial
     if (error) return { success: false, error: `Supabase error: ${error.message}` };
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "ط®ط·ط£ ط؛ظٹط± ظ…طھظˆظ‚ط¹" };
+    return { success: false, error: err instanceof Error ? err.message : "خطأ غير متوقع" };
   }
 }
 
 export async function deleteStoryTemplateInSupabase(id: number): Promise<WriteResult> {
-  if (!supabase) return { success: false, error: "Supabase ط؛ظٹط± ظ…طھطµظ„" };
+  if (!supabase) return { success: false, error: "Supabase غير متصل" };
   try {
     const { error } = await supabase!.from("story_templates").delete().eq("id", id);
     if (error) return { success: false, error: `Supabase error: ${error.message}` };
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "ط®ط·ط£ ط؛ظٹط± ظ…طھظˆظ‚ط¹" };
+    return { success: false, error: err instanceof Error ? err.message : "خطأ غير متوقع" };
   }
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Admin CRUD: ط±ط³ط§ط¦ظ„ ط§ظ„ظٹظˆظ… (daily_messages)
-// full CRUD â€” id ط¹ط¯ط¯ طµط­ظٹط­ ظ…ط¨ط§ط´ط±
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
+// Admin CRUD: رسائل اليوم (daily_messages)
+// full CRUD — id عدد صحيح مباشر
+// ─────────────────────────────────────────────────────────
 
 export interface DailyMessagePayload {
   message: string;
@@ -887,7 +887,7 @@ export interface DailyMessagePayload {
 }
 
 export async function createDailyMessageInSupabase(payload: DailyMessagePayload): Promise<WriteResult> {
-  if (!supabase) return { success: false, error: "Supabase ط؛ظٹط± ظ…طھطµظ„" };
+  if (!supabase) return { success: false, error: "Supabase غير متصل" };
   try {
     const { error } = await supabase!.from("daily_messages").insert({
       message: payload.message,
@@ -897,12 +897,12 @@ export async function createDailyMessageInSupabase(payload: DailyMessagePayload)
     if (error) return { success: false, error: `Supabase error: ${error.message}` };
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "ط®ط·ط£ ط؛ظٹط± ظ…طھظˆظ‚ط¹" };
+    return { success: false, error: err instanceof Error ? err.message : "خطأ غير متوقع" };
   }
 }
 
 export async function updateDailyMessageInSupabase(id: number, payload: Partial<DailyMessagePayload>): Promise<WriteResult> {
-  if (!supabase) return { success: false, error: "Supabase ط؛ظٹط± ظ…طھطµظ„" };
+  if (!supabase) return { success: false, error: "Supabase غير متصل" };
   try {
     const patch: Record<string, unknown> = {};
     if (payload.message !== undefined) patch.message = payload.message;
@@ -912,27 +912,27 @@ export async function updateDailyMessageInSupabase(id: number, payload: Partial<
     if (error) return { success: false, error: `Supabase error: ${error.message}` };
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "ط®ط·ط£ ط؛ظٹط± ظ…طھظˆظ‚ط¹" };
+    return { success: false, error: err instanceof Error ? err.message : "خطأ غير متوقع" };
   }
 }
 
 export async function deleteDailyMessageInSupabase(id: number): Promise<WriteResult> {
-  if (!supabase) return { success: false, error: "Supabase ط؛ظٹط± ظ…طھطµظ„" };
+  if (!supabase) return { success: false, error: "Supabase غير متصل" };
   try {
     const { error } = await supabase!.from("daily_messages").delete().eq("id", id);
     if (error) return { success: false, error: `Supabase error: ${error.message}` };
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : "ط®ط·ط£ ط؛ظٹط± ظ…طھظˆظ‚ط¹" };
+    return { success: false, error: err instanceof Error ? err.message : "خطأ غير متوقع" };
   }
 }
 
 /**
  * getUnreadNotificationsCountFromSupabase
- * ظٹظڈط¹ظٹط¯ ط¹ط¯ط¯ ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ط؛ظٹط± ط§ظ„ظ…ظ‚ط±ظˆط،ط© ظ„ظ„ظ…ط³طھط®ط¯ظ… ط§ظ„ط­ط§ظ„ظٹ.
+ * يُعيد عدد الإشعارات غير المقروءة للمستخدم الحالي.
  *
- * RLS: notifications_select_own â€” auth.uid() = user_id.
- * ط¨ط¯ظˆظ† session â†’ ظٹظڈط¹ظٹط¯ null.
+ * RLS: notifications_select_own — auth.uid() = user_id.
+ * بدون session → يُعيد null.
  */
 export async function getUnreadNotificationsCountFromSupabase(): Promise<number | null> {
   if (!isConnected()) return null;
@@ -953,10 +953,10 @@ export async function getUnreadNotificationsCountFromSupabase(): Promise<number 
   }
 }
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─────────────────────────────────────────────────────────
 // Shadow Comparison Utility
-// ظٹظ‚ط§ط±ظ† Counts ط¨ظٹظ† API ظˆSupabase â€” ظ„ط§ ظٹط؛ظٹظ‘ط± ط§ظ„ط¨ظٹط§ظ†ط§طھ
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// يقارن Counts بين API وSupabase — لا يغيّر البيانات
+// ─────────────────────────────────────────────────────────
 
 export interface ShadowComparisonResult {
   table: string;
@@ -1016,7 +1016,7 @@ export async function runShadowComparison(
   for (const table of tables) {
     const apiCount = effectiveCounts[table] ?? 0;
     if (!connected) {
-      results.push({ table, apiCount, supabaseCount: null, match: null, error: "Supabase ط؛ظٹط± ظ…طھطµظ„" });
+      results.push({ table, apiCount, supabaseCount: null, match: null, error: "Supabase غير متصل" });
       continue;
     }
     const supabaseCount = await getSupabaseCount(table, userId);

@@ -1,4 +1,4 @@
-﻿import { Router } from "express";
+import { Router } from "express";
 import { requireAdmin } from "../middlewares/requireAdmin";
 import { db } from "@workspace/db";
 import { publicEventsTable, auditLogsTable } from "@workspace/db";
@@ -32,7 +32,7 @@ router.post("/public-events", requireAdmin, async (req, res) => {
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [row] = await db.insert(publicEventsTable).values(parsed.data).returning();
-  await logAudit(actorId, "create", "public_event", row.id, row.title, `ط¥ط¶ط§ظپط© ظپط¹ط§ظ„ظٹط© ط¹ط§ظ…ط©: ${row.title}`);
+  await logAudit(actorId, "create", "public_event", row.id, row.title, `إضافة فعالية عامة: ${row.title}`);
   return res.status(201).json(row);
 });
 
@@ -43,8 +43,8 @@ router.patch("/public-events/:id", requireAdmin, async (req, res) => {
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [row] = await db.update(publicEventsTable).set(parsed.data).where(eq(publicEventsTable.id, id)).returning();
-  if (!row) return res.status(404).json({ error: "ط؛ظٹط± ظ…ظˆط¬ظˆط¯" });
-  await logAudit(actorId, "update", "public_event", row.id, row.title, `طھط¹ط¯ظٹظ„ ظپط¹ط§ظ„ظٹط© ط¹ط§ظ…ط©: ${row.title}`);
+  if (!row) return res.status(404).json({ error: "غير موجود" });
+  await logAudit(actorId, "update", "public_event", row.id, row.title, `تعديل فعالية عامة: ${row.title}`);
   return res.json(row);
 });
 
@@ -53,8 +53,8 @@ router.delete("/public-events/:id", requireAdmin, async (req, res) => {
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [deleted] = await db.delete(publicEventsTable).where(eq(publicEventsTable.id, id)).returning();
-  if (!deleted) return res.status(404).json({ error: "ط؛ظٹط± ظ…ظˆط¬ظˆط¯" });
-  await logAudit(actorId, "delete", "public_event", id, deleted.title, `ط­ط°ظپ ظپط¹ط§ظ„ظٹط© ط¹ط§ظ…ط©: ${deleted.title}`);
+  if (!deleted) return res.status(404).json({ error: "غير موجود" });
+  await logAudit(actorId, "delete", "public_event", id, deleted.title, `حذف فعالية عامة: ${deleted.title}`);
   return res.status(204).send();
 });
 

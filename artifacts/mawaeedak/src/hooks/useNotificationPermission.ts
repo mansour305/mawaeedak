@@ -1,4 +1,4 @@
-﻿/**
+/**
  * useNotificationPermission - Phase 16
  * Manages browser notification permissions with graceful degradation.
  * Provides visible UI controls for requesting notification access.
@@ -64,10 +64,10 @@ export function useNotificationPermission() {
 
   const requestPermission = useCallback(async (): Promise<{ success: boolean; status: NotificationPermissionStatus; message: string }> => {
     if (!("Notification" in window)) {
-      return { success: false, status: "unsupported", message: "ط§ظ„ظ…طھطµظپط­ ظ„ط§ ظٹط¯ط¹ظ… ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ" };
+      return { success: false, status: "unsupported", message: "المتصفح لا يدعم الإشعارات" };
     }
     if (!navigator.serviceWorker) {
-      return { success: false, status: "unsupported", message: "ظ„ط§ ظٹظˆط¬ط¯ Service Worker" };
+      return { success: false, status: "unsupported", message: "لا يوجد Service Worker" };
     }
     setIsRequesting(true);
     try {
@@ -82,7 +82,7 @@ export function useNotificationPermission() {
         return {
           success: false,
           status: "denied",
-          message: "طھظ… ط±ظپط¶ ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ظ…ط³ط¨ظ‚ط§ظ‹. ظٹظ…ظƒظ†ظƒ طھظپط¹ظٹظ„ظ‡ط§ ظ…ظ† ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„ظ…طھطµظپط­.",
+          message: "تم رفض الإشعارات مسبقاً. يمكنك تفعيلها من إعدادات المتصفح.",
         };
       }
       const permission = await Notification.requestPermission();
@@ -98,30 +98,29 @@ export function useNotificationPermission() {
       savePrefs(newPrefs);
       if (permission === "granted") {
         try {
-          const registration = await navigator.serviceWorker.ready;
-          console.log("Notification permission granted, service worker ready:", registration.scope);
-        } catch (e) {
-          console.log("Service worker registration for push not available:", e);
+          await navigator.serviceWorker.ready;
+        } catch {
+          // Permission succeeded even if push setup is deferred by the browser.
         }
         return {
           success: true,
           status: "granted",
-          message: "طھظ… طھظپط¹ظٹظ„ ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ط¨ظ†ط¬ط§ط­",
+          message: "تم تفعيل الإشعارات بنجاح",
         };
       }
       return {
         success: false,
         status: newStatus,
         message: newStatus === "denied" 
-          ? "طھظ… ط±ظپط¶ ط§ظ„ط¥ط°ظ†. ظٹظ…ظƒظ†ظƒ طھط؛ظٹظٹط±ظ‡ ظ…ظ† ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„ظ…طھطµظپط­."
-          : "طھظ… ط¥ظ„ط؛ط§ط، ط·ظ„ط¨ ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ",
+          ? "تم رفض الإذن. يمكنك تغييره من إعدادات المتصفح."
+          : "تم إلغاء طلب الإشعارات",
       };
     } catch (error) {
       console.error("Notification permission error:", error);
       return {
         success: false,
         status: "unknown",
-        message: "ط­ط¯ط« ط®ط·ط£ ط£ط«ظ†ط§ط، ط·ظ„ط¨ ط¥ط°ظ† ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ",
+        message: "حدث خطأ أثناء طلب إذن الإشعارات",
       };
     } finally {
       setIsRequesting(false);
@@ -132,18 +131,18 @@ export function useNotificationPermission() {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
     if (isIOS && isSafari && !window.matchMedia("(display-mode: standalone)").matches) {
-      return "ظ„ط¥ط´ط¹ط§ط±ط§طھ iPhone: ط£ط¶ظپ ظ…ظˆط§ط¹ظٹط¯ظƒ ط¥ظ„ظ‰ ط§ظ„ط´ط§ط´ط© ط§ظ„ط±ط¦ظٹط³ظٹط© ط«ظ… ظپط¹ظ‘ظ„ ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ.";
+      return "لإشعارات iPhone: أضف مواعيدك إلى الشاشة الرئيسية ثم فعّل الإشعارات.";
     }
     return null;
   }, []);
 
   const getStatusLabel = useCallback((status: NotificationPermissionStatus): string => {
     switch (status) {
-      case "granted": return "ظ…ظپط¹ظ„ط©";
-      case "denied": return "ظ…ط±ظپظˆط¶ط©";
-      case "prompt": return "ط؛ظٹط± ظ…ظپط¹ظ„ط©";
-      case "unsupported": return "ط؛ظٹط± ظ…ط¯ط¹ظˆظ…ط©";
-      default: return "ط؛ظٹط± ظ…ظپط¹ظ„ط©";
+      case "granted": return "مفعلة";
+      case "denied": return "مرفوضة";
+      case "prompt": return "غير مفعلة";
+      case "unsupported": return "غير مدعومة";
+      default: return "غير مفعلة";
     }
   }, []);
 

@@ -1,7 +1,7 @@
-﻿/**
- * Top Notification Banner â€” ظ…ظˆط§ط¹ظٹط¯ظƒ
+/**
+ * Top Notification Banner — مواعيدك
  * 
- * ط¥ط´ط¹ط§ط± ط¹ظ„ظˆظٹ ظٹط¸ظ‡ط± ظپظٹ ط£ط¹ظ„ظ‰ ط§ظ„ط´ط§ط´ط© ظ…ط¹ ط¥ظ…ظƒط§ظ†ظٹط© ط§ظ„ط¥ط؛ظ„ط§ظ‚ ظˆط§ظ„طھط£ط¬ظٹظ„
+ * إشعار علوي يظهر في أعلى الشاشة مع إمكانية الإغلاق والتأجيل
  */
 
 import { useEffect, useState, useCallback } from "react";
@@ -26,10 +26,10 @@ export type SnoozeOption = {
 
 // Snooze options
 export const SNOOZE_OPTIONS: SnoozeOption[] = [
-  { label: "10 ط¯ظ‚ط§ط¦ظ‚", minutes: 10 },
-  { label: "30 ط¯ظ‚ظٹظ‚ط©", minutes: 30 },
-  { label: "ط³ط§ط¹ط©", minutes: 60 },
-  { label: "ط؛ط¯ط§ظ‹", minutes: 1440 },
+  { label: "10 دقائق", minutes: 10 },
+  { label: "30 دقيقة", minutes: 30 },
+  { label: "ساعة", minutes: 60 },
+  { label: "غداً", minutes: 1440 },
 ];
 
 // Storage key for snoozed notifications
@@ -179,7 +179,7 @@ function SingleBanner({
         <button
           onClick={() => setShowSnoozeMenu(!showSnoozeMenu)}
           className="rounded-full p-1 opacity-80 transition-opacity hover:opacity-100"
-          title="طھط£ط¬ظٹظ„"
+          title="تأجيل"
         >
           <Clock className="h-4 w-4" />
         </button>
@@ -202,7 +202,7 @@ function SingleBanner({
           className="px-4 pb-3 flex gap-2 flex-wrap"
           style={{ borderTop: "1px solid rgba(255,255,255,0.2)" }}
         >
-          <span className="text-xs opacity-75 py-1">طھط£ط¬ظٹظ„:</span>
+          <span className="text-xs opacity-75 py-1">تأجيل:</span>
           {SNOOZE_OPTIONS.map(option => (
             <button
               key={option.minutes}

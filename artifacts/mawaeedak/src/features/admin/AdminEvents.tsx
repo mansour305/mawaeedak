@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,7 +34,7 @@ export default function AdminEvents() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [eventDate, setEventDate] = useState("");
-  const [category, setCategory] = useState("ط¹ط§ظ…");
+  const [category, setCategory] = useState("عام");
   const [isActive, setIsActive] = useState(true);
 
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -42,7 +42,7 @@ export default function AdminEvents() {
 
   const openAdd = () => {
     setIsEdit(false); setEditId(null);
-    setTitle(""); setDescription(""); setEventDate(""); setCategory("ط¹ط§ظ…"); setIsActive(true);
+    setTitle(""); setDescription(""); setEventDate(""); setCategory("عام"); setIsActive(true);
     setIsOpen(true);
   };
 
@@ -54,21 +54,21 @@ export default function AdminEvents() {
   };
 
   const handleSave = () => {
-    if (!title || !eventDate) { toast({ title: "ط®ط·ط£", description: "ط§ظ„ط¹ظ†ظˆط§ظ† ظˆط§ظ„طھط§ط±ظٹط® ظ…ط·ظ„ظˆط¨ط§ظ†", variant: "destructive" }); return; }
+    if (!title || !eventDate) { toast({ title: "خطأ", description: "العنوان والتاريخ مطلوبان", variant: "destructive" }); return; }
 
     const data = { title, description: description || undefined, event_date: eventDate, category, is_active: isActive };
 
     if (isEdit && editId) {
       updateEvent.mutate({ id: editId, data }, {
         onSuccess: () => {
-          toast({ title: "طھظ… ط§ظ„طھط¹ط¯ظٹظ„" }); setIsOpen(false);
+          toast({ title: "تم التعديل" }); setIsOpen(false);
           queryClient.invalidateQueries({ queryKey: getListPublicEventsQueryKey() });
         }
       });
     } else {
       createEvent.mutate({ data }, {
         onSuccess: () => {
-          toast({ title: "طھظ…طھ ط§ظ„ط¥ط¶ط§ظپط©" }); setIsOpen(false);
+          toast({ title: "تمت الإضافة" }); setIsOpen(false);
           queryClient.invalidateQueries({ queryKey: getListPublicEventsQueryKey() });
         }
       });
@@ -79,7 +79,7 @@ export default function AdminEvents() {
     if (!deleteId) return;
     deleteEvent.mutate({ id: deleteId }, {
       onSuccess: () => {
-        toast({ title: "طھظ… ط§ظ„ط­ط°ظپ" }); setIsDeleteOpen(false);
+        toast({ title: "تم الحذف" }); setIsDeleteOpen(false);
         queryClient.invalidateQueries({ queryKey: getListPublicEventsQueryKey() });
       }
     });
@@ -88,48 +88,48 @@ export default function AdminEvents() {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">ط§ظ„ظ…ظˆط§ط¹ظٹط¯ ط§ظ„ط¹ط§ظ…ط© ظˆط§ظ„ط¥ط¬ط§ط²ط§طھ</h2>
-        <Button onClick={openAdd} size="sm"><Plus className="w-4 h-4 ml-1" /> ط¥ط¶ط§ظپط© ظ…ظˆط¹ط¯</Button>
+        <h2 className="text-xl font-bold">المواعيد العامة والإجازات</h2>
+        <Button onClick={openAdd} size="sm"><Plus className="w-4 h-4 ml-1" /> إضافة موعد</Button>
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="rtl max-w-[400px] rounded-xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{isEdit ? "طھط¹ط¯ظٹظ„ ط§ظ„ظ…ظˆط¹ط¯" : "ظ…ظˆط¹ط¯ ط¹ط§ظ… ط¬ط¯ظٹط¯"}</DialogTitle>
+            <DialogTitle>{isEdit ? "تعديل الموعد" : "موعد عام جديد"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>ط¹ظ†ظˆط§ظ† ط§ظ„ظ…ظˆط¹ط¯</Label>
-              <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="ظ…ط«ط§ظ„: ط¥ط¬ط§ط²ط© ط¹ظٹط¯ ط§ظ„ظپط·ط±" />
+              <Label>عنوان الموعد</Label>
+              <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="مثال: إجازة عيد الفطر" />
             </div>
             <div className="space-y-2">
-              <Label>ط§ظ„ظˆطµظپ (ط§ط®طھظٹط§ط±ظٹ)</Label>
+              <Label>الوصف (اختياري)</Label>
               <Input value={description} onChange={e => setDescription(e.target.value)} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>طھط§ط±ظٹط® ط§ظ„ظ…ظˆط¹ط¯</Label>
+                <Label>تاريخ الموعد</Label>
                 <Input type="date" value={eventDate} onChange={e => setEventDate(e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>ط§ظ„طھطµظ†ظٹظپ</Label>
+                <Label>التصنيف</Label>
                 <Select value={category} onValueChange={setCategory}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent className="rtl">
-                    <SelectItem value="ط¹ط§ظ…">ط¹ط§ظ…</SelectItem>
-                    <SelectItem value="ط¯ط±ط§ط³ط©">ط¯ط±ط§ط³ط©</SelectItem>
-                    <SelectItem value="ط¥ط¬ط§ط²ط©">ط¥ط¬ط§ط²ط©</SelectItem>
-                    <SelectItem value="ظˆط·ظ†ظٹ">ظˆط·ظ†ظٹ</SelectItem>
+                    <SelectItem value="عام">عام</SelectItem>
+                    <SelectItem value="دراسة">دراسة</SelectItem>
+                    <SelectItem value="إجازة">إجازة</SelectItem>
+                    <SelectItem value="وطني">وطني</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div className="flex items-center justify-between">
-              <Label>ظ…ظپط¹ظ‘ظ„</Label>
+              <Label>مفعّل</Label>
               <Switch checked={isActive} onCheckedChange={setIsActive} />
             </div>
             <Button className="w-full" onClick={handleSave} disabled={createEvent.isPending || updateEvent.isPending}>
-              {(createEvent.isPending || updateEvent.isPending) ? <Loader2 className="w-4 h-4 animate-spin" /> : "ط­ظپط¸"}
+              {(createEvent.isPending || updateEvent.isPending) ? <Loader2 className="w-4 h-4 animate-spin" /> : "حفظ"}
             </Button>
           </div>
         </DialogContent>
@@ -149,7 +149,7 @@ export default function AdminEvents() {
                   </div>
                   <span className="text-[10px] bg-secondary text-secondary-foreground px-2 py-0.5 rounded">{ev.category}</span>
                 </div>
-                <div className="text-xs text-muted-foreground mt-2 mb-3">ط§ظ„طھط§ط±ظٹط®: {ev.event_date}</div>
+                <div className="text-xs text-muted-foreground mt-2 mb-3">التاريخ: {ev.event_date}</div>
                 <div className="flex justify-end gap-1 border-t border-border pt-3">
                   <Button variant="ghost" size="icon" className="h-8 w-8 text-primary" onClick={() => openEdit(ev)}>
                     <Edit2 className="w-4 h-4" />
@@ -164,13 +164,13 @@ export default function AdminEvents() {
         </div>
       ) : (
         <div className="text-center p-8 bg-card rounded-xl border border-dashed border-border text-muted-foreground">
-          ظ„ط§ طھظˆط¬ط¯ ظ…ظˆط§ط¹ظٹط¯ ط¹ط§ظ…ط©
+          لا توجد مواعيد عامة
         </div>
       )}
 
       <ConfirmDialog 
         open={isDeleteOpen} onOpenChange={setIsDeleteOpen}
-        title="ط­ط°ظپ ط§ظ„ظ…ظˆط¹ط¯" description="ظ‡ظ„ ط£ظ†طھ ظ…طھط£ظƒط¯ ظ…ظ† ط§ظ„ط­ط°ظپطں"
+        title="حذف الموعد" description="هل أنت متأكد من الحذف؟"
         onConfirm={handleDelete}
       />
     </div>

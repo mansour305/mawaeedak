@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -21,7 +21,7 @@ export default function CentersComplaintsPage() {
 
   const handleSubmit = async () => {
     if (!message || message.length < 10) { 
-      showTopNotification("ط§ظ„ط±ط³ط§ظ„ط© ظٹط¬ط¨ ط£ظ† طھظƒظˆظ† 10 ط£ط­ط±ظپ ط¹ظ„ظ‰ ط§ظ„ط£ظ‚ظ„", "error");
+      showTopNotification("الرسالة يجب أن تكون 10 أحرف على الأقل", "error");
       return; 
     }
 
@@ -30,32 +30,32 @@ export default function CentersComplaintsPage() {
       const result = await createComplaint({
         type,
         category: type,
-        message: message + (contact ? `\n\nط§ظ„طھظˆط§طµظ„: ${contact}` : ""),
+        message: message + (contact ? `\n\nالتواصل: ${contact}` : ""),
       }, user.id || undefined);
       
       if (result.success) {
         setIsSuccess(true);
-        showTopNotification("طھظ… ط¥ط±ط³ط§ظ„ ط±ط³ط§ظ„طھظƒ ط¨ظ†ط¬ط§ط­", "success");
+        showTopNotification("تم إرسال رسالتك بنجاح", "success");
       } else {
-        showTopNotification(result.error || "ظپط´ظ„ ط¥ط±ط³ط§ظ„ ط§ظ„ط±ط³ط§ظ„ط©", "error");
+        showTopNotification(result.error || "فشل إرسال الرسالة", "error");
       }
     } catch (err) {
-      showTopNotification("ط­ط¯ط« ط®ط·ط£ ط؛ظٹط± ظ…طھظˆظ‚ط¹", "error");
+      showTopNotification("حدث خطأ غير متوقع", "error");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <AppShell title="ط§ظ„ط´ظƒط§ظˆظ‰ ظˆط§ظ„ط§ظ‚طھط±ط§ط­ط§طھ" showBack>
+    <AppShell title="الشكاوى والاقتراحات" showBack>
       <div className="space-y-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500">
             <MessageSquare className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-xl font-bold">طµظˆطھظƒ ظ…ط³ظ…ظˆط¹</h2>
-            <p className="text-sm text-muted-foreground">ط£ط±ط³ظ„ ط§ظ‚طھط±ط§ط­ط§طھظƒ ط£ظˆ ط£ظٹ ظ…ط´ظƒظ„ط© طھظˆط§ط¬ظ‡ظƒ</p>
+            <h2 className="text-xl font-bold">صوتك مسموع</h2>
+            <p className="text-sm text-muted-foreground">أرسل اقتراحاتك أو أي مشكلة تواجهك</p>
           </div>
         </div>
 
@@ -64,11 +64,11 @@ export default function CentersComplaintsPage() {
             <CardContent className="flex flex-col items-center justify-center space-y-4">
               <CheckCircle2 className="w-16 h-16 text-emerald-500" />
               <div>
-                <h3 className="text-xl font-bold text-emerald-700 mb-2">طھظ… ط§ظ„ط¥ط±ط³ط§ظ„ ط¨ظ†ط¬ط§ط­</h3>
-                <p className="text-emerald-600/80">ط´ظƒط±ط§ظ‹ ظ„طھظˆط§طµظ„ظƒ ظ…ط¹ظ†ط§طŒ ظ†ظ‡طھظ… ط¨ظƒظ„ ط±ط³ط§ظ„ط© طھطµظ„ظ†ط§ ظ„طھط­ط³ظٹظ† ط§ظ„ظ…ظ†طµط©.</p>
+                <h3 className="text-xl font-bold text-emerald-700 mb-2">تم الإرسال بنجاح</h3>
+                <p className="text-emerald-600/80">شكراً لتواصلك معنا، نهتم بكل رسالة تصلنا لتحسين المنصة.</p>
               </div>
               <Button variant="outline" className="mt-4" onClick={() => { setIsSuccess(false); setMessage(""); setContact(""); }}>
-                ط¥ط±ط³ط§ظ„ ط±ط³ط§ظ„ط© ط£ط®ط±ظ‰
+                إرسال رسالة أخرى
               </Button>
             </CardContent>
           </Card>
@@ -76,29 +76,29 @@ export default function CentersComplaintsPage() {
           <Card className="border-border shadow-sm">
             <CardContent className="p-5 space-y-4">
               <div className="space-y-2">
-                <Label>ظ†ظˆط¹ ط§ظ„ط±ط³ط§ظ„ط©</Label>
+                <Label>نوع الرسالة</Label>
                 <Select value={type} onValueChange={(v: "complaint" | "suggestion" | "inquiry") => setType(v)}>
                   <SelectTrigger className="h-12 bg-background"><SelectValue /></SelectTrigger>
                   <SelectContent className="rtl">
-                    <SelectItem value="suggestion">ط§ظ‚طھط±ط§ط­ طھط·ظˆظٹط±</SelectItem>
-                    <SelectItem value="complaint">ط´ظƒظˆظ‰ / ظ…ط´ظƒظ„ط© ظپظ†ظٹط©</SelectItem>
-                    <SelectItem value="inquiry">ط§ط³طھظپط³ط§ط± ط¹ط§ظ…</SelectItem>
+                    <SelectItem value="suggestion">اقتراح تطوير</SelectItem>
+                    <SelectItem value="complaint">شكوى / مشكلة فنية</SelectItem>
+                    <SelectItem value="inquiry">استفسار عام</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               
               <div className="space-y-2">
-                <Label>ط§ظ„ط±ط³ط§ظ„ط©</Label>
-                <Textarea value={message} onChange={e => setMessage(e.target.value)} rows={5} placeholder="ط§ظƒطھط¨ طھظپط§طµظٹظ„ ط±ط³ط§ظ„طھظƒ ظ‡ظ†ط§..." className="bg-background resize-none" />
+                <Label>الرسالة</Label>
+                <Textarea value={message} onChange={e => setMessage(e.target.value)} rows={5} placeholder="اكتب تفاصيل رسالتك هنا..." className="bg-background resize-none" />
               </div>
 
               <div className="space-y-2">
-                <Label>ط±ظ‚ظ… ط§ظ„ط¬ظˆط§ظ„ ط£ظˆ ط§ظ„ط¨ط±ظٹط¯ (ط§ط®طھظٹط§ط±ظٹ)</Label>
-                <Input value={contact} onChange={e => setContact(e.target.value)} placeholder="ظ„ظ„طھظˆط§طµظ„ ظ…ط¹ظƒ ط¥ظ† ظ„ط²ظ… ط§ظ„ط£ظ…ط±" className="h-12 bg-background" dir="ltr" />
+                <Label>رقم الجوال أو البريد (اختياري)</Label>
+                <Input value={contact} onChange={e => setContact(e.target.value)} placeholder="للتواصل معك إن لزم الأمر" className="h-12 bg-background" dir="ltr" />
               </div>
 
               <Button className="w-full h-12 font-bold text-base mt-2" onClick={handleSubmit} disabled={isSubmitting}>
-                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "ط¥ط±ط³ط§ظ„"}
+                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "إرسال"}
               </Button>
             </CardContent>
           </Card>

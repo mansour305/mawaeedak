@@ -1,9 +1,9 @@
-﻿# Phase A Code Closure
+# Phase A Code Closure
 
 **Repository**: `DANGERMANS/mawaeedak`  
 **Issue**: #60  
 **Branch**: `fix/launch-gate-phase-a-code-closure`  
-**Verdict**: Code Ready â€” Deployment Setup Required
+**Verdict**: Code Ready — Deployment Setup Required
 
 ## GitHub-Executable Items Closed
 

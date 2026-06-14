@@ -1,4 +1,4 @@
-﻿import { Router } from "express";
+import { Router } from "express";
 import { requireAdmin } from "../middlewares/requireAdmin";
 import { db } from "@workspace/db";
 import { storyTemplatesTable, auditLogsTable } from "@workspace/db";
@@ -30,7 +30,7 @@ router.post("/story-templates", requireAdmin, async (req, res) => {
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [row] = await db.insert(storyTemplatesTable).values(parsed.data).returning();
-  await logAudit(actorId, "create", "story_template", row.id, row.name, `ط¥ط¶ط§ظپط© ظ‚ط§ظ„ط¨ ط³طھظˆط±ظٹ: ${row.name}`);
+  await logAudit(actorId, "create", "story_template", row.id, row.name, `إضافة قالب ستوري: ${row.name}`);
   return res.status(201).json(row);
 });
 
@@ -41,8 +41,8 @@ router.patch("/story-templates/:id", requireAdmin, async (req, res) => {
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [row] = await db.update(storyTemplatesTable).set(parsed.data).where(eq(storyTemplatesTable.id, id)).returning();
-  if (!row) return res.status(404).json({ error: "ط؛ظٹط± ظ…ظˆط¬ظˆط¯" });
-  await logAudit(actorId, "update", "story_template", row.id, row.name, `طھط¹ط¯ظٹظ„ ظ‚ط§ظ„ط¨ ط³طھظˆط±ظٹ: ${row.name}`);
+  if (!row) return res.status(404).json({ error: "غير موجود" });
+  await logAudit(actorId, "update", "story_template", row.id, row.name, `تعديل قالب ستوري: ${row.name}`);
   return res.json(row);
 });
 
@@ -51,8 +51,8 @@ router.delete("/story-templates/:id", requireAdmin, async (req, res) => {
   const adminUser = (req as any).adminUser;
   const actorId = adminUser?.id ?? adminUser?.email ?? null;
   const [deleted] = await db.delete(storyTemplatesTable).where(eq(storyTemplatesTable.id, id)).returning();
-  if (!deleted) return res.status(404).json({ error: "ط؛ظٹط± ظ…ظˆط¬ظˆط¯" });
-  await logAudit(actorId, "delete", "story_template", id, deleted.name, `ط­ط°ظپ ظ‚ط§ظ„ط¨ ط³طھظˆط±ظٹ: ${deleted.name}`);
+  if (!deleted) return res.status(404).json({ error: "غير موجود" });
+  await logAudit(actorId, "delete", "story_template", id, deleted.name, `حذف قالب ستوري: ${deleted.name}`);
   return res.status(204).send();
 });
 

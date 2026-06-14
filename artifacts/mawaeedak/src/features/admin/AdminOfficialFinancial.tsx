@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,7 @@ import {
 import { Plus, Edit2, Trash2, Loader2, CalendarClock, ArrowRight, ArrowLeft, RefreshCw } from "lucide-react";
 
 /**
- * AdminOfficialFinancial â€” a simple admin page for managing official
+ * AdminOfficialFinancial — a simple admin page for managing official
  * financial dates. Allows listing all records (confirmed and unconfirmed),
  * creating new entries, editing existing ones, adjusting dates, and deleting entries.
  * Uses Supabase directly for listing and React Query mutations for writes.
@@ -32,7 +32,7 @@ export default function AdminOfficialFinancial() {
   const { data: events, isLoading } = useQuery({
     queryKey: ["admin-official-financial"],
     queryFn: async () => {
-      if (!isSupabaseEnabled || !supabase) throw new Error("Supabase ط؛ظٹط± ظ…ظپط¹ظ‘ظ„");
+      if (!isSupabaseEnabled || !supabase) throw new Error("Supabase غير مفعّل");
       
       // Get current user for audit
       const { data: { user } } = await supabase.auth.getUser();
@@ -114,7 +114,7 @@ export default function AdminOfficialFinancial() {
 
   const handleSave = () => {
     if (!eventKey || !eventName || !dateGreg) {
-      showTopNotification("ظٹط¬ط¨ ط¥ط¯ط®ط§ظ„ ط§ظ„ظ…ظپطھط§ط­ ظˆط§ظ„ط§ط³ظ… ظˆط§ظ„طھط§ط±ظٹط® ط§ظ„ظ…ظٹظ„ط§ط¯ظٹ", "error");
+      showTopNotification("يجب إدخال المفتاح والاسم والتاريخ الميلادي", "error");
       return;
     }
     const data = {
@@ -129,23 +129,23 @@ export default function AdminOfficialFinancial() {
     if (isEdit && editId) {
       updateEvent.mutate({ id: editId, data }, {
         onSuccess: () => {
-          showTopNotification("طھظ… ط§ظ„طھط¹ط¯ظٹظ„ ط¨ظ†ط¬ط§ط­", "success");
+          showTopNotification("تم التعديل بنجاح", "success");
           setIsOpen(false);
           queryClient.invalidateQueries({ queryKey: ["admin-official-financial"] });
         },
         onError: (error: any) => {
-          showTopNotification(error.message || "ظپط´ظ„ ط§ظ„طھط¹ط¯ظٹظ„", "error");
+          showTopNotification(error.message || "فشل التعديل", "error");
         },
       });
     } else {
       createEvent.mutate(data, {
         onSuccess: () => {
-          showTopNotification("طھظ…طھ ط§ظ„ط¥ط¶ط§ظپط© ط¨ظ†ط¬ط§ط­", "success");
+          showTopNotification("تمت الإضافة بنجاح", "success");
           setIsOpen(false);
           queryClient.invalidateQueries({ queryKey: ["admin-official-financial"] });
         },
         onError: (error: any) => {
-          showTopNotification(error.message || "ظپط´ظ„ ط§ظ„ط¥ط¶ط§ظپط©", "error");
+          showTopNotification(error.message || "فشل الإضافة", "error");
         },
       });
     }
@@ -155,19 +155,19 @@ export default function AdminOfficialFinancial() {
     if (!deleteId) return;
     deleteEvent.mutate(deleteId, {
       onSuccess: () => {
-        showTopNotification("طھظ… ط§ظ„ط­ط°ظپ ط¨ظ†ط¬ط§ط­", "success");
+        showTopNotification("تم الحذف بنجاح", "success");
         setIsDeleteOpen(false);
         queryClient.invalidateQueries({ queryKey: ["admin-official-financial"] });
       },
       onError: (error: any) => {
-        showTopNotification(error.message || "ظپط´ظ„ ط§ظ„ط­ط°ظپ", "error");
+        showTopNotification(error.message || "فشل الحذف", "error");
       },
     });
   };
 
   const handleAdjust = async () => {
     if (!adjustEvent || !adjustNewDate || !adjustReason) {
-      showTopNotification("ظٹط¬ط¨ ط¥ط¯ط®ط§ظ„ ط§ظ„طھط§ط±ظٹط® ظˆط§ظ„ط³ط¨ط¨", "error");
+      showTopNotification("يجب إدخال التاريخ والسبب", "error");
       return;
     }
 
@@ -175,7 +175,7 @@ export default function AdminOfficialFinancial() {
     
     try {
       if (!isSupabaseEnabled || !supabase) {
-        showTopNotification("Supabase ط؛ظٹط± ظ…ظپط¹ظ‘ظ„", "error");
+        showTopNotification("Supabase غير مفعّل", "error");
         setIsAdjusting(false);
         return;
       }
@@ -218,16 +218,16 @@ export default function AdminOfficialFinancial() {
         .insert({
           user_id: currentUserId,
           type: "system",
-          title: `طھظ… طھط¹ط¯ظٹظ„ ${adjustEvent.event_name_ar}`,
-          body: `طھظ… ${adjustType === 'advance' ? 'طھظ‚ط¯ظٹظ…' : adjustType === 'delay' ? 'طھط£ط¬ظٹظ„' : 'طھطµط­ظٹط­'} ط§ظ„ظ…ظˆط¹ط¯ ظ…ظ† ${oldDate} ط¥ظ„ظ‰ ${adjustNewDate}`,
+          title: `تم تعديل ${adjustEvent.event_name_ar}`,
+          body: `تم ${adjustType === 'advance' ? 'تقديم' : adjustType === 'delay' ? 'تأجيل' : 'تصحيح'} الموعد من ${oldDate} إلى ${adjustNewDate}`,
           is_read: false,
         });
 
-      showTopNotification(`طھظ… ${adjustType === 'advance' ? 'طھظ‚ط¯ظٹظ…' : adjustType === 'delay' ? 'طھط£ط¬ظٹظ„' : 'طھطµط­ظٹط­'} ط§ظ„ظ…ظˆط¹ط¯ ط¨ظ†ط¬ط§ط­`, "success");
+      showTopNotification(`تم ${adjustType === 'advance' ? 'تقديم' : adjustType === 'delay' ? 'تأجيل' : 'تصحيح'} الموعد بنجاح`, "success");
       setIsAdjustOpen(false);
       queryClient.invalidateQueries({ queryKey: ["admin-official-financial"] });
     } catch (err: any) {
-      showTopNotification(err.message || "ظپط´ظ„ طھط¹ط¯ظٹظ„ ط§ظ„ظ…ظˆط¹ط¯", "error");
+      showTopNotification(err.message || "فشل تعديل الموعد", "error");
     } finally {
       setIsAdjusting(false);
     }
@@ -243,11 +243,11 @@ export default function AdminOfficialFinancial() {
             style={{ background: "linear-gradient(180deg, hsl(38 62% 52%), hsl(32 55% 42%))" }}
           />
           <h1 className="text-2xl font-extrabold" style={{ color: "hsl(22 62% 18%)" }}>
-            ط§ظ„ظ…ظˆط§ط¹ظٹط¯ ط§ظ„ظ…ط§ظ„ظٹط© ط§ظ„ط±ط³ظ…ظٹط©
+            المواعيد المالية الرسمية
           </h1>
         </div>
         <Button onClick={openAdd} size="sm">
-          <Plus className="w-4 h-4 ml-1" /> ط¥ط¶ط§ظپط© طھط§ط±ظٹط®
+          <Plus className="w-4 h-4 ml-1" /> إضافة تاريخ
         </Button>
       </div>
 
@@ -255,41 +255,41 @@ export default function AdminOfficialFinancial() {
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="rtl max-w-[450px] rounded-xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{isEdit ? "طھط¹ط¯ظٹظ„ ط§ظ„طھط§ط±ظٹط®" : "طھط§ط±ظٹط® ظ…ط§ظ„ظٹ ط¬ط¯ظٹط¯"}</DialogTitle>
+            <DialogTitle>{isEdit ? "تعديل التاريخ" : "تاريخ مالي جديد"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>ط§ظ„ظ…ظپطھط§ط­ ط§ظ„ظپط±ظٹط¯</Label>
-              <Input value={eventKey} onChange={e => setEventKey(e.target.value)} placeholder="ظ…ط«ط§ظ„: gov_salary" />
+              <Label>المفتاح الفريد</Label>
+              <Input value={eventKey} onChange={e => setEventKey(e.target.value)} placeholder="مثال: gov_salary" />
             </div>
             <div className="space-y-2">
-              <Label>ط§ط³ظ… ط§ظ„ط­ط¯ط« (ط¨ط§ظ„ط¹ط±ط¨ظٹط©)</Label>
-              <Input value={eventName} onChange={e => setEventName(e.target.value)} placeholder="ظ…ط«ط§ظ„: ط§ظ„ط±ط§طھط¨ ط§ظ„ط­ظƒظˆظ…ظٹ" />
+              <Label>اسم الحدث (بالعربية)</Label>
+              <Input value={eventName} onChange={e => setEventName(e.target.value)} placeholder="مثال: الراتب الحكومي" />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>ط§ظ„طھط§ط±ظٹط® ط§ظ„ظ…ظٹظ„ط§ط¯ظٹ</Label>
+                <Label>التاريخ الميلادي</Label>
                 <Input type="date" value={dateGreg} onChange={e => setDateGreg(e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>ط§ظ„طھط§ط±ظٹط® ط§ظ„ظ‡ط¬ط±ظٹ (ط§ط®طھظٹط§ط±ظٹ)</Label>
-                <Input type="text" value={dateHijri} onChange={e => setDateHijri(e.target.value)} placeholder="ظ…ط«ط§ظ„: 1448-01-27" />
+                <Label>التاريخ الهجري (اختياري)</Label>
+                <Input type="text" value={dateHijri} onChange={e => setDateHijri(e.target.value)} placeholder="مثال: 1448-01-27" />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>ط§ظ„ط¬ظ‡ط© ط§ظ„ط±ط³ظ…ظٹط© (ط§ط®طھظٹط§ط±ظٹ)</Label>
-              <Input value={sourceAuthority} onChange={e => setSourceAuthority(e.target.value)} placeholder="ظ…ط«ط§ظ„: ظˆط²ط§ط±ط© ط§ظ„ظ…ط§ظ„ظٹط©" />
+              <Label>الجهة الرسمية (اختياري)</Label>
+              <Input value={sourceAuthority} onChange={e => setSourceAuthority(e.target.value)} placeholder="مثال: وزارة المالية" />
             </div>
             <div className="space-y-2">
-              <Label>ط±ط§ط¨ط· ط§ظ„ظ…طµط¯ط± (ط§ط®طھظٹط§ط±ظٹ)</Label>
+              <Label>رابط المصدر (اختياري)</Label>
               <Input value={sourceUrl} onChange={e => setSourceUrl(e.target.value)} placeholder="https://" />
             </div>
             <div className="flex items-center justify-between">
-              <Label>ظ…ط¤ظƒط¯</Label>
+              <Label>مؤكد</Label>
               <Switch checked={isConfirmed} onCheckedChange={setIsConfirmed} />
             </div>
             <Button className="w-full" onClick={handleSave} disabled={createEvent.isPending || updateEvent.isPending}>
-              {createEvent.isPending || updateEvent.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "ط­ظپط¸"}
+              {createEvent.isPending || updateEvent.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : "حفظ"}
             </Button>
           </div>
         </DialogContent>
@@ -299,61 +299,61 @@ export default function AdminOfficialFinancial() {
       <Dialog open={isAdjustOpen} onOpenChange={setIsAdjustOpen}>
         <DialogContent className="rtl max-w-[450px] rounded-xl">
           <DialogHeader>
-            <DialogTitle>طھط¹ط¯ظٹظ„ ظ…ظˆط¹ط¯ {adjustEvent?.event_name_ar}</DialogTitle>
+            <DialogTitle>تعديل موعد {adjustEvent?.event_name_ar}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
               <p className="text-sm text-amber-800">
-                <strong>ط§ظ„طھط§ط±ظٹط® ط§ظ„ط­ط§ظ„ظٹ:</strong> {adjustEvent?.occurrence_date_gregorian}
+                <strong>التاريخ الحالي:</strong> {adjustEvent?.occurrence_date_gregorian}
               </p>
               {adjustEvent?.adjustment_status && adjustEvent?.adjustment_status !== 'none' && (
                 <p className="text-xs text-amber-600 mt-1">
-                  ط¢ط®ط± طھط¹ط¯ظٹظ„: {adjustEvent?.adjustment_reason}
+                  آخر تعديل: {adjustEvent?.adjustment_reason}
                 </p>
               )}
             </div>
             
             <div className="space-y-2">
-              <Label>ظ†ظˆط¹ ط§ظ„طھط¹ط¯ظٹظ„</Label>
+              <Label>نوع التعديل</Label>
               <Select value={adjustType} onValueChange={(v: "advance" | "delay" | "correction") => setAdjustType(v)}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent className="rtl">
-                  <SelectItem value="advance">طھظ‚ط¯ظٹظ… (طھط؛ظٹظٹط± ط§ظ„طھط§ط±ظٹط® ظ„ظˆظ‚طھ ط£ط¨ظƒط±)</SelectItem>
-                  <SelectItem value="delay">طھط£ط¬ظٹظ„ (طھط؛ظٹظٹط± ط§ظ„طھط§ط±ظٹط® ظ„ظˆظ‚طھ ظ„ط§ط­ظ‚)</SelectItem>
-                  <SelectItem value="correction">طھطµط­ظٹط­ (طھطµط­ظٹط­ ط®ط·ط£ ظپظٹ ط§ظ„طھط§ط±ظٹط®)</SelectItem>
+                  <SelectItem value="advance">تقديم (تغيير التاريخ لوقت أبكر)</SelectItem>
+                  <SelectItem value="delay">تأجيل (تغيير التاريخ لوقت لاحق)</SelectItem>
+                  <SelectItem value="correction">تصحيح (تصحيح خطأ في التاريخ)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             
             <div className="space-y-2">
-              <Label>ط§ظ„طھط§ط±ظٹط® ط§ظ„ط¬ط¯ظٹط¯</Label>
+              <Label>التاريخ الجديد</Label>
               <Input type="date" value={adjustNewDate} onChange={e => setAdjustNewDate(e.target.value)} />
             </div>
-            
+
             <div className="space-y-2">
-              <Label>ط³ط¨ط¨ ط§ظ„طھط¹ط¯ظٹظ„</Label>
-              <Textarea 
-                value={adjustReason} 
-                onChange={e => setAdjustReason(e.target.value)} 
-                rows={3} 
-                placeholder="ط§ظƒطھط¨ ط³ط¨ط¨ ط§ظ„طھط¹ط¯ظٹظ„..." 
+              <Label>سبب التعديل</Label>
+              <Textarea
+                value={adjustReason}
+                onChange={e => setAdjustReason(e.target.value)}
+                rows={3}
+                placeholder="اكتب سبب التعديل..."
               />
             </div>
-            
+
             <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                className="flex-1" 
+              <Button
+                variant="outline"
+                className="flex-1"
                 onClick={() => setIsAdjustOpen(false)}
               >
-                ط¥ظ„ط؛ط§ط،
+                إلغاء
               </Button>
               <Button 
                 className="flex-1" 
                 onClick={handleAdjust}
                 disabled={isAdjusting || !adjustNewDate || !adjustReason}
               >
-                {isAdjusting ? <Loader2 className="w-4 h-4 animate-spin" /> : "ط­ظپط¸ ط§ظ„طھط¹ط¯ظٹظ„"}
+                {isAdjusting ? <Loader2 className="w-4 h-4 animate-spin" /> : "حفظ التعديل"}
               </Button>
             </div>
           </div>
@@ -379,14 +379,14 @@ export default function AdminOfficialFinancial() {
                     <span className="text-xs font-bold text-primary">{ev.occurrence_date_gregorian}</span>
                     {ev.adjustment_status && ev.adjustment_status !== 'none' && (
                       <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
-                        {ev.adjustment_status === 'advance' ? 'طھظ… طھظ‚ط¯ظٹظ…ظ‡' : ev.adjustment_status === 'delay' ? 'طھظ… طھط£ط¬ظٹظ„ظ‡' : 'طھظ… طھطµط­ظٹط­ظ‡'}
+                        {ev.adjustment_status === 'advance' ? 'تم تقديمه' : ev.adjustment_status === 'delay' ? 'تم تأجيله' : 'تم تصحيحه'}
                       </span>
                     )}
                   </div>
                 </div>
                 <div className="flex justify-between items-center border-t border-border pt-3 mt-2">
                   <div className="text-xs text-muted-foreground">
-                    {ev.is_confirmed ? "ظ…ط¤ظƒط¯" : "ط؛ظٹط± ظ…ط¤ظƒط¯"}
+                    {ev.is_confirmed ? "مؤكد" : "غير مؤكد"}
                   </div>
                   <div className="flex gap-1">
                     <Button 
@@ -395,7 +395,7 @@ export default function AdminOfficialFinancial() {
                       className="h-8 text-xs border-amber-200 text-amber-700 hover:bg-amber-50"
                       onClick={() => openAdjust(ev)}
                     >
-                      <RefreshCw className="w-3.5 h-3.5 ml-1" /> طھط¹ط¯ظٹظ„ ط§ظ„ظ…ظˆط¹ط¯
+                      <RefreshCw className="w-3.5 h-3.5 ml-1" /> تعديل الموعد
                     </Button>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-primary" onClick={() => openEdit(ev)}>
                       <Edit2 className="w-4 h-4" />
@@ -411,15 +411,15 @@ export default function AdminOfficialFinancial() {
         </div>
       ) : (
         <div className="text-center p-8 bg-card rounded-xl border border-dashed border-border text-muted-foreground">
-          ظ„ط§ طھظˆط¬ط¯ طھظˆط§ط±ظٹط® ط±ط³ظ…ظٹط©
+          لا توجد تواريخ رسمية
         </div>
       )}
 
       <ConfirmDialog
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
-        title="ط­ط°ظپ ط§ظ„طھط§ط±ظٹط® ط§ظ„ظ…ط§ظ„ظٹ"
-        description="ظ‡ظ„ ط£ظ†طھ ظ…طھط£ظƒط¯ ظ…ظ† ط§ظ„ط­ط°ظپطں ط³ظˆظپ ظٹط®طھظپظٹ ظ‡ط°ط§ ط§ظ„ط­ط¯ط« ظ…ظ† ظ‚ط§ط¦ظ…ط© ط§ظ„طھظˆط§ط±ظٹط® ط§ظ„ط±ط³ظ…ظٹط©."
+        title="حذف التاريخ المالي"
+        description="هل أنت متأكد من الحذف؟ سوف يختفي هذا الحدث من قائمة التواريخ الرسمية."
         onConfirm={handleDelete}
       />
     </div>

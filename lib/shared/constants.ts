@@ -1,25 +1,25 @@
-﻿/**
+/**
  * Mawaeedak Constants
  * Shared between Web and Mobile
  */
 
 // Saudi Cities
 export const SAUDI_CITIES = [
-  { name: 'ط§ظ„ط±ظٹط§ط¶', key: 'riyadh', timezone: 'Asia/Riyadh' },
-  { name: 'ط¬ط¯ط©', key: 'jeddah', timezone: 'Asia/Riyadh' },
-  { name: 'ظ…ظƒط© ط§ظ„ظ…ظƒط±ظ…ط©', key: 'mecca', timezone: 'Asia/Riyadh' },
-  { name: 'ط§ظ„ظ…ط¯ظٹظ†ط© ط§ظ„ظ…ظ†ظˆط±ط©', key: 'medina', timezone: 'Asia/Riyadh' },
-  { name: 'ط§ظ„ط¯ظ…ط§ظ…', key: 'dammam', timezone: 'Asia/Riyadh' },
-  { name: 'ط§ظ„ط®ط¨ط±', key: 'khobar', timezone: 'Asia/Riyadh' },
-  { name: 'ط£ط¨ظ‡ط§', key: 'abha', timezone: 'Asia/Riyadh' },
-  { name: 'طھط¨ظˆظƒ', key: 'tabuk', timezone: 'Asia/Riyadh' },
-  { name: 'ط§ظ„ظ‚طµظٹظ…', key: 'qassim', timezone: 'Asia/Riyadh' },
-  { name: 'ط­ط§ط¦ظ„', key: 'hail', timezone: 'Asia/Riyadh' },
-  { name: 'ط¬ط§ط²ط§ظ†', key: 'jazan', timezone: 'Asia/Riyadh' },
-  { name: 'ظ†ط¬ط±ط§ظ†', key: 'najran', timezone: 'Asia/Riyadh' },
-  { name: 'ط§ظ„ط¨ط§ط­ط©', key: 'baha', timezone: 'Asia/Riyadh' },
-  { name: 'ط§ظ„ط¬ظˆظپ', key: 'jawf', timezone: 'Asia/Riyadh' },
-  { name: 'ط¹ط³ظٹط±', key: 'asir', timezone: 'Asia/Riyadh' },
+  { name: 'الرياض', key: 'riyadh', timezone: 'Asia/Riyadh' },
+  { name: 'جدة', key: 'jeddah', timezone: 'Asia/Riyadh' },
+  { name: 'مكة المكرمة', key: 'mecca', timezone: 'Asia/Riyadh' },
+  { name: 'المدينة المنورة', key: 'medina', timezone: 'Asia/Riyadh' },
+  { name: 'الدمام', key: 'dammam', timezone: 'Asia/Riyadh' },
+  { name: 'الخبر', key: 'khobar', timezone: 'Asia/Riyadh' },
+  { name: 'أبها', key: 'abha', timezone: 'Asia/Riyadh' },
+  { name: 'تبوك', key: 'tabuk', timezone: 'Asia/Riyadh' },
+  { name: 'القصيم', key: 'qassim', timezone: 'Asia/Riyadh' },
+  { name: 'حائل', key: 'hail', timezone: 'Asia/Riyadh' },
+  { name: 'جازان', key: 'jazan', timezone: 'Asia/Riyadh' },
+  { name: 'نجران', key: 'najran', timezone: 'Asia/Riyadh' },
+  { name: 'الباحة', key: 'baha', timezone: 'Asia/Riyadh' },
+  { name: 'الجوف', key: 'jawf', timezone: 'Asia/Riyadh' },
+  { name: 'عسير', key: 'asir', timezone: 'Asia/Riyadh' },
 ];
 
 // Default City
@@ -27,40 +27,40 @@ export const DEFAULT_CITY = SAUDI_CITIES[0];
 
 // Prayer Names (Arabic)
 export const PRAYER_NAMES: Record<string, string> = {
-  fajr: 'ط§ظ„ظپط¬ط±',
-  sunrise: 'ط§ظ„ط´ط±ظˆظ‚',
-  dhuhr: 'ط§ظ„ط¸ظ‡ط±',
-  asr: 'ط§ظ„ط¹طµط±',
-  maghrib: 'ط§ظ„ظ…ط؛ط±ط¨',
-  isha: 'ط§ظ„ط¹ط´ط§ط،',
+  fajr: 'الفجر',
+  sunrise: 'الشروق',
+  dhuhr: 'الظهر',
+  asr: 'العصر',
+  maghrib: 'المغرب',
+  isha: 'العشاء',
 };
 
 // Financial Event Types
 export const FINANCIAL_TYPES = {
-  salary: { label: 'ط±ط§طھط¨', icon: 'ًں’°' },
-  support: { label: 'ط¯ط¹ظ…', icon: 'ًںڈ ' },
-  bill: { label: 'ظپط§طھظˆط±ط©', icon: 'ًں“„' },
-  investment: { label: 'ط§ط³طھط«ظ…ط§ط±', icon: 'ًں“ˆ' },
+  salary: { label: 'راتب', icon: '💰' },
+  support: { label: 'دعم', icon: '🏠' },
+  bill: { label: 'فاتورة', icon: '📄' },
+  investment: { label: 'استثمار', icon: '📈' },
 };
 
 // Default Daily Message
-export const DEFAULT_DAILY_MESSAGE = 'ط§ط¨ط¯ط£ ظٹظˆظ…ظƒ ط¨ظ†ظٹط© ط·ظٹط¨ط©طŒ ظˆطھظˆظƒظ„ ط¹ظ„ظ‰ ط§ظ„ظ„ظ‡ ظپظٹ ظƒظ„ ط®ط·ظˆط©.';
+export const DEFAULT_DAILY_MESSAGE = 'ابدأ يومك بنية طيبة، وتوكل على الله في كل خطوة.';
 
 // App Info
 export const APP_INFO = {
-  name: 'ظ…ظˆط§ط¹ظٹط¯ظƒ',
+  name: 'مواعيدك',
   version: '1.0.0',
-  tagline: 'ظƒظ„ ظ…ظˆط§ط¹ظٹط¯ظƒ ظپظٹ ظ…ظƒط§ظ† ظˆط§ط­ط¯',
+  tagline: 'كل مواعيدك في مكان واحد',
 };
 
 // Service Centers (8 centers)
 export const SERVICE_CENTERS = [
-  { id: 1, name: 'ظ…ط±ظƒط² ط§ظ„ط£ط­ظˆط§ظ„ ط§ظ„ظ…ط¯ظ†ظٹط©', icon: 'ًںھھ', services: ['طھط¬ط¯ظٹط¯ ط§ظ„ظ‡ظˆظٹط©', 'طھط¹ط¯ظٹظ„ ط§ظ„ط¨ظٹط§ظ†ط§طھ'] },
-  { id: 2, name: 'ظ…ط±ظƒط² ط§ظ„ط¬ظˆط§ط²ط§طھ', icon: 'ًں“‹', services: ['طھط£ط´ظٹط±ط§طھ', 'طھظ…ط¯ظٹط¯ ط¥ظ‚ط§ظ…ط©'] },
-  { id: 3, name: 'ظ…ط±ظƒط² ط§ظ„ظ…ط±ظˆط±', icon: 'ًںڑ—', services: ['ط±ط®طµط© ظ‚ظٹط§ط¯ط©', 'طھط¬ط¯ظٹط¯ طھط³ط¬ظٹظ„'] },
-  { id: 4, name: 'ظ…ط±ظƒط² ط§ظ„ط¨ط±ظٹط¯', icon: 'ًں“®', services: ['ط·ط±ظˆط¯', 'ط­ظˆط§ظ„ط§طھ'] },
-  { id: 5, name: 'ظ…ط±ظƒط² ط§ظ„طھط£ظ…ظٹظ†ط§طھ', icon: 'ًںڈ¥', services: ['طھط£ظ…ظٹظ† طµط­ظٹ', 'طھط¹ط¯ظٹظ„ ط¨ظٹط§ظ†ط§طھ'] },
-  { id: 6, name: 'ظ…ط±ظƒط² ط§ظ„ط²ظƒط§ط©', icon: 'ًں’µ', services: ['ط²ظƒط§ط©', 'طµط¯ظ‚ط§طھ'] },
-  { id: 7, name: 'ظ…ط±ظƒط² ط§ظ„طھط¹ظ„ظٹظ…', icon: 'ًں“ڑ', services: ['ط³ط¬ظ„ط§طھ', 'ط´ظ‡ط§ط¯ط§طھ'] },
-  { id: 8, name: 'ظ…ط±ظƒط² ط§ظ„ط®ط¯ظ…ط§طھ ط§ظ„ط¹ط§ظ…ط©', icon: 'ًںڈ¢', services: ['ط±ط®طµ', 'طھطµط§ط±ظٹط­'] },
+  { id: 1, name: 'مركز الأحوال المدنية', icon: '🪪', services: ['تجديد الهوية', 'تعديل البيانات'] },
+  { id: 2, name: 'مركز الجوازات', icon: '📋', services: ['تأشيرات', 'تمديد إقامة'] },
+  { id: 3, name: 'مركز المرور', icon: '🚗', services: ['رخصة قيادة', 'تجديد تسجيل'] },
+  { id: 4, name: 'مركز البريد', icon: '📮', services: ['طرود', 'حوالات'] },
+  { id: 5, name: 'مركز التأمينات', icon: '🏥', services: ['تأمين صحي', 'تعديل بيانات'] },
+  { id: 6, name: 'مركز الزكاة', icon: '💵', services: ['زكاة', 'صدقات'] },
+  { id: 7, name: 'مركز التعليم', icon: '📚', services: ['سجلات', 'شهادات'] },
+  { id: 8, name: 'مركز الخدمات العامة', icon: '🏢', services: ['رخص', 'تصاريح'] },
 ];

@@ -1,8 +1,8 @@
-﻿# Launch Gate Phase A Code Closure
+# Launch Gate Phase A Code Closure
 
 **Date**: 2026-06-12
 **Issue**: #60
-**Verdict**: Code Ready â€” Deployment Setup Required
+**Verdict**: Code Ready — Deployment Setup Required
 
 ## Closed In Code
 

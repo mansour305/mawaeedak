@@ -1,4 +1,4 @@
-﻿import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,19 +20,19 @@ interface User {
 }
 
 const ROLES = [
-  { value: "user", label: "ظ…ط³طھط®ط¯ظ…" },
-  { value: "admin", label: "ظ…ط¯ظٹط±" },
-  { value: "super_admin", label: "ظ…ط¯ظٹط± ظ†ط¸ط§ظ…" },
-  { value: "owner", label: "ظ…ط§ظ„ظƒ" },
+  { value: "user", label: "مستخدم" },
+  { value: "admin", label: "مدير" },
+  { value: "super_admin", label: "مدير نظام" },
+  { value: "owner", label: "مالك" },
 ];
 
 const STATUS_OPTIONS = [
-  { value: "active", label: "ظ†ط´ط·", color: "bg-emerald-500/10 text-emerald-600" },
-  { value: "banned", label: "ظ…ط­ط¸ظˆط±", color: "bg-red-500/10 text-red-600" },
-  { value: "pending", label: "ظ‚ظٹط¯ ط§ظ„ط§ظ†طھط¸ط§ط±", color: "bg-amber-500/10 text-amber-600" },
+  { value: "active", label: "نشط", color: "bg-emerald-500/10 text-emerald-600" },
+  { value: "banned", label: "محظور", color: "bg-red-500/10 text-red-600" },
+  { value: "pending", label: "قيد الانتظار", color: "bg-amber-500/10 text-amber-600" },
 ];
 
-const MEMBER_ADMIN_ENDPOINT_REQUIRED = "ط¥ط¯ط§ط±ط© ط§ظ„ط£ط¯ظˆط§ط± ظˆط§ظ„ط­ط¸ط± طھطھط·ظ„ط¨ endpoint ط¥ط¯ط§ط±ظٹ server-side ظˆظ„ط§ طھظڈظ†ظپظ‘ط° ظ…ظ† ط§ظ„ظ…طھطµظپط­.";
+const MEMBER_ADMIN_ENDPOINT_REQUIRED = "إدارة الأدوار والحظر تتطلب endpoint إداري server-side ولا تُنفّذ من المتصفح.";
 
 export default function AdminMembers() {
   const { toast } = useToast();
@@ -77,9 +77,9 @@ export default function AdminMembers() {
 
         const mappedUsers: User[] = (profiles || []).map((p: any) => ({
           id: p.id,
-          name: p.full_name || "ط¨ط¯ظˆظ† ط§ط³ظ…",
+          name: p.full_name || "بدون اسم",
           email: p.user?.email || "",
-          city: p.city_name_ar || "ط؛ظٹط± ظ…ط­ط¯ط¯",
+          city: p.city_name_ar || "غير محدد",
           role: p.role || "user",
           status: p.user?.banned ? "banned" as const : "active" as const,
           created_at: p.created_at ? new Date(p.created_at).toISOString().split("T")[0] : "",
@@ -122,11 +122,11 @@ export default function AdminMembers() {
   };
 
   const handleSave = () => {
-    toast({ title: "ط؛ظٹط± ظ…طھط§ط­ ظ…ظ† ط§ظ„ظ…طھطµظپط­", description: MEMBER_ADMIN_ENDPOINT_REQUIRED, variant: "destructive" });
+    toast({ title: "غير متاح من المتصفح", description: MEMBER_ADMIN_ENDPOINT_REQUIRED, variant: "destructive" });
   };
 
   const handleToggleBan = () => {
-    toast({ title: "ط؛ظٹط± ظ…طھط§ط­ ظ…ظ† ط§ظ„ظ…طھطµظپط­", description: MEMBER_ADMIN_ENDPOINT_REQUIRED, variant: "destructive" });
+    toast({ title: "غير متاح من المتصفح", description: MEMBER_ADMIN_ENDPOINT_REQUIRED, variant: "destructive" });
   };
 
   const statusMeta = (status: string) => STATUS_OPTIONS.find(s => s.value === status) ?? STATUS_OPTIONS[0];
@@ -140,23 +140,23 @@ export default function AdminMembers() {
           style={{ background: "linear-gradient(180deg, hsl(38 62% 52%), hsl(32 55% 42%))" }}
         />
         <h1 className="text-2xl font-extrabold" style={{ color: "hsl(22 62% 18%)" }}>
-          ط¥ط¯ط§ط±ط© ط§ظ„ظ…ط³طھط®ط¯ظ…ظٹظ†
+          إدارة المستخدمين
         </h1>
       </div>
 
       <div className="flex justify-between items-center">
         <span className="text-sm font-medium" style={{ color: "hsl(32 18% 42%)" }}>
-          {filtered.length} ظ…ط³طھط®ط¯ظ…
+          {filtered.length} مستخدم
         </span>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: "ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ", value: counts.total, icon: UsersIcon },
-          { label: "ظ†ط´ط·ظˆظ†", value: counts.active, icon: CheckCircle },
-          { label: "ظ…ط­ط¸ظˆط±ظˆظ†", value: counts.banned, icon: Ban },
-          { label: "ظ…ط¯ظٹط±ظˆظ†", value: counts.admins, icon: UsersIcon },
+          { label: "الإجمالي", value: counts.total, icon: UsersIcon },
+          { label: "نشطون", value: counts.active, icon: CheckCircle },
+          { label: "محظورون", value: counts.banned, icon: Ban },
+          { label: "مديرون", value: counts.admins, icon: UsersIcon },
         ].map(s => (
           <Card key={s.label} className="border-border shadow-sm">
             <CardContent className="p-4 flex items-center gap-3">
@@ -174,19 +174,19 @@ export default function AdminMembers() {
       <div className="flex flex-col md:flex-row gap-2">
         <div className="relative flex-1">
           <Search className="absolute right-3 top-2.5 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="ط¨ط­ط« ط¨ط§ظ„ط§ط³ظ… ط£ظˆ ط§ظ„ط¨ط±ظٹط¯ ط£ظˆ ط§ظ„ظ…ط¯ظٹظ†ط©..." value={search} onChange={e => setSearch(e.target.value)} className="pr-9" />
+          <Input placeholder="بحث بالاسم أو البريد أو المدينة..." value={search} onChange={e => setSearch(e.target.value)} className="pr-9" />
         </div>
         <Select value={roleFilter} onValueChange={setRoleFilter}>
-          <SelectTrigger className="md:w-36"><SelectValue placeholder="ط§ظ„ط¯ظˆط±" /></SelectTrigger>
+          <SelectTrigger className="md:w-36"><SelectValue placeholder="الدور" /></SelectTrigger>
           <SelectContent className="rtl">
-            <SelectItem value="all">ظƒظ„ ط§ظ„ط£ط¯ظˆط§ط±</SelectItem>
+            <SelectItem value="all">كل الأدوار</SelectItem>
             {ROLES.map(r => <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="md:w-36"><SelectValue placeholder="ط§ظ„ط­ط§ظ„ط©" /></SelectTrigger>
+          <SelectTrigger className="md:w-36"><SelectValue placeholder="الحالة" /></SelectTrigger>
           <SelectContent className="rtl">
-            <SelectItem value="all">ظƒظ„ ط§ظ„ط­ط§ظ„ط§طھ</SelectItem>
+            <SelectItem value="all">كل الحالات</SelectItem>
             {STATUS_OPTIONS.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
           </SelectContent>
         </Select>
@@ -198,18 +198,18 @@ export default function AdminMembers() {
           {isLoading ? (
             <div className="p-10 text-center"><Loader2 className="w-6 h-6 animate-spin text-primary mx-auto" /></div>
           ) : filtered.length === 0 ? (
-            <div className="p-10 text-center text-muted-foreground">ظ„ط§ ظٹظˆط¬ط¯ ظ…ط³طھط®ط¯ظ…ظˆظ†</div>
+            <div className="p-10 text-center text-muted-foreground">لا يوجد مستخدمون</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm text-right rtl">
                 <thead className="bg-muted/50 text-muted-foreground border-b border-border">
                   <tr>
-                    <th className="px-4 py-3 font-medium">ط§ظ„ط§ط³ظ…</th>
-                    <th className="px-4 py-3 font-medium">ط§ظ„ط¨ط±ظٹط¯</th>
-                    <th className="px-4 py-3 font-medium">ط§ظ„ظ…ط¯ظٹظ†ط©</th>
-                    <th className="px-4 py-3 font-medium">ط§ظ„ط¯ظˆط±</th>
-                    <th className="px-4 py-3 font-medium">ط§ظ„ط­ط§ظ„ط©</th>
-                    <th className="px-4 py-3 font-medium">طھط§ط±ظٹط® ط§ظ„طھط³ط¬ظٹظ„</th>
+                    <th className="px-4 py-3 font-medium">الاسم</th>
+                    <th className="px-4 py-3 font-medium">البريد</th>
+                    <th className="px-4 py-3 font-medium">المدينة</th>
+                    <th className="px-4 py-3 font-medium">الدور</th>
+                    <th className="px-4 py-3 font-medium">الحالة</th>
+                    <th className="px-4 py-3 font-medium">تاريخ التسجيل</th>
                     <th className="px-4 py-3 font-medium"></th>
                   </tr>
                 </thead>
@@ -253,7 +253,7 @@ export default function AdminMembers() {
       {/* Edit Dialog */}
       <Dialog open={!!detail} onOpenChange={open => { if (!open) setDetail(null); }}>
         <DialogContent className="rtl max-w-[400px] rounded-xl">
-          <DialogHeader><DialogTitle>طھط¹ط¯ظٹظ„ ط§ظ„ظ…ط³طھط®ط¯ظ…</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>تعديل المستخدم</DialogTitle></DialogHeader>
           {detail && (
             <div className="space-y-4 py-4">
               <div className="text-center mb-4">
@@ -264,7 +264,7 @@ export default function AdminMembers() {
                 <div className="text-sm text-muted-foreground dir-ltr">{detail.email}</div>
               </div>
               <div className="space-y-2">
-                <Label>ط§ظ„ط¯ظˆط±</Label>
+                <Label>الدور</Label>
                 <Select value={editRole} onValueChange={setEditRole} disabled>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent className="rtl">
@@ -273,7 +273,7 @@ export default function AdminMembers() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>ط§ظ„ط­ط§ظ„ط©</Label>
+                <Label>الحالة</Label>
                 <Select value={editStatus} onValueChange={setEditStatus} disabled>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent className="rtl">
@@ -285,7 +285,7 @@ export default function AdminMembers() {
                 {MEMBER_ADMIN_ENDPOINT_REQUIRED}
               </p>
               <Button className="w-full" onClick={handleSave} disabled>
-                ط­ظپط¸ ط§ظ„طھط¹ط¯ظٹظ„ط§طھ
+                حفظ التعديلات
               </Button>
             </div>
           )}

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Mawaeedak Types
  * Shared between Web and Mobile
  */

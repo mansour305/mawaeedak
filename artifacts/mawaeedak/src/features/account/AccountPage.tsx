@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,18 +28,18 @@ const PRAYER_PREFS_KEY = "mawaeedak_prayer_prefs_v1";
 const CALENDAR_PREFS_KEY = "mawaeedak_calendar_prefs_v1";
 
 const SAUDI_CITIES = [
-  "ط§ظ„ط±ظٹط§ط¶", "ط¬ط¯ط©", "ظ…ظƒط© ط§ظ„ظ…ظƒط±ظ…ط©", "ط§ظ„ظ…ط¯ظٹظ†ط© ط§ظ„ظ…ظ†ظˆط±ط©", "ط§ظ„ط¯ظ…ط§ظ…",
-  "ط§ظ„ط®ط¨ط±", "ط§ظ„ط·ط§ط¦ظپ", "طھط¨ظˆظƒ", "ط¨ط±ظٹط¯ط©", "ط®ظ…ظٹط³ ظ…ط´ظٹط·", "ط§ظ„ط£ط­ط³ط§ط،",
-  "ظ†ط¬ط±ط§ظ†", "ط¬ظٹط²ط§ظ†", "ط£ط¨ظ‡ط§", "ظٹظ†ط¨ط¹", "ط­ط§ط¦ظ„", "ط¹ط±ط¹ط±",
-  "ط³ظƒط§ظƒط§", "ط§ظ„ط¨ط§ط­ط©", "ط§ظ„ط¬ط¨ظٹظ„",
+  "الرياض", "جدة", "مكة المكرمة", "المدينة المنورة", "الدمام",
+  "الخبر", "الطائف", "تبوك", "بريدة", "خميس مشيط", "الأحساء",
+  "نجران", "جيزان", "أبها", "ينبع", "حائل", "عرعر",
+  "سكاكا", "الباحة", "الجبيل",
 ];
 
 const TIMEZONES = [
-  { value: "Asia/Riyadh",  label: "طھظˆظ‚ظٹطھ ط§ظ„ط±ظٹط§ط¶ (AST +3)" },
-  { value: "Asia/Dubai",   label: "طھظˆظ‚ظٹطھ ط¯ط¨ظٹ (GST +4)" },
-  { value: "Asia/Kuwait",  label: "طھظˆظ‚ظٹطھ ط§ظ„ظƒظˆظٹطھ (+3)" },
-  { value: "Asia/Bahrain", label: "طھظˆظ‚ظٹطھ ط§ظ„ط¨ط­ط±ظٹظ† (+3)" },
-  { value: "Asia/Qatar",   label: "طھظˆظ‚ظٹطھ ظ‚ط·ط± (+3)" },
+  { value: "Asia/Riyadh",  label: "توقيت الرياض (AST +3)" },
+  { value: "Asia/Dubai",   label: "توقيت دبي (GST +4)" },
+  { value: "Asia/Kuwait",  label: "توقيت الكويت (+3)" },
+  { value: "Asia/Bahrain", label: "توقيت البحرين (+3)" },
+  { value: "Asia/Qatar",   label: "توقيت قطر (+3)" },
   { value: "UTC",          label: "UTC (+0)" },
 ];
 
@@ -52,13 +52,13 @@ function saveKey(key: string, value: unknown) {
 }
 
 const NOTIF_TYPES = [
-  { key: "salary",       label: "ط§ظ„ط±ظˆط§طھط¨ ظˆط§ظ„ط¯ط¹ظ…",         icon: Wallet,    color: "text-amber-600" },
-  { key: "bills",        label: "ط§ظ„ظپظˆط§طھظٹط± ظˆط§ظ„ط§ظ„طھط²ط§ظ…ط§طھ",    icon: Wallet,    color: "text-red-500" },
-  { key: "prayer",       label: "ظ…ظˆط§ظ‚ظٹطھ ط§ظ„طµظ„ط§ط©",           icon: Star,      color: "text-emerald-600" },
-  { key: "appointments", label: "ط§ظ„ظ…ظˆط§ط¹ظٹط¯ ط§ظ„ط´ط®طµظٹط©",       icon: Calendar,  color: "text-blue-500" },
-  { key: "news",         label: "ط§ظ„ط£ط®ط¨ط§ط± ط§ظ„ظ…ظ‡ظ…ط©",          icon: Newspaper, color: "text-indigo-500" },
-  { key: "jobs",         label: "ط§ظ„ظˆط¸ط§ط¦ظپ ط§ظ„ط¬ط¯ظٹط¯ط©",         icon: Briefcase, color: "text-violet-500" },
-  { key: "story",        label: "ط³طھظˆط±ظٹ ط§ظ„ظٹظˆظ…",             icon: Bell,      color: "text-pink-500" },
+  { key: "salary",       label: "الرواتب والدعم",         icon: Wallet,    color: "text-amber-600" },
+  { key: "bills",        label: "الفواتير والالتزامات",    icon: Wallet,    color: "text-red-500" },
+  { key: "prayer",       label: "مواقيت الصلاة",           icon: Star,      color: "text-emerald-600" },
+  { key: "appointments", label: "المواعيد الشخصية",       icon: Calendar,  color: "text-blue-500" },
+  { key: "news",         label: "الأخبار المهمة",          icon: Newspaper, color: "text-indigo-500" },
+  { key: "jobs",         label: "الوظائف الجديدة",         icon: Briefcase, color: "text-violet-500" },
+  { key: "story",        label: "ستوري اليوم",             icon: Bell,      color: "text-pink-500" },
 ];
 
 
@@ -87,7 +87,7 @@ export default function AccountPage() {
   });
 
   const [prayerPrefs, setPrayerPrefs] = useState(() =>
-    loadKey(PRAYER_PREFS_KEY, { city: user.city || "ط§ظ„ط±ظٹط§ط¶", showPrayer: true })
+    loadKey(PRAYER_PREFS_KEY, { city: user.city || "الرياض", showPrayer: true })
   );
 
   const [calendarPrefs, setCalendarPrefs] = useState(() =>
@@ -104,10 +104,10 @@ export default function AccountPage() {
       // Sync city to store and prayer prefs
       setUser({ city, timezone: detectTimezone() });
       updatePrayerPref({ city });
-      toast({ title: "طھظ… طھط­ط¯ظٹط¯ ظ…ظˆظ‚ط¹ظƒ", description: `ط£ظ‚ط±ط¨ ظ…ط¯ظٹظ†ط©: ${city}`, duration: 6000 });
+      toast({ title: "تم تحديد موقعك", description: `أقرب مدينة: ${city}`, duration: 6000 });
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "ظپط´ظ„ طھط­ط¯ظٹط¯ ط§ظ„ظ…ظˆظ‚ط¹";
-      toast({ title: "طھط¹ط°ظ‘ط± طھط­ط¯ظٹط¯ ط§ظ„ظ…ظˆظ‚ط¹", description: msg, variant: "destructive", duration: 6000 });
+      const msg = err instanceof Error ? err.message : "فشل تحديد الموقع";
+      toast({ title: "تعذّر تحديد الموقع", description: msg, variant: "destructive", duration: 6000 });
     }
   };
 
@@ -115,17 +115,17 @@ export default function AccountPage() {
     setManual(manualCity, manualTz);
     setUser({ city: manualCity, timezone: manualTz });
     updatePrayerPref({ city: manualCity });
-    toast({ title: "طھظ… ط­ظپط¸ ط§ظ„ظ…ظˆظ‚ط¹ ط§ظ„ظٹط¯ظˆظٹ", description: `${manualCity} آ· ${manualTz}`, duration: 6000 });
+    toast({ title: "تم حفظ الموقع اليدوي", description: `${manualCity} · ${manualTz}`, duration: 6000 });
   };
 
   const handleSaveProfile = () => {
     if (!editName.trim()) {
-      toast({ title: "ط®ط·ط£", description: "ط§ظ„ط§ط³ظ… ظ…ط·ظ„ظˆط¨", variant: "destructive" });
+      toast({ title: "خطأ", description: "الاسم مطلوب", variant: "destructive" });
       return;
     }
     setUser({ name: editName.trim(), city: editCity });
     setIsEditOpen(false);
-    toast({ title: "طھظ… ط­ظپط¸ ط§ظ„ظ…ظ„ظپ ط§ظ„ط´ط®طµظٹ" });
+    toast({ title: "تم حفظ الملف الشخصي" });
   };
 
   const openEdit = () => {
@@ -139,7 +139,7 @@ export default function AccountPage() {
       const next = { ...prev, [key]: !prev[key] };
       saveKey(NOTIF_PREFS_KEY, next);
       toast({
-        title: next[key] ? "طھظ… طھظپط¹ظٹظ„ ط§ظ„ط¥ط´ط¹ط§ط±" : "طھظ… ط¥ظٹظ‚ط§ظپ ط§ظ„ط¥ط´ط¹ط§ط±",
+        title: next[key] ? "تم تفعيل الإشعار" : "تم إيقاف الإشعار",
         description: NOTIF_TYPES.find(t => t.key === key)?.label,
       });
       return next;
@@ -150,7 +150,7 @@ export default function AccountPage() {
     setPrayerPrefs(prev => {
       const next = { ...prev, ...update };
       saveKey(PRAYER_PREFS_KEY, next);
-      toast({ title: "طھظ… ط­ظپط¸ ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„طµظ„ط§ط©" });
+      toast({ title: "تم حفظ إعدادات الصلاة" });
       return next;
     });
   };
@@ -159,7 +159,7 @@ export default function AccountPage() {
     setCalendarPrefs(prev => {
       const next = { ...prev, ...update };
       saveKey(CALENDAR_PREFS_KEY, next);
-      toast({ title: "طھظ… ط­ظپط¸ ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„طھظ‚ظˆظٹظ…" });
+      toast({ title: "تم حفظ إعدادات التقويم" });
       return next;
     });
   };
@@ -179,15 +179,15 @@ export default function AccountPage() {
       "mawaeedak_travel_checklist_v1", "mawaeedak_theme", "hide-ads",
     ];
     keys.forEach(k => localStorage.removeItem(k));
-    toast({ title: "طھظ… ظ…ط³ط­ ط§ظ„ط¨ظٹط§ظ†ط§طھ ط§ظ„ظ…ط­ظ„ظٹط©" });
+    toast({ title: "تم مسح البيانات المحلية" });
     setTimeout(() => setLocation("/"), 800);
   };
 
   return (
-    <AppShell title="ط­ط³ط§ط¨ظٹ">
+    <AppShell title="حسابي">
       <div className="space-y-5 pb-6">
 
-        {/* Profile Card â€” Heritage hero */}
+        {/* Profile Card — Heritage hero */}
         <div
           className="-mx-3 overflow-hidden"
           style={{
@@ -210,7 +210,7 @@ export default function AccountPage() {
                 fontFamily: "'Tajawal', sans-serif",
               }}
             >
-              {generateInitials(user.name || "ظ…")}
+              {generateInitials(user.name || "م")}
             </div>
 
             <div className="flex-1 min-w-0">
@@ -218,17 +218,17 @@ export default function AccountPage() {
                 className="text-[20px] font-extrabold truncate"
                 style={{ color: "hsl(38 82% 88%)", fontFamily: "'Tajawal', sans-serif" }}
               >
-                {user.name || "ظ…ط³طھط®ط¯ظ…"}
+                {user.name || "مستخدم"}
               </h2>
               <p
                 className="text-[13px] flex items-center gap-1 mt-0.5"
                 style={{ color: "hsl(38 55% 65%)" }}
               >
                 <MapPin className="w-3.5 h-3.5 shrink-0" />
-                {user.city || "ط§ظ„ط±ظٹط§ط¶"}
+                {user.city || "الرياض"}
               </p>
               <p className="text-[11px] mt-1" style={{ color: "rgba(255,255,255,0.35)" }}>
-                ط¨ظٹط§ظ†ط§طھ ظ…ط­ظ„ظٹط©
+                بيانات محلية
               </p>
             </div>
 
@@ -243,7 +243,7 @@ export default function AccountPage() {
               onClick={openEdit}
             >
               <Edit2 className="w-3.5 h-3.5 ml-1" />
-              طھط¹ط¯ظٹظ„
+              تعديل
             </Button>
           </div>
 
@@ -253,25 +253,25 @@ export default function AccountPage() {
 
         {/* Display Settings */}
         <div className="space-y-2">
-          <h3 className="text-xs font-bold text-muted-foreground px-1 uppercase tracking-wide">ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„ط¹ط±ط¶</h3>
+          <h3 className="text-xs font-bold text-muted-foreground px-1 uppercase tracking-wide">إعدادات العرض</h3>
           <Card className="border-border shadow-sm">
             <div className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
                   {theme === "dark" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
                 </div>
-                <Label htmlFor="dark-mode" className="text-sm font-medium cursor-pointer">ط§ظ„ظˆط¶ط¹ ط§ظ„ظ„ظٹظ„ظٹ</Label>
+                <Label htmlFor="dark-mode" className="text-sm font-medium cursor-pointer">الوضع الليلي</Label>
               </div>
               <Switch id="dark-mode" checked={theme === "dark"} onCheckedChange={toggleMode} />
             </div>
           </Card>
         </div>
 
-        {/* â•گâ•گ Location & Timezone â€” Phase 13G â•گâ•گ */}
+        {/* ══ Location & Timezone — Phase 13G ══ */}
         <div className="space-y-2">
           <div className="flex items-center gap-2 px-1">
             <Navigation className="w-4 h-4 text-muted-foreground" />
-            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wide">ط§ظ„ظ…ظˆظ‚ط¹ ظˆط§ظ„ظ…ظ†ط·ظ‚ط© ط§ظ„ط²ظ…ظ†ظٹط©</h3>
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wide">الموقع والمنطقة الزمنية</h3>
           </div>
           <Card className="border-border shadow-sm">
             <div className="divide-y divide-border">
@@ -288,13 +288,13 @@ export default function AccountPage() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-bold text-foreground">{locPrefs.city}</p>
                   <p className="text-[11px] text-muted-foreground truncate">
-                    {locPrefs.source === "gps" ? "ط­ط³ط¨ ظ…ظˆظ‚ط¹ظƒ" :
-                     locPrefs.source === "manual" ? "ط§ط®طھظٹط§ط± ظٹط¯ظˆظٹ" : "ط§ظ„ط§ظپطھط±ط§ط¶ظٹ"}
-                    {" آ· "}{locPrefs.timezone}
+                    {locPrefs.source === "gps" ? "حسب موقعك" :
+                     locPrefs.source === "manual" ? "اختيار يدوي" : "الافتراضي"}
+                    {" · "}{locPrefs.timezone}
                   </p>
                   {locPrefs.lastUpdated && (
                     <p className="text-[10px] text-muted-foreground/60 mt-0.5">
-                      ط¢ط®ط± طھط­ط¯ظٹط«: {new Date(locPrefs.lastUpdated).toLocaleString("ar-SA", { timeZone: locPrefs.timezone || "Asia/Riyadh", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                      آخر تحديث: {new Date(locPrefs.lastUpdated).toLocaleString("ar-SA", { timeZone: locPrefs.timezone || "Asia/Riyadh", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                     </p>
                   )}
                 </div>
@@ -312,8 +312,8 @@ export default function AccountPage() {
                   disabled={gpsLoading}
                 >
                   {gpsLoading
-                    ? <><Loader2 className="w-4 h-4 ml-2 animate-spin" />ط¬ط§ط±ظچ ط§ظ„طھط­ط¯ظٹط¯...</>
-                    : <><Navigation2 className="w-4 h-4 ml-2 text-emerald-600" />ط§ط³طھط®ط¯ط§ظ… ظ…ظˆظ‚ط¹ظٹ طھظ„ظ‚ط§ط¦ظٹط§ظ‹</>}
+                    ? <><Loader2 className="w-4 h-4 ml-2 animate-spin" />جارٍ التحديد...</>
+                    : <><Navigation2 className="w-4 h-4 ml-2 text-emerald-600" />استخدام موقعي تلقائياً</>}
                 </Button>
                 {gpsError && (
                   <p className="text-[11px] text-destructive mt-2 text-center">{gpsError}</p>
@@ -322,9 +322,9 @@ export default function AccountPage() {
 
               {/* Manual selection */}
               <div className="p-4 space-y-3">
-                <p className="text-xs font-bold text-muted-foreground">ط§ط®طھظٹط§ط± ظٹط¯ظˆظٹ</p>
+                <p className="text-xs font-bold text-muted-foreground">اختيار يدوي</p>
                 <div className="space-y-2">
-                  <Label className="text-sm">ط§ظ„ظ…ط¯ظٹظ†ط©</Label>
+                  <Label className="text-sm">المدينة</Label>
                   <Select value={manualCity} onValueChange={setManualCity}>
                     <SelectTrigger className="h-10 bg-background text-sm">
                       <SelectValue />
@@ -335,7 +335,7 @@ export default function AccountPage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm">ط§ظ„ظ…ظ†ط·ظ‚ط© ط§ظ„ط²ظ…ظ†ظٹط©</Label>
+                  <Label className="text-sm">المنطقة الزمنية</Label>
                   <Select value={manualTz} onValueChange={setManualTz}>
                     <SelectTrigger className="h-10 bg-background text-sm">
                       <SelectValue />
@@ -351,13 +351,13 @@ export default function AccountPage() {
                   onClick={handleSaveManualLocation}
                 >
                   <RefreshCw className="w-3.5 h-3.5 ml-2" />
-                  ط­ظپط¸ ط§ظ„ظ…ظˆظ‚ط¹ ط§ظ„ظٹط¯ظˆظٹ
+                  حفظ الموقع اليدوي
                 </Button>
               </div>
             </div>
           </Card>
           <p className="text-xs text-muted-foreground px-1">
-            ظٹظڈط³طھط®ط¯ظ… ظ„ظ…ظˆط§ظ‚ظٹطھ ط§ظ„طµظ„ط§ط© ظˆط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ط§ظ„ظ…ط¬ط¯ظˆظ„ط© آ· ط§ظ„ط§ظپطھط±ط§ط¶ظٹ: ط§ظ„ط±ظٹط§ط¶ / Asia/Riyadh
+            يُستخدم لمواقيت الصلاة والإشعارات المجدولة · الافتراضي: الرياض / Asia/Riyadh
           </p>
         </div>
 
@@ -365,12 +365,12 @@ export default function AccountPage() {
         <div className="space-y-2">
           <div className="flex items-center gap-2 px-1">
             <Star className="w-4 h-4 text-muted-foreground" />
-            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wide">ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„طµظ„ط§ط©</h3>
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wide">إعدادات الصلاة</h3>
           </div>
           <Card className="border-border shadow-sm">
             <div className="divide-y divide-border">
               <div className="p-4 space-y-2">
-                <Label className="text-sm font-medium">ظ…ط¯ظٹظ†ط© ط§ظ„طµظ„ط§ط©</Label>
+                <Label className="text-sm font-medium">مدينة الصلاة</Label>
                 <Select
                   value={prayerPrefs.city}
                   onValueChange={v => updatePrayerPref({ city: v })}
@@ -388,20 +388,20 @@ export default function AccountPage() {
                   <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center">
                     <Clock className="w-4 h-4 text-emerald-600" />
                   </div>
-                  <Label htmlFor="show-prayer" className="text-sm font-medium cursor-pointer">ط¹ط±ط¶ ظ…ظˆط§ظ‚ظٹطھ ط§ظ„طµظ„ط§ط© ظپظٹ ط§ظ„ط±ط¦ظٹط³ظٹط©</Label>
+                  <Label htmlFor="show-prayer" className="text-sm font-medium cursor-pointer">عرض مواقيت الصلاة في الرئيسية</Label>
                 </div>
                 <Switch id="show-prayer" checked={prayerPrefs.showPrayer} onCheckedChange={v => updatePrayerPref({ showPrayer: v })} />
               </div>
-              {/* طµظٹط؛ط© ط§ظ„ظˆظ‚طھ */}
+              {/* صيغة الوقت */}
               <div className="p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
                     <Clock className="w-4 h-4 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium">طµظٹط؛ط© ط§ظ„ظˆظ‚طھ</p>
+                    <p className="text-sm font-medium">صيغة الوقت</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {timeFormat === "12h" ? "ظ…ط«ط§ظ„: 03:45 طµ" : "ظ…ط«ط§ظ„: 03:45"}
+                      {timeFormat === "12h" ? "مثال: 03:45 ص" : "مثال: 03:45"}
                     </p>
                   </div>
                 </div>
@@ -414,7 +414,7 @@ export default function AccountPage() {
                         : "bg-background text-muted-foreground hover:bg-muted"
                     }`}
                   >
-                    12 ط³ط§ط¹ط©
+                    12 ساعة
                   </button>
                   <button
                     onClick={() => setTimeFormat("24h")}
@@ -424,20 +424,20 @@ export default function AccountPage() {
                         : "bg-background text-muted-foreground hover:bg-muted"
                     }`}
                   >
-                    24 ط³ط§ط¹ط©
+                    24 ساعة
                   </button>
                 </div>
               </div>
             </div>
           </Card>
-          <p className="text-xs text-muted-foreground px-1">ط§ظ„ظ…ظˆط§ظ‚ظٹطھ طھظ‚ط¯ظٹط±ظٹط© â€” ظٹظڈظ†طµط­ ط¨ظ…ط±ط§ط¬ط¹ط© ط§ظ„طھظ‚ظˆظٹظ… ط§ظ„ط±ط³ظ…ظٹ</p>
+          <p className="text-xs text-muted-foreground px-1">المواقيت تقديرية — يُنصح بمراجعة التقويم الرسمي</p>
         </div>
 
         {/* Calendar Settings */}
         <div className="space-y-2">
           <div className="flex items-center gap-2 px-1">
             <BookOpen className="w-4 h-4 text-muted-foreground" />
-            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wide">ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„طھظ‚ظˆظٹظ…</h3>
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wide">إعدادات التقويم</h3>
           </div>
           <Card className="border-border shadow-sm">
             <div className="divide-y divide-border">
@@ -446,20 +446,20 @@ export default function AccountPage() {
                   <div className="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center">
                     <Calendar className="w-4 h-4 text-primary" />
                   </div>
-                  <Label htmlFor="show-hijri" className="text-sm font-medium cursor-pointer">ط¥ط¸ظ‡ط§ط± ط§ظ„طھط§ط±ظٹط® ط§ظ„ظ‡ط¬ط±ظٹ</Label>
+                  <Label htmlFor="show-hijri" className="text-sm font-medium cursor-pointer">إظهار التاريخ الهجري</Label>
                 </div>
                 <Switch id="show-hijri" checked={calendarPrefs.showHijri} onCheckedChange={v => updateCalendarPref({ showHijri: v })} />
               </div>
               <div className="p-4 space-y-2">
-                <Label className="text-sm font-medium">ط·ط±ظٹظ‚ط© ط§ظ„ط¹ط±ط¶ ط§ظ„ط§ظپطھط±ط§ط¶ظٹط©</Label>
+                <Label className="text-sm font-medium">طريقة العرض الافتراضية</Label>
                 <Select value={calendarPrefs.defaultView} onValueChange={v => updateCalendarPref({ defaultView: v })}>
                   <SelectTrigger className="h-11 bg-background text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="rtl">
-                    <SelectItem value="list">ظ‚ط§ط¦ظ…ط©</SelectItem>
-                    <SelectItem value="month">ط´ظ‡ط±ظٹ</SelectItem>
-                    <SelectItem value="week">ط£ط³ط¨ظˆط¹ظٹ</SelectItem>
+                    <SelectItem value="list">قائمة</SelectItem>
+                    <SelectItem value="month">شهري</SelectItem>
+                    <SelectItem value="week">أسبوعي</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -472,9 +472,9 @@ export default function AccountPage() {
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-2">
               <Bell className="w-4 h-4 text-muted-foreground" />
-              <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wide">ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ</h3>
+              <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wide">إعدادات الإشعارات</h3>
             </div>
-            <span className="text-xs text-primary font-medium">{enabledCount}/{NOTIF_TYPES.length} ظ…ظپط¹ظ‘ظ„</span>
+            <span className="text-xs text-primary font-medium">{enabledCount}/{NOTIF_TYPES.length} مفعّل</span>
           </div>
           <Card className="border-border shadow-sm">
             <div className="divide-y divide-border">
@@ -491,23 +491,23 @@ export default function AccountPage() {
               ))}
             </div>
           </Card>
-          <p className="text-xs text-muted-foreground px-1">ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ط¯ط§ط®ظ„ظٹط© ظپظ‚ط· ظپظٹ ط§ظ„ظˆظ‚طھ ط§ظ„ط­ط§ظ„ظٹ</p>
+          <p className="text-xs text-muted-foreground px-1">الإشعارات داخلية فقط في الوقت الحالي</p>
         </div>
 
         {/* Membership */}
         <div className="space-y-2">
           <div className="flex items-center gap-2 px-1">
             <BadgeCheck className="w-4 h-4 text-muted-foreground" />
-            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wide">ط§ظ„ط¹ط¶ظˆظٹط©</h3>
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wide">العضوية</h3>
           </div>
           <Card className="border-border shadow-sm">
             <CardContent className="p-4 flex items-center justify-between">
               <div>
-                <p className="font-bold text-foreground text-sm">ط§ظ„ط®ط·ط© ط§ظ„ط­ط§ظ„ظٹط©</p>
-                <p className="text-xs text-muted-foreground mt-0.5">ط¬ظ…ظٹط¹ ط§ظ„ط®ط¯ظ…ط§طھ ط§ظ„ط£ط³ط§ط³ظٹط© ظ…طھط§ط­ط© ظ…ط¬ط§ظ†ط§ظ‹</p>
+                <p className="font-bold text-foreground text-sm">الخطة الحالية</p>
+                <p className="text-xs text-muted-foreground mt-0.5">جميع الخدمات الأساسية متاحة مجاناً</p>
               </div>
               <span className="px-3 py-1.5 rounded-xl text-xs font-bold bg-primary/10 text-primary border border-primary/20">
-                ظ…ط¬ط§ظ†ظٹ
+                مجاني
               </span>
             </CardContent>
           </Card>
@@ -517,15 +517,15 @@ export default function AccountPage() {
         <div className="space-y-2">
           <div className="flex items-center gap-2 px-1">
             <Shield className="w-4 h-4 text-muted-foreground" />
-            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wide">ط§ظ„ط®طµظˆطµظٹط© ظˆط§ظ„ظ‚ط§ظ†ظˆظ†</h3>
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wide">الخصوصية والقانون</h3>
           </div>
           <Card className="border-border shadow-sm">
             <div className="divide-y divide-border">
               {[
-                { href: "/privacy", label: "ط³ظٹط§ط³ط© ط§ظ„ط®طµظˆطµظٹط©" },
-                { href: "/terms", label: "ط´ط±ظˆط· ط§ظ„ط§ط³طھط®ط¯ط§ظ…" },
-                { href: "/disclaimer", label: "ط¥ط®ظ„ط§ط، ط§ظ„ظ…ط³ط¤ظˆظ„ظٹط©" },
-                { href: "/support", label: "ط§ظ„ظ…ط³ط§ط¹ط¯ط© ظˆط§ظ„ط¯ط¹ظ…", icon: Headphones },
+                { href: "/privacy", label: "سياسة الخصوصية" },
+                { href: "/terms", label: "شروط الاستخدام" },
+                { href: "/disclaimer", label: "إخلاء المسؤولية" },
+                { href: "/support", label: "المساعدة والدعم", icon: Headphones },
               ].map(({ href, label, icon: Icon }) => (
                 <Link key={href} href={href} className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
                   <div className="flex items-center gap-3">
@@ -543,7 +543,7 @@ export default function AccountPage() {
         <div className="space-y-2">
           <div className="flex items-center gap-2 px-1">
             <AlertTriangle className="w-4 h-4 text-muted-foreground" />
-            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wide">ط§ظ„ط­ط³ط§ط¨</h3>
+            <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wide">الحساب</h3>
           </div>
           <div className="space-y-2 pb-2">
             <Button
@@ -552,10 +552,10 @@ export default function AccountPage() {
               onClick={() => setIsLogoutOpen(true)}
             >
               <LogOut className="w-5 h-5 ml-2 rtl:rotate-180" />
-              طھط³ط¬ظٹظ„ ط§ظ„ط®ط±ظˆط¬
+              تسجيل الخروج
             </Button>
             <p className="text-[11px] text-muted-foreground text-center pt-1">
-              ط³ظٹطھظ… طھط³ط¬ظٹظ„ ط§ظ„ط®ط±ظˆط¬ ظˆط§ظ„ط¹ظˆط¯ط© ظ„ظ„طµظپط­ط© ط§ظ„ط±ط¦ظٹط³ظٹط©
+              سيتم تسجيل الخروج والعودة للصفحة الرئيسية
             </p>
           </div>
         </div>
@@ -563,14 +563,14 @@ export default function AccountPage() {
         {/* Edit Profile Dialog */}
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
           <DialogContent className="rtl max-w-[400px] rounded-xl">
-            <DialogHeader><DialogTitle>طھط¹ط¯ظٹظ„ ط§ظ„ظ…ظ„ظپ ط§ظ„ط´ط®طµظٹ</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>تعديل الملف الشخصي</DialogTitle></DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label>ط§ظ„ط§ط³ظ… <span className="text-destructive">*</span></Label>
-                <Input value={editName} onChange={e => setEditName(e.target.value)} placeholder="ط§ط³ظ…ظƒ ط§ظ„ظƒط§ظ…ظ„" />
+                <Label>الاسم <span className="text-destructive">*</span></Label>
+                <Input value={editName} onChange={e => setEditName(e.target.value)} placeholder="اسمك الكامل" />
               </div>
               <div className="space-y-2">
-                <Label>ط§ظ„ظ…ط¯ظٹظ†ط©</Label>
+                <Label>المدينة</Label>
                 <Select value={editCity} onValueChange={setEditCity}>
                   <SelectTrigger className="h-11 bg-background">
                     <SelectValue />
@@ -580,7 +580,7 @@ export default function AccountPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button className="w-full h-11 font-bold" onClick={handleSaveProfile}>ط­ظپط¸ ط§ظ„طھط¹ط¯ظٹظ„ط§طھ</Button>
+              <Button className="w-full h-11 font-bold" onClick={handleSaveProfile}>حفظ التعديلات</Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -589,9 +589,9 @@ export default function AccountPage() {
         <ConfirmDialog
           open={isLogoutOpen}
           onOpenChange={setIsLogoutOpen}
-          title="طھط³ط¬ظٹظ„ ط§ظ„ط®ط±ظˆط¬"
-          description="ظ‡ظ„ ط£ظ†طھ ظ…طھط£ظƒط¯طں ط³طھط¹ظˆط¯ ط¥ظ„ظ‰ ط´ط§ط´ط© ط§ظ„ط¨ط¯ط§ظٹط© ظˆطھظڈظ…ط³ط­ ط¨ظٹط§ظ†ط§طھ ط§ظ„ط¬ظ„ط³ط© ط§ظ„ظ…ط­ظ„ظٹط©."
-          confirmText="طھط³ط¬ظٹظ„ ط§ظ„ط®ط±ظˆط¬"
+          title="تسجيل الخروج"
+          description="هل أنت متأكد؟ ستعود إلى شاشة البداية وتُمسح بيانات الجلسة المحلية."
+          confirmText="تسجيل الخروج"
           onConfirm={handleLogout}
         />
 
@@ -599,10 +599,10 @@ export default function AccountPage() {
         <ConfirmDialog
           open={isDeleteOpen}
           onOpenChange={setIsDeleteOpen}
-          title="ظ…ط³ط­ ط§ظ„ط¨ظٹط§ظ†ط§طھ ط§ظ„ظ…ط­ظ„ظٹط©"
-          description="ط³ظٹطھظ… ط­ط°ظپ ط¬ظ…ظٹط¹ ط¨ظٹط§ظ†ط§طھظƒ ط§ظ„ظ…ط­ظپظˆط¸ط© ظ…ط­ظ„ظٹط§ظ‹ (ط§ظ„ظ…ظ‡ط§ظ…طŒ ط§ظ„ط±ط­ظ„ط§طھطŒ ط§ظ„طھظپط¶ظٹظ„ط§طھ). ظ„ط§ ظٹظ…ظƒظ† ط§ظ„طھط±ط§ط¬ط¹."
-          confirmText="ظ…ط³ط­ ط§ظ„ط¨ظٹط§ظ†ط§طھ"
-          cancelText="ط¥ظ„ط؛ط§ط،"
+          title="مسح البيانات المحلية"
+          description="سيتم حذف جميع بياناتك المحفوظة محلياً (المهام، الرحلات، التفضيلات). لا يمكن التراجع."
+          confirmText="مسح البيانات"
+          cancelText="إلغاء"
           onConfirm={handleDeleteAccount}
           destructive
         />
