@@ -1,17 +1,9 @@
 /**
- * GoalsPage — Phase 16 Production Hardening
- * 
+ * GoalsPage — Premium Saudi Design
  * Goals service with real Supabase sync for logged-in users.
- * Local fallback for guests with clear indicator.
- * 
- * Storage behavior:
- * - Logged in + Supabase: reads/writes from Supabase
- * - Not logged in or Supabase unavailable: localStorage fallback
- * 
- * Schema: supabase/migrations/20250612000002_create_services_tables.sql
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress";
 import { ConfirmDialog } from "@/components/layout/ConfirmDialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Loader2, Target, Edit2, Trash2, Check, Calendar, Coins, AlertCircle, TrendingUp, Cloud } from "lucide-react";
+import { Plus, Loader2, Target, Edit2, Trash2, Check, Calendar, TrendingUp, Cloud, AlertCircle } from "lucide-react";
 import { useGoalsGateway, type Goal, type GoalType } from "@/lib/gateways/goalsGateway";
 
 function computeStats(goal: Goal) {
@@ -192,30 +184,49 @@ export default function GoalsPage() {
         
         {/* Sync status indicator */}
         {isSynced ? (
-          <div className="flex items-center gap-2 text-xs text-green-600">
+          <div className="flex items-center justify-center gap-2 text-xs" style={{ color: "#22c55e" }}>
             <Cloud className="w-4 h-4" />
             <span>متزامن مع السحابة</span>
           </div>
         ) : (
-          <div className="rounded-xl border border-amber-200 bg-amber-50/50 px-4 py-2 text-xs" style={{ color: "#92400e" }}>
-            <span className="font-semibold">💾 ملاحظة:</span> محفوظ على هذا الجهاز فقط. سجّل الدخول لمزامنة بياناتك.
+          <div className="text-center text-xs px-4 py-2 rounded-xl" style={{ background: "rgba(201,160,99,0.1)", color: "#92400e" }}>
+            💾 محفوظ على هذا الجهاز فقط
           </div>
         )}
         
+        {/* Header Card */}
+        <div className="rounded-3xl p-6 text-center" style={{
+          background: "linear-gradient(145deg, #fff8f0 0%, #fff 100%)",
+          boxShadow: "0 8px 32px rgba(201,160,99,0.15)",
+          border: "1px solid rgba(201,160,99,0.2)",
+        }}>
+          <div className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-3" style={{
+            background: "linear-gradient(145deg, #C9A063 0%, #A67C3D 100%)",
+            boxShadow: "0 4px 16px rgba(201,160,99,0.4)",
+          }}>
+            <Target className="w-8 h-8 text-white" />
+          </div>
+          <h2 className="text-xl font-black" style={{ color: "#2F2B25" }}>أهدافك المالية</h2>
+          <p className="text-sm mt-1" style={{ color: "#6F6557" }}>تابع تقدمك نحو تحقيق أحلامك</p>
+        </div>
+
         {/* Add Button */}
         <div className="flex justify-center">
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger asChild>
-              <Button className="h-12 px-6 text-base font-bold rounded-2xl" style={{
-                background: "linear-gradient(135deg, hsl(36 72% 52%), hsl(28 68% 38%))",
+              <Button className="h-12 px-8 text-base font-bold rounded-2xl shadow-lg" style={{
+                background: "linear-gradient(145deg, #C9A063 0%, #A67C3D 100%)",
+                boxShadow: "0 4px 16px rgba(201,160,99,0.4)",
               }}>
                 <Plus className="w-5 h-5 ml-2" />
-                إضافة هدف جديد
+                إضافة هدف
               </Button>
             </DialogTrigger>
-            <DialogContent className="rtl max-w-[400px] rounded-xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="rtl max-w-[400px] rounded-2xl max-h-[90vh] overflow-y-auto" style={{
+              background: "linear-gradient(145deg, #fff8f0 0%, #fff 100%)",
+            }}>
               <DialogHeader>
-                <DialogTitle>إضافة هدف جديد</DialogTitle>
+                <DialogTitle className="text-lg font-bold" style={{ color: "#2F2B25" }}>إضافة هدف جديد</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
@@ -333,7 +344,7 @@ export default function GoalsPage() {
               return (
                 <div
                   key={goal.id}
-                  className="rounded-2xl border bg-white/82 p-4"
+                  className="rounded-2xl bg-white p-4"
                   style={{
                     borderColor: "rgba(201,160,99,0.24)",
                     boxShadow: "0 14px 34px rgba(138,107,61,0.10)",

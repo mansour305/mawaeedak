@@ -1,16 +1,6 @@
 /**
- * CostsPage — Phase 14 P0-4
- * 
- * Cost Projects service: Create, edit, delete cost projects with:
- * - Unlimited items depending on plan limits
- * - Each item: name, amount, paid amount, remaining amount, status, scheduled date, notes
- * - Auto total, paid, remaining
- * - Project buttons: add item, edit, delete, save, share, export, calendar event, clear all
- * - Item buttons: edit, delete, mark as paid, schedule
- * 
- * Storage: Local-first with optional Supabase cloud sync when logged in.
- * Schema exists at: supabase/migrations/20250612000002_create_services_tables.sql
- * UI shows "محفوظ على هذا الجهاز فقط" when not synced.
+ * CostsPage — Premium Saudi Design
+ * Cost Projects service with premium styling.
  */
 
 import { useState, useMemo, useEffect } from "react";
@@ -25,8 +15,7 @@ import { ConfirmDialog } from "@/components/layout/ConfirmDialog";
 import { useToast } from "@/hooks/use-toast";
 import { 
   Plus, Loader2, Calculator, Edit2, Trash2, Check, 
-  Calendar, Coins, AlertCircle, ChevronDown, ChevronUp,
-  Share2
+  Calendar, Coins, ChevronDown, ChevronUp, Cloud, AlertCircle, Share2
 } from "lucide-react";
 
 export type CostItemStatus = "partial" | "fully_paid" | "scheduled";
@@ -450,25 +439,44 @@ export default function CostsPage() {
     <AppShell title="حساب التكاليف" showBack>
       <div className="space-y-5 pb-6">
         
+        {/* Header Card */}
+        <div className="rounded-3xl p-6 text-center" style={{
+          background: "linear-gradient(145deg, #fff8f0 0%, #fff 100%)",
+          boxShadow: "0 8px 32px rgba(201,160,99,0.15)",
+          border: "1px solid rgba(201,160,99,0.2)",
+        }}>
+          <div className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-3" style={{
+            background: "linear-gradient(145deg, #C9A063 0%, #A67C3D 100%)",
+            boxShadow: "0 4px 16px rgba(201,160,99,0.4)",
+          }}>
+            <Calculator className="w-8 h-8 text-white" />
+          </div>
+          <h2 className="text-xl font-black" style={{ color: "#2F2B25" }}>مشاريع التكاليف</h2>
+          <p className="text-sm mt-1" style={{ color: "#6F6557" }}>أنشئ قائمة بمصروفاتك</p>
+        </div>
+
         {/* Local-only notice */}
-        <div className="rounded-xl border border-amber-200 bg-amber-50/50 px-4 py-2 text-xs" style={{ color: "#92400e" }}>
-          <span className="font-semibold">💾 ملاحظة:</span> محفوظ على هذا الجهاز فقط. المزامنة مع السحابة قادمة قريباً.
+        <div className="text-center text-xs px-4 py-2 rounded-xl" style={{ background: "rgba(201,160,99,0.1)", color: "#92400e" }}>
+          💾 محفوظ على هذا الجهاز فقط
         </div>
         
         {/* Add Project Button */}
         <div className="flex justify-center">
           <Dialog open={isAddProjectOpen} onOpenChange={setIsAddProjectOpen}>
             <DialogTrigger asChild>
-              <Button className="h-12 px-6 text-base font-bold rounded-2xl" style={{
-                background: "linear-gradient(135deg, hsl(36 72% 52%), hsl(28 68% 38%))",
+              <Button className="h-12 px-8 text-base font-bold rounded-2xl shadow-lg" style={{
+                background: "linear-gradient(145deg, #C9A063 0%, #A67C3D 100%)",
+                boxShadow: "0 4px 16px rgba(201,160,99,0.4)",
               }}>
                 <Plus className="w-5 h-5 ml-2" />
                 مشروع جديد
               </Button>
             </DialogTrigger>
-            <DialogContent className="rtl max-w-[400px] rounded-xl">
+            <DialogContent className="rtl max-w-[400px] rounded-2xl" style={{
+              background: "linear-gradient(145deg, #fff8f0 0%, #fff 100%)",
+            }}>
               <DialogHeader>
-                <DialogTitle>إضافة مشروع جديد</DialogTitle>
+                <DialogTitle className="text-lg font-bold" style={{ color: "#2F2B25" }}>إضافة مشروع جديد</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">

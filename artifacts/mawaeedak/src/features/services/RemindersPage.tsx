@@ -1,21 +1,6 @@
 /**
- * RemindersPage — Phase 14 P0-5
- * 
- * Reminders service: Create, edit, delete reminders with:
- * - Reminder title
- * - Fixed type: مخصص
- * - Date type: Gregorian only
- * - Date
- * - Time
- * - Remind before by minutes/hours/days
- * - Optional note
- * - Add/edit/delete/save/list
- * - Empty/Error/Success states
- * 
- * Storage: Local-first with optional Supabase cloud sync when logged in.
- * Schema exists at: supabase/migrations/20250612000002_create_services_tables.sql
- * UI shows "محفوظ على هذا الجهاز فقط" when not synced.
- * Push notifications: Code ready, deployment setup required (VAPID keys + Edge Function).
+ * RemindersPage — Premium Saudi Design
+ * Reminders service with premium styling.
  */
 
 import { useState, useMemo, useEffect } from "react";
@@ -28,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ConfirmDialog } from "@/components/layout/ConfirmDialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Loader2, Bell, Edit2, Trash2, Calendar, Clock, AlertCircle, Info } from "lucide-react";
+import { Plus, Loader2, Bell, Edit2, Trash2, Calendar, Clock, Cloud, AlertCircle } from "lucide-react";
 
 export type ReminderDateType = "gregorian";
 
@@ -280,31 +265,44 @@ export default function RemindersPage() {
     <AppShell title="ذكرني" showBack>
       <div className="space-y-5 pb-6">
         
-        {/* Info Banner */}
-        <div className="flex items-start gap-3 p-4 rounded-2xl border" style={{
-          background: "linear-gradient(135deg, hsl(36 72% 52% / 0.08), hsl(36 72% 52% / 0.03))",
-          borderColor: "rgba(201,160,99,0.2)",
+        {/* Header Card */}
+        <div className="rounded-3xl p-6 text-center" style={{
+          background: "linear-gradient(145deg, #fff8f0 0%, #fff 100%)",
+          boxShadow: "0 8px 32px rgba(201,160,99,0.15)",
+          border: "1px solid rgba(201,160,99,0.2)",
         }}>
-          <Info className="w-5 h-5 shrink-0 mt-0.5" style={{ color: "#C9A063" }} />
-          <p className="text-sm" style={{ color: "#6F6557" }}>
-            محفوظ على هذا الجهاز فقط. الإشعارات الداخلية فقط حالياً. إعداد الإشعارات الفورية قيد التطوير.
-          </p>
+          <div className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-3" style={{
+            background: "linear-gradient(145deg, #C9A063 0%, #A67C3D 100%)",
+            boxShadow: "0 4px 16px rgba(201,160,99,0.4)",
+          }}>
+            <Bell className="w-8 h-8 text-white" />
+          </div>
+          <h2 className="text-xl font-black" style={{ color: "#2F2B25" }}>تذكيراتك</h2>
+          <p className="text-sm mt-1" style={{ color: "#6F6557" }}>لا تفوّت أي موعد مهم</p>
+        </div>
+
+        {/* Local-only notice */}
+        <div className="text-center text-xs px-4 py-2 rounded-xl" style={{ background: "rgba(201,160,99,0.1)", color: "#92400e" }}>
+          💾 محفوظ على هذا الجهاز فقط
         </div>
         
         {/* Add Button */}
         <div className="flex justify-center">
           <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
             <DialogTrigger asChild>
-              <Button className="h-12 px-6 text-base font-bold rounded-2xl" style={{
-                background: "linear-gradient(135deg, hsl(36 72% 52%), hsl(28 68% 38%))",
+              <Button className="h-12 px-8 text-base font-bold rounded-2xl shadow-lg" style={{
+                background: "linear-gradient(145deg, #C9A063 0%, #A67C3D 100%)",
+                boxShadow: "0 4px 16px rgba(201,160,99,0.4)",
               }}>
                 <Plus className="w-5 h-5 ml-2" />
                 إضافة تذكير
               </Button>
             </DialogTrigger>
-            <DialogContent className="rtl max-w-[400px] rounded-xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="rtl max-w-[400px] rounded-2xl max-h-[90vh] overflow-y-auto" style={{
+              background: "linear-gradient(145deg, #fff8f0 0%, #fff 100%)",
+            }}>
               <DialogHeader>
-                <DialogTitle>إضافة تذكير جديد</DialogTitle>
+                <DialogTitle className="text-lg font-bold" style={{ color: "#2F2B25" }}>إضافة تذكير جديد</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
@@ -405,7 +403,7 @@ export default function RemindersPage() {
             {activeReminders.map(reminder => (
               <div
                 key={reminder.id}
-                className="rounded-2xl border bg-white/82 p-4"
+                className="rounded-2xl bg-white p-4"
                 style={{
                   borderColor: "rgba(201,160,99,0.24)",
                   boxShadow: "0 14px 34px rgba(138,107,61,0.10)",
