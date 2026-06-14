@@ -57,7 +57,10 @@ jobs:
           grep -n "/services/goals" artifacts/mawaeedak/src/features/centers/CentersPage.tsx
           grep -n "/services/costs" artifacts/mawaeedak/src/features/centers/CentersPage.tsx
           grep -n "/services/reminders" artifacts/mawaeedak/src/features/centers/CentersPage.tsx
-          ! grep -n "احسب هدفك.*\/centers\/work\|حساب التكاليف.*\/centers\/work\|ذكرني.*\/centers\/work" artifacts/mawaeedak/src/features/centers/CentersPage.tsx
+          if grep -n "احسب هدفك.*\/centers\/work\|حساب التكاليف.*\/centers\/work\|ذكرني.*\/centers\/work" artifacts/mawaeedak/src/features/centers/CentersPage.tsx; then
+            echo "Invalid service routing detected"
+            exit 1
+          fi
 
       - name: Typecheck workspace
         run: pnpm run typecheck
@@ -69,4 +72,6 @@ jobs:
         run: pnpm run smoke
 
       - name: Final gate result
-        run: echo "MVP Launch Gate passed. READY evidence is valid for this commit: ${GITHUB_SHA}"
+        run: |
+          echo "MVP Launch Gate passed."
+          echo "READY evidence is valid for commit ${GITHUB_SHA}."
