@@ -1,84 +1,46 @@
 {
-    "name":  "مواعيدك",
-    "short_name":  "مواعيدك",
-    "description":  "منصة مواعيدك - كل موعد له وقته - تطبيق ويب عربي لإدارة المواعيد والصلاة",
-    "lang":  "ar",
-    "dir":  "rtl",
-    "start_url":  "/",
-    "display":  "standalone",
-    "display_override":  [
-                             "standalone",
-                             "minimal-ui"
-                         ],
-    "orientation":  "portrait",
-    "background_color":  "#f7efe1",
-    "theme_color":  "#c9973d",
-    "scope":  "/",
-    "categories":  [
-                       "productivity",
-                       "lifestyle"
-                   ],
-    "prefer_related_applications":  false,
-    "launch_handler":  {
-                           "client_mode":  "navigate-existing"
-                       },
-    "edge_side_panel":  {
-                            "preferred_width":  400
-                        },
-    "handle_links":  "preferred",
-    "icons":  [
-                  {
-                      "src":  "/favicon.svg",
-                      "sizes":  "any",
-                      "type":  "image/svg+xml",
-                      "purpose":  "any maskable"
-                  }
-              ],
-    "screenshots":  [
-
-                    ],
-    "related_applications":  [
-
-                             ],
-    "shortcuts":  [
-                      {
-                          "name":  "الرئيسية",
-                          "short_name":  "الرئيسية",
-                          "description":  "الصفحة الرئيسية",
-                          "url":  "/",
-                          "icons":  [
-                                        {
-                                            "src":  "/favicon.svg",
-                                            "sizes":  "any",
-                                            "type":  "image/svg+xml"
-                                        }
-                                    ]
-                      },
-                      {
-                          "name":  "المواعيد",
-                          "short_name":  "المواعيد",
-                          "description":  "التقويم والمواعيد",
-                          "url":  "/calendar",
-                          "icons":  [
-                                        {
-                                            "src":  "/favicon.svg",
-                                            "sizes":  "any",
-                                            "type":  "image/svg+xml"
-                                        }
-                                    ]
-                      },
-                      {
-                          "name":  "الرواتب",
-                          "short_name":  "الرواتب",
-                          "description":  "المواعيد المالية",
-                          "url":  "/salaries",
-                          "icons":  [
-                                        {
-                                            "src":  "/favicon.svg",
-                                            "sizes":  "any",
-                                            "type":  "image/svg+xml"
-                                        }
-                                    ]
-                      }
-                  ]
+  "name": "مواعيدك",
+  "short_name": "مواعيدك",
+  "description": "مواعيدك - تنظيم يومك براحة ووضوح",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#f8fafc",
+  "theme_color": "#087f8c",
+  "scope": "/",
+  "categories": ["productivity", "lifestyle"],
+  "prefer_related_applications": false,
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "handle_links": "preferred",
+  "icons": [],
+  "screenshots": [],
+  "related_applications": [],
+  "shortcuts": [
+    {
+      "name": "الرئيسية",
+      "short_name": "الرئيسية",
+      "description": "الصفحة الرئيسية",
+      "url": "/"
+    },
+    {
+      "name": "المواعيد",
+      "short_name": "المواعيد",
+      "description": "التقويم والمواعيد",
+      "url": "/calendar"
+    },
+    {
+      "name": "الرواتب",
+      "short_name": "الرواتب",
+      "description": "المواعيد المالية",
+      "url": "/salaries"
+    }
+  ]
 }
