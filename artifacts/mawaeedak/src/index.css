@@ -91,6 +91,7 @@
   html,
   body,
   #root {
+    height: 100%;
     min-height: 100%;
     background: var(--maw-bg);
     color: var(--maw-text);
@@ -122,6 +123,7 @@
 
 @layer utilities {
   .maw-device-stage {
+    height: 100dvh;
     min-height: 100dvh;
     width: 100%;
     display: flex;
@@ -137,7 +139,8 @@
   .maw-app-shell {
     position: relative;
     display: flex;
-    min-height: 100dvh;
+    height: 100%;
+    min-height: 0;
     width: 100%;
     max-width: 480px;
     flex-direction: column;
@@ -147,7 +150,8 @@
   }
 
   .maw-app-shell > main {
-    padding-bottom: 138px !important;
+    min-height: 0;
+    padding-bottom: 150px !important;
   }
 
   .maw-app-shell > header > div:nth-child(2) {
@@ -173,7 +177,8 @@
     }
 
     .maw-app-shell {
-      min-height: min(920px, calc(100dvh - 48px));
+      height: min(920px, calc(100dvh - 48px));
+      min-height: 0;
       max-height: calc(100dvh - 48px);
       border-radius: 34px;
       border: 1px solid rgba(201, 145, 54, 0.22);
