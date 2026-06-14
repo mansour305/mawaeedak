@@ -1,15 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 
 type ThemeType = 'light' | 'dark';
 
 const PERSONAL_KEY = 'app-theme';
 const MODE_KEY = 'app-mode';
-const BASE_SLUG = 'heritage';
+const BASE_SLUG = 'default';
 
 let cachedGlobal: string | null = null;
 let inflight: Promise<string> | null = null;
 
-/** يقرأ الثيم الافتراضي العام من الخادم (يعمل في كل أوضاع البيانات لأن Express متاح دائماً). */
+/** ظٹظ‚ط±ط£ ط§ظ„ط«ظٹظ… ط§ظ„ط§ظپطھط±ط§ط¶ظٹ ط§ظ„ط¹ط§ظ… ظ…ظ† ط§ظ„ط®ط§ط¯ظ… (ظٹط¹ظ…ظ„ ظپظٹ ظƒظ„ ط£ظˆط¶ط§ط¹ ط§ظ„ط¨ظٹط§ظ†ط§طھ ظ„ط£ظ† Express ظ…طھط§ط­ ط¯ط§ط¦ظ…ط§ظ‹). */
 async function fetchGlobalDefault(): Promise<string> {
   if (cachedGlobal) return cachedGlobal;
   if (inflight) return inflight;
@@ -30,7 +30,7 @@ async function fetchGlobalDefault(): Promise<string> {
   return inflight;
 }
 
-/** يُحدِّث الذاكرة المؤقتة بعد أن يغيّر المالك الافتراضي العام. */
+/** ظٹظڈط­ط¯ظگظ‘ط« ط§ظ„ط°ط§ظƒط±ط© ط§ظ„ظ…ط¤ظ‚طھط© ط¨ط¹ط¯ ط£ظ† ظٹط؛ظٹظ‘ط± ط§ظ„ظ…ط§ظ„ظƒ ط§ظ„ط§ظپطھط±ط§ط¶ظٹ ط§ظ„ط¹ط§ظ…. */
 export function setCachedGlobalDefault(slug: string): void {
   cachedGlobal = slug;
 }
@@ -61,7 +61,7 @@ export function useTheme() {
   const effectiveSlug = personalSlug ?? globalDefault;
   const hasPersonalTheme = personalSlug !== null;
 
-  // وضع فاتح/داكن
+  // ظˆط¶ط¹ ظپط§طھط­/ط¯ط§ظƒظ†
   useEffect(() => {
     const root = document.documentElement;
     if (theme === 'dark') root.classList.add('dark');
@@ -69,7 +69,7 @@ export function useTheme() {
     localStorage.setItem(MODE_KEY, theme);
   }, [theme]);
 
-  // جلب الافتراضي العام مرة واحدة
+  // ط¬ظ„ط¨ ط§ظ„ط§ظپطھط±ط§ط¶ظٹ ط§ظ„ط¹ط§ظ… ظ…ط±ط© ظˆط§ط­ط¯ط©
   useEffect(() => {
     let active = true;
     void fetchGlobalDefault().then(slug => {
@@ -80,7 +80,7 @@ export function useTheme() {
     };
   }, []);
 
-  // تطبيق الثيم الفعّال (الشخصي أولاً ثم العام)
+  // طھط·ط¨ظٹظ‚ ط§ظ„ط«ظٹظ… ط§ظ„ظپط¹ظ‘ط§ظ„ (ط§ظ„ط´ط®طµظٹ ط£ظˆظ„ط§ظ‹ ط«ظ… ط§ظ„ط¹ط§ظ…)
   useEffect(() => {
     applySlug(effectiveSlug);
   }, [effectiveSlug]);
@@ -89,13 +89,13 @@ export function useTheme() {
     setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
   }, []);
 
-  // تغيير ثيم المستخدم الشخصي (يُحفظ محلياً ويتجاوز الافتراضي العام)
+  // طھط؛ظٹظٹط± ط«ظٹظ… ط§ظ„ظ…ط³طھط®ط¯ظ… ط§ظ„ط´ط®طµظٹ (ظٹظڈط­ظپط¸ ظ…ط­ظ„ظٹط§ظ‹ ظˆظٹطھط¬ط§ظˆط² ط§ظ„ط§ظپطھط±ط§ط¶ظٹ ط§ظ„ط¹ط§ظ…)
   const changeTheme = useCallback((slug: string) => {
     localStorage.setItem(PERSONAL_KEY, slug);
     setPersonalSlug(readPersonal());
   }, []);
 
-  // إعادة المستخدم إلى الثيم الافتراضي العام (إزالة التفضيل الشخصي)
+  // ط¥ط¹ط§ط¯ط© ط§ظ„ظ…ط³طھط®ط¯ظ… ط¥ظ„ظ‰ ط§ظ„ط«ظٹظ… ط§ظ„ط§ظپطھط±ط§ط¶ظٹ ط§ظ„ط¹ط§ظ… (ط¥ط²ط§ظ„ط© ط§ظ„طھظپط¶ظٹظ„ ط§ظ„ط´ط®طµظٹ)
   const resetToGlobal = useCallback(() => {
     localStorage.removeItem(PERSONAL_KEY);
     setPersonalSlug(null);
@@ -111,3 +111,4 @@ export function useTheme() {
     resetToGlobal,
   };
 }
+

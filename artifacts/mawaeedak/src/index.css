@@ -1,22 +1,4 @@
-/*
- * index.css — Saudi Premium Minimal Design System
- * 
- * Color Palette:
- * - Background: #FAF7F2 (Warm ivory)
- * - Surface: #FFFCF7
- * - Card: #FFFFFF / #FFFDF8
- * - Primary Text: #2F2B25
- * - Secondary Text: #6F6557
- * - Muted Text: #8A8175
- * - Gold: #A78042 / #C9A063
- * - Brown: #4A2413 / #8A6B3D
- * - Border: rgba(201,160,99,0.22)
- * 
- * Typography: Noto Sans Arabic primary, IBM Plex Sans Arabic fallback
- */
-
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Noto+Kufi+Arabic:wght@400;500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');
-@import "tailwindcss";
+﻿@import "tailwindcss";
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
 
@@ -28,36 +10,27 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
-
   --color-card: hsl(var(--card));
   --color-card-foreground: hsl(var(--card-foreground));
   --color-card-border: hsl(var(--card-border));
-
   --color-popover: hsl(var(--popover));
   --color-popover-foreground: hsl(var(--popover-foreground));
   --color-popover-border: hsl(var(--popover-border));
-
   --color-primary: hsl(var(--primary));
   --color-primary-foreground: hsl(var(--primary-foreground));
-
   --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
-
   --color-muted: hsl(var(--muted));
   --color-muted-foreground: hsl(var(--muted-foreground));
-
   --color-accent: hsl(var(--accent));
   --color-accent-foreground: hsl(var(--accent-foreground));
-
   --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
-
   --color-chart-1: hsl(var(--chart-1));
   --color-chart-2: hsl(var(--chart-2));
   --color-chart-3: hsl(var(--chart-3));
   --color-chart-4: hsl(var(--chart-4));
   --color-chart-5: hsl(var(--chart-5));
-
   --color-sidebar: hsl(var(--sidebar));
   --color-sidebar-foreground: hsl(var(--sidebar-foreground));
   --color-sidebar-border: hsl(var(--sidebar-border));
@@ -66,462 +39,185 @@
   --color-sidebar-accent: hsl(var(--sidebar-accent));
   --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
   --color-sidebar-ring: hsl(var(--sidebar-ring));
-
   --font-sans: var(--app-font-sans);
   --font-serif: var(--app-font-serif);
   --font-mono: var(--app-font-mono);
-
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 12px;
 }
 
-/* ══════════════════════════════════════════
-   Heritage Saudi Luxury Theme — Light
-   ══════════════════════════════════════════ */
-:root {
-  /* ── Warm paper background ── */
-  --background: 36 38% 96%;
-  --foreground: 40 8% 15%;
-
-  /* ── Creamy card surface ── */
-  --card: 0 0% 100%;
-  --card-foreground: 40 8% 15%;
-  --card-border: 35 42% 82%;
-
-  /* ── Golden primary ── */
-  --primary: 36 47% 58%;
-  --primary-foreground: 0 0% 100%;
-
-  /* ── Warm secondary ── */
-  --secondary: 37 46% 89%;
-  --secondary-foreground: 37 32% 35%;
-
-  /* ── Muted tones ── */
-  --muted: 37 36% 92%;
-  --muted-foreground: 35 11% 40%;
-
-  /* ── Warm copper accent ── */
-  --accent: 37 46% 58%;
-  --accent-foreground: 38 30% 97%;
-
-  /* ── Borders ── */
-  --border: 35 42% 82%;
-  --input: 35 42% 82%;
-  --ring: 36 47% 58%;
-
-  /* ── Destructive ── */
-  --destructive: 0 72% 51%;
-  --destructive-foreground: 0 0% 100%;
-
-  /* ── Popover ── */
-  --popover: 36 32% 93%;
-  --popover-foreground: 20 52% 12%;
-  --popover-border: 33 32% 72%;
-
-  /* ── Sidebar ── */
-  --sidebar: 30 26% 84%;
-  --sidebar-foreground: 20 52% 12%;
-  --sidebar-border: 33 28% 68%;
-  --sidebar-primary: 36 76% 36%;
-  --sidebar-primary-foreground: 38 30% 97%;
-  --sidebar-accent: 30 30% 80%;
-  --sidebar-accent-foreground: 22 46% 18%;
-  --sidebar-ring: 36 76% 36%;
-
-  /* ── Charts ── */
-  --chart-1: 36 76% 36%;
-  --chart-2: 28 66% 42%;
-  --chart-3: 22 54% 50%;
-  --chart-4: 42 63% 48%;
-  --chart-5: 16 46% 50%;
-
-  /* ── Typography & shape ── */
-  --app-font-sans: 'IBM Plex Sans Arabic', 'Noto Kufi Arabic', Cairo, sans-serif;
-  --app-font-serif: Georgia, serif;
-  --app-font-mono: Menlo, monospace;
-  --radius: 0.9rem;
-
-  /* ── Heritage warm shadows ── */
-  --shadow-sm:  0 1px 4px  0 rgba(70, 35, 8, 0.12);
-  --shadow:     0 2px 10px 0 rgba(70, 35, 8, 0.16);
-  --shadow-md:  0 4px 18px 0 rgba(70, 35, 8, 0.20);
-  --shadow-lg:  0 8px 30px 0 rgba(70, 35, 8, 0.24);
-  --shadow-xl:  0 14px 42px 0 rgba(60, 28, 6, 0.28);
-  --shadow-2xl: 0 22px 58px 0 rgba(50, 24, 4, 0.34);
-
-  /* ── Heritage navigation (dark brown) ── */
-  --header-bg: 20 72% 13%;
-  --header-fg: 36 56% 88%;
-  --header-fg-muted: 30 34% 58%;
-  --header-border: 20 54% 18%;
-
-  --nav-bg: 18 70% 11%;
-  --nav-fg: 30 30% 54%;
-  --nav-active: 38 90% 56%;
-  --nav-border: 20 50% 17%;
-
-  /* ── Heritage gold accent ── */
-  --gold: 38 90% 50%;
-  --gold-muted: 36 60% 40%;
-  --gold-subtle: 36 44% 66%;
-
-  /* ── Paper texture ── */
-  --paper-dot-color: rgba(110, 68, 14, 0.045);
-}
-
-/* ══════════════════════════════════════════
-   Dark mode
-   ══════════════════════════════════════════ */
-.dark {
-  --background: 22 32% 8%;
-  --foreground: 34 22% 90%;
-  --card: 22 28% 12%;
-  --card-foreground: 34 22% 88%;
-  --card-border: 22 26% 22%;
-  --primary: 36 72% 55%;
-  --primary-foreground: 22 32% 8%;
-  --secondary: 22 25% 18%;
-  --secondary-foreground: 34 20% 82%;
-  --muted: 22 22% 16%;
-  --muted-foreground: 34 16% 58%;
-  --accent: 28 58% 48%;
-  --accent-foreground: 22 32% 8%;
-  --border: 22 22% 24%;
-  --input: 22 22% 24%;
-  --ring: 36 72% 55%;
-  --destructive: 0 72% 51%;
-  --destructive-foreground: 0 0% 100%;
-  --sidebar: 22 28% 10%;
-  --sidebar-foreground: 34 22% 86%;
-  --sidebar-border: 22 22% 18%;
-  --sidebar-primary: 36 72% 55%;
-  --sidebar-primary-foreground: 22 32% 8%;
-  --sidebar-accent: 22 22% 18%;
-  --sidebar-accent-foreground: 34 20% 82%;
-  --sidebar-ring: 36 72% 55%;
-  --popover: 22 28% 12%;
-  --popover-foreground: 34 22% 88%;
-  --popover-border: 22 22% 22%;
-  --chart-1: 36 72% 55%;
-  --chart-2: 28 55% 50%;
-  --chart-3: 22 48% 52%;
-  --chart-4: 42 60% 55%;
-  --chart-5: 16 45% 58%;
-
-  --header-bg: 20 70% 10%;
-  --header-fg: 36 50% 82%;
-  --header-fg-muted: 30 28% 52%;
-  --header-border: 20 45% 16%;
-  --nav-bg: 18 68% 8%;
-  --nav-fg: 30 28% 50%;
-  --nav-active: 38 85% 60%;
-  --nav-border: 20 45% 14%;
-  --paper-dot-color: rgba(200, 160, 80, 0.03);
-}
-
-/* ══════════════════════════════════════════
-   Theme overrides
-   ══════════════════════════════════════════ */
-[data-theme="saudi-clean"] {
-  --primary: 143 65% 32%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 143 20% 96%;
-  --secondary-foreground: 143 65% 20%;
+:root,
+.dark,
+[data-theme] {
+  color-scheme: light;
   --background: 0 0% 100%;
-  --foreground: 0 0% 15%;
+  --foreground: 0 0% 10%;
   --card: 0 0% 100%;
-  --card-border: 0 0% 92%;
-  --accent: 210 100% 50%;
-}
-[data-theme="night-gold"] {
-  --primary: 45 85% 55%;
-  --primary-foreground: 220 25% 8%;
-  --background: 220 25% 8%;
-  --foreground: 45 30% 90%;
-  --card: 220 25% 12%;
-  --card-border: 45 85% 55%;
-  --secondary: 220 25% 15%;
-  --accent: 45 100% 65%;
-}
-[data-theme="najdi"] {
-  --primary: 25 45% 45%;
-  --background: 35 25% 95%;
-  --foreground: 25 50% 20%;
-  --card: 35 30% 90%;
-  --card-border: 25 45% 70%;
-  --secondary: 35 35% 85%;
-  --accent: 15 60% 45%;
-}
-[data-theme="white-formal"] {
-  --primary: 210 100% 40%;
-  --background: 0 0% 98%;
-  --foreground: 210 20% 20%;
-  --card: 0 0% 100%;
-  --card-border: 210 20% 90%;
-  --secondary: 210 20% 95%;
-  --accent: 210 100% 50%;
-}
-[data-theme="botanical"] {
-  --primary: 120 40% 40%;
-  --background: 100 20% 97%;
-  --foreground: 120 40% 20%;
-  --card: 100 30% 95%;
-  --card-border: 120 30% 85%;
-  --secondary: 100 40% 90%;
-  --accent: 80 50% 45%;
-}
-[data-theme="desert"] {
-  --primary: 25 85% 55%;
-  --background: 35 40% 96%;
-  --foreground: 25 60% 25%;
-  --card: 35 45% 92%;
-  --card-border: 25 60% 80%;
-  --secondary: 35 50% 85%;
-  --accent: 15 85% 60%;
-}
-[data-theme="golden-dawn"] {
-  --primary: 43 80% 47%;
+  --card-foreground: 0 0% 10%;
+  --card-border: 0 0% 88%;
+  --primary: 0 0% 18%;
   --primary-foreground: 0 0% 100%;
-  --background: 55 60% 98%;
-  --foreground: 35 50% 18%;
-  --card: 50 50% 96%;
-  --card-border: 43 50% 82%;
-  --secondary: 50 40% 90%;
-  --accent: 30 90% 55%;
-}
-[data-theme="architectural"] {
-  --primary: 209 22% 41%;
-  --primary-foreground: 0 0% 100%;
-  --background: 40 10% 96%;
-  --foreground: 210 15% 20%;
-  --card: 0 0% 100%;
-  --card-border: 40 8% 88%;
-  --secondary: 40 10% 92%;
-  --accent: 209 30% 55%;
+  --secondary: 0 0% 96%;
+  --secondary-foreground: 0 0% 14%;
+  --muted: 0 0% 96%;
+  --muted-foreground: 0 0% 42%;
+  --accent: 0 0% 92%;
+  --accent-foreground: 0 0% 12%;
+  --border: 0 0% 88%;
+  --input: 0 0% 88%;
+  --ring: 0 0% 30%;
+  --destructive: 0 65% 45%;
+  --destructive-foreground: 0 0% 100%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 10%;
+  --popover-border: 0 0% 88%;
+  --sidebar: 0 0% 100%;
+  --sidebar-foreground: 0 0% 10%;
+  --sidebar-border: 0 0% 88%;
+  --sidebar-primary: 0 0% 18%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 0 0% 94%;
+  --sidebar-accent-foreground: 0 0% 12%;
+  --sidebar-ring: 0 0% 30%;
+  --chart-1: 0 0% 20%;
+  --chart-2: 0 0% 35%;
+  --chart-3: 0 0% 50%;
+  --chart-4: 0 0% 65%;
+  --chart-5: 0 0% 80%;
+  --header-bg: 0 0% 100%;
+  --header-fg: 0 0% 10%;
+  --header-fg-muted: 0 0% 42%;
+  --header-border: 0 0% 88%;
+  --nav-bg: 0 0% 100%;
+  --nav-fg: 0 0% 32%;
+  --nav-active: 0 0% 10%;
+  --nav-border: 0 0% 88%;
+  --gold: 0 0% 20%;
+  --gold-muted: 0 0% 30%;
+  --gold-subtle: 0 0% 88%;
+  --app-font-sans: Arial, sans-serif;
+  --app-font-serif: Georgia, serif;
+  --app-font-mono: Menlo, Consolas, monospace;
+  --radius: 10px;
+  --shadow-sm: none;
+  --shadow: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
+  --shadow-2xl: none;
+  --paper-dot-color: transparent;
 }
 
-/* ══════════════════════════════════════════
-   Base styles
-   ══════════════════════════════════════════ */
 @layer base {
   * {
     @apply border-border;
   }
 
-  body {
-    @apply font-sans antialiased bg-background text-foreground;
+  html,
+  body,
+  #root {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #111111 !important;
+    font-family: Arial, sans-serif !important;
     direction: rtl;
-    /* Heritage paper texture: dots + crossing diagonal lines */
-    background-image:
-      radial-gradient(var(--paper-dot-color) 1.4px, transparent 1.4px),
-      repeating-linear-gradient(45deg,  rgba(110,68,14,0.025) 0px, rgba(110,68,14,0.025) 1px, transparent 1px, transparent 20px),
-      repeating-linear-gradient(-45deg, rgba(110,68,14,0.025) 0px, rgba(110,68,14,0.025) 1px, transparent 1px, transparent 20px);
-    background-size: 18px 18px, 28px 28px, 28px 28px;
   }
 
-  /* Scrollbar hide */
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+
+  img {
+    display: none !important;
+  }
+
+  svg {
+    color: #4b5563 !important;
+    stroke: #4b5563 !important;
+  }
+
+  * {
+    text-shadow: none !important;
+    box-shadow: none !important;
+    background-image: none !important;
+  }
+
+  [style*="linear-gradient"],
+  [style*="radial-gradient"],
+  [style*="repeating-linear-gradient"],
+  [style*="url("] {
+    background: #ffffff !important;
+    background-image: none !important;
+  }
+
+  [style*="#C9A063"],
+  [style*="#A78042"],
+  [style*="#8A6B3D"],
+  [style*="#2F2B25"],
+  [style*="#FAF7F2"],
+  [style*="#F3E8D6"],
+  [style*="201,160,99"],
+  [style*="138,107,61"],
+  [style*="167,128,66"] {
+    color: #111111 !important;
+    border-color: #e5e7eb !important;
+    box-shadow: none !important;
+  }
+
+  header,
+  nav,
+  aside,
+  main,
+  section,
+  article,
+  footer,
+  [role="dialog"] {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    border-color: #e5e7eb !important;
+    box-shadow: none !important;
+  }
+
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    -webkit-tap-highlight-color: transparent;
+  }
+
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 }
 
-/* ══════════════════════════════════════════
-   Heritage utilities
-   ══════════════════════════════════════════ */
 @layer utilities {
-  .no-scrollbar::-webkit-scrollbar { display: none; }
-  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-  /* Dark heritage header/nav */
-  .heritage-header {
-    background-color: hsl(var(--header-bg));
-    color: hsl(var(--header-fg));
-    border-bottom: 1px solid hsl(var(--header-border));
-    box-shadow: 0 2px 12px -2px rgba(20,8,2,0.45);
-  }
-  .heritage-nav {
-    background-color: hsl(var(--nav-bg));
-    border-top: 1px solid hsl(var(--nav-border));
-    box-shadow: 0 -2px 14px -4px rgba(20,8,2,0.55);
-    /* Subtle horizontal line pattern */
-    background-image: repeating-linear-gradient(
-      0deg,
-      rgba(200,150,60,0.03) 0px,
-      rgba(200,150,60,0.03) 1px,
-      transparent 1px,
-      transparent 14px
-    );
-  }
-
-  /* Heritage card — warm cream with depth */
-  .card-heritage {
-    background: linear-gradient(
-      145deg,
-      hsl(var(--card)) 0%,
-      hsl(36 28% 91%) 100%
-    );
-    border: 1px solid hsl(var(--card-border));
-    box-shadow:
-      0 2px 10px -2px rgba(80, 40, 10, 0.14),
-      0 1px 0 rgba(255, 225, 170, 0.18) inset;
-    border-radius: var(--radius);
-  }
-
-  /* Golden separator line */
-  .gold-divider {
-    height: 1px;
-    background: linear-gradient(
-      to left,
-      transparent,
-      hsl(var(--gold-subtle)) 30%,
-      hsl(var(--gold-muted)) 50%,
-      hsl(var(--gold-subtle)) 70%,
-      transparent
-    );
-    opacity: 0.6;
-  }
-
-  /* Subtle corner accent (CSS only) */
-  .corner-accent-br::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(135deg, transparent 50%, hsl(var(--gold) / 0.07) 50%);
-    border-radius: 0 0 0 var(--radius);
-    pointer-events: none;
-  }
-
-  /* Decorative corner lines for date card */
-  .corner-lines-tr::before {
-    content: '';
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 22px;
-    height: 22px;
-    border-top: 2px solid rgba(255, 220, 140, 0.35);
-    border-right: 2px solid rgba(255, 220, 140, 0.35);
-    border-radius: 0 4px 0 0;
-    pointer-events: none;
-  }
-  .corner-lines-bl::after {
-    content: '';
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    width: 22px;
-    height: 22px;
-    border-bottom: 2px solid rgba(255, 220, 140, 0.35);
-    border-left: 2px solid rgba(255, 220, 140, 0.35);
-    border-radius: 0 0 4px 0;
-    pointer-events: none;
-  }
-
-  /* Heritage badge */
-  .badge-heritage {
-    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
-    color: hsl(var(--primary-foreground));
-    border-radius: calc(var(--radius) - 4px);
-    font-weight: 700;
-    font-size: 0.7rem;
-    padding: 2px 8px;
-  }
-
-  /* App shell phone frame */
-  .app-frame {
-    box-shadow:
-      0 0 0 1px hsl(var(--border) / 0.35),
-      var(--shadow-2xl);
-  }
-
-  /* Countdown badge */
+  .heritage-header,
+  .heritage-nav,
+  .card-heritage,
+  .ornate-section,
+  .input-heritage,
+  .prayer-cell,
+  .prayer-cell-active,
+  .badge-heritage,
   .countdown-badge {
-    background: linear-gradient(135deg, hsl(var(--primary)), hsl(28 68% 38%));
-    color: hsl(var(--primary-foreground));
-    min-width: 2.8rem;
-    text-align: center;
-    font-weight: 800;
-    border-radius: calc(var(--radius) - 2px);
-    padding: 5px 10px;
-    font-size: 0.88rem;
-    line-height: 1.4;
-    box-shadow: 0 3px 10px hsl(var(--primary) / 0.38);
+    background: #ffffff !important;
+    background-image: none !important;
+    border: 1px solid #e5e7eb !important;
+    box-shadow: none !important;
+    color: #111111 !important;
   }
 
-  /* Prayer time cell */
-  .prayer-cell {
-    background: hsl(36 35% 96% / 0.85);
-    border: 1px solid hsl(34 38% 72% / 0.55);
-    border-radius: calc(var(--radius) - 4px);
-    padding: 6px 4px;
-    text-align: center;
-    box-shadow: 0 1px 4px rgba(80,40,10,0.08);
-  }
-  .prayer-cell-active {
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.15), hsl(var(--accent) / 0.1));
-    border: 1px solid hsl(var(--primary) / 0.4);
-    border-radius: calc(var(--radius) - 4px);
-    padding: 6px 4px;
-    text-align: center;
-  }
-
-  /* Heritage section header */
-  .section-header {
-    font-weight: 800;
-    font-size: 1rem;
-    color: hsl(var(--foreground));
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  /* Ornate section divider (Phase 13E) */
-  .ornate-section {
-    background: linear-gradient(165deg, hsl(36 30% 92%) 0%, hsl(34 26% 88%) 100%);
-    border: 1px solid hsl(34 35% 70% / 0.6);
-    box-shadow: 0 2px 12px -3px rgba(80,40,10,0.14);
-    border-radius: var(--radius);
-    overflow: hidden;
-  }
-
-  /* Heritage card — enhanced Phase 13E */
-  .card-heritage {
-    background: linear-gradient(145deg, hsl(36 32% 93%) 0%, hsl(36 28% 89%) 100%);
-    border: 1px solid hsl(34 35% 70% / 0.7);
-    box-shadow:
-      0 2px 10px -2px rgba(80, 40, 10, 0.14),
-      0 1px 0 rgba(255, 225, 170, 0.18) inset;
-    border-radius: var(--radius);
-  }
-
-  /* Corner lines — direction aware */
-  .corner-lines-tl {
-    border-top: 2px solid rgba(200,160,60,0.4);
-    border-right: 2px solid rgba(200,160,60,0.4);
-    border-radius: 0 4px 0 0;
-  }
-  .corner-lines-br {
-    border-bottom: 2px solid rgba(200,160,60,0.4);
-    border-left: 2px solid rgba(200,160,60,0.4);
-    border-radius: 0 0 4px 0;
-  }
-
-  /* Heritage input/form element */
-  .input-heritage {
-    background: hsl(var(--card));
-    border: 1px solid hsl(var(--card-border));
-    border-radius: var(--radius);
-  }
-
-  /* Nav active pill */
+  .gold-divider,
+  .corner-accent-br::after,
+  .corner-lines-tr::before,
+  .corner-lines-bl::after,
+  .corner-lines-tl,
+  .corner-lines-br,
   .nav-active-pill {
-    position: absolute;
-    inset: 4px 2px;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.07);
+    background: transparent !important;
+    border-color: #e5e7eb !important;
+    box-shadow: none !important;
   }
 }
