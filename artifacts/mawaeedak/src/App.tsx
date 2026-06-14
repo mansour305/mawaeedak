@@ -15,7 +15,6 @@ const PrivacyPage = lazy(() => import("@/pages/PrivacyPage"));
 const TermsPage = lazy(() => import("@/pages/TermsPage"));
 const DisclaimerPage = lazy(() => import("@/pages/DisclaimerPage"));
 const SupportPage = lazy(() => import("@/pages/SupportPage"));
-const ReferenceClonePage = lazy(() => import("@/pages/ReferenceClonePage"));
 const AdminSelfTestPage = lazy(() => import("@/pages/AdminSelfTestPage"));
 const ResetPasswordPage = lazy(() => import("@/pages/ResetPasswordPage"));
 const AuthCallbackPage = lazy(() => import("@/pages/AuthCallbackPage"));
@@ -58,7 +57,6 @@ const AdminPermissions = lazy(() => import("@/features/admin/AdminPermissions"))
 const AdminStory = lazy(() => import("@/features/admin/AdminStory"));
 const AdminDataLayer = lazy(() => import("@/features/admin/AdminDataLayer"));
 const AdminAutomation = lazy(() => import("@/features/admin/AdminAutomation"));
-const AdminVisualGuide = lazy(() => import("@/features/admin/AdminVisualGuide"));
 const AdminSettings = lazy(() => import("@/features/admin/AdminSettings"));
 const AdminSupport = lazy(() => import("@/features/admin/AdminSupport"));
 const AdminOfficialFinancial = lazy(() => import("@/features/admin/AdminOfficialFinancial"));
@@ -98,12 +96,11 @@ function AuthRoute({ mode }: { mode: "login" | "signup" | "forgot" }) {
 }
 
 /**
- * FirstEntryWrapper — Phase 15
- * 
- * Shows Splash screen for 3-4 seconds on first entry to / only.
+ * FirstEntryWrapper
+ *
+ * Shows Splash screen on first root entry only.
  * Deep links to other pages bypass the splash.
  * Uses sessionStorage to track first entry per session.
- * Login is optional - does not force onboarding.
  */
 function FirstEntryWrapper({ children }: { children: React.ReactNode }) {
   const [showSplash, setShowSplash] = useState<boolean | null>(null);
@@ -181,7 +178,6 @@ function MainApp() {
       <Route path="/reset-password" component={ResetPasswordPage} />
       <Route path="/auth/callback" component={AuthCallbackPage} />
       <Route path="/more" component={MorePage} />
-      <Route path="/visual-reference-clone" component={ReferenceClonePage} />
       <Route path="/admin-self-test" component={AdminSelfTestPage} />
 
       <Route component={NotFound} />
@@ -215,7 +211,6 @@ function AdminRouter() {
             <Route path="/support" component={AdminSupport} />
             <Route path="/data-layer" component={AdminDataLayer} />
             <Route path="/automation" component={AdminAutomation} />
-            <Route path="/visual-guide" component={AdminVisualGuide} />
             <Route component={NotFound} />
           </Switch>
         </WouterRouter>
