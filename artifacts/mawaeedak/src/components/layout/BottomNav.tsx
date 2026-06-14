@@ -13,7 +13,7 @@ export function BottomNav() {
   const [location] = useLocation();
 
   return (
-    <nav dir="rtl" className="fixed bottom-3 left-1/2 z-50 grid h-[78px] w-[calc(100%-24px)] max-w-[456px] -translate-x-1/2 grid-cols-5 rounded-[28px] border border-slate-200 bg-white/95 px-2 py-2 shadow-[0_18px_50px_rgba(15,23,42,0.12)] backdrop-blur-xl maw-bottom-safe">
+    <nav dir="rtl" className="maw-bottom-nav grid grid-cols-5 rounded-[28px] border border-slate-200 bg-white/95 px-2 py-2 shadow-[0_18px_50px_rgba(15,23,42,0.12)] backdrop-blur-xl maw-bottom-safe">
       {tabs.map((tab) => {
         const Icon = tab.icon;
         const active = tab.match(location);
