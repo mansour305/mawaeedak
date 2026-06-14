@@ -10,24 +10,10 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: "autoUpdate",
-      manifest: {
-        name: "مواعيدك",
-        short_name: "مواعيدك",
-        description: "تطبيق ويب عربي لإدارة المواعيد والمواعيد المالية ومواقيت الصلاة",
-        lang: "ar",
-        dir: "rtl",
-        start_url: "/",
-        scope: "/",
-        display: "standalone",
-        background_color: "#FAF7F2",
-        theme_color: "#C9A063",
-        categories: ["productivity", "lifestyle"],
-        prefer_related_applications: false,
-      },
+      selfDestroying: true,
+      manifest: false,
       workbox: {
-        globPatterns: ["**/*.{js,css,html,svg,png,ico,woff2}"],
-        navigateFallback: "/index.html",
+        cleanupOutdatedCaches: true,
       },
       devOptions: {
         enabled: false,
