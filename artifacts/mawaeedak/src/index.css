@@ -91,7 +91,6 @@
   html,
   body,
   #root {
-    height: 100%;
     min-height: 100%;
     background: var(--maw-bg);
     color: var(--maw-text);
@@ -123,7 +122,6 @@
 
 @layer utilities {
   .maw-device-stage {
-    height: 100dvh;
     min-height: 100dvh;
     width: 100%;
     display: flex;
@@ -139,8 +137,7 @@
   .maw-app-shell {
     position: relative;
     display: flex;
-    height: 100%;
-    min-height: 0;
+    min-height: 100dvh;
     width: 100%;
     max-width: 480px;
     flex-direction: column;
@@ -150,8 +147,7 @@
   }
 
   .maw-app-shell > main {
-    min-height: 0;
-    padding-bottom: 150px !important;
+    padding-bottom: 138px !important;
   }
 
   .maw-app-shell > header > div:nth-child(2) {
@@ -170,54 +166,6 @@
     box-shadow: 0 18px 55px rgba(112, 78, 36, 0.16) !important;
   }
 
-  @media (max-width: 430px) {
-    .maw-app-shell {
-      font-size: 14px;
-    }
-
-    .maw-app-shell h1 {
-      font-size: clamp(1.55rem, 8vw, 2.15rem) !important;
-      line-height: 1.15 !important;
-    }
-
-    .maw-app-shell h2 {
-      font-size: clamp(1.35rem, 6.5vw, 1.85rem) !important;
-      line-height: 1.18 !important;
-    }
-
-    .maw-app-shell h3 {
-      font-size: clamp(1.05rem, 5.2vw, 1.45rem) !important;
-      line-height: 1.25 !important;
-    }
-
-    .maw-app-shell .text-4xl,
-    .maw-app-shell .text-5xl {
-      font-size: 2rem !important;
-      line-height: 1.12 !important;
-    }
-
-    .maw-app-shell .text-3xl {
-      font-size: 1.55rem !important;
-      line-height: 1.18 !important;
-    }
-
-    .maw-app-shell .text-2xl {
-      font-size: 1.3rem !important;
-      line-height: 1.25 !important;
-    }
-
-    .maw-app-shell .px-4 {
-      padding-left: 12px !important;
-      padding-right: 12px !important;
-    }
-
-    .maw-bottom-nav {
-      left: 10px;
-      right: 10px;
-      height: 76px;
-    }
-  }
-
   @media (min-width: 768px) {
     .maw-device-stage {
       align-items: center;
@@ -225,8 +173,7 @@
     }
 
     .maw-app-shell {
-      height: min(920px, calc(100dvh - 48px));
-      min-height: 0;
+      min-height: min(920px, calc(100dvh - 48px));
       max-height: calc(100dvh - 48px);
       border-radius: 34px;
       border: 1px solid rgba(201, 145, 54, 0.22);
