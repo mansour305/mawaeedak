@@ -1,56 +1,79 @@
-{
-  "name": "مواعيدك",
-  "short_name": "مواعيدك",
-  "description": "منصة مواعيدك - كل موعد له وقته - تطبيق ويب عربي لإدارة المواعيد والصلاة",
-  "lang": "ar",
-  "dir": "rtl",
-  "start_url": "/",
-  "display": "standalone",
-  "display_override": ["standalone", "minimal-ui"],
-  "orientation": "portrait",
-  "background_color": "#f7efe1",
-  "theme_color": "#c9973d",
-  "scope": "/",
-  "categories": ["productivity", "lifestyle"],
-  "prefer_related_applications": false,
-  "launch_handler": {
-    "client_mode": "navigate-existing"
-  },
-  "edge_side_panel": {
-    "preferred_width": 400
-  },
-  "handle_links": "preferred",
-  "icons": [
-    {
-      "src": "/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [],
-  "related_applications": [],
-  "shortcuts": [
-    {
-      "name": "الرئيسية",
-      "short_name": "الرئيسية",
-      "description": "الصفحة الرئيسية",
-      "url": "/",
-      "icons": [{"src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml"}]
-    },
-    {
-      "name": "المواعيد",
-      "short_name": "المواعيد",
-      "description": "التقويم والمواعيد",
-      "url": "/calendar",
-      "icons": [{"src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml"}]
-    },
-    {
-      "name": "الرواتب",
-      "short_name": "الرواتب",
-      "description": "المواعيد المالية",
-      "url": "/salaries",
-      "icons": [{"src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml"}]
-    }
-  ]
+﻿{
+    "name":  "ظ…ظˆط§ط¹ظٹط¯ظƒ",
+    "short_name":  "ظ…ظˆط§ط¹ظٹط¯ظƒ",
+    "description":  "ظ…ظ†طµط© ظ…ظˆط§ط¹ظٹط¯ظƒ - ظƒظ„ ظ…ظˆط¹ط¯ ظ„ظ‡ ظˆظ‚طھظ‡ - طھط·ط¨ظٹظ‚ ظˆظٹط¨ ط¹ط±ط¨ظٹ ظ„ط¥ط¯ط§ط±ط© ط§ظ„ظ…ظˆط§ط¹ظٹط¯ ظˆط§ظ„طµظ„ط§ط©",
+    "lang":  "ar",
+    "dir":  "rtl",
+    "start_url":  "/",
+    "display":  "standalone",
+    "display_override":  [
+                             "standalone",
+                             "minimal-ui"
+                         ],
+    "orientation":  "portrait",
+    "background_color":  "#f7efe1",
+    "theme_color":  "#c9973d",
+    "scope":  "/",
+    "categories":  [
+                       "productivity",
+                       "lifestyle"
+                   ],
+    "prefer_related_applications":  false,
+    "launch_handler":  {
+                           "client_mode":  "navigate-existing"
+                       },
+    "edge_side_panel":  {
+                            "preferred_width":  400
+                        },
+    "handle_links":  "preferred",
+    "icons":  [
+
+              ],
+    "screenshots":  [
+
+                    ],
+    "related_applications":  [
+
+                             ],
+    "shortcuts":  [
+                      {
+                          "name":  "ط§ظ„ط±ط¦ظٹط³ظٹط©",
+                          "short_name":  "ط§ظ„ط±ط¦ظٹط³ظٹط©",
+                          "description":  "ط§ظ„طµظپط­ط© ط§ظ„ط±ط¦ظٹط³ظٹط©",
+                          "url":  "/",
+                          "icons":  [
+                                        {
+                                            "src":  "/favicon.svg",
+                                            "sizes":  "any",
+                                            "type":  "image/svg+xml"
+                                        }
+                                    ]
+                      },
+                      {
+                          "name":  "ط§ظ„ظ…ظˆط§ط¹ظٹط¯",
+                          "short_name":  "ط§ظ„ظ…ظˆط§ط¹ظٹط¯",
+                          "description":  "ط§ظ„طھظ‚ظˆظٹظ… ظˆط§ظ„ظ…ظˆط§ط¹ظٹط¯",
+                          "url":  "/calendar",
+                          "icons":  [
+                                        {
+                                            "src":  "/favicon.svg",
+                                            "sizes":  "any",
+                                            "type":  "image/svg+xml"
+                                        }
+                                    ]
+                      },
+                      {
+                          "name":  "ط§ظ„ط±ظˆط§طھط¨",
+                          "short_name":  "ط§ظ„ط±ظˆط§طھط¨",
+                          "description":  "ط§ظ„ظ…ظˆط§ط¹ظٹط¯ ط§ظ„ظ…ط§ظ„ظٹط©",
+                          "url":  "/salaries",
+                          "icons":  [
+                                        {
+                                            "src":  "/favicon.svg",
+                                            "sizes":  "any",
+                                            "type":  "image/svg+xml"
+                                        }
+                                    ]
+                      }
+                  ]
 }
