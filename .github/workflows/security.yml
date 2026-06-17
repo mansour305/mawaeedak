@@ -1,0 +1,84 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [main, 'release/**']
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly scan
+
+jobs:
+  api-security:
+    name: API Security Audit
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mawaeedak_api
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: mawaeedak_api/package-lock.json
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Check for exposed secrets
+        run: |
+          if grep -r "admin123\|password123\|secret123" src/; then
+            echo "⚠️ WARNING: Potential hardcoded credentials found"
+            exit 1
+          fi
+      
+      - name: Check JWT configuration
+        run: |
+          if grep -r "mawaeedak_super_secret" src/ 2>/dev/null; then
+            echo "⚠️ WARNING: Default JWT secret found"
+            exit 1
+          fi
+      
+      - name: Check for .env in git
+        run: |
+          if git ls-files | grep -E "^\.env$"; then
+            echo "⚠️ WARNING: .env file tracked by git"
+            exit 1
+          fi
+      
+      - name: Check for database in git
+        run: |
+          if git ls-files | grep -E "\.sqlite"; then
+            echo "⚠️ WARNING: Database files tracked by git"
+            exit 1
+          fi
+
+  flutter-security:
+    name: Flutter Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+      
+      - name: Install dependencies
+        run: cd mawaeedak_app && flutter pub get
+      
+      - name: Check for hardcoded URLs
+        run: |
+          if grep -r "10.0.2.2" mawaeedak_app/lib/ | grep -v "dart-define"; then
+            echo "⚠️ WARNING: Development API URL found"
+          fi
+      
+      - name: Check for API_BASE_URL
+        run: |
+          if ! grep -r "API_BASE_URL\|fromEnvironment" mawaeedak_app/lib/; then
+            echo "⚠️ WARNING: No environment-based API URL configuration"
+          fi

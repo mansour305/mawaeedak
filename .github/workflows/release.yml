@@ -1,0 +1,130 @@
+name: Release Pipeline
+
+on:
+  push:
+    branches: [main]
+  release:
+    types: [published]
+
+env:
+  NODE_VERSION: '20'
+  FLUTTER_VERSION: '3.24.0'
+
+jobs:
+  # ==================== API Build ====================
+  api-build:
+    name: API Build & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mawaeedak_api
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: mawaeedak_api/package-lock.json
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run tests
+        run: npm test
+      
+      - name: Start server (health check)
+        run: |
+          timeout 10 node src/index.js || true
+          curl -s http://localhost:3000/api/health | grep -q "ok" && echo "✓ API Health Check Passed"
+
+  # ==================== User App Build ====================
+  app-web-build:
+    name: User App Web Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+          cache-dependency-path: mawaeedak_app/pubspec.lock
+      
+      - name: Install dependencies
+        run: cd mawaeedak_app && flutter pub get
+      
+      - name: Build Web
+        run: cd mawaeedak_app && flutter build web --release
+      
+      - name: Upload Web Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mawaeedak-app-web
+          path: mawaeedak_app/build/web
+          retention-days: 7
+
+  # ==================== Admin Build ====================
+  admin-web-build:
+    name: Admin Web Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+          cache-dependency-path: mawaeedak_admin/pubspec.lock
+      
+      - name: Install dependencies
+        run: cd mawaeedak_admin && flutter pub get
+      
+      - name: Build Web
+        run: cd mawaeedak_admin && flutter build web --release
+      
+      - name: Upload Web Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mawaeedak-admin-web
+          path: mawaeedak_admin/build/web
+          retention-days: 7
+
+  # ==================== Package App ====================
+  app-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [api-build, app-web-build, admin-web-build]
+    if: github.event_name == 'release' || github.ref == 'refs/heads/main'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+      
+      - name: Create Release Package
+        run: |
+          mkdir -p release
+          cp -r artifacts/mawaeedak-app-web release/
+          cp -r artifacts/mawaeedak-admin-web release/
+          
+          echo "Mawaeedak v${{ github.ref_name }}" > release/VERSION.txt
+          echo "Release Date: $(date -u +%Y-%m-%d)" >> release/VERSION.txt
+          echo "Commit: ${{ github.sha }}" >> release/VERSION.txt
+      
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/**
+          draft: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

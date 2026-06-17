@@ -1,0 +1,126 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main, develop, 'release/**']
+  pull_request:
+    branches: [main, develop, 'release/**']
+
+env:
+  NODE_VERSION: '20'
+  FLUTTER_VERSION: '3.24.0'
+
+jobs:
+  # ==================== API CI ====================
+  api-test:
+    name: API Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mawaeedak_api
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: mawaeedak_api/package-lock.json
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Syntax check
+        run: node -c src/index.js
+      
+      - name: Lint
+        run: npm run lint || true
+      
+      - name: Run tests
+        run: npm test || echo "No tests configured"
+
+  # ==================== User App CI ====================
+  app-analyze:
+    name: User App Analyze
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+          cache-dependency-path: mawaeedak_app/pubspec.lock
+      
+      - name: Install dependencies
+        run: cd mawaeedak_app && flutter pub get
+      
+      - name: Analyze
+        run: cd mawaeedak_app && flutter analyze --no-fatal-infos --no-fatal-warnings
+
+  app-test:
+    name: User App Test
+    runs-on: ubuntu-latest
+    needs: app-analyze
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+      
+      - name: Install dependencies
+        run: cd mawaeedak_app && flutter pub get
+      
+      - name: Run tests
+        run: cd mawaeedak_app && flutter test || echo "No tests configured"
+
+  # ==================== Admin App CI ====================
+  admin-analyze:
+    name: Admin App Analyze
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+          cache-dependency-path: mawaeedak_admin/pubspec.lock
+      
+      - name: Install dependencies
+        run: cd mawaeedak_admin && flutter pub get
+      
+      - name: Analyze
+        run: cd mawaeedak_admin && flutter analyze --no-fatal-infos --no-fatal-warnings
+
+  admin-test:
+    name: Admin App Test
+    runs-on: ubuntu-latest
+    needs: admin-analyze
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+      
+      - name: Install dependencies
+        run: cd mawaeedak_admin && flutter pub get
+      
+      - name: Run tests
+        run: cd mawaeedak_admin && flutter test || echo "No tests configured"

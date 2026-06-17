@@ -1,13 +1,17 @@
 class AppConstants {
   static const String appName = 'مواعيدك';
-  static const String appVersion = '1.0.0';
+  static const String appVersion = '3.0.0';
   
-  // API Base URL - Environment-based
-  static const String baseUrl = 'http://10.0.2.2:3000/api';
+  // API Base URL - Set via --dart-define=API_BASE_URL=https://api.example.com/api
+  // Default for development only
+  static const String baseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'http://localhost:3000/api',
+  );
   
-  // Production/Staging URLs
+  // Production/Staging URLs (for reference)
   static const String productionApiUrl = 'https://api.mawaeedak.com/api';
-  static const String stagingApiUrl = 'http://localhost:3000/api';
+  static const String stagingApiUrl = 'http://staging.mawaeedak.com/api';
   
   // Storage Keys
   static const String tokenKey = 'auth_token';
