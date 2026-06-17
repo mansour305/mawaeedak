@@ -1,10 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "cd artifacts/mawaeedak && pnpm install --frozen-lockfile && pnpm run build",
+  "buildCommand": "pnpm install --frozen-lockfile && pnpm --filter mawaeedak-web run build",
   "outputDirectory": "artifacts/mawaeedak/dist",
-  "installCommand": "cd artifacts/mawaeedak && pnpm install --frozen-lockfile",
+  "installCommand": "pnpm install --frozen-lockfile",
   "framework": null,
-  "rootDirectory": "artifacts/mawaeedak",
+  "ignoreBuildCommand": "echo 'Skipping build'",
   "headers": [
     {
       "source": "/(.*)",
