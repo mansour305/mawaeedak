@@ -1,4 +1,4 @@
-import { Bell, CalendarDays, Grid2X2, Home, Menu, Wallet } from "lucide-react";
+import { Bell, Menu } from "lucide-react";
 import MawaeedakLogoSvg from "@/assets/brand/mawaeedak-logo.svg";
 import { Link } from "wouter";
 import { useGatewayUnreadCount } from "@/hooks/useGatewayData";
@@ -11,13 +11,6 @@ interface TopBarProps {
 interface MawaeedakLogoProps {
   compact?: boolean;
 }
-
-const links = [
-  { href: "/", label: "الرئيسية", icon: Home },
-  { href: "/calendar", label: "التقويم", icon: CalendarDays },
-  { href: "/salaries", label: "الرواتب", icon: Wallet },
-  { href: "/services", label: "خدماتك", icon: Grid2X2 },
-];
 
 function Mark({ compact = false }: MawaeedakLogoProps) {
   return (
@@ -41,7 +34,7 @@ export function TopBar({ title }: TopBarProps) {
 
   return (
     <header dir="rtl" className="sticky top-0 z-40 w-full border-b border-[rgba(201,149,58,0.20)] bg-[rgba(255,253,248,0.98)] backdrop-blur-xl shadow-[0_4px_20px_rgba(90,60,20,0.08)]">
-      <div className="flex min-h-[84px] items-center justify-between gap-3 px-5">
+      <div className="flex min-h-[72px] items-center justify-between gap-3 px-5">
         <div className="maw-icon-btn">
           <Menu className="h-6 w-6" />
         </div>
@@ -53,17 +46,6 @@ export function TopBar({ title }: TopBarProps) {
           <Bell className="h-6 w-6" />
           {count > 0 ? <span className="absolute -left-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-[#C9953A] px-1 text-[10px] font-bold text-white shadow-gold">{count > 9 ? "9+" : count}</span> : null}
         </Link>
-      </div>
-      <div className="grid grid-cols-4 gap-2 px-5 pb-3">
-        {links.map((item) => {
-          const Icon = item.icon;
-          return (
-            <Link key={item.href} href={item.href} className="maw-pill flex items-center justify-center gap-1 rounded-2xl px-2 py-2.5 text-xs font-bold transition-all hover:-translate-y-0.5">
-              <Icon className="h-4 w-4" />
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
       </div>
     </header>
   );

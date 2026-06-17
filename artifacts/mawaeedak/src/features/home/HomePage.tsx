@@ -1,4 +1,4 @@
-import { CalendarDays, Clock3, Landmark, Moon, Sun, Sunrise, Users, Wallet, MapPin, ChevronLeft } from "lucide-react";
+import { CalendarDays, Clock3, Landmark, Moon, Sun, Sunrise, Users, Wallet, MapPin } from "lucide-react";
 import { Link } from "wouter";
 import { AppShell } from "@/components/layout/AppShell";
 import { usePrayerEngine, PRAYER_STATUS_MESSAGES } from "@/hooks/usePrayerEngine";
@@ -6,7 +6,7 @@ import { useGatewayDailyMessages, useGatewayFinancialCountdown } from "@/hooks/u
 import { useStore } from "@/hooks/useStore";
 import { formatGregorianDate, formatHijriDate, getDayName } from "@/lib/utils";
 import { useOfficialFinancialDates } from "@/hooks/useOfficialData";
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useTimeFormat } from "@/hooks/useTimeFormat";
 import { normalizeFinancialEvents } from "@/lib/financialEngine";
 import { getRiyadhDateParts, getRiyadhTodayKey } from "@/lib/riyadhTime";
@@ -60,11 +60,12 @@ export default function HomePage() {
   } = usePrayerEngine();
   
   // Show location prompt on mount if no coordinates and hasn't been prompted
-  useMemo(() => {
+  useEffect(() => {
     const prompted = sessionStorage.getItem("mawaeedak_location_prompted");
     if (!hasLocationCoords && !prompted) {
       // Delay to let the page render first
-      setTimeout(() => setShowLocationPrompt(true), 500);
+      const timer = setTimeout(() => setShowLocationPrompt(true), 500);
+      return () => clearTimeout(timer);
     }
   }, [hasLocationCoords]);
   
